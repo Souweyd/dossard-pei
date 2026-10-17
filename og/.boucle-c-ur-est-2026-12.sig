@@ -1,0 +1,1 @@
+["Boucle du Cœur de l'Est 65 km", "2026-12-05", "Salazie", [{"nom": "65 km solo", "km": 65, "dp": 3630, "h": "01h00", "prix": "90 €", "type": "trail"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp"]

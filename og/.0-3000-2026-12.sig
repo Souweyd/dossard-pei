@@ -1,0 +1,1 @@
+["La 0-3000", "2026-12-05", "Saint-Pierre", [{"nom": "Triathlon M", "type": "multisport"}, {"nom": "Duathlon", "type": "multisport"}], null, null]

@@ -1,0 +1,1 @@
+["Marathon Relais de Saint-Benoît", "2026-11-11", "Saint-Benoît", [{"nom": "Marathon relais", "km": 42.2, "h": "13h00", "type": "relais"}, {"nom": "Équipe inclusive (5 valides, 5 handi)", "km": 42.2, "h": "13h00", "type": "relais"}], "posters/marathon-relais-sb.webp", "posters/marathon-relais-sb_lg.webp"]

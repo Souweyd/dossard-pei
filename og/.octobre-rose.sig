@@ -1,0 +1,1 @@
+["Foulées Octobre Rose", "2026-10-24", "Saint-Benoît", [{"nom": "Foulées et Marche Octobre Rose", "km": 14, "h": "16h00", "type": "route"}, {"nom": "Course Marmay 2012-2023", "h": "14h00", "type": "jeunes"}], "posters/octobre-rose.webp", "posters/octobre-rose_lg.webp"]

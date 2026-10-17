@@ -1,0 +1,1 @@
+["Relais aux Flambeaux", "2026-11-06", "Saint-Benoît", [{"nom": "Relais aux Flambeaux", "km": 0.8, "h": "19h00", "type": "relais", "prix": "Gratuit", "note": "Équipes de 5"}, {"nom": "Handisport", "km": 0.8, "h": "19h00", "type": "relais", "prix": "Gratuit"}], "posters/flambeaux.webp", "posters/flambeaux_lg.webp"]

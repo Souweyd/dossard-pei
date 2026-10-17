@@ -1,0 +1,1 @@
+["La Boucle de Sans Souci", "2026-10-25", "Saint-Paul", [{"nom": "La Boucle de Sans Souci", "km": 22, "dp": 1350, "h": "06h30", "cat": "Trail XS", "type": "trail"}, {"nom": "La Rando de Sans Souci", "km": 5, "dp": 1350, "h": "06h30", "type": "marche"}], null, null]

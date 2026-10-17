@@ -1,0 +1,1 @@
+["Boucle du Cœur de l'Est 65 km relais", "2026-12-05", "Salazie", [{"nom": "65 km relais à 3", "km": 65, "dp": 3630, "h": "01h00", "prix": "160 € / équipe", "type": "relais", "note": "Relais de 24, 19 et 22 km"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp"]

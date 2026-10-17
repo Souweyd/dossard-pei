@@ -1,0 +1,1 @@
+["Ultra Trail des Géants", "2027-05-06", "Saint-Philippe", [{"nom": "Ultra Trail des Géants", "km": 173.75, "dp": 10657, "h": "12h00", "prix": "195 €", "type": "trail"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp"]

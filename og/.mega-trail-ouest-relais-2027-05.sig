@@ -1,0 +1,1 @@
+["Mega Trail de l'Ouest relais", "2027-05-08", "Trois-Bassins", [{"nom": "Mega Trail de l'Ouest relais", "km": 86, "dp": 4258, "h": "05h00", "prix": "140 € / équipe", "type": "relais"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp"]

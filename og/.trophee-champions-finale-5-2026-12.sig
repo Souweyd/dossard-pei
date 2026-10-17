@@ -1,0 +1,1 @@
+["Trophée des champions sur route – Finale 5 km", "2026-12-19", "Saint-Denis", [{"nom": "5 km", "km": 5, "dp": 36, "h": "18h30", "prix": "15 €", "type": "route"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp"]

@@ -1,0 +1,1 @@
+["Trail du Cap Anglais", "2026-12-05", "Salazie", [{"nom": "19 km", "km": 19, "dp": 1480, "h": "07h30", "prix": "30 €", "type": "trail"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp"]

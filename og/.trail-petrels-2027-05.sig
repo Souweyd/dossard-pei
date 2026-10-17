@@ -1,0 +1,1 @@
+["Trail des Pétrels", "2027-05-08", "Le Port", [{"nom": "Trail des Pétrels", "km": 52, "dp": 2460, "h": "07h00", "prix": "70 €", "type": "trail"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp"]

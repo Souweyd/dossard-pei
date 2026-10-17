@@ -1,0 +1,1 @@
+["Eden Rox Challenge", "2027-03-20", "Saint-Paul", [{"nom": "Fitness racing solo", "km": 8, "type": "multisport", "prix": "dès 59 €", "note": "8 boucles de course + 8 ateliers"}, {"nom": "Duo", "type": "multisport", "prix": "dès 118 €"}, {"nom": "Team Fun4", "type": "multisport", "prix": "dès 180 €"}], null, null]

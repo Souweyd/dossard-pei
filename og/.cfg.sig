@@ -1,0 +1,1 @@
+["Les Foulées du CFG", "2027-01-30", "Saint-Benoît", [{"nom": "10 km", "km": 10, "type": "route", "prix": "17 €"}], "posters/cfg.webp", "posters/cfg_lg.webp"]

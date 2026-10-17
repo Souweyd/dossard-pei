@@ -1,0 +1,1 @@
+["Tropica'Dingue", "2026-11-21", "Saint-Paul", [{"nom": "Course à obstacles", "km": 8, "type": "autre", "note": "Par vagues, équipes de 2 à 100"}], "posters/tropica-dingue-2026-11.webp", "posters/tropica-dingue-2026-11_lg.webp"]

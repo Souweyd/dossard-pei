@@ -1,0 +1,1 @@
+["Cross City Sport", "2026-11-14", "Saint-Denis", [{"nom": "Cross court (Espoirs à Masters)", "h": "13h00", "type": "cross", "prix": "3 €"}, {"nom": "Cross par catégorie (Poussins à Masters)", "h": "13h00", "type": "cross", "prix": "3 €"}], "posters/cross-city.webp", "posters/cross-city_lg.webp"]

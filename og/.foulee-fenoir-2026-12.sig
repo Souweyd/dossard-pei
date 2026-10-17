@@ -1,0 +1,1 @@
+["Foulée Fénoir", "2026-12-26", "Saint-Pierre", [{"nom": "9,5 km", "km": 9.5, "h": "20h00", "type": "route", "prix": "14 €"}, {"nom": "Course enfants 2 km", "km": 2, "type": "jeunes"}], null, null]

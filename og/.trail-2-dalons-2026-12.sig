@@ -1,0 +1,1 @@
+["Trail des 2 Dalons", "2026-12-05", "Salazie", [{"nom": "45 km en duo", "km": 45, "dp": 2300, "h": "05h00", "prix": "90 € / duo", "type": "trail", "note": "Course en binôme"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp"]

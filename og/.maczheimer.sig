@@ -1,0 +1,1 @@
+["Les Foulées de la Mac'Zheimer", "2026-11-22", "Saint-Louis", [{"nom": "10 km", "km": 10, "h": "07h30", "type": "route"}, {"nom": "5 km", "km": 5, "h": "07h45", "type": "route"}, {"nom": "Marche 5 km", "km": 5, "h": "08h00", "type": "marche"}], "posters/maczheimer.webp", "posters/maczheimer_lg.webp"]

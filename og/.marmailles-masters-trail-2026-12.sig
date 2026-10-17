@@ -1,0 +1,1 @@
+["Marmailles Masters Trail", "2026-12-13", "Saint-Louis", [{"nom": "Masters (35 ans et +)", "km": 22, "dp": 1500, "type": "trail"}, {"nom": "Marmailles 8-12 ans", "km": 2, "type": "jeunes"}], "posters/marmailles-masters-trail-2026-12.webp", "posters/marmailles-masters-trail-2026-12_lg.webp"]

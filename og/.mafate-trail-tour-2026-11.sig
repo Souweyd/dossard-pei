@@ -1,0 +1,1 @@
+["Mafate Trail Tour (MTT)", "2026-11-27", "Salazie", [{"nom": "Ultra MTT", "km": 70, "dp": 4800, "type": "trail"}, {"nom": "MTT", "km": 55, "dp": 3600, "type": "trail"}, {"nom": "MT", "km": 38, "dp": 2100, "type": "trail"}], "posters/mafate-trail-tour-2026-11.webp", "posters/mafate-trail-tour-2026-11_lg.webp"]
