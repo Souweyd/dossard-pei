@@ -304,6 +304,10 @@ body.noscroll { overflow: hidden }
 .trk { display: grid; gap: 8px } .minimap { width: 100%; aspect-ratio: 16 / 9; display: block; border-radius: 10px; border: 1px solid var(--line) } .trk h4 { margin: 0; font-family: var(--display); font-size: 1.1rem; text-transform: uppercase; letter-spacing: .04em }
 .minimap .contour { stroke-width: .5 } .minimap .sentier { stroke-width: 1.3 }
 .mmleg { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .78rem; color: var(--muted) } .mmleg i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px } .mmleg i.dash { width: 16px; height: 0; border-radius: 0; border-top: 2px dashed #7a3f12; vertical-align: 3px }
+.trkfoot { display: flex; justify-content: flex-end }
+.gpxdl { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: .82rem; font-weight: 700; letter-spacing: .02em; color: var(--accent); background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; white-space: nowrap }
+.gpxdl:hover { border-color: var(--accent); background: #eef5fb } .gpxdl svg { width: 15px; height: 15px; flex: none }
+.trksrc a { color: inherit }
 .trk-tabs { display: flex; flex-wrap: wrap; gap: 6px } .trk-tabs .chip { font-size: .82rem }
 /* map labels */
 .sentier { fill: none; stroke: #7a3f12; stroke-width: 1.1; stroke-dasharray: 4 2.5; vector-effect: non-scaling-stroke; opacity: .7; pointer-events: none }
@@ -887,6 +891,7 @@ function bindCards(root) {
   root.querySelectorAll("[data-poster]").forEach(b => b.addEventListener("click", () => { if (!b.classList.contains("noimg")) openPoster(b.dataset.poster); }));
   root.querySelectorAll("[data-fav]").forEach(b => b.addEventListener("click", () => toggleFav(b.dataset.fav)));
   root.querySelectorAll("[data-share]").forEach(b => b.addEventListener("click", () => share(b.dataset.share)));
+  root.querySelectorAll("[data-gpx]").forEach(b => b.addEventListener("click", () => downloadGPX(b.dataset.gpx)));
   root.querySelectorAll("[data-trk]").forEach(b => b.addEventListener("click", () => {
     const id = b.dataset.trk; TSEL[id] = +b.dataset.i; render();
     const t = curTrack(id); if (t && state.sel === id) zoomTo(boxAround(t.pts.map(p => P(p[0], p[1])), 30, 160));
@@ -900,6 +905,38 @@ function epChip(e) {
   return `<span class="ep${e.type === "marche" ? " walk" : ""}" title="${esc(e.nom)}">${lab}${e.type === "marche" ? " · rando" : e.type === "relais" ? " · relais" : ""}</span>`;
 }
 const host = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return ""; } };
+const DL_ICO = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v8.5M4.5 6.8 8 10.3l3.5-3.5M2.5 11.5v2h11v-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const SRCNAME = { "tracedetrail.fr": "Trace de Trail", "openrunner.com": "OpenRunner", "werun.world": "WeRun", "utoi.re": "UTOI", "chronorun974.re": "Chrono Run 974", "sportpro.re": "Sport PRO", "topchrono.run": "Top Chrono", "gotrail.run": "Gotrail" };
+const srcName = u => { const h = host(u); return SRCNAME[h] || h; };
+const trkSrc = id => (GPX[id] && (GPX[id].src || GPX[id].source)) || "";
+const xmlEsc = s => String(s == null ? "" : s).replace(/[<>&"']/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&apos;" }[c]));
+function downloadGPX(id) {
+  const r = RACES.find(x => x.id === id), g = curTrack(id); if (!r || !g || !g.pts) return;
+  const src = trkSrc(id);
+  const name = r.nom + (g.nom && g.nom !== r.nom ? " – " + g.nom : "");
+  const desc = `${r.date} · ${r.commune}${g.km ? " · " + fmt(g.km) + " km" : ""}${g.dp ? " · " + g.dp + " m D+" : ""}. Tracé d'origine : ${src ? srcName(src) + " (" + src + ")" : "organisateur"}. Mis à disposition par Dossard Péi (dossardpei.re) à titre indicatif : vérifiez le parcours officiel auprès de l'organisateur.`;
+  const pts = g.pts.map(p => `<trkpt lat="${p[0]}" lon="${p[1]}">${p[2] != null ? `<ele>${p[2]}</ele>` : ""}</trkpt>`).join("\n      ");
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Dossard Péi – dossardpei.re" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>${xmlEsc(name)}</name>
+    <desc>${xmlEsc(desc)}</desc>
+    <author><name>${xmlEsc(r.org || (src ? srcName(src) : "Organisateur"))}</name></author>
+    ${src ? `<link href="${xmlEsc(src)}"><text>Source du tracé : ${xmlEsc(srcName(src))}</text></link>` : ""}
+    <link href="https://dossardpei.re"><text>Dossard Péi</text></link>
+  </metadata>
+  <trk>
+    <name>${xmlEsc(name)}</name>
+    <src>${xmlEsc(src ? srcName(src) : "Organisateur")}</src>
+    <trkseg>
+      ${pts}
+    </trkseg>
+  </trk>
+</gpx>`;
+  const url = URL.createObjectURL(new Blob([xml], { type: "application/gpx+xml" }));
+  const a = document.createElement("a"); a.href = url; a.download = slug(name) + ".gpx";
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
 function sourcesHTML(r) {
   const src = srcOf(r), seen = new Set(), items = [];
   const add = (label, url, txt) => { if (!url || seen.has(url)) return; seen.add(url); items.push(`${label} <a href="${esc(url)}" target="_blank" rel="noopener">${esc(txt || host(url))}</a>`); };
@@ -919,13 +956,14 @@ function detailHTML(r) {
   const all = tracksOf(r.id), g = curTrack(r.id), gi = Math.min(TSEL[r.id] || 0, (all || [1]).length - 1);
   if (hasTrack(r.id) && !all) loadTracks(r.id);
   const tabs = all && all.length > 1 ? `<div class="trk-tabs" role="group" aria-label="Parcours">${all.map((t, i) => `<button type="button" class="chip" data-trk="${esc(r.id)}" data-i="${i}" aria-pressed="${i === gi}">${esc(t.nom)} · ${fmt(t.km)} km</button>`).join("")}</div>` : "";
-  const srcT = "";
-  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}<div class="note">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : `${g.nom ? esc(g.nom) + " · " : ""}${g.km ? fmt(g.km) + " km" : ""}${g.dp ? " · " + g.dp + " m D+ (mesuré sur le tracé)" : ""}`}${srcT}</div>${miniMap(g.pts, r)}${profileSVG(g.pts)}</div>` : hasTrack(r.id) ? `<div class="note">Chargement du tracé…</div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
+  const gsrc = trkSrc(r.id);
+  const srcT = gsrc ? `<div class="trksrc">Tracé : <a href="${esc(gsrc)}" target="_blank" rel="noopener">${esc(srcName(gsrc))}</a></div>` : "";
+  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}<div class="note">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : `${g.nom ? esc(g.nom) + " · " : ""}${g.km ? fmt(g.km) + " km" : ""}${g.dp ? " · " + g.dp + " m D+ (mesuré sur le tracé)" : ""}`}${srcT}</div>${miniMap(g.pts, r)}${profileSVG(g.pts)}${g.partiel ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="note">Chargement du tracé…</div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
   return `<div class="detail">
     <div class="tblwrap"><table><thead><tr><th>Épreuve</th><th>Dist.</th><th>D+</th><th>Km effort</th><th>Type</th><th>Départ</th><th>Tarif</th></tr></thead><tbody>${rows}</tbody></table></div>
     ${prof}
     ${r.approx ? `<p class="note" style="margin:0">Date à confirmer : le mois est repris de l'édition précédente. Vérifiez sur la fiche avant de vous organiser.</p>` : ""}
-    <div class="links"><span class="note">Organisateur : ${esc(r.org || "non précisé")}</span>${traces}${r.page && r.page !== r.inscription && r.page !== ficheOf(r) ? `<a href="${esc(r.page)}" target="_blank" rel="noopener">Site de la course</a>` : ""}${r.approx ? "" : `<a href="${esc(outlookURL(r))}" target="_blank" rel="noopener">Ajouter à Outlook</a>`}</div>
+    <div class="links">${r.org ? `<span class="note">Organisateur : ${esc(r.org)}</span>` : ""}${traces}${r.page && r.page !== r.inscription && r.page !== ficheOf(r) ? `<a href="${esc(r.page)}" target="_blank" rel="noopener">Site de la course</a>` : ""}${r.approx ? "" : `<a href="${esc(outlookURL(r))}" target="_blank" rel="noopener">Ajouter à Outlook</a>`}</div>
     ${sourcesHTML(r)}
   </div>`;
 }
