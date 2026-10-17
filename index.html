@@ -346,10 +346,10 @@ header.top { flex-direction: row; text-align: left } .top { display: flex; align
 .switch button[aria-pressed="true"] { background: var(--fg); color: var(--bg) }
 .switch #v-carte, .switch #v-carte[aria-pressed] { display: none }
 /* hero search */
-.hero2 { text-align: center; padding: clamp(18px, 4vw, 48px) 0 4px }
+.hero2 { text-align: center; padding: clamp(14px, 3vw, 36px) 0 0 }
 .hero2 h1 { font-family: var(--display); text-transform: none; font-weight: 700; letter-spacing: -.045em; line-height: 1.02; font-size: clamp(2.3rem, 6vw, 4.6rem); margin: 0; text-wrap: balance }
 .hsub { color: var(--muted); font-size: clamp(1rem, 1.5vw, 1.18rem); max-width: 54ch; margin: 14px auto 0; text-wrap: balance }
-.sbar { display: flex; align-items: center; gap: 10px; max-width: 680px; margin: 26px auto 0; background: var(--surface); border-radius: 999px; padding: 6px 6px 6px 20px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 6px 24px rgba(0,0,0,.06) }
+.finder { text-align: center; margin-top: 6px } .sbar { display: flex; align-items: center; gap: 10px; max-width: 680px; margin: 0 auto; background: var(--surface); border-radius: 999px; padding: 6px 6px 6px 20px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 6px 24px rgba(0,0,0,.06) }
 .sbar svg { width: 20px; height: 20px; color: var(--muted); flex: none }
 .sbar input { flex: 1; min-width: 0; border: 0 !important; background: transparent !important; font: inherit; font-size: 1.05rem; color: var(--fg); padding: 10px 0 !important; outline: none }
 .sbar:focus-within { box-shadow: 0 0 0 2px var(--fg), 0 6px 24px rgba(0,0,0,.06) }
@@ -362,8 +362,8 @@ header.top { flex-direction: row; text-align: left } .top { display: flex; align
 .qpills button:hover { border-color: var(--fg) }
 .qpills button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg) }
 .qsep { width: 1px; height: 22px; background: var(--line); margin: 0 2px }
-.hero2 .filters { max-width: 1040px; margin: 14px auto 0; background: var(--surface); border: 0; border-radius: 18px; padding: 14px 18px; justify-content: center; text-align: left }
-.hero2 .filters select { border-radius: 10px; background: var(--bg); border-color: transparent }
+.finder .filters { max-width: 1040px; margin: 14px auto 0; background: var(--surface); border: 0; border-radius: 18px; padding: 14px 18px; justify-content: center; text-align: left }
+.finder .filters select { border-radius: 10px; background: var(--bg); border-color: transparent }
 .fgroup > span { text-transform: none; letter-spacing: 0; font-size: .82rem }
 /* soon strip */
 .soon-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px }
@@ -438,7 +438,7 @@ footer { border: 0; padding-top: 6px }
   .soon-nav { display: none } .soon-row { grid-auto-columns: 140px; margin-inline: -16px; padding: 0 16px 4px; scroll-padding: 16px }
   .lrow { grid-template-columns: 36px 40px minmax(0, 1fr); gap: 10px; padding: 10px 6px } .lthumb { width: 40px; height: 52px }
   .lstate { grid-column: 3; margin-top: -2px } .lstate:empty { display: none }
-  .hero2 .filters { padding: 12px }
+  .finder .filters { padding: 12px }
 }
 
 /* map hidden: list becomes a poster grid */
@@ -478,6 +478,17 @@ footer { border: 0; padding-top: 6px }
   <section class="hero2" aria-label="Recherche">
     <h1>Trouve ton prochain dossard.</h1>
     <p class="hsub">Trail, route, cross, rando et multisport : toutes les courses de La Réunion, avec la carte, les parcours et le lien d'inscription.</p>
+  </section>
+
+  <section id="admin" hidden aria-label="Administration"></section>
+
+  <section class="soon" aria-labelledby="soon-h">
+    <div class="soon-head"><h2 id="soon-h">Ce week-end et bientôt</h2>
+      <div class="soon-nav"><button type="button" class="snav" data-snav="-1" aria-label="Précédentes">‹</button><button type="button" class="snav" data-snav="1" aria-label="Suivantes">›</button></div></div>
+    <div class="soon-row" id="soon"></div>
+  </section>
+
+  <section class="finder" aria-label="Recherche et filtres">
     <div class="sbar">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       <input type="search" id="f-q" placeholder="Rechercher une course, une commune…" aria-label="Rechercher une course" autocomplete="off">
@@ -509,14 +520,6 @@ footer { border: 0; padding-top: 6px }
     <button class="reset" id="f-reset" type="button">Réinitialiser</button>
   </div>
 
-  </section>
-
-  <section id="admin" hidden aria-label="Administration"></section>
-
-  <section class="soon" aria-labelledby="soon-h">
-    <div class="soon-head"><h2 id="soon-h">Ce week-end et bientôt</h2>
-      <div class="soon-nav"><button type="button" class="snav" data-snav="-1" aria-label="Précédentes">‹</button><button type="button" class="snav" data-snav="1" aria-label="Suivantes">›</button></div></div>
-    <div class="soon-row" id="soon"></div>
   </section>
 
   <div class="main" id="main" data-view="liste">
