@@ -1074,7 +1074,9 @@ function renderCal(rs) {
   // the whole day cell is clickable (race names inside still open their race)
   $("#list").querySelectorAll("[data-cell]").forEach(c => c.addEventListener("click", e => {
     if (e.target.closest("[data-ev]")) return;
-    const k = c.dataset.cell; state.day = state.day === k ? null : k; render();
+    const k = c.dataset.cell; state.day = state.day === k ? null : k;
+    if (state.sel) { const s = RACES.find(x => x.id === state.sel); if (!s || s.date !== state.day) state.sel = null; }
+    render();
     if (state.day) requestAnimationFrame(() => $(".daylist")?.scrollIntoView({ block: "nearest", behavior: reduced() ? "auto" : "smooth" }));
   }));
 }
