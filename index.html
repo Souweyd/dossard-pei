@@ -88,10 +88,11 @@ select, .chip, input[type=text], input[type=url], input[type=date], input[type=n
 .day.out { background: var(--bg); } .day.out .dnum { opacity: .45 }
 .day.today .dnum { background: var(--accent); color: var(--bg); border-radius: 999px }
 .day.pick { box-shadow: inset 0 0 0 2px var(--fg) }
-.dnum { font-family: var(--mono); font-size: .75rem; align-self: flex-start; min-width: 1.6em; text-align: center; padding: 0 3px; border: 0; background: none; color: var(--fg); cursor: pointer }
+.day { cursor: pointer } .day:hover { background: color-mix(in srgb, var(--accent) 7%, var(--surface)) } .day.out:hover { background: color-mix(in srgb, var(--accent) 5%, var(--bg)) }
+.dnum { pointer-events: none; font-family: var(--mono); font-size: .75rem; align-self: flex-start; min-width: 1.6em; text-align: center; padding: 0 3px; border: 0; background: none; color: var(--fg); cursor: pointer }
 .ev { font: inherit; font-size: .74rem; line-height: 1.2; text-align: left; border: 0; border-left: 3px solid var(--dc); background: color-mix(in srgb, var(--dc) 14%, transparent); color: var(--fg); border-radius: 3px; padding: 2px 4px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100% }
 .ev.on { background: var(--hot); color: var(--bg); border-left-color: var(--hot) }
-.evmore { font: inherit; font-size: .72rem; color: var(--muted); background: none; border: 0; text-align: left; cursor: pointer; padding: 0 4px }
+.evmore { pointer-events: none; font: inherit; font-size: .72rem; color: var(--muted); background: none; border: 0; text-align: left; cursor: pointer; padding: 0 4px }
 .dots { display: none; gap: 3px; flex-wrap: wrap }
 .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--dc) }
 .daylist { display: grid; gap: 6px }
@@ -934,7 +935,7 @@ function renderCal(rs) {
     const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i), k = ymd(d), list = byDay[k] || [];
     if (i === 35 && d.getMonth() !== M - 1) break;
     const evs = list.slice(0, 3).map(r => `<button type="button" class="ev${r.id === state.sel ? " on" : ""}" style="--dc:var(${DCOL[r.disc]})" data-ev="${esc(r.id)}" title="${esc(r.nom)} · ${esc(r.commune)}">${esc(r.nom)}</button>`).join("");
-    cells += `<div class="day${d.getMonth() !== M - 1 ? " out" : ""}${k === t ? " today" : ""}${k === state.day ? " pick" : ""}">
+    cells += `<div class="day${d.getMonth() !== M - 1 ? " out" : ""}${k === t ? " today" : ""}${k === state.day ? " pick" : ""}${list.length ? " has" : ""}" data-cell="${k}">
       <button type="button" class="dnum" data-day="${k}" aria-label="${d.getDate()} ${MOIS[d.getMonth()]} : ${list.length} course${list.length > 1 ? "s" : ""}">${d.getDate()}</button>
       ${evs}${list.length > 3 ? `<button type="button" class="evmore" data-day="${k}">+ ${list.length - 3} autre${list.length > 4 ? "s" : ""}</button>` : ""}
       <div class="dots">${list.map(r => `<i style="--dc:var(${DCOL[r.disc]})"></i>`).join("")}</div></div>`;
@@ -957,7 +958,12 @@ function renderCal(rs) {
   $("#c-next").addEventListener("click", () => shift(1));
   $("#c-today").addEventListener("click", () => { state.cal = todayISO().slice(0, 7); state.day = todayISO(); render(); });
   $("#list").querySelectorAll("[data-ev]").forEach(b => b.addEventListener("click", () => openRace(b.dataset.ev)));
-  $("#list").querySelectorAll("[data-day]").forEach(b => b.addEventListener("click", () => { state.day = state.day === b.dataset.day ? null : b.dataset.day; render(); }));
+  // the whole day cell is clickable (race names inside still open their race)
+  $("#list").querySelectorAll("[data-cell]").forEach(c => c.addEventListener("click", e => {
+    if (e.target.closest("[data-ev]")) return;
+    const k = c.dataset.cell; state.day = state.day === k ? null : k; render();
+    if (state.day) requestAnimationFrame(() => $(".daylist")?.scrollIntoView({ block: "nearest", behavior: reduced() ? "auto" : "smooth" }));
+  }));
 }
 
 // ---------- map popup: races of the selected commune ----------
