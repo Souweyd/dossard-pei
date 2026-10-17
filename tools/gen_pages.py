@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# (régénéré automatiquement par .github/workflows/course-pages.yml)
 """Generate one static page per race (course/<id>/index.html), its share image (og/<id>.jpg),
 sitemap.xml and robots.txt from data.json. Run from the repository root.
 
