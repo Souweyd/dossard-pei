@@ -671,7 +671,7 @@ function loadTracks(id) {
   TLOAD[id] = true;
   fetch(g.file).then(r => r.ok ? r.json() : Promise.reject()).then(d => {
     TRK[id] = d.tracks || []; render();
-    if (state.sel === id) { const t = curTrack(id); if (t) zoomTo(boxAround(t.pts.map(p => P(p[0], p[1])), 30, 160)); }
+    if (state.sel === id && !DETAIL) { const t = curTrack(id); if (t) zoomTo(boxAround(t.pts.map(p => P(p[0], p[1])), 30, 160)); }
   }).catch(() => { TLOAD[id] = false; });
 }
 const isOpen = r => !r.complet && (!r.limite || r.limite >= todayISO());
@@ -875,7 +875,13 @@ let DETAIL = null, detailBox = null, lastFocus = null;
 // on dossardpei.re the address bar follows the open race (/course/<id>/ is a real, shareable page)
 const PUBLIC_SITE = /(^|\.)dossardpei\.re$/.test(location.hostname);
 const setPath = p => { if (PUBLIC_SITE && location.pathname + location.hash !== p) try { history.replaceState(history.state, "", p); } catch (e) {} };
-function openRace(id) { if (state.sel !== id) selectRace(id); openDetail(id); }
+// opening a race shows its sheet only: the main map keeps its view (the sheet has its own mini map)
+function openRace(id) {
+  const r = RACES.find(x => x.id === id); if (!r) return;
+  state.sel = id; state.open.add(id); loadTracks(id);
+  if (state.rview === "calendrier") { state.cal = r.date.slice(0, 7); state.day = r.date; }
+  render(); openDetail(id);
+}
 function openDetail(id) {
   const r = RACES.find(x => x.id === id); if (!r) return;
   DETAIL = id; loadTracks(id);
@@ -911,7 +917,9 @@ function openDetail(id) {
 function detailKey(e) { if (e.key === "Escape" && !document.querySelector(".lightbox")) closeDetail(); }
 function closeDetail() {
   if (!detailBox) return;
+  const was = DETAIL;
   detailBox.remove(); detailBox = null; DETAIL = null; document.body.classList.remove("noscroll"); setPath("/");
+  if (state.sel === was) { state.sel = null; render(); }
   removeEventListener("keydown", detailKey); lastFocus?.focus?.({ preventScroll: true });
 }
 function bindCards(root) {
@@ -921,7 +929,7 @@ function bindCards(root) {
   root.querySelectorAll("[data-gpx]").forEach(b => b.addEventListener("click", () => downloadGPX(b.dataset.gpx)));
   root.querySelectorAll("[data-trk]").forEach(b => b.addEventListener("click", () => {
     const id = b.dataset.trk; TSEL[id] = +b.dataset.i; render();
-    const t = curTrack(id); if (t && state.sel === id) zoomTo(boxAround(t.pts.map(p => P(p[0], p[1])), 30, 160));
+    const t = curTrack(id); if (t && state.sel === id && !DETAIL) zoomTo(boxAround(t.pts.map(p => P(p[0], p[1])), 30, 160));
   }));
 }
 
