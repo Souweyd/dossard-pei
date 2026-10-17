@@ -465,6 +465,7 @@ footer { border: 0; padding-top: 6px }
   .main.nomap { grid-template-columns: minmax(0, 1fr) } .main.nomap .mapcol { display: none }
   .main.nomap .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 22px 18px }
   .main.nomap .month { grid-column: 1 / -1; margin-bottom: -6px }
+  .main.nomap .list > .cal { grid-column: 1 / -1 }
   .main.nomap .lrow { grid-template-columns: 38px minmax(0, 1fr); grid-template-areas: "thumb thumb" "date main" ". state"; gap: 6px 10px; padding: 0; align-items: start; background: none; box-shadow: none }
   .main.nomap .lrow:hover .lthumb img { transform: scale(1.04) }
   .main.nomap .lthumb { grid-area: thumb; width: 100%; height: auto; aspect-ratio: 3 / 4; border-radius: 16px; margin-bottom: 4px }
