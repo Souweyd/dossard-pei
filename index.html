@@ -485,6 +485,13 @@ footer { border: 0; padding-top: 6px }
 .finder .filters select { color: var(--muted); font-weight: 400 }
 .finder .filters select option { color: var(--fg); font-weight: 400 }
 .finder .filters select.set { color: var(--fg); font-weight: 600; background: var(--accent-soft); box-shadow: inset 0 0 0 2px var(--accent) }
+
+/* hover preview of a route on the big map */
+.prevl { pointer-events: none }
+.pv-case { fill: none; stroke: #fff; stroke-linejoin: round; stroke-linecap: round; opacity: .9 }
+.pv-line { fill: none; stroke: var(--hot); stroke-linejoin: round; stroke-linecap: round }
+.mpop-i.pv { background: var(--accent-soft) } .mpop-i.pv .mpop-n::after { content: " · toucher à nouveau pour ouvrir"; font-weight: 400; color: var(--muted); font-size: .8rem }
+.mpop { border: 0; border-radius: 18px; max-height: 46% } .mpop-h b { text-transform: none; letter-spacing: -.02em; font-weight: 700 } .mpop-d { text-transform: none; font-family: var(--body) } .mpop-d b { font-weight: 700 } .mpop-m { font-family: var(--body) }
 </style>
 
 <div class="wrap">
@@ -772,9 +779,38 @@ function renderGrid(rs) {
   $("#empty-reset")?.addEventListener("click", () => $("#f-reset").click());
   $("#list").querySelectorAll("[data-card]").forEach(b => {
     b.addEventListener("click", () => openRace(b.dataset.card));
-    b.addEventListener("mouseenter", () => hoverCom(b.dataset.com));
-    b.addEventListener("mouseleave", () => hoverCom(null));
+    b.addEventListener("mouseenter", () => { hoverCom(b.dataset.com); previewRace(b.dataset.card); });
+    b.addEventListener("mouseleave", () => { hoverCom(null); previewRace(null); });
   });
+}
+// hover preview: draw a race's route (or its start) on the big map without re-rendering the page
+let PREV = null, lastPtr = "mouse";
+addEventListener("pointerdown", e => { lastPtr = e.pointerType || "mouse"; }, true);
+function fetchTracks(id) {
+  const g = GPX[id]; if (!g) return Promise.resolve(null);
+  if (g.pts || TRK[id]) return Promise.resolve(tracksOf(id));
+  if (!g.file) return Promise.resolve(null);
+  return fetch(g.file).then(r => r.ok ? r.json() : null).then(d => { if (d && !TRK[id]) TRK[id] = d.tracks || []; return tracksOf(id); }).catch(() => null);
+}
+function previewRace(id) {
+  PREV = id; drawPrev();
+  if (id && hasTrack(id) && !tracksOf(id)) fetchTracks(id).then(() => { if (PREV === id) drawPrev(); });
+}
+function drawPrev() {
+  gPrev.innerHTML = "";
+  const r = PREV && RACES.find(x => x.id === PREV); if (!r || !svg.getBoundingClientRect().width) return;
+  const sc = vb[2] / svg.getBoundingClientRect().width, t = PREV === state.sel ? null : curTrack(r.id);
+  if (t && t.pts && t.pts.length > 1) {
+    const pts = t.pts.map(p => P(p[0], p[1])), line = pts.map(p => p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
+    el("polyline", { points: line, class: "pv-case", "stroke-width": 7 * sc }, gPrev);
+    el("polyline", { points: line, class: "pv-line", "stroke-width": 3.6 * sc }, gPrev);
+    el("circle", { cx: pts.at(-1)[0], cy: pts.at(-1)[1], r: 5.5 * sc, fill: "#1d2523", stroke: "#fff", "stroke-width": 2 * sc }, gPrev);
+    el("circle", { cx: pts[0][0], cy: pts[0][1], r: 5.5 * sc, fill: "#1b7f3b", stroke: "#fff", "stroke-width": 2 * sc }, gPrev);
+  } else if (r.ll) {
+    const [x, y] = P(...r.ll);
+    el("circle", { cx: x, cy: y, r: 16 * sc, fill: "var(--hot)", opacity: .25 }, gPrev);
+    el("circle", { cx: x, cy: y, r: 7 * sc, fill: "var(--hot)", stroke: "#fff", "stroke-width": 2.5 * sc }, gPrev);
+  }
 }
 function hoverCom(com) { gPins.querySelectorAll(".pin").forEach(g => g.classList.toggle("hov", !!com && g.dataset.com === com)); }
 // "this weekend and soon": next races, regardless of the filters
@@ -992,7 +1028,17 @@ function renderPop(rs) {
       <span class="mpop-d">${r.approx ? `${MABR[d.getMonth()]}<b>?</b>${d.getFullYear()}` : `${JOURS[d.getDay()]}<b>${d.getDate()}</b>${MABR[d.getMonth()]}`}</span>
       <span><span class="mpop-n">${esc(r.nom)}</span><span class="mpop-m" style="display:block">${DISC[r.disc]}${m.km ? " · " + fmt(m.km) + " km" : ""}${m.dp ? " · " + m.dp + " D+" : ""}${r.complet ? " · complet" : ""}${r.approx ? " · date à confirmer" : ""}${closesSoon(r) ? " · clôture proche" : ""}</span></span></button>`; }).join("")}</div>`;
   $("#mpop-x").addEventListener("click", () => { state.commune = ""; state.sel = null; render(); zoomTo(null); });
-  box.querySelectorAll("[data-pop]").forEach(b => b.addEventListener("click", () => openRace(b.dataset.pop)));
+  box.querySelectorAll("[data-pop]").forEach(b => {
+    const id = b.dataset.pop;
+    b.addEventListener("mouseenter", () => previewRace(id));
+    b.addEventListener("mouseleave", () => previewRace(null));
+    b.addEventListener("focus", () => previewRace(id));
+    b.addEventListener("blur", () => previewRace(null));
+    b.addEventListener("click", () => {
+      if (lastPtr === "touch" && PREV !== id && id !== state.sel) { previewRace(id); box.querySelectorAll(".mpop-i").forEach(x => x.classList.toggle("pv", x === b)); return; }
+      previewRace(null); openRace(id);
+    });
+  });
 }
 
 // ---------- 2D map ----------
@@ -1042,6 +1088,7 @@ PEAKS.forEach(([n, la, lo]) => { const [x, y] = P(la, lo); el("text", { x, y: y 
 const gTrails = el("g", { visibility: "hidden" });
 const gLabels = el("g", { class: "lbls" });
 const gTrace = el("g", {});
+const gPrev = el("g", { class: "prevl" });
 const gPins = el("g", {});
 // ---------- place names, peaks and trails (IGN BD TOPO sentiers + OpenStreetMap places), shown when zooming in ----------
 let LABELS = null, labState = 0;
@@ -1147,6 +1194,7 @@ function drawPins(rs) {
   });
   gPins.querySelectorAll(".pin").forEach(g => { const m = /translate\(([-\d.]+),([-\d.]+)\)/.exec(g.getAttribute("transform")); if (m) { const x = +m[1], y = +m[2], lb = g.querySelector(".lbl"); taken.push([x - 16 * scale, y - 16 * scale, x + 16 * scale + (lb ? lb.textContent.length * 7 * scale : 0), y + 16 * scale]); } });
   drawLabels(zoomK, scale, taken);
+  drawPrev();
 }
 function pin([x, y], list, on, label, onClick, scale, dim, nolabel) {
   const n = list.length;
