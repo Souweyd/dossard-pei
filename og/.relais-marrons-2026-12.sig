@@ -1,1 +1,1 @@
-["Relais des Marrons", "2026-12-20", "Sainte-Suzanne", [{"nom": "Relais semi-marathon", "km": 21.1, "h": "09h00", "type": "relais"}], null, null]
+["Relais des Marrons", "2026-12-20", "Sainte-Suzanne", [{"nom": "Relais semi-marathon", "km": 21.1, "h": "09h00", "type": "relais"}], null, null, "art1"]

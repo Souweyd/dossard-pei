@@ -1,1 +1,1 @@
-["Ultra Trail des Géants relais", "2027-05-06", "Saint-Philippe", [{"nom": "Ultra Trail des Géants relais", "km": 173.75, "dp": 10657, "h": "12h00", "prix": "380 € / équipe", "type": "relais"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp"]
+["Ultra Trail des Géants relais", "2027-05-06", "Saint-Philippe", [{"nom": "Ultra Trail des Géants relais", "km": 173.75, "dp": 10657, "h": "12h00", "prix": "380 € / équipe", "type": "relais"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp", "art1"]

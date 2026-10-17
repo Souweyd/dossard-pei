@@ -1,1 +1,1 @@
-["Championnat Trail Trans Volcano", "2027-01-23", "Le Tampon", [{"nom": "Trail 67 km", "km": 67, "dp": 1970, "type": "trail", "prix": "70 €"}], null, null]
+["Championnat Trail Trans Volcano", "2027-01-23", "Le Tampon", [{"nom": "Trail 67 km", "km": 67, "dp": 1970, "type": "trail", "prix": "70 €"}], null, null, "art1"]

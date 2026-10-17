@@ -1,1 +1,1 @@
-["Trophée des champions sur route – Finale 15 km", "2026-12-19", "Sainte-Marie", [{"nom": "15 km", "km": 15, "dp": 115, "h": "18h00", "prix": "30 €", "type": "route"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp"]
+["Trophée des champions sur route – Finale 15 km", "2026-12-19", "Sainte-Marie", [{"nom": "15 km", "km": 15, "dp": 115, "h": "18h00", "prix": "30 €", "type": "route"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp", "art1"]

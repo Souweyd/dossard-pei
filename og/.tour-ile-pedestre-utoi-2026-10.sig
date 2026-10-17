@@ -1,1 +1,1 @@
-["Tour de l'Île pédestre – relais à 10", "2026-10-31", "La Possession", [{"nom": "Relais à 10", "km": 180, "dp": 1378, "h": "06h00", "prix": "280 € / équipe", "type": "relais"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp"]
+["Tour de l'Île pédestre – relais à 10", "2026-10-31", "La Possession", [{"nom": "Relais à 10", "km": 180, "dp": 1378, "h": "06h00", "prix": "280 € / équipe", "type": "relais"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp", "art1"]

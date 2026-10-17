@@ -1,1 +1,1 @@
-["Diab'athlétique", "2026-11-15", "Saint-Pierre", [{"nom": "15 km", "km": 15, "h": "06h15", "type": "route", "prix": "18 €"}, {"nom": "Marche 10 km", "km": 10, "h": "06h45", "type": "marche", "prix": "12 €"}], "posters/diab.webp", "posters/diab_lg.webp"]
+["Diab'athlétique", "2026-11-15", "Saint-Pierre", [{"nom": "15 km", "km": 15, "h": "06h15", "type": "route", "prix": "18 €"}, {"nom": "Marche 10 km", "km": 10, "h": "06h45", "type": "marche", "prix": "12 €"}], "posters/diab.webp", "posters/diab_lg.webp", "art1"]

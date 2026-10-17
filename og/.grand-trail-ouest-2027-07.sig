@@ -1,1 +1,1 @@
-["Grand Trail de l'Ouest (GTO)", "2027-07-02", "Le Port", [{"nom": "84 km", "km": 84.0, "type": "trail"}, {"nom": "48 km", "km": 48.0, "type": "trail"}], null, null]
+["Grand Trail de l'Ouest (GTO)", "2027-07-02", "Le Port", [{"nom": "84 km", "km": 84.0, "type": "trail"}, {"nom": "48 km", "km": 48.0, "type": "trail"}], null, null, "art1"]

@@ -1,1 +1,1 @@
-["Course inclusive pour les maladies rares", "2026-11-29", "Saint-Benoît", [{"nom": "Boucle de 3 km (course, marche, fauteuil)", "km": 3, "type": "route", "prix": "2 €"}], null, null]
+["Course inclusive pour les maladies rares", "2026-11-29", "Saint-Benoît", [{"nom": "Boucle de 3 km (course, marche, fauteuil)", "km": 3, "type": "route", "prix": "2 €"}], null, null, "art1"]

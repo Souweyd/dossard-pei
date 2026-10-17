@@ -1,1 +1,1 @@
-["Les Foulées de la Possession", "2026-11-29", "La Possession", [{"nom": "10 km", "km": 10, "type": "route"}], null, null]
+["Les Foulées de la Possession", "2026-11-29", "La Possession", [{"nom": "10 km", "km": 10, "type": "route"}], null, null, "art1"]

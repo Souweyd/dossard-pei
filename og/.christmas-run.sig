@@ -1,1 +1,1 @@
-["Christmas Run", "2026-12-12", "Saint-Benoît", [{"nom": "Course et marche 5 km", "km": 5, "h": "17h30", "type": "route"}, {"nom": "Course Marmay", "h": "16h00", "type": "jeunes"}], "posters/christmas-run.webp", "posters/christmas-run_lg.webp"]
+["Christmas Run", "2026-12-12", "Saint-Benoît", [{"nom": "Course et marche 5 km", "km": 5, "h": "17h30", "type": "route"}, {"nom": "Course Marmay", "h": "16h00", "type": "jeunes"}], "posters/christmas-run.webp", "posters/christmas-run_lg.webp", "art1"]

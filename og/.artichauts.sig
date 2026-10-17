@@ -1,1 +1,1 @@
-["Course des Artichauts", "2026-11-15", "Saint-Leu", [{"nom": "Course", "km": 12, "dp": 426, "h": "07h00", "prix": "24 €", "type": "trail"}, {"nom": "Rando", "km": 7, "dp": 188, "prix": "15 €", "type": "marche"}], "posters/artichauts.webp", "posters/artichauts_lg.webp"]
+["Course des Artichauts", "2026-11-15", "Saint-Leu", [{"nom": "Course", "km": 12, "dp": 426, "h": "07h00", "prix": "24 €", "type": "trail"}, {"nom": "Rando", "km": 7, "dp": 188, "prix": "15 €", "type": "marche"}], "posters/artichauts.webp", "posters/artichauts_lg.webp", "art1"]

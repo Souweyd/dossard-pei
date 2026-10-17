@@ -1,1 +1,1 @@
-["Leu Urban Trail des Éclairs", "2026-10-24", "Saint-Leu", [{"nom": "Trail urbain", "km": 12, "dp": 500, "h": "16h45", "prix": "23 €", "cat": "Trail urbain", "type": "trail"}], "posters/leu-eclairs.webp", "posters/leu-eclairs_lg.webp"]
+["Leu Urban Trail des Éclairs", "2026-10-24", "Saint-Leu", [{"nom": "Trail urbain", "km": 12, "dp": 500, "h": "16h45", "prix": "23 €", "cat": "Trail urbain", "type": "trail"}], "posters/leu-eclairs.webp", "posters/leu-eclairs_lg.webp", "art1"]

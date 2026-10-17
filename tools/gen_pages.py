@@ -72,6 +72,7 @@ def og_image(r, out, fonts):
     W, H = 1200, 630
     img = Image.new("RGB", (W, H), "#f5efe6")
     src = r.get("poster_lg") or r.get("poster")
+    if not (src and os.path.exists(src)): src = f"tools/art_{disc_of(r)}.png"
     x0 = 70
     if src and os.path.exists(src):
         p = Image.open(src).convert("RGB")
@@ -145,7 +146,7 @@ main{max-width:1040px;margin:0 auto;padding:8px 16px 40px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:clamp(18px,3vw,32px);display:grid;gap:26px;grid-template-columns:minmax(0,300px) minmax(0,1fr)}
 @media (max-width:720px){.card{grid-template-columns:minmax(0,1fr)}.card>div:first-child{width:min(68%,260px);margin:0 auto}td{white-space:nowrap}}
 .poster{width:100%;height:auto;border-radius:14px;display:block;box-shadow:0 10px 30px rgba(0,0,0,.12)}
-.ph{aspect-ratio:3/4;border-radius:14px;background:linear-gradient(160deg,var(--accent),#2a4a3a);display:flex;align-items:flex-end;padding:18px;color:#fff;font-weight:700;font-size:1.4rem;line-height:1.1}
+.ph{aspect-ratio:3/4;border-radius:14px;background:linear-gradient(transparent 45%,rgba(20,16,12,.62)),var(--art) center/cover,#9cc4d6;display:flex;align-items:flex-end;padding:18px;color:#fff;font-weight:700;font-size:1.4rem;line-height:1.1;box-shadow:0 10px 30px rgba(0,0,0,.12)}
 .when{color:var(--hot);font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:.9rem;margin:0}
 h1{font-size:clamp(1.9rem,4.5vw,2.8rem);line-height:1.05;letter-spacing:-.03em;margin:6px 0 10px}
 .where{color:var(--muted);margin:0 0 14px}
@@ -219,7 +220,7 @@ def page(r, logo, has_og, has_trk):
             from PIL import Image
             with Image.open(poster) as im: pw, ph = im.size
         except Exception: pass
-    vis = f'<img class="poster" src="/{esc(poster)}" alt="Affiche : {esc(r["nom"])}" width="{pw}" height="{ph}">' if poster else f'<div class="ph">{esc(r["nom"])}</div>'
+    vis = f'<img class="poster" src="/{esc(poster)}" alt="Affiche : {esc(r["nom"])}" width="{pw}" height="{ph}">' if poster else f'<div class="ph" style="--art:url(/art/{disc}.svg)">{esc(r["nom"])}</div>'
     links = []
     fiche = r.get("fiche") or r.get("page")
     if fiche: links.append(f'<a href="{esc(fiche)}" rel="noopener">Fiche source</a>')
@@ -271,7 +272,7 @@ def main():
         rid = r["id"]; keep.add(rid)
         ogp = f"og/{rid}.jpg"
         has_og = os.path.exists(ogp)
-        sig = json.dumps([r.get(k) for k in ("nom", "date", "commune", "epreuves", "poster", "poster_lg")], ensure_ascii=False)
+        sig = json.dumps([r.get(k) for k in ("nom", "date", "commune", "epreuves", "poster", "poster_lg")] + ["art1"], ensure_ascii=False)
         sigp = f"og/.{rid}.sig"
         if not has_og or not os.path.exists(sigp) or open(sigp).read() != sig:
             has_og = og_image(r, ogp, fonts) or has_og

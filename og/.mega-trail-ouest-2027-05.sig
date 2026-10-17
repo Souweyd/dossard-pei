@@ -1,1 +1,1 @@
-["Mega Trail de l'Ouest", "2027-05-08", "Trois-Bassins", [{"nom": "Mega Trail de l'Ouest", "km": 86, "dp": 4258, "h": "05h00", "prix": "115 €", "type": "trail"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp"]
+["Mega Trail de l'Ouest", "2027-05-08", "Trois-Bassins", [{"nom": "Mega Trail de l'Ouest", "km": 86, "dp": 4258, "h": "05h00", "prix": "115 €", "type": "trail"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp", "art1"]

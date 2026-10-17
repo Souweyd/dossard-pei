@@ -1,1 +1,1 @@
-["Speed'Goat duo", "2027-05-07", "Le Tampon", [{"nom": "Speed'Goat duo", "km": 130, "dp": 7405, "h": "14h00", "prix": "300 € / duo", "type": "relais"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp"]
+["Speed'Goat duo", "2027-05-07", "Le Tampon", [{"nom": "Speed'Goat duo", "km": 130, "dp": 7405, "h": "14h00", "prix": "300 € / duo", "type": "relais"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp", "art1"]

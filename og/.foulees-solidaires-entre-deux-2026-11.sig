@@ -1,1 +1,1 @@
-["Les Foulées Solidaires de l'Entre-Deux", "2026-11-14", "Entre-Deux", [{"nom": "10 km chronométré", "km": 10, "type": "route"}, {"nom": "Randonnée 5 km", "km": 5, "type": "marche"}], null, null]
+["Les Foulées Solidaires de l'Entre-Deux", "2026-11-14", "Entre-Deux", [{"nom": "10 km chronométré", "km": 10, "type": "route"}, {"nom": "Randonnée 5 km", "km": 5, "type": "marche"}], null, null, "art1"]

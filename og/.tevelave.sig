@@ -1,1 +1,1 @@
-["Les Foulées du Tévelave", "2026-11-07", "Les Avirons", [{"nom": "Foulées du Tévelave", "km": 14, "dp": 600, "h": "07h00", "prix": "22 €", "type": "trail"}], "posters/tevelave.webp", "posters/tevelave_lg.webp"]
+["Les Foulées du Tévelave", "2026-11-07", "Les Avirons", [{"nom": "Foulées du Tévelave", "km": 14, "dp": 600, "h": "07h00", "prix": "22 €", "type": "trail"}], "posters/tevelave.webp", "posters/tevelave_lg.webp", "art1"]

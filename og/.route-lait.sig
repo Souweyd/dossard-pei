@@ -1,1 +1,1 @@
-["La Route du Lait", "2026-11-07", "Le Tampon", [{"nom": "La Route du Lait", "km": 10, "type": "route", "prix": "17 €", "h": "15h30"}], "posters/route-lait.webp", "posters/route-lait_lg.webp"]
+["La Route du Lait", "2026-11-07", "Le Tampon", [{"nom": "La Route du Lait", "km": 10, "type": "route", "prix": "17 €", "h": "15h30"}], "posters/route-lait.webp", "posters/route-lait_lg.webp", "art1"]

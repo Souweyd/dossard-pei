@@ -24,7 +24,7 @@ main{max-width:1040px;margin:0 auto;padding:8px 16px 40px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:clamp(18px,3vw,32px);display:grid;gap:26px;grid-template-columns:minmax(0,300px) minmax(0,1fr)}
 @media (max-width:720px){.card{grid-template-columns:minmax(0,1fr)}.card>div:first-child{width:min(68%,260px);margin:0 auto}td{white-space:nowrap}}
 .poster{width:100%;height:auto;border-radius:14px;display:block;box-shadow:0 10px 30px rgba(0,0,0,.12)}
-.ph{aspect-ratio:3/4;border-radius:14px;background:linear-gradient(160deg,var(--accent),#2a4a3a);display:flex;align-items:flex-end;padding:18px;color:#fff;font-weight:700;font-size:1.4rem;line-height:1.1}
+.ph{aspect-ratio:3/4;border-radius:14px;background:linear-gradient(transparent 45%,rgba(20,16,12,.62)),var(--art) center/cover,#9cc4d6;display:flex;align-items:flex-end;padding:18px;color:#fff;font-weight:700;font-size:1.4rem;line-height:1.1;box-shadow:0 10px 30px rgba(0,0,0,.12)}
 .when{color:var(--hot);font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:.9rem;margin:0}
 h1{font-size:clamp(1.9rem,4.5vw,2.8rem);line-height:1.05;letter-spacing:-.03em;margin:6px 0 10px}
 .where{color:var(--muted);margin:0 0 14px}
@@ -47,7 +47,7 @@ footer{max-width:1040px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
 </style></head><body>
 <header class="top"><a class="brand" href="/"><svg aria-hidden="true" viewBox="0 0 64 64"><g transform="rotate(-6 32 32)"><rect x="5" y="10" width="54" height="44" rx="6" fill="#fff" stroke="#1d2523" stroke-width="3"/><path d="M6.5 22V16a4.5 4.5 0 0 1 4.5-4.5h42a4.5 4.5 0 0 1 4.5 4.5v6z" fill="#1d4f9c"/><g fill="#ffd400"><path d="M32 22 22 11.5h3.6zM32 22 30.2 11.5h3.6zM32 22 38.4 11.5H42z"/></g><path d="M26.5 22h11L32 17z" fill="#e3242b"/><circle cx="11.5" cy="27" r="2" fill="#1d2523"/><circle cx="52.5" cy="27" r="2" fill="#1d2523"/><circle cx="11.5" cy="48.5" r="2" fill="#1d2523"/><circle cx="52.5" cy="48.5" r="2" fill="#1d2523"/><text x="32" y="47.5" text-anchor="middle" font-family="Arial Narrow,Arial,sans-serif" font-weight="800" font-size="22" fill="#1d2523" letter-spacing="-.5">974</text></g></svg><span>Dossard Péi</span></a><a class="all" href="/">Toutes les courses →</a></header>
 <main><article class="card">
-<div><div class="ph">Somin Grand Raid</div></div>
+<div><div class="ph" style="--art:url(/art/marche.svg)">Somin Grand Raid</div></div>
 <div>
 <p class="when">dimanche 18 octobre 2026</p>
 <h1>Somin Grand Raid</h1>

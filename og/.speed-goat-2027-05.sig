@@ -1,1 +1,1 @@
-["Speed'Goat", "2027-05-07", "Le Tampon", [{"nom": "Speed'Goat solo", "km": 134, "dp": 7717, "h": "14h00", "prix": "170 €", "type": "trail"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp"]
+["Speed'Goat", "2027-05-07", "Le Tampon", [{"nom": "Speed'Goat solo", "km": 134, "dp": 7717, "h": "14h00", "prix": "170 €", "type": "trail"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp", "art1"]

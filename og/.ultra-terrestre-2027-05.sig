@@ -1,1 +1,1 @@
-["Ultra Terrestre", "2027-05-06", "Saint-Philippe", [{"nom": "Ultra Terrestre", "km": 232.9, "dp": 14368, "h": "06h00", "prix": "280 €", "type": "trail"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp"]
+["Ultra Terrestre", "2027-05-06", "Saint-Philippe", [{"nom": "Ultra Terrestre", "km": 232.9, "dp": 14368, "h": "06h00", "prix": "280 €", "type": "trail"}], "posters/utoi-logo.webp", "posters/utoi-logo_lg.webp", "art1"]
