@@ -273,9 +273,9 @@ def page(r, logo, has_og, has_trk, races=()):
 <ul class="tags">{''.join(tags)}</ul>
 <div class="cta">{f'<a class="btn main" href="{esc(r["inscription"])}" rel="noopener" data-goatcounter-click="inscription/{esc(rid)}" data-goatcounter-title="Clic S’inscrire (page course)">S’inscrire</a>' if r.get('inscription') and not past else ''}<a class="btn map" href="/#c-{esc(rid)}">{'Carte et parcours' if has_trk else 'Voir sur la carte'} →</a></div>
 {f'<div class="tbl"><table><thead><tr><th>Épreuve</th><th>Dist.</th><th>D+</th><th>Type</th><th>Départ</th><th>Tarif</th></tr></thead><tbody>{rows}</tbody></table></div>' if rows else ''}
-<p class="src">Informations reprises des sources officielles, à vérifier auprès de l’organisateur avant de vous inscrire.{(' · ' + ' · '.join(links)) if links else ''}</p>
+<p class="src">Informations reprises des sources officielles, à vérifier auprès de l’organisateur avant de vous inscrire.{(' · ' + ' · '.join(links)) if links else ''} · <a href="/#contact-{esc(rid)}">Signaler une erreur</a></p>
 </div></article>{related(r, races)}</main>
-<footer>Dossard Péi · toutes les courses de La Réunion au même endroit · <a href="/">dossardpei.re</a></footer>
+<footer>Dossard Péi · toutes les courses de La Réunion au même endroit · <a href="/">dossardpei.re</a> · <a href="/#contact">Nous contacter</a></footer>
 </body></html>
 """
 
