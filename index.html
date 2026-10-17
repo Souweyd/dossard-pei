@@ -385,7 +385,14 @@ header.top { flex-direction: row; text-align: left } .top { display: flex; align
 .smeta { color: var(--muted); font-size: .82rem }
 /* list + map */
 .main { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 28px }
-.lbar { margin-bottom: 12px } .lbar .switch { display: inline-flex } .lhead { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 2px }
+.lbar { margin-bottom: 14px; border-bottom: 1px solid var(--line) }
+.lbar .switch { display: inline-flex; background: none; padding: 0; gap: 22px; border-radius: 0 }
+.lbar .switch button, .lbar .switch button:first-child, .lbar .switch button:last-child { background: none; color: var(--muted); border-radius: 0; padding: 8px 2px 10px; font-size: 1.05rem; font-weight: 600; border-bottom: 3px solid transparent; margin-bottom: -1px; display: inline-flex; align-items: center; gap: 7px }
+.lbar .switch button:hover { color: var(--fg) }
+.lbar .switch button[aria-pressed="true"] { background: none; color: var(--fg); border-bottom-color: var(--hot) }
+.lbar .switch button::before { content: ""; width: 16px; height: 16px; background: currentColor; -webkit-mask: var(--ico) center / contain no-repeat; mask: var(--ico) center / contain no-repeat }
+#v-liste { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01'/%3E%3C/svg%3E") }
+#v-calendrier { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15' rx='2'/%3E%3Cpath d='M3.5 10h17M8 3v4M16 3v4'/%3E%3C/svg%3E") } .lhead { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 2px }
 .lhead p { margin: 0; color: var(--muted); font-size: .9rem } .lhead b { color: var(--fg) }
 .list { gap: 2px }
 .month { font-size: 1.3rem; margin: 18px 0 6px; padding-left: 4px }
