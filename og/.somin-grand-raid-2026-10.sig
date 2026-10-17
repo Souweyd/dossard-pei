@@ -1,1 +1,0 @@
-["Somin Grand Raid", "2026-10-18", "La Possession", [{"nom": "Randonnée 23 km", "km": 23, "type": "marche"}], null, null, "art1"]

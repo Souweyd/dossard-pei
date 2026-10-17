@@ -1,1 +1,1 @@
-["Les Foulées Solidaires de l'Entre-Deux", "2026-11-14", "Entre-Deux", [{"nom": "10 km chronométré", "km": 10, "type": "route"}, {"nom": "Randonnée 5 km", "km": 5, "type": "marche"}], null, null, "art1"]
+["Les Foulées Solidaires de l'Entre-Deux", "2026-11-14", "Entre-Deux", [{"nom": "Course 10 km chronométrée", "km": 10, "type": "route", "prix": "20 €", "note": "16 ans et plus, PPS obligatoire"}, {"nom": "Randonnée solidaire 5 km", "km": 5, "type": "marche", "prix": "14 €"}], null, null, "art1"]
