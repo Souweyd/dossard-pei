@@ -363,7 +363,9 @@ header.top { flex-direction: row; text-align: left } .top { display: flex; align
 .qpills button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg) }
 .qsep { width: 1px; height: 22px; background: var(--line); margin: 0 2px }
 .finder .filters { max-width: 1040px; margin: 14px auto 0; background: var(--surface); border: 0; border-radius: 18px; padding: 14px 18px; justify-content: center; text-align: left }
-.finder .filters select { border-radius: 10px; background: var(--bg); border-color: transparent }
+.finder .filters select { border-radius: 10px; background: var(--bg); border-color: transparent; width: 100%; min-width: 0 }
+.finder .filters:not([hidden]) { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px 16px; align-items: end }
+.finder .fgroup { flex-direction: column; align-items: stretch; gap: 4px; flex-wrap: nowrap } .finder .fgroup > span { margin: 0 0 0 2px } .finder .filters .reset { justify-self: start; padding: 8px 2px }
 .fgroup > span { text-transform: none; letter-spacing: 0; font-size: .82rem }
 /* soon strip */
 .soon-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px }
@@ -385,11 +387,11 @@ header.top { flex-direction: row; text-align: left } .top { display: flex; align
 .smeta { color: var(--muted); font-size: .82rem }
 /* list + map */
 .main { grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 28px }
-.lbar { margin-bottom: 14px; border-bottom: 1px solid var(--line) }
-.lbar .switch { display: inline-flex; background: none; padding: 0; gap: 22px; border-radius: 0 }
-.lbar .switch button, .lbar .switch button:first-child, .lbar .switch button:last-child { background: none; color: var(--muted); border-radius: 0; padding: 8px 2px 10px; font-size: 1.05rem; font-weight: 600; border-bottom: 3px solid transparent; margin-bottom: -1px; display: inline-flex; align-items: center; gap: 7px }
+.lbar { margin-bottom: 12px }
+.lbar .switch { display: inline-flex; background: var(--surface); padding: 4px; gap: 2px; border-radius: 999px; box-shadow: inset 0 0 0 1px var(--line) }
+.lbar .switch button, .lbar .switch button:first-child, .lbar .switch button:last-child { background: none; color: var(--muted); border-radius: 999px; padding: 7px 16px; font-size: .95rem; font-weight: 600; display: inline-flex; align-items: center; gap: 7px }
 .lbar .switch button:hover { color: var(--fg) }
-.lbar .switch button[aria-pressed="true"] { background: none; color: var(--fg); border-bottom-color: var(--hot) }
+.lbar .switch button[aria-pressed="true"] { background: var(--accent); color: #fff }
 .lbar .switch button::before { content: ""; width: 16px; height: 16px; background: currentColor; -webkit-mask: var(--ico) center / contain no-repeat; mask: var(--ico) center / contain no-repeat }
 #v-liste { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01'/%3E%3C/svg%3E") }
 #v-calendrier { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15' rx='2'/%3E%3Cpath d='M3.5 10h17M8 3v4M16 3v4'/%3E%3C/svg%3E") } .lhead { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 2px }
@@ -495,20 +497,6 @@ footer { border: 0; padding-top: 6px }
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       <input type="search" id="f-q" placeholder="Rechercher une course, une commune…" aria-label="Rechercher une course" autocomplete="off">
       <button type="button" class="fbtn" id="f-toggle" aria-expanded="false" aria-controls="filters">Filtres<span id="f-count" hidden></span></button>
-    </div>
-    <div class="qpills" role="group" aria-label="Filtres rapides">
-      <button type="button" data-qk="disc" data-qv="" aria-pressed="true">Tout</button>
-      <button type="button" data-qk="disc" data-qv="trail" style="--dc:var(--c-trail)">Trail</button>
-      <button type="button" data-qk="disc" data-qv="route" style="--dc:var(--c-route)">Route</button>
-      <button type="button" data-qk="disc" data-qv="cross" style="--dc:var(--c-cross)">Cross</button>
-      <button type="button" data-qk="disc" data-qv="marche" style="--dc:var(--c-marche)">Rando</button>
-      <button type="button" data-qk="disc" data-qv="multisport" style="--dc:var(--c-tri)">Multisport</button>
-      <span class="qsep" aria-hidden="true"></span>
-      <button type="button" data-qk="dist" data-qv="court">Moins de 15 km</button>
-      <button type="button" data-qk="dist" data-qv="moyen">15 à 30 km</button>
-      <button type="button" data-qk="dist" data-qv="long">Plus de 30 km</button>
-      <span class="qsep" aria-hidden="true"></span>
-      <button type="button" data-qk="ouvert" data-qv="1">Inscriptions ouvertes</button>
     </div>
   <div class="filters" id="filters" hidden>
     <label class="fgroup"><span>Commune</span><select id="f-commune"><option value="">Toutes</option></select></label>
@@ -1442,7 +1430,7 @@ function openHash() {
 // quick pills, filter drawer, mobile map button
 function syncQuick() {
   document.querySelectorAll("[data-qk]").forEach(b => b.setAttribute("aria-pressed", String((state[b.dataset.qk] || "") === b.dataset.qv)));
-  const n = ["commune", "mois", "dp", "ffa"].filter(k => state[k]).length + (state.fav ? 1 : 0) + (state.ouvert === "7" ? 1 : 0);
+  const n = ["commune", "disc", "mois", "dist", "dp", "ffa", "ouvert"].filter(k => state[k]).length + (state.fav ? 1 : 0);
   const c = $("#f-count"); c.hidden = !n; c.textContent = n;
 }
 document.querySelectorAll("[data-qk]").forEach(b => b.addEventListener("click", () => {
