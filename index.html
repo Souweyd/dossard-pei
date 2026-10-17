@@ -305,8 +305,8 @@ body.noscroll { overflow: hidden }
 .minimap .contour { stroke-width: .5 } .minimap .sentier { stroke-width: 1.3 }
 .mmleg { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .78rem; color: var(--muted) } .mmleg i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px } .mmleg i.dash { width: 16px; height: 0; border-radius: 0; border-top: 2px dashed #7a3f12; vertical-align: 3px }
 .trkfoot { display: flex; justify-content: flex-end }
-.gpxdl { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: .82rem; font-weight: 700; letter-spacing: .02em; color: var(--accent); background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; white-space: nowrap }
-.gpxdl:hover { border-color: var(--accent); background: #eef5fb } .gpxdl svg { width: 15px; height: 15px; flex: none }
+.gpxdl { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: .82rem; font-weight: 700; letter-spacing: .02em; color: var(--accent); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; white-space: nowrap }
+.gpxdl:hover { border-color: var(--accent); background: var(--accent-soft) } .gpxdl svg { width: 15px; height: 15px; flex: none }
 .trksrc a { color: inherit }
 .trk-tabs { display: flex; flex-wrap: wrap; gap: 6px } .trk-tabs .chip { font-size: .82rem }
 /* map labels */
@@ -333,10 +333,10 @@ footer p { margin: 0 }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important } }
 /* ===== v4 layout: search + quick pills, "bientôt" strip, compact list beside a sticky map ===== */
-:root { --bg:#f5f5f7; --surface:#ffffff; --fg:#1d1d1f; --muted:#6e6e73; --line:#e2e2e7; --accent:#0a6aa8; --accent-soft:#e4f0f8; --hot:#e5502e; --sea:#dbe8ee; --commune: rgba(29,29,31,.28);
+:root { --bg:#f5efe6; --surface:#fffcf7; --fg:#2a211c; --muted:#776a5f; --line:#e6dccf; --accent:#0d6b67; --accent-soft:#dcece8; --hot:#e5502e; --sea:#d9e6e6; --commune: rgba(29,29,31,.28);
   --display:"Instrument Sans", system-ui, sans-serif; --body:"Instrument Sans", system-ui, sans-serif; --mono:"Instrument Sans", system-ui, sans-serif }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#000000; --surface:#1c1c1e; --fg:#f5f5f7; --muted:#a1a1a6; --line:#2c2c2e; --accent:#4fb0ec; --accent-soft:#12293a; --hot:#ff6a45; --sea:#16252b; --commune: rgba(245,245,247,.25) } }
-:root[data-theme="dark"] { --bg:#000000; --surface:#1c1c1e; --fg:#f5f5f7; --muted:#a1a1a6; --line:#2c2c2e; --accent:#4fb0ec; --accent-soft:#12293a; --hot:#ff6a45; --sea:#16252b; --commune: rgba(245,245,247,.25) }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#14110e; --surface:#1f1a16; --fg:#f1eae2; --muted:#a89a8d; --line:#332b25; --accent:#5cc4bc; --accent-soft:#1d3532; --hot:#ff6a45; --sea:#1b2424; --commune: rgba(245,245,247,.25) } }
+:root[data-theme="dark"] { --bg:#14110e; --surface:#1f1a16; --fg:#f1eae2; --muted:#a89a8d; --line:#332b25; --accent:#5cc4bc; --accent-soft:#1d3532; --hot:#ff6a45; --sea:#1b2424; --commune: rgba(245,245,247,.25) }
 body { -webkit-font-smoothing: antialiased; padding-top: 14px }
 .wrap { gap: 22px; grid-template-columns: minmax(0, 1fr) } .wrap > * { min-width: 0 } .soon { overflow: hidden }
 a { color: var(--accent) }
