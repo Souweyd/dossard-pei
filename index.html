@@ -509,6 +509,8 @@ header.top .logo { width: 36px } header.top .bname { font-size: 1.15rem }
 header.top .topr { position: absolute; top: 50%; right: max(16px, calc((100vw - 1320px) / 2)); transform: translateY(-50%) }
 .mapcol { top: 72px }
 @media (prefers-reduced-motion: reduce) { header.top, header.top .brand { transition: none } }
+
+.hero2 .hsub { max-width: none; text-wrap: wrap } @media (min-width: 760px) { .hero2 .hsub .nw { white-space: nowrap } }
 </style>
 
 <div class="wrap">
@@ -522,7 +524,7 @@ header.top .topr { position: absolute; top: 50%; right: max(16px, calc((100vw - 
   <section class="hero2" aria-label="Recherche">
     <div class="big" id="bigbrand"><svg class="logo biglogo" viewBox="0 0 64 64" role="img" aria-label="Logo Dossard Péi : dossard 974"><g transform="rotate(-6 32 32)"><rect x="5" y="10" width="54" height="44" rx="6" fill="#fff" stroke="#1d2523" stroke-width="3"/><path d="M6.5 22V16a4.5 4.5 0 0 1 4.5-4.5h42a4.5 4.5 0 0 1 4.5 4.5v6z" fill="#1d4f9c"/><g fill="#ffd400"><path d="M32 22 22 11.5h3.6zM32 22 30.2 11.5h3.6zM32 22 38.4 11.5H42z"/></g><path d="M26.5 22h11L32 17z" fill="#e3242b"/><circle cx="11.5" cy="27" r="2" fill="#1d2523"/><circle cx="52.5" cy="27" r="2" fill="#1d2523"/><circle cx="11.5" cy="48.5" r="2" fill="#1d2523"/><circle cx="52.5" cy="48.5" r="2" fill="#1d2523"/><text x="32" y="47.5" text-anchor="middle" font-family="Arial Narrow,Arial,sans-serif" font-weight="800" font-size="22" fill="#1d2523" letter-spacing="-.5">974</text></g></svg><h1>Dossard Péi</h1></div>
     <p class="tagl">Trouve ton prochain dossard.</p>
-    <p class="hsub">Trail, route, cross, rando et multisport : toutes les courses de La Réunion, avec la carte, les parcours et le lien d'inscription.</p>
+    <p class="hsub">Trail, route, cross, rando et multisport :<br><span class="nw">toutes les courses de La Réunion, avec la carte, les parcours et le lien d'inscription.</span></p>
   </section>
 
   <section id="admin" hidden aria-label="Administration"></section>
