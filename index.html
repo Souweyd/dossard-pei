@@ -310,12 +310,13 @@ body.noscroll { overflow: hidden }
 .lb-place.r1, .lb-place.r2 { font-weight: 700 } .lb-place.r3 { font-weight: 600 } .lb-place.r4 { font-style: italic; fill: #3b4743 }
 .lb-peak { fill: #5a3412; font-weight: 600 } .lb-col { fill: #5a3412 } .lb-fall { fill: #1c5f86; font-style: italic } .lb-view { fill: #4b3a6b; font-style: italic }
 .lb-trail { fill: #7a3f12; font-style: italic; font-weight: 600 }
+.mapattr { position: absolute; right: 6px; bottom: 4px; font-size: .62rem; color: rgba(29,37,35,.7); background: rgba(255,255,255,.55); padding: 0 5px; border-radius: 4px; pointer-events: none }
 .zbtns { display: inline-flex; flex-direction: column; gap: 4px } .zbtns .toolbtn { width: 34px; height: 34px; padding: 0; font-size: 1.2rem; font-weight: 700; line-height: 1 }
 .srcs { font-size: .76rem; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 8px; line-height: 1.6 } .srcs b { color: var(--fg); margin-right: 4px } .srcs a { color: var(--muted) }
 footer { color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 14px; display: grid; gap: 6px }
 footer > p:first-child { max-width: 90ch }
 footer p { margin: 0 }
-.credit { text-align: center; margin-top: 14px !important; font-family: var(--display); font-size: .95rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted) }
+.credit { text-align: center; margin: 6px 0 0 !important; font-family: var(--display); font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); opacity: .8 }
 .credit b { color: var(--fg) }
 .credit img { vertical-align: -8px; margin-right: 6px }
 @media (max-width: 900px) {
@@ -385,6 +386,7 @@ footer p { margin: 0 }
       <div class="mapbox" id="mapbox">
         <svg id="map" role="img" aria-label="Carte en relief de La Réunion avec les communes de départ"></svg>
         <div class="mpop" id="mpop" hidden role="dialog" aria-label="Courses de la commune"></div>
+        <div class="mapattr">© IGN · ESA · OpenStreetMap</div>
         <div class="maptools"><span class="zbtns"><button type="button" class="toolbtn" id="z-in" aria-label="Zoomer">+</button><button type="button" class="toolbtn" id="z-out" aria-label="Dézoomer">−</button></span><button type="button" class="toolbtn" id="zoom-out" hidden>Toute l'île</button></div>
       </div>
       <div class="maplegend" id="maplegend"></div>
@@ -393,8 +395,7 @@ footer p { margin: 0 }
   </div>
 
   <footer>
-    <p>Les informations (horaires, tarifs, parcours) peuvent évoluer : seule la page de l'organisateur fait foi. Km effort = distance + D+ / 100 (classement FFA des trails, XXS à XXL ; sans D+ connu, la distance seule est utilisée). Les tracés appartiennent à leurs organisateurs. Fonds de carte : IGN, ESA WorldCover, © OpenStreetMap.</p>
-    <p class="credit"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cg%20transform%3D%22rotate%28-6%2032%2032%29%22%3E%3Crect%20x%3D%225%22%20y%3D%2210%22%20width%3D%2254%22%20height%3D%2244%22%20rx%3D%226%22%20fill%3D%22%23fff%22%20stroke%3D%22%231d2523%22%20stroke-width%3D%223%22/%3E%3Cpath%20d%3D%22M6.5%2022V16a4.5%204.5%200%200%201%204.5-4.5h42a4.5%204.5%200%200%201%204.5%204.5v6z%22%20fill%3D%22%231d4f9c%22/%3E%3Cg%20fill%3D%22%23ffd400%22%3E%3Cpath%20d%3D%22M32%2022%2022%2011.5h3.6zM32%2022%2030.2%2011.5h3.6zM32%2022%2038.4%2011.5H42z%22/%3E%3C/g%3E%3Cpath%20d%3D%22M26.5%2022h11L32%2017z%22%20fill%3D%22%23e3242b%22/%3E%3Ccircle%20cx%3D%2211.5%22%20cy%3D%2227%22%20r%3D%222%22%20fill%3D%22%231d2523%22/%3E%3Ccircle%20cx%3D%2252.5%22%20cy%3D%2227%22%20r%3D%222%22%20fill%3D%22%231d2523%22/%3E%3Ccircle%20cx%3D%2211.5%22%20cy%3D%2248.5%22%20r%3D%222%22%20fill%3D%22%231d2523%22/%3E%3Ccircle%20cx%3D%2252.5%22%20cy%3D%2248.5%22%20r%3D%222%22%20fill%3D%22%231d2523%22/%3E%3Ctext%20x%3D%2232%22%20y%3D%2247.5%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%20Narrow%2CArial%2Csans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2222%22%20fill%3D%22%231d2523%22%20letter-spacing%3D%22-.5%22%3E974%3C/text%3E%3C/g%3E%3C/svg%3E" alt="" width="28" height="28"> Produced by <b>SWD</b></p>
+    <p class="credit">SWD</p>
   </footer>
 </div>
 
@@ -595,7 +596,6 @@ function actionsHTML(r, withMore) {
     ${ficheOf(r) ? `<a class="ghostlink" href="${esc(ficheOf(r))}" target="_blank" rel="noopener">Fiche technique</a>` : ""}
     ${withMore ? `<button type="button" class="more" data-more="${esc(r.id)}" aria-expanded="${open}">${open ? "Masquer" : "Détails"}${r.traces || hasTrack(r.id) ? " et tracés" : ""}</button>` : ""}
     ${r.approx ? "" : `<a class="ghostlink" href="${esc(gcalURL(r))}" target="_blank" rel="noopener" title="Ajouter à Google Agenda">+ Agenda</a>`}
-    <button type="button" class="ghostlink" data-share="${esc(r.id)}">Partager</button>
   </div>`;
 }
 const favBtn = r => `<button type="button" class="fav" data-fav="${esc(r.id)}" aria-pressed="${FAVS.has(r.id)}" aria-label="${FAVS.has(r.id) ? "Retirer des favoris" : "Ajouter aux favoris"}" title="${FAVS.has(r.id) ? "Retirer des favoris" : "Ajouter aux favoris"}">${FAVS.has(r.id) ? "★" : "☆"}</button>`;
