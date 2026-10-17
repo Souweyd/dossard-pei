@@ -965,7 +965,7 @@ function detailHTML(r) {
     <div class="tblwrap"><table><thead><tr><th>Épreuve</th><th>Dist.</th><th>D+</th><th>Km effort</th><th>Type</th><th>Départ</th><th>Tarif</th></tr></thead><tbody>${rows}</tbody></table></div>
     ${prof}
     ${r.approx ? `<p class="note" style="margin:0">Date à confirmer : le mois est repris de l'édition précédente. Vérifiez sur la fiche avant de vous organiser.</p>` : ""}
-    <div class="links">${r.org ? `<span class="note">Organisateur : ${esc(r.org)}</span>` : ""}${traces}${r.page && r.page !== r.inscription && r.page !== ficheOf(r) ? `<a href="${esc(r.page)}" target="_blank" rel="noopener">Site de la course</a>` : ""}${r.approx ? "" : `<a href="${esc(outlookURL(r))}" target="_blank" rel="noopener">Ajouter à Outlook</a>`}</div>
+    <div class="links">${r.org ? `<span class="note">Organisateur : ${esc(r.org)}</span>` : ""}${traces}${r.page && r.page !== r.inscription && r.page !== ficheOf(r) ? `<a href="${esc(r.page)}" target="_blank" rel="noopener">Site de la course</a>` : ""}</div>
     ${sourcesHTML(r)}
   </div>`;
 }
