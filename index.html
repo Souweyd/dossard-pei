@@ -380,7 +380,7 @@ header.top { flex-direction: row; text-align: left } .top { display: flex; align
 .simg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform .35s ease }
 .scard:hover .simg img { transform: scale(1.04) }
 .sph { position: absolute; left: 12px; right: 12px; bottom: 12px; color: #fff; font-weight: 700; font-size: 1.15rem; line-height: 1.1; letter-spacing: -.02em }
-.swhen { position: absolute; left: 8px; top: 8px; background: var(--surface); color: var(--fg); border-radius: 999px; padding: 3px 10px; font-size: .78rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,.15) }
+.swhen { position: absolute; left: 8px; top: 8px; background: var(--surface); color: var(--fg); border-radius: 999px; padding: 3px 11px; font-size: .85rem; font-weight: 700; font-variant-numeric: tabular-nums; box-shadow: 0 2px 8px rgba(0,0,0,.15) }
 .sname { font-weight: 600; font-size: .95rem; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden }
 .smeta { color: var(--muted); font-size: .82rem }
 /* list + map */
@@ -768,9 +768,9 @@ function hoverCom(com) { gPins.querySelectorAll(".pin").forEach(g => g.classList
 function renderSoon() {
   const t = todayISO(), rs = RACES.filter(r => !r.hidden && r.date >= t).sort(byDate).slice(0, 12);
   $("#soon").innerHTML = rs.map(r => { const d = dt(r.date), n = daysTo(r.date);
-    const when = n === 0 ? "Aujourd'hui" : n === 1 ? "Demain" : `${cap(JOURS[d.getDay()])} ${d.getDate()} ${MABR[d.getMonth()]}`;
+    const when = n === 0 ? "Jour J" : `J-${n}`;
     return `<button type="button" class="scard" data-card="${esc(r.id)}" style="--dc:var(${DCOL[r.disc]})" aria-haspopup="dialog">
-      <span class="simg"><span class="sph">${esc(r.nom)}</span>${r.poster ? `<img src="${esc(thumbOf(r))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}<span class="swhen">${when}</span></span>
+      <span class="simg"><span class="sph">${esc(r.nom)}</span>${r.poster ? `<img src="${esc(thumbOf(r))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}<span class="swhen" title="${esc(d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }))}">${when}</span></span>
       <span class="sname">${esc(r.nom)}</span><span class="smeta">${esc(r.commune)}${r.main && r.main.km ? " · " + fmt(r.main.km) + " km" : ""}</span></button>`; }).join("");
   $("#soon").querySelectorAll("[data-card]").forEach(b => b.addEventListener("click", () => openRace(b.dataset.card)));
 }
