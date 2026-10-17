@@ -1377,7 +1377,7 @@ function miniMap(pts, r) {
     <image href="relief.webp" x="0" y="0" width="${MAP.W}" height="${MAP.H}" preserveAspectRatio="none"/>
     ${tilesIn(bx[2] < MAP.W * .3 ? 3 : 2, bx).map(([nm, x, y, w, h]) => `<image href="tiles/${nm}.webp" x="${x}" y="${y}" width="${w + .3}" height="${h + .3}" preserveAspectRatio="none"/>`).join("")}
     <g>${cont}</g>${LABELS ? `<path d="${LABELS.trails}" class="sentier"/>` : ""}${route}${labs}</svg>
-    ${xy ? `<div class="mmleg"><span><i style="background:#1b7f3b"></i>Départ</span><span><i style="background:#1d2523"></i>Arrivée</span><span><i class="dash"></i>Sentiers</span></div>` : `<div class="mmleg"><span><i style="background:var(--hot)"></i>Départ (position approximative)</span><span><i class="dash"></i>Sentiers</span></div>`}`;
+    ${xy ? `<div class="mmleg"><span><i style="background:#1b7f3b"></i>Départ</span><span><i style="background:#1d2523"></i>Arrivée</span></div>` : `<div class="mmleg"><span><i style="background:var(--hot)"></i>Départ (position approximative)</span></div>`}`;
 }
 function profileSVG(pts) {
   const { km: d, prof } = trackStats(pts);
