@@ -1054,7 +1054,6 @@ function renderCal(rs) {
       <div class="dots">${list.map(r => `<i style="--dc:var(${DCOL[r.disc]})"></i>`).join("")}</div></div>`;
   }
   const dayList = state.day && byDay[state.day] ? `<div class="daylist"><h3>${dt(state.day).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}</h3>${byDay[state.day].map(r => `<button type="button" class="ev${r.id === state.sel ? " on" : ""}" style="--dc:var(${DCOL[r.disc]});white-space:normal;font-size:.9rem;padding:6px 8px" data-ev="${esc(r.id)}"><b>${esc(r.nom)}</b> · ${esc(r.commune)}${r.main.km ? " · " + fmt(r.main.km) + " km" : ""}${r.main.dp ? " · " + r.main.dp + " D+" : ""}</button>`).join("")}</div>` : "";
-  const sel = RACES.find(r => r.id === state.sel);
   const used = [...new Set(rs.map(r => r.disc))];
   $("#list").innerHTML = `<div class="cal">
     <div class="calhead"><h2>${MOIS[M - 1]} ${Y}</h2><div class="calnav">
@@ -1065,7 +1064,7 @@ function renderCal(rs) {
     <div class="legend">${used.map(k => `<span><i style="--dc:var(${DCOL[k]})"></i>${DISC[k]}</span>`).join("")}</div>
     ${dayList}
     ${tbc.length ? `<div class="tbclist"><h3>Date à confirmer ce mois-ci · ${tbc.length}</h3><div class="evs">${tbc.map(r => `<button type="button" class="ev${r.id === state.sel ? " on" : ""}" style="--dc:var(${DCOL[r.disc]})" data-ev="${esc(r.id)}" title="${esc(r.nom)} · ${esc(r.commune)}">${esc(r.nom)}</button>`).join("")}</div></div>` : ""}
-  </div>${sel ? `<article class="race on" style="margin-top:14px">${bibHTML(sel)}<div class="rbody"><div class="rhead"><h3>${esc(sel.nom)}</h3><span class="right">${stateBadge(sel)}${favBtn(sel)}</span></div><div class="where"><span class="disc">${DISC[sel.disc]}</span><span>${esc(sel.commune)}</span>${sel.approx ? `<span class="tbc">Date à confirmer</span>` : ""}</div>${actionsHTML(sel, false)}${detailHTML(sel)}</div></article>` : ""}`;
+  </div>`;
   const shift = n => { const d = new Date(Y, M - 1 + n, 1); state.cal = ymd(d).slice(0, 7); state.day = null; render(); };
   $("#c-prev").addEventListener("click", () => shift(-1));
   $("#c-next").addEventListener("click", () => shift(1));
