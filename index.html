@@ -1644,7 +1644,7 @@ merge(); buildMonths(); render();
 // deep link: #c-<race id> opens that race
 
 // ---------- contact form (Web3Forms: the key only routes messages to contact@dossardpei.re, it is not a secret) ----------
-const WEB3_KEY = "__WEB3FORMS_KEY__";
+const WEB3_KEY = "2b5c040f-3abd-4227-b2db-786027df41b1";
 const CONTACT_MAIL = "contact@dossardpei.re";
 function openContact(raceId, subject) {
   document.querySelector(".cform")?.remove();
@@ -1681,7 +1681,8 @@ function openContact(raceId, subject) {
     if (!WEB3_KEY || WEB3_KEY.startsWith("__")) return fallback();
     btn.disabled = true; msg.className = "msg"; msg.textContent = "Envoi…";
     try {
-      const res = await fetch("https://api.web3forms.com/submit", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" },
+      const ctl = new AbortController(); setTimeout(() => ctl.abort(), 15000);
+      const res = await fetch("https://api.web3forms.com/submit", { signal: ctl.signal, method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ access_key: WEB3_KEY, subject: `[Dossard Péi] ${objet}${r ? " · " + r.nom : ""}`, from_name: fd.get("nom") || "Visiteur Dossard Péi", ...(mail ? { email: mail, replyto: mail } : {}), objet, course: r ? `${r.nom} (${r.date}, ${r.commune})` : "", page, message: text, botcheck: false }) });
       const j = await res.json().catch(() => ({}));
       if (!res.ok || j.success === false) throw new Error(j.message || res.status);
