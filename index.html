@@ -520,14 +520,15 @@ header.top .topr { position: absolute; top: 50%; right: max(16px, calc((100vw - 
 
 /* ---------- illustrated landscape behind the header (day: Hauts trail, night: sunset over the cirques) ---------- */
 html { overflow-x: clip }
-.hero2 { position: relative; isolation: isolate; padding-top: clamp(40px, 6vw, 80px); padding-bottom: clamp(150px, 17vw, 250px) }
+.hero2 { position: relative; isolation: isolate; padding-top: clamp(28px, 4vw, 56px); padding-bottom: clamp(110px, 11vw, 170px) }
 .herobg { position: absolute; z-index: -1; top: -40px; bottom: -30px; left: 50%; width: 100vw; transform: translateX(-50%); overflow: hidden; pointer-events: none; background: linear-gradient(#5fb0e5, #9fd2f0) }
 .herobg svg { position: absolute; inset: 0; width: 100%; height: 100% }
 .herobg .hn { display: none }
+.herobg::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--bg) }
 .hero2 .hsub { color: color-mix(in srgb, var(--fg) 78%, transparent) }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .herobg { background: linear-gradient(#141026, #3a1d4a) } :root:not([data-theme="light"]) .herobg .hd { display: none } :root:not([data-theme="light"]) .herobg .hn { display: block } :root:not([data-theme="light"]) .hero2 .hsub { text-shadow: 0 1px 8px rgba(20,16,38,.6) } }
 :root[data-theme="dark"] .herobg { background: linear-gradient(#141026, #3a1d4a) } :root[data-theme="dark"] .herobg .hd { display: none } :root[data-theme="dark"] .herobg .hn { display: block } :root[data-theme="dark"] .hero2 .hsub { text-shadow: 0 1px 8px rgba(20,16,38,.6) }
-@media (max-width: 700px) { .hero2 { padding-bottom: 190px } .herobg svg { top: auto; height: 300px; -webkit-mask-image: linear-gradient(transparent, #000 35%); mask-image: linear-gradient(transparent, #000 35%) } }
+@media (max-width: 700px) { .hero2 { padding-bottom: 120px } .herobg svg { top: auto; height: 240px; -webkit-mask-image: linear-gradient(transparent, #000 35%); mask-image: linear-gradient(transparent, #000 35%) } }
 </style>
 
 <div class="wrap">
