@@ -395,7 +395,7 @@ header.top { flex-direction: row; text-align: left } .top { display: flex; align
 .lrow:focus-visible { outline: 2px solid var(--fg); outline-offset: -2px }
 .ldate { text-align: center; line-height: 1 } .ldate small { display: block; color: var(--muted); font-size: .74rem; margin-bottom: 3px } .ldate b { font-size: 1.45rem; font-weight: 700; letter-spacing: -.03em }
 .lthumb { width: 46px; height: 60px; border-radius: 8px; overflow: hidden; background: linear-gradient(160deg, color-mix(in srgb, var(--dc) 80%, #000), color-mix(in srgb, var(--dc) 45%, #000)) }
-.lthumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block }
+.lthumb { position: relative } .lthumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; display: block } .lph { display: none }
 .lmain { display: grid; gap: 3px; min-width: 0 }
 .lname { font-weight: 600; font-size: 1.02rem; letter-spacing: -.01em; line-height: 1.25 }
 .lfav { color: var(--hot); font-style: normal }
@@ -440,6 +440,26 @@ footer { border: 0; padding-top: 6px }
   .lstate { grid-column: 3; margin-top: -2px } .lstate:empty { display: none }
   .hero2 .filters { padding: 12px }
 }
+
+/* map hidden: list becomes a poster grid */
+.mtr { display: inline-flex; gap: 6px; align-items: flex-start }
+.mhide, .mshow { font: inherit; font-size: .85rem; font-weight: 600; border-radius: 999px; padding: 7px 14px; cursor: pointer; border: 0; background: var(--surface); color: var(--fg); box-shadow: 0 1px 4px rgba(0,0,0,.12) }
+.mshow { box-shadow: none; display: inline-flex; align-items: center; gap: 6px } .mshow::before { content: ""; width: 14px; height: 14px; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Zm0 0v14m6-12v14' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Zm0 0v14m6-12v14' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat }
+.mshow:hover, .mhide:hover { background: var(--fg); color: var(--bg) }
+.lhr { display: inline-flex; align-items: center; gap: 12px }
+@media (min-width: 901px) {
+  .main.nomap { grid-template-columns: minmax(0, 1fr) } .main.nomap .mapcol { display: none }
+  .main.nomap .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 22px 18px }
+  .main.nomap .month { grid-column: 1 / -1; margin-bottom: -6px }
+  .main.nomap .lrow { grid-template-columns: 38px minmax(0, 1fr); grid-template-areas: "thumb thumb" "date main" ". state"; gap: 6px 10px; padding: 0; align-items: start; background: none; box-shadow: none }
+  .main.nomap .lrow:hover .lthumb img { transform: scale(1.04) }
+  .main.nomap .lthumb { grid-area: thumb; width: 100%; height: auto; aspect-ratio: 3 / 4; border-radius: 16px; margin-bottom: 4px }
+  .main.nomap .lthumb img { transition: transform .35s ease }
+  .main.nomap .lph { display: block; position: absolute; left: 14px; right: 14px; bottom: 14px; color: #fff; font-weight: 700; font-size: 1.3rem; line-height: 1.1; letter-spacing: -.02em }
+  .main.nomap .ldate { grid-area: date; padding-top: 2px } .main.nomap .lmain { grid-area: main } .main.nomap .lstate { grid-area: state; justify-self: start }
+  .main.nomap .lrow.on .lthumb { box-shadow: 0 0 0 3px var(--hot) }
+}
+@media (max-width: 900px) { .mhide, .mshow { display: none !important } }
 </style>
 
 <div class="wrap">
@@ -505,12 +525,12 @@ footer { border: 0; padding-top: 6px }
         <svg id="map" role="img" aria-label="Carte en relief de La Réunion avec les communes de départ"></svg>
         <div class="mpop" id="mpop" hidden role="dialog" aria-label="Courses de la commune"></div>
         <div class="mapattr">© IGN · ESA · OpenStreetMap</div>
-        <div class="maptools"><span class="zbtns"><button type="button" class="toolbtn" id="z-in" aria-label="Zoomer">+</button><button type="button" class="toolbtn" id="z-out" aria-label="Dézoomer">−</button></span><button type="button" class="toolbtn" id="zoom-out" hidden>Toute l'île</button></div>
+        <div class="maptools"><span class="zbtns"><button type="button" class="toolbtn" id="z-in" aria-label="Zoomer">+</button><button type="button" class="toolbtn" id="z-out" aria-label="Dézoomer">−</button></span><span class="mtr"><button type="button" class="toolbtn" id="zoom-out" hidden>Toute l'île</button><button type="button" class="toolbtn mhide" id="map-hide">Masquer la carte</button></span></div>
       </div>
       <div class="maplegend" id="maplegend"></div>
     </div>
     <div class="listcol">
-      <div class="lhead"><p><b id="s-courses">0</b> courses à venir<span hidden><b id="s-communes"></b><b id="s-km"></b></span></p><p class="fresh" id="fresh"></p></div>
+      <div class="lhead"><p><b id="s-courses">0</b> courses à venir<span hidden><b id="s-communes"></b><b id="s-km"></b></span></p><span class="lhr"><span class="fresh" id="fresh"></span><button type="button" class="mshow" id="map-show" hidden>Afficher la carte</button></span></div>
       <div class="list" id="list"></div>
     </div>
   </div>
@@ -729,7 +749,7 @@ function renderGrid(rs) {
     const seen = new Set(), eps = (r.epreuves || []).filter(e => e.km && e.type !== "jeunes").sort((a, b) => b.km - a.km).filter(e => { const k = e.km + "/" + (e.dp || ""); if (seen.has(k)) return false; seen.add(k); return true; }), shown = eps.slice(0, 3);
     html += `<button type="button" class="lrow${state.sel === r.id ? " on" : ""}" id="r-${esc(r.id)}" data-card="${esc(r.id)}" data-com="${esc(r.commune)}" style="--dc:var(${DCOL[r.disc]})" aria-haspopup="dialog">
       <span class="ldate"><small>${JOURS[d.getDay()].replace(".", "")}</small><b>${d.getDate()}</b></span>
-      <span class="lthumb">${r.poster ? `<img src="${esc(thumbOf(r))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}</span>
+      <span class="lthumb"><span class="lph">${esc(r.nom)}</span>${r.poster ? `<img src="${esc(thumbOf(r))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}</span>
       <span class="lmain"><span class="lname">${esc(r.nom)}${FAVS.has(r.id) ? ` <i class="lfav" aria-label="favori">★</i>` : ""}</span>
         <span class="lmeta"><i class="ldot"></i>${DISC[r.disc]} · ${esc(r.commune)}${hasTrack(r.id) ? ` <span class="gpxtag">${TRK_ICO}tracé</span>` : ""}</span>
         <span class="leps">${shown.map(e => `<span class="lep">${fmt(e.km)} km${e.dp ? ` · ${e.dp} D+` : ""}</span>`).join("")}${eps.length > 3 ? `<span class="lep more">+${eps.length - 3}</span>` : ""}</span></span>
@@ -1424,6 +1444,15 @@ $("#f-toggle").addEventListener("click", () => { const f = $("#filters"); f.hidd
 $("#mapfab").addEventListener("click", () => { const toMap = $("#main").dataset.view !== "carte"; setView(toMap ? "carte" : state.rview);
   $("#mapfab span").textContent = toMap ? "Liste" : "Carte"; if (toMap) scrollTo({ top: $("#main").offsetTop - 8, behavior: reduced() ? "auto" : "smooth" }); });
 document.querySelectorAll("[data-snav]").forEach(b => b.addEventListener("click", () => { const row = $("#soon"); row.scrollBy({ left: +b.dataset.snav * row.clientWidth * .85, behavior: reduced() ? "auto" : "smooth" }); }));
+// desktop: hide / show the map (remembered on this device)
+function setNoMap(on) {
+  $("#main").classList.toggle("nomap", on); $("#map-show").hidden = !on;
+  try { localStorage.setItem("dp-nomap", on ? "1" : ""); } catch (e) {}
+  if (!on) requestAnimationFrame(() => drawPins(filtered()));
+}
+$("#map-hide").addEventListener("click", () => setNoMap(true));
+$("#map-show").addEventListener("click", () => setNoMap(false));
+try { if (localStorage.getItem("dp-nomap") === "1") setNoMap(true); } catch (e) {}
 openHash(); addEventListener("hashchange", openHash);
 fetch("data.json", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(d => {
   if (d && d.races && (!BASE.updatedAt || (d.checkedAt || d.updatedAt) > (BASE.checkedAt || BASE.updatedAt) || d.updatedAt > BASE.updatedAt)) { BASE = d; merge(); buildMonths(); render(); renderAdmin(); openHash(); }
