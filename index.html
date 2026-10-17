@@ -492,18 +492,36 @@ footer { border: 0; padding-top: 6px }
 .pv-line { fill: none; stroke: var(--hot); stroke-linejoin: round; stroke-linecap: round }
 .mpop-i.pv { background: var(--accent-soft) } .mpop-i.pv .mpop-n::after { content: " · toucher à nouveau pour ouvrir"; font-weight: 400; color: var(--muted); font-size: .8rem }
 .mpop { border: 0; border-radius: 18px; max-height: 46% } .mpop-h b { text-transform: none; letter-spacing: -.02em; font-weight: 700 } .mpop-d { text-transform: none; font-family: var(--body) } .mpop-d b { font-weight: 700 } .mpop-m { font-family: var(--body) }
+
+/* brand: big title in the hero; once it scrolls away, a compact bar slides in and the logo glides to the top-left corner */
+.big { display: inline-flex; align-items: center; gap: clamp(12px, 1.6vw, 20px) }
+.big .biglogo { width: clamp(64px, 8vw, 104px) }
+.big h1 { margin: 0 }
+.tagl { margin: 12px 0 0; font-size: clamp(1.4rem, 2.6vw, 2rem); font-weight: 700; letter-spacing: -.03em; color: var(--fg) }
+.hero2 .hsub { margin-top: 10px }
+header.top { position: fixed; top: 0; left: 0; right: 0; z-index: 45; height: 60px; margin: 0; padding: 0 max(16px, env(safe-area-inset-left, 0px));
+  background: color-mix(in srgb, var(--bg) 78%, transparent); -webkit-backdrop-filter: saturate(1.6) blur(14px); backdrop-filter: saturate(1.6) blur(14px);
+  box-shadow: 0 1px 0 var(--line); opacity: 0; transform: translateY(-100%); pointer-events: none; transition: opacity .3s ease, transform .3s ease }
+header.top.on { opacity: 1; transform: none; pointer-events: auto }
+header.top .brand { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(1.25); transition: left .55s cubic-bezier(.2,.8,.2,1), transform .55s cubic-bezier(.2,.8,.2,1) }
+header.top.on .brand { left: max(16px, calc((100vw - 1320px) / 2)); transform: translate(0, -50%) }
+header.top .logo { width: 36px } header.top .bname { font-size: 1.15rem }
+header.top .topr { position: absolute; top: 50%; right: max(16px, calc((100vw - 1320px) / 2)); transform: translateY(-50%) }
+.mapcol { top: 72px }
+@media (prefers-reduced-motion: reduce) { header.top, header.top .brand { transition: none } }
 </style>
 
 <div class="wrap">
-  <header class="top">
-    <a class="brand" href="#" aria-label="Dossard Péi, accueil"><svg class="logo" viewBox="0 0 64 64" role="img" aria-label="Logo Dossard Péi : dossard 974"><g transform="rotate(-6 32 32)"><rect x="5" y="10" width="54" height="44" rx="6" fill="#fff" stroke="#1d2523" stroke-width="3"/><path d="M6.5 22V16a4.5 4.5 0 0 1 4.5-4.5h42a4.5 4.5 0 0 1 4.5 4.5v6z" fill="#1d4f9c"/><g fill="#ffd400"><path d="M32 22 22 11.5h3.6zM32 22 30.2 11.5h3.6zM32 22 38.4 11.5H42z"/></g><path d="M26.5 22h11L32 17z" fill="#e3242b"/><circle cx="11.5" cy="27" r="2" fill="#1d2523"/><circle cx="52.5" cy="27" r="2" fill="#1d2523"/><circle cx="11.5" cy="48.5" r="2" fill="#1d2523"/><circle cx="52.5" cy="48.5" r="2" fill="#1d2523"/><text x="32" y="47.5" text-anchor="middle" font-family="Arial Narrow,Arial,sans-serif" font-weight="800" font-size="22" fill="#1d2523" letter-spacing="-.5">974</text></g></svg><span class="bname">Dossard Péi</span></a>
+  <header class="top" id="topbar">
+    <a class="brand" href="#" id="minibrand" aria-label="Dossard Péi, accueil"><svg class="logo" viewBox="0 0 64 64" role="img" aria-label="Logo Dossard Péi : dossard 974"><g transform="rotate(-6 32 32)"><rect x="5" y="10" width="54" height="44" rx="6" fill="#fff" stroke="#1d2523" stroke-width="3"/><path d="M6.5 22V16a4.5 4.5 0 0 1 4.5-4.5h42a4.5 4.5 0 0 1 4.5 4.5v6z" fill="#1d4f9c"/><g fill="#ffd400"><path d="M32 22 22 11.5h3.6zM32 22 30.2 11.5h3.6zM32 22 38.4 11.5H42z"/></g><path d="M26.5 22h11L32 17z" fill="#e3242b"/><circle cx="11.5" cy="27" r="2" fill="#1d2523"/><circle cx="52.5" cy="27" r="2" fill="#1d2523"/><circle cx="11.5" cy="48.5" r="2" fill="#1d2523"/><circle cx="52.5" cy="48.5" r="2" fill="#1d2523"/><text x="32" y="47.5" text-anchor="middle" font-family="Arial Narrow,Arial,sans-serif" font-weight="800" font-size="22" fill="#1d2523" letter-spacing="-.5">974</text></g></svg><span class="bname">Dossard Péi</span></a>
     <div class="topr">
       <button class="adminbtn" id="adminbtn" type="button" aria-pressed="false" hidden>Admin</button>
     </div>
   </header>
 
   <section class="hero2" aria-label="Recherche">
-    <h1>Trouve ton prochain dossard.</h1>
+    <div class="big" id="bigbrand"><svg class="logo biglogo" viewBox="0 0 64 64" role="img" aria-label="Logo Dossard Péi : dossard 974"><g transform="rotate(-6 32 32)"><rect x="5" y="10" width="54" height="44" rx="6" fill="#fff" stroke="#1d2523" stroke-width="3"/><path d="M6.5 22V16a4.5 4.5 0 0 1 4.5-4.5h42a4.5 4.5 0 0 1 4.5 4.5v6z" fill="#1d4f9c"/><g fill="#ffd400"><path d="M32 22 22 11.5h3.6zM32 22 30.2 11.5h3.6zM32 22 38.4 11.5H42z"/></g><path d="M26.5 22h11L32 17z" fill="#e3242b"/><circle cx="11.5" cy="27" r="2" fill="#1d2523"/><circle cx="52.5" cy="27" r="2" fill="#1d2523"/><circle cx="11.5" cy="48.5" r="2" fill="#1d2523"/><circle cx="52.5" cy="48.5" r="2" fill="#1d2523"/><text x="32" y="47.5" text-anchor="middle" font-family="Arial Narrow,Arial,sans-serif" font-weight="800" font-size="22" fill="#1d2523" letter-spacing="-.5">974</text></g></svg><h1>Dossard Péi</h1></div>
+    <p class="tagl">Trouve ton prochain dossard.</p>
     <p class="hsub">Trail, route, cross, rando et multisport : toutes les courses de La Réunion, avec la carte, les parcours et le lien d'inscription.</p>
   </section>
 
@@ -1520,6 +1538,11 @@ function setNoMap(on) {
 $("#map-hide").addEventListener("click", () => setNoMap(true));
 $("#map-show").addEventListener("click", () => setNoMap(false));
 try { if (localStorage.getItem("dp-nomap") === "1") setNoMap(true); } catch (e) {}
+// compact brand bar once the big title has scrolled out of view
+(() => { const big = $("#bigbrand"), bar = $("#topbar"); if (!big || !bar) return;
+  new IntersectionObserver(([e]) => bar.classList.toggle("on", !e.isIntersecting && e.boundingClientRect.top < 0), { threshold: 0 }).observe(big);
+  $("#minibrand").addEventListener("click", e => { e.preventDefault(); scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" }); });
+})();
 openHash(); addEventListener("hashchange", openHash);
 fetch("data.json", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(d => {
   if (d && d.races && (!BASE.updatedAt || (d.checkedAt || d.updatedAt) > (BASE.checkedAt || BASE.updatedAt) || d.updatedAt > BASE.updatedAt)) { BASE = d; merge(); buildMonths(); render(); renderAdmin(); openHash(); }
