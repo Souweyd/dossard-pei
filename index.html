@@ -480,6 +480,11 @@ footer { border: 0; padding-top: 6px }
   .dlg { padding-top: max(24px, env(safe-area-inset-top, 0px)) }
   .dlg-panel { max-height: 88vh; max-height: calc(100dvh - max(24px, env(safe-area-inset-top, 0px))); padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)) }
 }
+
+/* filters: grey hint when nothing is chosen, highlighted when active */
+.finder .filters select { color: var(--muted); font-weight: 400 }
+.finder .filters select option { color: var(--fg); font-weight: 400 }
+.finder .filters select.set { color: var(--fg); font-weight: 600; background: var(--accent-soft); box-shadow: inset 0 0 0 2px var(--accent) }
 </style>
 
 <div class="wrap">
@@ -510,14 +515,14 @@ footer { border: 0; padding-top: 6px }
       <button type="button" class="fbtn" id="f-toggle" aria-expanded="false" aria-controls="filters">Filtres<span id="f-count" hidden></span></button>
     </div>
   <div class="filters" id="filters" hidden>
-    <label class="fgroup"><span>Commune</span><select id="f-commune"><option value="">Toutes</option></select></label>
-    <label class="fgroup"><span>Discipline</span><select id="f-disc"><option value="">Toutes</option></select></label>
-    <label class="fgroup"><span>Mois</span><select id="f-mois"><option value="">Tous</option></select></label>
-    <label class="fgroup"><span>Distance</span><select id="f-dist"><option value="">Toutes</option></select></label>
-    <label class="fgroup"><span>Dénivelé</span><select id="f-dp"><option value="">Tous</option></select></label>
-    <label class="fgroup"><span>Catégorie FFA</span><select id="f-ffa"><option value="">Toutes</option></select></label>
-    <label class="fgroup"><span>Inscriptions</span><select id="f-ouvert"><option value="">Toutes</option><option value="1">Ouvertes</option><option value="7">Clôture sous 7 jours</option></select></label>
-    <label class="fgroup"><span>Mes courses</span><select id="f-fav"><option value="">Toutes</option><option value="1">Mes favoris</option></select></label>
+    <label class="fgroup"><span>Commune</span><select id="f-commune"><option value="">Toutes les communes</option></select></label>
+    <label class="fgroup"><span>Discipline</span><select id="f-disc"><option value="">Toutes disciplines</option></select></label>
+    <label class="fgroup"><span>Mois</span><select id="f-mois"><option value="">Tous les mois</option></select></label>
+    <label class="fgroup"><span>Distance</span><select id="f-dist"><option value="">Toutes distances</option></select></label>
+    <label class="fgroup"><span>Dénivelé</span><select id="f-dp"><option value="">Tout dénivelé</option></select></label>
+    <label class="fgroup"><span>Catégorie FFA</span><select id="f-ffa"><option value="">Toutes catégories</option></select></label>
+    <label class="fgroup"><span>Inscriptions</span><select id="f-ouvert"><option value="">Ouvertes ou non</option><option value="1">Ouvertes</option><option value="7">Clôture sous 7 jours</option></select></label>
+    <label class="fgroup"><span>Mes courses</span><select id="f-fav"><option value="">Toutes les courses</option><option value="1">Mes favoris</option></select></label>
     <button class="reset" id="f-reset" type="button">Réinitialiser</button>
   </div>
 
@@ -1448,6 +1453,7 @@ function syncQuick() {
   document.querySelectorAll("[data-qk]").forEach(b => b.setAttribute("aria-pressed", String((state[b.dataset.qk] || "") === b.dataset.qv)));
   const n = ["commune", "disc", "mois", "dist", "dp", "ffa", "ouvert"].filter(k => state[k]).length + (state.fav ? 1 : 0);
   const c = $("#f-count"); c.hidden = !n; c.textContent = n;
+  document.querySelectorAll("#filters select").forEach(sel => sel.classList.toggle("set", !!sel.value));
 }
 document.querySelectorAll("[data-qk]").forEach(b => b.addEventListener("click", () => {
   const k = b.dataset.qk, v = b.dataset.qv; state[k] = state[k] === v && v ? "" : v;
