@@ -470,6 +470,16 @@ footer { border: 0; padding-top: 6px }
   .main.nomap .lrow.on .lthumb { box-shadow: 0 0 0 3px var(--hot) }
 }
 @media (max-width: 900px) { .mhide, .mshow { display: none !important } }
+
+/* detail sheet: close button stays reachable while scrolling; height follows the visible viewport (iOS toolbars) */
+.dlg-x { position: sticky; top: 4px; justify-self: end; right: auto; margin: -8px -8px -46px 0; width: 40px; height: 40px; padding: 0; border-radius: 50%; display: grid; place-items: center; font-size: 1.6rem;
+  background: color-mix(in srgb, var(--surface) 88%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); box-shadow: 0 1px 6px rgba(0,0,0,.18); z-index: 3 }
+.dlg-panel { max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overscroll-behavior: contain }
+.dlg-head { padding-right: 44px }
+@media (max-width: 640px) {
+  .dlg { padding-top: max(24px, env(safe-area-inset-top, 0px)) }
+  .dlg-panel { max-height: 88vh; max-height: calc(100dvh - max(24px, env(safe-area-inset-top, 0px))); padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)) }
+}
 </style>
 
 <div class="wrap">
