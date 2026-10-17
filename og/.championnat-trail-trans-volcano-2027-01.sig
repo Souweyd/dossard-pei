@@ -1,1 +1,1 @@
-["Championnat Trail Trans Volcano", "2027-01-23", "Le Tampon", [{"nom": "Trail 67 km", "km": 67, "dp": 1970, "type": "trail", "prix": "70 €"}], null, null, "art1"]
+["Trails du Volcan : Tangue et Transvolcano", "2027-01-23", "Le Tampon", [{"nom": "Transvolcano 63 km", "km": 63, "type": "trail"}, {"nom": "Transvolcano 45,5 km", "km": 45.5, "type": "trail"}, {"nom": "Course Tangue (semi-trail)", "km": 24, "type": "trail"}], null, null, "art1"]

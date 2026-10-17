@@ -1,1 +1,1 @@
-["Foulées Cité du Volcan", "2026-12-20", "Le Tampon", [{"nom": "10 km", "km": 10, "h": "09h00", "type": "route", "prix": "20 €"}], null, null, "art1"]
+["Les Foulées de la Cité du Volcan", "2026-12-20", "Le Tampon", [{"nom": "Course", "type": "route"}], null, null, "art1"]

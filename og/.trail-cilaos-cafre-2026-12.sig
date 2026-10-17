@@ -1,1 +1,0 @@
-["Trail Cilaos Cafre", "2026-12-19", "Cilaos", [{"nom": "Trail 18 km", "km": 18.2, "dp": 1956, "h": "07h00", "type": "trail", "prix": "20 €"}], null, null, "art1"]

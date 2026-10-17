@@ -1,1 +1,0 @@
-["Foulée du Verval", "2026-12-21", "Saint-Louis", [{"nom": "10 km", "km": 10, "h": "07h00", "type": "route"}], null, null, "art1"]
