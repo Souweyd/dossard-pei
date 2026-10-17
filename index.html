@@ -1682,9 +1682,22 @@ function openContact(raceId, subject) {
     btn.disabled = true; msg.className = "msg"; msg.textContent = "Envoi…";
     try {
       const ctl = new AbortController(); setTimeout(() => ctl.abort(), 15000);
-      const res = await fetch("https://api.web3forms.com/submit", { signal: ctl.signal, method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ access_key: WEB3_KEY, subject: `[Dossard Péi] ${objet}${r ? " · " + r.nom : ""}`, from_name: fd.get("nom") || "Visiteur Dossard Péi", ...(mail ? { email: mail, replyto: mail } : {}), objet, course: r ? `${r.nom} (${r.date}, ${r.commune})` : "", page, message: text, botcheck: false }) });
-      const j = await res.json().catch(() => ({}));
+      // plain form fields (no JSON, no custom header) = a "simple" cross-origin request, no CORS preflight
+      const payload = { access_key: WEB3_KEY, subject: `[Dossard Péi] ${objet}${r ? " · " + r.nom : ""}`, from_name: fd.get("nom") || "Visiteur Dossard Péi", ...(mail ? { email: mail, replyto: mail } : {}), objet, course: r ? `${r.nom} (${r.date}, ${r.commune})` : "", page, message: text };
+      const fdata = new FormData(); Object.entries(payload).forEach(([k, v]) => fdata.append(k, v));
+      let res = null, j = {};
+      try { res = await fetch("https://api.web3forms.com/submit", { signal: ctl.signal, method: "POST", body: fdata, headers: { Accept: "application/json" } }); j = await res.json().catch(() => ({})); }
+      catch (netErr) {
+        // response unreadable (network / CORS): post the same fields as a classic form into a hidden frame
+        await new Promise(done => {
+          const ifr = document.createElement("iframe"); ifr.name = "w3f" + Date.now(); ifr.hidden = true; document.body.appendChild(ifr);
+          const hf = document.createElement("form"); hf.method = "POST"; hf.action = "https://api.web3forms.com/submit"; hf.target = ifr.name; hf.hidden = true;
+          Object.entries(payload).forEach(([k, v]) => { const x = document.createElement("input"); x.type = "hidden"; x.name = k; x.value = v; hf.appendChild(x); });
+          document.body.appendChild(hf); ifr.addEventListener("load", () => done(), { once: true }); setTimeout(done, 6000); hf.submit();
+          setTimeout(() => { hf.remove(); ifr.remove(); }, 15000);
+        });
+        res = { ok: true }; j = { success: true };
+      }
       if (!res.ok || j.success === false) throw new Error(j.message || res.status);
       gcount("contact/" + (fd.get("objet") || ""), "Message envoyé", true);
       f.innerHTML = `<button type="button" class="x" aria-label="Fermer">×</button><div class="done"><b>Merci, c’est envoyé !</b><span class="msg">${mail ? "On te répond dès que possible." : "Ton message nous aide à garder le site à jour."}</span><button type="submit" style="display:none"></button></div>`;
