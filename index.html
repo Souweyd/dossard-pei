@@ -181,6 +181,9 @@ td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space
 .profile .area { fill: var(--hot); opacity: .18 } .profile .ln { fill: none; stroke: var(--hot); stroke-width: 2 }
 .profile text { font-family: var(--mono); font-size: 10px; fill: var(--muted) }
 .profile .grid { stroke: var(--line) }
+.profile { touch-action: pan-y; cursor: crosshair } .pf-v { stroke: var(--fg); stroke-width: 1; stroke-dasharray: 3 2; opacity: .6 }
+.pf-dot { fill: #1d4f9c; stroke: #fff; stroke-width: 2 } .pf-lab rect { fill: var(--fg) } .profile .pf-lab text { fill: var(--bg); font-size: 10.5px; text-anchor: middle; font-weight: 500 }
+.pf-cur { pointer-events: none }
 .empty { padding: 30px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 12px }
 /* admin */
 #admin { border: 2px solid var(--fg); border-radius: 14px; background: var(--surface); padding: 16px; display: grid; gap: 14px }
@@ -1080,7 +1083,8 @@ function miniMap(pts, r) {
   const route = xy ? `<polyline points="${line}" fill="none" stroke="#fff" stroke-width="${(sw * 7).toFixed(2)}" stroke-linejoin="round" stroke-linecap="round" opacity=".85"/>
     <polyline points="${line}" fill="none" stroke="var(--hot)" stroke-width="${(sw * 4).toFixed(2)}" stroke-linejoin="round" stroke-linecap="round"/>
     <circle cx="${xy.at(-1)[0]}" cy="${xy.at(-1)[1]}" r="${sw * 6}" fill="#1d2523" stroke="#fff" stroke-width="${sw * 2}"/>
-    <circle cx="${xy[0][0]}" cy="${xy[0][1]}" r="${sw * 6}" fill="#1b7f3b" stroke="#fff" stroke-width="${sw * 2}"/>`
+    <circle cx="${xy[0][0]}" cy="${xy[0][1]}" r="${sw * 6}" fill="#1b7f3b" stroke="#fff" stroke-width="${sw * 2}"/>
+    <g class="mm-cur" style="display:none"><circle r="${sw * 17}" fill="#1d4f9c" opacity=".28"/><circle r="${sw * 8}" fill="#1d4f9c" stroke="#fff" stroke-width="${sw * 3.5}"/></g>`
     : `<circle cx="${start[0]}" cy="${start[1]}" r="${sw * 9}" fill="var(--hot)" stroke="#fff" stroke-width="${sw * 3}"/>`;
   return `<svg class="minimap" viewBox="${bx.map(v => v.toFixed(1)).join(" ")}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${xy ? "Carte du parcours" : "Lieu de départ"}">
     <rect x="${bx[0]}" y="${bx[1]}" width="${bx[2]}" height="${bx[3]}" fill="var(--sea)"/>
@@ -1098,9 +1102,43 @@ function profileSVG(pts) {
   let ticks = "";
   for (let e = 0; e <= maxE; e += stepE) ticks += `<line class="grid" x1="${l}" x2="${W - 6}" y1="${Y(e)}" y2="${Y(e)}"/><text x="${l - 4}" y="${Y(e) + 3}" text-anchor="end">${e}</text>`;
   for (let k = 0; k <= maxD; k += stepD) ticks += `<text x="${X(k)}" y="${H - 4}" text-anchor="middle">${k} km</text>`;
-  return `<svg class="profile" viewBox="0 0 ${W} ${H}" role="img" aria-label="Profil altimétrique sur ${fmt(d)} km">${ticks}
-    <polygon class="area" points="${X(0)},${Y(0)} ${line} ${X(prof.at(-1)[0])},${Y(0)}"/><polyline class="ln" points="${line}"/></svg>`;
+  PROFV = { pts, prof, X, Y, maxD, W, H, l, b };
+  return `<svg class="profile" viewBox="0 0 ${W} ${H}" role="img" aria-label="Profil altimétrique sur ${fmt(d)} km. Survolez pour suivre la position sur la carte.">${ticks}
+    <polygon class="area" points="${X(0)},${Y(0)} ${line} ${X(prof.at(-1)[0])},${Y(0)}"/><polyline class="ln" points="${line}"/>
+    <g class="pf-cur" style="display:none"><line class="pf-v" y1="6" y2="${H - b}"/><circle class="pf-dot" r="4.5"/><g class="pf-lab"><rect rx="4" height="17"/><text y="12"></text></g></g>
+    <rect class="pf-hit" x="${l}" y="0" width="${W - l - 6}" height="${H - b}" fill="transparent"/></svg>`;
 }
+
+// hovering (or dragging a finger along) the elevation profile moves a marker on the mini map
+let PROFV = null;
+function profCursor(e) {
+  const svgP = e.target.closest && e.target.closest(".profile");
+  if (!svgP || !PROFV) return;
+  const v = PROFV, ctm = svgP.getScreenCTM(); if (!ctm) return;
+  const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(ctm.inverse());
+  const dist = Math.max(0, Math.min(v.prof.at(-1)[0], (pt.x - v.l) / (v.W - v.l - 6) * v.maxD));
+  let lo = 0, hi = v.prof.length - 1;
+  while (hi - lo > 1) { const m = (lo + hi) >> 1; if (v.prof[m][0] < dist) lo = m; else hi = m; }
+  const i = Math.abs(v.prof[lo][0] - dist) < Math.abs(v.prof[hi][0] - dist) ? lo : hi;
+  const [dk, el] = v.prof[i], x = v.X(dk), y = v.Y(el);
+  const g = svgP.querySelector(".pf-cur"); g.style.display = "";
+  g.querySelector(".pf-v").setAttribute("x1", x); g.querySelector(".pf-v").setAttribute("x2", x);
+  const dot = g.querySelector(".pf-dot"); dot.setAttribute("cx", x); dot.setAttribute("cy", y);
+  const txt = `${fmt(Math.round(dk * 10) / 10)} km · ${Math.round(el)} m`, tw = txt.length * 6.1 + 12;
+  const lx = Math.min(Math.max(x - tw / 2, v.l), v.W - 6 - tw), lab = g.querySelector(".pf-lab");
+  lab.setAttribute("transform", `translate(${lx},${Math.max(2, y - 26)})`); lab.querySelector("rect").setAttribute("width", tw);
+  const t = lab.querySelector("text"); t.setAttribute("x", tw / 2); t.textContent = txt;
+  const mm = svgP.closest(".trk")?.querySelector(".mm-cur");
+  if (mm) { const [mx, my] = P(v.pts[i][0], v.pts[i][1]); mm.setAttribute("transform", `translate(${mx},${my})`); mm.style.display = ""; }
+}
+function profHide(e) {
+  const svgP = e.target.closest && e.target.closest(".profile"); if (!svgP) return;
+  svgP.querySelector(".pf-cur").style.display = "none";
+  const mm = svgP.closest(".trk")?.querySelector(".mm-cur"); if (mm) mm.style.display = "none";
+}
+document.addEventListener("pointermove", profCursor);
+document.addEventListener("pointerdown", profCursor);
+document.addEventListener("pointerout", e => { if (e.target.classList && e.target.classList.contains("pf-hit")) profHide(e); });
 
 // ---------- admin (editors only) ----------
 let DB = null, ME = null, adminTab = "courses", editId = null;
