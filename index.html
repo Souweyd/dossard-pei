@@ -7,6 +7,7 @@
 <meta property="og:description" content="Trail, route, cross, rando et multisport : toutes les courses de La Réunion au même endroit, avec la carte, les parcours et le lien d'inscription.">
 <meta property="og:url" content="https://dossardpei.re/"><meta property="og:image" content="https://dossardpei.re/og/home.jpg"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<script data-goatcounter="https://dossardpei.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Dossard Péi","url":"https://dossardpei.re/","inLanguage":"fr","description":"Toutes les courses de La Réunion au même endroit."}</script>
 <title>Dossard Péi</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Cg%20transform%3D%22rotate%28-6%2032%2032%29%22%3E%3Crect%20x%3D%225%22%20y%3D%2210%22%20width%3D%2254%22%20height%3D%2244%22%20rx%3D%226%22%20fill%3D%22%23fff%22%20stroke%3D%22%231d2523%22%20stroke-width%3D%223%22/%3E%3Cpath%20d%3D%22M6.5%2022V16a4.5%204.5%200%200%201%204.5-4.5h42a4.5%204.5%200%200%201%204.5%204.5v6z%22%20fill%3D%22%231d4f9c%22/%3E%3Cg%20fill%3D%22%23ffd400%22%3E%3Cpath%20d%3D%22M32%2022%2022%2011.5h3.6zM32%2022%2030.2%2011.5h3.6zM32%2022%2038.4%2011.5H42z%22/%3E%3C/g%3E%3Cpath%20d%3D%22M26.5%2022h11L32%2017z%22%20fill%3D%22%23e3242b%22/%3E%3Ccircle%20cx%3D%2211.5%22%20cy%3D%2227%22%20r%3D%222%22%20fill%3D%22%231d2523%22/%3E%3Ccircle%20cx%3D%2252.5%22%20cy%3D%2227%22%20r%3D%222%22%20fill%3D%22%231d2523%22/%3E%3Ccircle%20cx%3D%2211.5%22%20cy%3D%2248.5%22%20r%3D%222%22%20fill%3D%22%231d2523%22/%3E%3Ccircle%20cx%3D%2252.5%22%20cy%3D%2248.5%22%20r%3D%222%22%20fill%3D%22%231d2523%22/%3E%3Ctext%20x%3D%2232%22%20y%3D%2247.5%22%20text-anchor%3D%22middle%22%20font-family%3D%22Arial%20Narrow%2CArial%2Csans-serif%22%20font-weight%3D%22800%22%20font-size%3D%2222%22%20fill%3D%22%231d2523%22%20letter-spacing%3D%22-.5%22%3E974%3C/text%3E%3C/g%3E%3C/svg%3E">
@@ -421,7 +422,7 @@ header.top { flex-direction: row; text-align: left } .top { display: flex; align
 .lmain { display: grid; gap: 3px; min-width: 0 }
 .lname { font-weight: 600; font-size: 1.02rem; letter-spacing: -.01em; line-height: 1.25 }
 .lfav { color: var(--hot); font-style: normal }
-.lmeta { color: var(--muted); font-size: .85rem; display: flex; align-items: center; gap: 6px; flex-wrap: wrap }
+.lmeta { color: var(--muted); font-size: .85rem; display: block; line-height: 1.45 } .lmeta .ldot { margin-right: 6px; vertical-align: 1px } .lmeta .gpxtag { vertical-align: -1px; margin-left: 2px }
 .ldot { width: 8px; height: 8px; border-radius: 50%; background: var(--dc); display: inline-block }
 .leps { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px }
 .lep { font-size: .78rem; border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; white-space: nowrap; font-variant-numeric: tabular-nums }
@@ -892,6 +893,18 @@ function renderSoon() {
 let DETAIL = null, detailBox = null, lastFocus = null;
 // on dossardpei.re the address bar follows the open race (/course/<id>/ is a real, shareable page)
 const PUBLIC_SITE = /(^|\.)dossardpei\.re$/.test(location.hostname);
+// visit statistics (GoatCounter, no cookies): only loaded on dossardpei.re, silently absent elsewhere
+const gcount = (path, title, event) => { try { window.goatcounter && window.goatcounter.count && window.goatcounter.count({ path, title: title || path, event: !!event }); } catch (e) {} };
+let COUNTED = null;
+document.addEventListener("click", e => {
+  const a = e.target.closest && e.target.closest("a[href], button[data-gpx]"); if (!a) return;
+  const id = DETAIL || a.closest("[data-card]")?.dataset.card || "";
+  if (a.matches("button[data-gpx]")) return gcount("gpx/" + a.dataset.gpx, "Téléchargement GPX", true);
+  let u; try { u = new URL(a.href, location.href); } catch (err) { return; }
+  if (u.origin === location.origin) return;
+  if (a.classList.contains("cta")) gcount("inscription/" + id, "Clic S'inscrire", true);
+  else gcount("sortie/" + u.hostname.replace(/^www\./, ""), "Lien sortant", true);
+}, true);
 const setPath = p => { if (PUBLIC_SITE && location.pathname + location.hash !== p) try { history.replaceState(history.state, "", p); } catch (e) {} };
 // opening a race shows its sheet only: the main map keeps its view (the sheet has its own mini map)
 function openRace(id) {
@@ -904,6 +917,7 @@ function openDetail(id) {
   const r = RACES.find(x => x.id === id); if (!r) return;
   DETAIL = id; loadTracks(id);
   if (!r.manual && /^[a-z0-9-]+$/.test(id)) setPath("/course/" + id + "/");
+  if (COUNTED !== id) { COUNTED = id; gcount("/course/" + id + "/", r.nom + " (fiche)"); }
   if (!detailBox) {
     lastFocus = document.activeElement;
     detailBox = document.createElement("div"); detailBox.className = "dlg"; detailBox.setAttribute("role", "dialog"); detailBox.setAttribute("aria-modal", "true");
@@ -937,6 +951,7 @@ function closeDetail() {
   if (!detailBox) return;
   const was = DETAIL;
   detailBox.remove(); detailBox = null; DETAIL = null; document.body.classList.remove("noscroll"); setPath("/");
+  COUNTED = null;
   if (state.sel === was) { state.sel = null; render(); }
   removeEventListener("keydown", detailKey); lastFocus?.focus?.({ preventScroll: true });
 }

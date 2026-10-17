@@ -131,6 +131,22 @@ def og_image(r, out, fonts):
     return True
 
 
+# ---------------------------------------------------------------- related races
+def related(r, races):
+    today = date.today().isoformat()
+    up = [x for x in races if x["id"] != r["id"] and x["date"] >= today]
+    d = d_of(r["date"]); wd = d.weekday()
+    sat = d.toordinal() - (wd - 5 if wd >= 5 else wd + 2)        # Saturday of that weekend (or the one before a weekday race)
+    same_we = [x for x in up if sat <= d_of(x["date"]).toordinal() <= sat + 1] if wd >= 5 else [x for x in up if x["date"] == r["date"]]
+    same_com = [x for x in up if x.get("commune") == r.get("commune") and x not in same_we]
+    def block(title, xs):
+        if not xs: return ""
+        items = "".join(f'<li><a href="/course/{esc(x["id"])}/"><b>{esc(x["nom"])}</b><span>{d_of(x["date"]).day} {MOIS[d_of(x["date"]).month - 1]} · {esc(x.get("commune", ""))}{(" · " + summary(x)) if summary(x) else ""}</span></a></li>' for x in sorted(xs, key=lambda x: x["date"])[:6])
+        return f'<section class="rel"><h2>{title}</h2><ul>{items}</ul></section>'
+    out = block("Le même week-end" if wd >= 5 else "Le même jour", same_we) + block(f"Aussi à {esc(r.get('commune', ''))}", same_com)
+    return f'<div class="rels">{out}</div>' if out else ""
+
+
 # ---------------------------------------------------------------- page
 CSS = """
 :root{--bg:#f5efe6;--surface:#fffcf7;--fg:#2a211c;--muted:#776a5f;--line:#e6dccf;--accent:#0d6b67;--accent-soft:#dcece8;--hot:#e5502e;color-scheme:light dark}
@@ -165,11 +181,17 @@ td.n{white-space:nowrap}
 .note{color:var(--muted);font-size:.86rem}
 .src{margin-top:18px;color:var(--muted);font-size:.84rem}
 .src a{color:inherit}
+.rels{display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-top:22px}
+.rel h2{font-size:1.1rem;margin:0 0 10px;letter-spacing:-.02em}
+.rel ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.rel a{display:grid;gap:2px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);text-decoration:none;color:var(--fg)}
+.rel a:hover{border-color:var(--accent)}
+.rel span{color:var(--muted);font-size:.88rem}
 footer{max-width:1040px;margin:0 auto;padding:0 16px 40px;color:var(--muted);font-size:.86rem}
 """
 
 
-def page(r, logo, has_og, has_trk):
+def page(r, logo, has_og, has_trk, races=()):
     rid = r["id"]; url = f"{SITE}/course/{rid}/"
     disc = disc_of(r); dl = date_long(r["date"])
     s = summary(r)
@@ -239,6 +261,7 @@ def page(r, logo, has_og, has_trk):
 <meta name="theme-color" content="#f5efe6" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#14110e" media="(prefers-color-scheme: dark)">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600;700&display=swap">
 <script type="application/ld+json">{ld}</script>
+<script data-goatcounter="https://dossardpei.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <style>{CSS}</style></head><body>
 <header class="top"><a class="brand" href="/">{logo}<span>Dossard Péi</span></a><a class="all" href="/">Toutes les courses →</a></header>
 <main><article class="card">
@@ -248,10 +271,10 @@ def page(r, logo, has_og, has_trk):
 <h1>{esc(r['nom'])}</h1>
 <p class="where">{esc(r.get('commune', ''))}{' · ' + esc(lieu) if lieu else ''}{' · organisé par ' + esc(r['org']) if r.get('org') else ''}</p>
 <ul class="tags">{''.join(tags)}</ul>
-<div class="cta">{f'<a class="btn main" href="{esc(r["inscription"])}" rel="noopener">S’inscrire</a>' if r.get('inscription') and not past else ''}<a class="btn map" href="/#c-{esc(rid)}">{'Carte et parcours' if has_trk else 'Voir sur la carte'} →</a></div>
+<div class="cta">{f'<a class="btn main" href="{esc(r["inscription"])}" rel="noopener" data-goatcounter-click="inscription/{esc(rid)}" data-goatcounter-title="Clic S’inscrire (page course)">S’inscrire</a>' if r.get('inscription') and not past else ''}<a class="btn map" href="/#c-{esc(rid)}">{'Carte et parcours' if has_trk else 'Voir sur la carte'} →</a></div>
 {f'<div class="tbl"><table><thead><tr><th>Épreuve</th><th>Dist.</th><th>D+</th><th>Type</th><th>Départ</th><th>Tarif</th></tr></thead><tbody>{rows}</tbody></table></div>' if rows else ''}
 <p class="src">Informations reprises des sources officielles, à vérifier auprès de l’organisateur avant de vous inscrire.{(' · ' + ' · '.join(links)) if links else ''}</p>
-</div></article></main>
+</div></article>{related(r, races)}</main>
 <footer>Dossard Péi · toutes les courses de La Réunion au même endroit · <a href="/">dossardpei.re</a></footer>
 </body></html>
 """
@@ -278,7 +301,7 @@ def main():
             has_og = og_image(r, ogp, fonts) or has_og
             if has_og: open(sigp, "w").write(sig)
         os.makedirs(f"course/{rid}", exist_ok=True)
-        out = page(r, logo, has_og, rid in tracks)
+        out = page(r, logo, has_og, rid in tracks, races)
         p = f"course/{rid}/index.html"
         if not os.path.exists(p) or open(p, encoding="utf-8").read() != out:
             open(p, "w", encoding="utf-8").write(out)
