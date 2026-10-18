@@ -1,0 +1,1 @@
+["Trail Urbain de Sainte-Marie", "2026-12-12", "Sainte-Marie", [{"nom": "Trail urbain 15 km", "km": 15, "h": "18h30", "type": "trail", "note": "Course nocturne, 1re édition ; PPS obligatoire"}], "posters/trail-urbain-sainte-marie-2026-12.webp", "posters/trail-urbain-sainte-marie-2026-12_lg.webp", "art1"]
