@@ -608,7 +608,10 @@ html { overflow-x: clip }
 .rtop > * { pointer-events: auto }
 .rtop .rlogo { width: 32px; height: 32px; display: block }
 .rmodes { display: flex; background: rgba(0,0,0,.42); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.15); border-radius: 999px; padding: 3px }
-.rmodes button { all: unset; cursor: pointer; color: #fff; font-size: .82rem; font-weight: 600; padding: 6px 11px; border-radius: 999px; opacity: .88 } .rmodes button.on { background: #fff; color: #1d1916; opacity: 1 }
+.rmodes button { all: unset; cursor: pointer; color: #fff; font-size: .82rem; font-weight: 600; padding: 6px 10px; border-radius: 999px; opacity: .88; display: inline-flex; align-items: center; gap: 5px }
+.rmodes button::before { content: ""; width: 15px; height: 15px; flex: none; background: currentColor; -webkit-mask: var(--ico) center / contain no-repeat; mask: var(--ico) center / contain no-repeat }
+.rmodes .mi-liste { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01'/%3E%3C/svg%3E") } .rmodes .mi-cal { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'%3E%3Crect x='3.5' y='5' width='17' height='15' rx='2'/%3E%3Cpath d='M3.5 10h17M8 3v4M16 3v4'/%3E%3C/svg%3E") }
+.rmodes .mi-scroll { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='6' y='3' width='12' height='18' rx='2.5' fill='none' stroke='black' stroke-width='2'/%3E%3Cpath d='M10.5 9.5v5l4-2.5z'/%3E%3C/svg%3E") } .rmodes button.on { background: #fff; color: #1d1916; opacity: 1 }
 .rs.rintro { flex-direction: column; text-align: center; padding: 0 24px }
 .rintro .rbg { position: absolute; inset: 0; background: linear-gradient(#5fb0e5, #9fd2f0) } .rintro .rbg svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block } .rintro .rbg .hn { display: none }
 .rintro .rin, .rintro .rhint { color: #2a211c } .rintro .rin h1 { color: #2a211c } .rintro .rhint svg { stroke: #2a211c }
@@ -708,7 +711,7 @@ body.mapfull .mapfab { display: none }
     <div class="listcol">
       <div class="lbar">
         <div class="switch" role="group" aria-label="Affichage">
-        <button type="button" id="v-reels" class="reelsbtn" hidden>Réels</button><button type="button" id="v-liste" aria-pressed="true">Liste</button>
+        <button type="button" id="v-reels" class="reelsbtn" hidden>Scroll</button><button type="button" id="v-liste" aria-pressed="true">Liste</button>
         <button type="button" id="v-calendrier" aria-pressed="false">Calendrier</button>
         <button type="button" id="v-carte" aria-pressed="false">Carte</button>
       </div>
@@ -1833,7 +1836,7 @@ function shareRace(r) {
 }
 function openReels() {
   if (!reelsBox) {
-    reelsBox = document.createElement("div"); reelsBox.className = "reels"; reelsBox.setAttribute("role", "region"); reelsBox.setAttribute("aria-label", "Courses à venir, une par écran");
+    reelsBox = document.createElement("div"); reelsBox.className = "reels"; reelsBox.setAttribute("role", "region"); reelsBox.setAttribute("aria-label", "Scroll : les courses à venir, une par écran");
     document.body.appendChild(reelsBox);
   }
   const logo = (document.querySelector("#bigbrand svg") || document.querySelector(".logo"))?.outerHTML || "";
@@ -1858,7 +1861,7 @@ function openReels() {
     </section>`;
   };
   reelsBox.innerHTML = `<div class="rtop"><span aria-hidden="true">${logo.replace(/class="[^"]*"/, 'class="rlogo"')}</span>
-    <nav class="rmodes" aria-label="Affichage"><button type="button" class="on" aria-pressed="true">Réels</button><button type="button" data-rmode="liste">Liste</button><button type="button" data-rmode="calendrier">Calendrier</button></nav></div>
+    <nav class="rmodes" aria-label="Affichage"><button type="button" class="on mi-scroll" aria-pressed="true">Scroll</button><button type="button" class="mi-liste" data-rmode="liste">Liste</button><button type="button" class="mi-cal" data-rmode="calendrier">Calendrier</button></nav></div>
     <div class="rfeed">
       <section class="rs rintro"><div class="rbg" aria-hidden="true">${night}</div><div class="rin">${logo}<h1>Dossard Péi</h1><p>Trouve ton prochain dossard.</p><div class="rcnt">${rs.length} course${rs.length > 1 ? "s" : ""} à venir</div></div>
         <div class="rhint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14l6-6 6 6"/></svg>Glisse vers le haut</div></section>
