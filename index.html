@@ -223,7 +223,7 @@ td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space
 .tbc { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--warn) }
 .ghostlink { font: inherit; font-size: .9rem; background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; text-decoration: none }
 .ghostlink:hover { text-decoration: underline }
-.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: .9rem; z-index: 50; box-shadow: 0 4px 16px rgba(0,0,0,.2) }
+.toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: .9rem; z-index: 70; box-shadow: 0 4px 16px rgba(0,0,0,.2) }
 .tbclist { display: grid; gap: 6px; border-top: 1px dashed var(--line); padding-top: 10px }
 .tbclist h3 { margin: 0; font-size: .8rem; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 600 }
 .tbclist .evs { display: flex; flex-wrap: wrap; gap: 6px }
@@ -578,6 +578,54 @@ html { overflow-x: clip }
 .cform .done { text-align: center; padding: 10px 0 4px; display: grid; gap: 10px; justify-items: center }
 .cform .done b { font-size: 1.2rem }
 .dlg-report { color: var(--muted); font-size: .85rem }
+
+/* ---------- Réels: full-screen vertical feed of upcoming races (mobile) ---------- */
+.reels { position: fixed; inset: 0; z-index: 50; background: #0e0c0a; color: #fff }
+.reels[hidden] { display: none }
+.rfeed { height: 100%; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; overscroll-behavior: contain } .rfeed::-webkit-scrollbar { display: none }
+.rs { position: relative; height: 100dvh; height: 100svh; scroll-snap-align: start; scroll-snap-stop: always; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #14110e }
+.rs .bgb { position: absolute; inset: -40px; background-size: cover; background-position: center; filter: blur(26px) brightness(.5); transform: scale(1.1) }
+.rs .pimg { position: relative; width: 100%; height: 100%; object-fit: contain }
+.rs .rart { position: absolute; inset: 0; background: var(--art) center / cover no-repeat }
+.rs .rart.flip { transform: scaleX(-1) }
+.rs .shd { position: absolute; inset: auto 0 0 0; height: 62%; background: linear-gradient(transparent, rgba(0,0,0,.82)); pointer-events: none }
+.rs .shdt { position: absolute; inset: 0 0 auto 0; height: 130px; background: linear-gradient(rgba(0,0,0,.55), transparent); pointer-events: none }
+.rinfo { position: absolute; left: 16px; right: 84px; bottom: calc(88px + env(safe-area-inset-bottom)); text-shadow: 0 1px 6px rgba(0,0,0,.5) }
+.rinfo .rj { display: inline-block; background: var(--hot); color: #fff; font-weight: 700; font-size: .82rem; border-radius: 999px; padding: 3px 10px; margin-bottom: 8px; text-shadow: none }
+.rinfo h2 { margin: 0 0 4px; font-size: 1.55rem; line-height: 1.08; letter-spacing: -.02em; color: #fff }
+.rinfo .rm { font-size: .95rem; opacity: .92 }
+.rchips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px } .rchips span { background: rgba(255,255,255,.18); backdrop-filter: blur(6px); border-radius: 999px; padding: 3px 10px; font-size: .82rem; font-weight: 600 }
+.racts { position: absolute; right: 12px; bottom: calc(96px + env(safe-area-inset-bottom)); display: grid; gap: 16px; justify-items: center }
+.racts button { all: unset; cursor: pointer; display: grid; justify-items: center; gap: 4px; font-size: .7rem; font-weight: 600; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.6) }
+.racts .ric { width: 46px; height: 46px; border-radius: 50%; background: rgba(0,0,0,.35); backdrop-filter: blur(8px); display: grid; place-items: center; border: 1px solid rgba(255,255,255,.18) }
+.racts svg { width: 24px; height: 24px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
+.racts .on svg { fill: #ffd400; stroke: #ffd400 }
+.rmore { position: absolute; left: 16px; right: 16px; bottom: calc(20px + env(safe-area-inset-bottom)); display: flex; gap: 10px }
+.rmore a, .rmore button { all: unset; cursor: pointer; flex: 1; text-align: center; border-radius: 999px; padding: 13px 0; font-weight: 700; font-size: 1rem }
+.rmore .rv { background: rgba(255,255,255,.95); color: #1d1916 } .rmore .ri { background: var(--hot); color: #fff; flex: .8 }
+.rtop { position: absolute; z-index: 3; top: 0; left: 0; right: 0; padding: calc(10px + env(safe-area-inset-top)) 12px 0; display: flex; align-items: center; justify-content: space-between; gap: 8px; pointer-events: none }
+.rtop > * { pointer-events: auto }
+.rtop .rlogo { width: 32px; height: 32px; display: block }
+.rmodes { display: flex; background: rgba(0,0,0,.42); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.15); border-radius: 999px; padding: 3px }
+.rmodes button { all: unset; cursor: pointer; color: #fff; font-size: .82rem; font-weight: 600; padding: 6px 11px; border-radius: 999px; opacity: .88 } .rmodes button.on { background: #fff; color: #1d1916; opacity: 1 }
+.rs.rintro { flex-direction: column; text-align: center; padding: 0 24px }
+.rintro .rbg { position: absolute; inset: 0 } .rintro .rbg svg { width: 100%; height: 100% }
+.rintro .rin { position: relative; margin-top: -18vh } .rintro .rin svg { width: 84px; height: 84px }
+.rintro h1 { margin: 10px 0 6px; font-family: inherit; font-weight: 700; text-transform: none; font-size: 2.3rem; letter-spacing: -.04em; color: #fff } .rintro p { margin: 0; opacity: .9; font-size: 1.05rem }
+.rintro .rcnt { margin-top: 18px; font-weight: 600 }
+.rhint { position: absolute; bottom: calc(40px + env(safe-area-inset-bottom)); left: 0; right: 0; text-align: center; font-weight: 600; font-size: .95rem; animation: rbob 1.6s ease-in-out infinite }
+.rhint svg { display: block; margin: 0 auto 4px; width: 28px; height: 28px; stroke: #fff; fill: none; stroke-width: 2.2 }
+@keyframes rbob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
+@media (prefers-reduced-motion: reduce) { .rhint { animation: none } }
+.rmap { position: fixed; inset: 0; z-index: 58; background: var(--bg); display: flex; flex-direction: column }
+.rmap header { display: flex; flex-direction: row; text-align: left; align-items: center; gap: 10px; padding: calc(10px + env(safe-area-inset-top)) 14px 10px; color: var(--fg) }
+.rmap header b { flex: 1; font-size: 1.05rem; line-height: 1.15 } .rmap header small { display: block; font-weight: 400; color: var(--muted); font-size: .85rem }
+.rmap header button { all: unset; cursor: pointer; width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; font-size: 1.4rem; background: var(--surface) }
+.rmap .rmbody { flex: 1; min-height: 0; position: relative }
+.rmap .rmbody .minimap { width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; border: 0 }
+.rmap .mmleg { position: absolute; left: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); background: var(--surface); color: var(--fg); padding: 6px 10px; border-radius: 999px; font-size: .82rem }
+.rmap .rmwait { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted) }
+.reelsbtn { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='6' y='3' width='12' height='18' rx='2.5' fill='none' stroke='black' stroke-width='2'/%3E%3Cpath d='M10.5 9.5v5l4-2.5z'/%3E%3C/svg%3E") }
 </style>
 
 <div class="wrap">
@@ -636,7 +684,7 @@ html { overflow-x: clip }
     <div class="listcol">
       <div class="lbar">
         <div class="switch" role="group" aria-label="Affichage">
-        <button type="button" id="v-liste" aria-pressed="true">Liste</button>
+        <button type="button" id="v-reels" class="reelsbtn" hidden>Réels</button><button type="button" id="v-liste" aria-pressed="true">Liste</button>
         <button type="button" id="v-calendrier" aria-pressed="false">Calendrier</button>
         <button type="button" id="v-carte" aria-pressed="false">Carte</button>
       </div>
@@ -929,7 +977,7 @@ document.addEventListener("click", e => {
   if (a.classList.contains("cta")) gcount("inscription/" + id, "Clic S'inscrire", true);
   else gcount("sortie/" + u.hostname.replace(/^www\./, ""), "Lien sortant", true);
 }, true);
-const setPath = p => { if (PUBLIC_SITE && location.pathname + location.hash !== p) try { history.replaceState(history.state, "", p); } catch (e) {} };
+const setPath = p => { if (location.pathname.startsWith("/maquette")) return; if (PUBLIC_SITE && location.pathname + location.hash !== p) try { history.replaceState(history.state, "", p); } catch (e) {} };
 // opening a race shows its sheet only: the main map keeps its view (the sheet has its own mini map)
 function openRace(id) {
   const r = RACES.find(x => x.id === id); if (!r) return;
@@ -1431,8 +1479,8 @@ function trackStats(pts) {
   return { km: Math.round(d * 10) / 10, dp: Math.round(up), prof };
 }
 // small map excerpt in the race detail: relief, contours, trails, place names, then the route (or the start point)
-function miniMap(pts, r) {
-  const A = 16 / 9, start = P(...r.ll);
+function miniMap(pts, r, aspect) {
+  const A = aspect || 16 / 9, start = P(...r.ll);
   const xy = pts ? pts.map(p => P(p[0], p[1])) : null, xs = xy ? xy.map(p => p[0]) : [start[0]], ys = xy ? xy.map(p => p[1]) : [start[1]];
   const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
   let w = Math.max(x1 - x0, xy ? 40 : 70) * 1.18, h = Math.max(y1 - y0, xy ? 40 : 70 / A) * 1.18; if (w / h < A) w = h * A; else h = w / A;
@@ -1746,6 +1794,84 @@ try { if (localStorage.getItem("dp-nomap") === "1") setNoMap(true); } catch (e) 
   new IntersectionObserver(([e]) => bar.classList.toggle("on", !e.isIntersecting && e.boundingClientRect.top < 0), { threshold: 0 }).observe(big);
   $("#minibrand").addEventListener("click", e => { e.preventDefault(); scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" }); });
 })();
+
+// ---------- Réels (mobile) — enabled for the mock-up (/maquette-reels/) or with ?reels ----------
+const REELS_ON = matchMedia("(max-width: 900px)").matches && (location.pathname.startsWith("/maquette-reels") || /[?&]reels\b/.test(location.search));
+const R_ICO = { fav: '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>', share: '<path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"/>', map: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/>', cal: '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>' };
+let reelsBox = null;
+const rMode = v => { try { localStorage.setItem("dp-mode", v); } catch (e) {} };
+function shareRace(r) {
+  const url = "https://dossardpei.re/course/" + r.id + "/";
+  if (navigator.share) navigator.share({ title: r.nom, text: r.nom + " · " + dt(r.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long" }) + " · " + r.commune, url }).catch(() => {});
+  else navigator.clipboard?.writeText(url).then(() => toast("Lien copié"), () => toast(url));
+  gcount("partage/" + r.id, "Partage", true);
+}
+function openReels() {
+  if (!reelsBox) {
+    reelsBox = document.createElement("div"); reelsBox.className = "reels"; reelsBox.setAttribute("role", "region"); reelsBox.setAttribute("aria-label", "Courses à venir, une par écran");
+    document.body.appendChild(reelsBox);
+  }
+  const logo = (document.querySelector("#bigbrand svg") || document.querySelector(".logo"))?.outerHTML || "";
+  const night = document.querySelector(".herobg .hn")?.outerHTML || "";
+  const rs = filtered().sort(byDate);
+  const slide = r => {
+    const d = dt(r.date), n = daysTo(r.date), k = r.disc || "autre";
+    const kms = [...new Set((r.epreuves || []).filter(e => e.km).map(e => e.km))].sort((a, b) => b - a).slice(0, 3);
+    const img = r.poster_lg || r.poster, flip = [...r.id].reduce((a, c) => a + c.charCodeAt(0), 0) % 2;
+    return `<section class="rs" data-id="${esc(r.id)}">
+      ${img ? `<div class="bgb" style="background-image:url('${esc(img)}')"></div><img class="pimg" src="${esc(img)}" alt="Affiche : ${esc(r.nom)}" loading="lazy">` : `<div class="rart art-${k}${flip ? " flip" : ""}"></div>`}
+      <div class="shdt"></div><div class="shd"></div>
+      <div class="rinfo"><span class="rj">${n === 0 ? "Aujourd'hui" : n === 1 ? "Demain" : "J-" + n}</span><h2>${esc(r.nom)}</h2>
+        <div class="rm">${d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" })} · ${esc(r.commune)}</div>
+        <div class="rchips"><span>${DISC[k]}</span>${kms.map(x => `<span>${fmt(x)} km</span>`).join("")}</div></div>
+      <div class="racts">
+        <button type="button" data-ra="fav" class="${FAVS.has(r.id) ? "on" : ""}" aria-pressed="${FAVS.has(r.id)}"><span class="ric"><svg viewBox="0 0 24 24">${R_ICO.fav}</svg></span>Favori</button>
+        <button type="button" data-ra="share"><span class="ric"><svg viewBox="0 0 24 24">${R_ICO.share}</svg></span>Partager</button>
+        <button type="button" data-ra="map"><span class="ric"><svg viewBox="0 0 24 24">${R_ICO.map}</svg></span>Carte</button>
+        ${r.approx ? "" : `<button type="button" data-ra="cal"><span class="ric"><svg viewBox="0 0 24 24">${R_ICO.cal}</svg></span>Agenda</button>`}</div>
+      <div class="rmore"><button type="button" class="rv" data-ra="more">Voir plus</button>${r.inscription && !r.complet ? `<a class="ri" href="${esc(r.inscription)}" target="_blank" rel="noopener">S'inscrire</a>` : ""}</div>
+    </section>`;
+  };
+  reelsBox.innerHTML = `<div class="rtop"><span aria-hidden="true">${logo.replace(/class="[^"]*"/, 'class="rlogo"')}</span>
+    <nav class="rmodes" aria-label="Affichage"><button type="button" class="on" aria-pressed="true">Réels</button><button type="button" data-rmode="liste">Liste</button><button type="button" data-rmode="calendrier">Calendrier</button><button type="button" data-rmode="carte">Carte</button></nav></div>
+    <div class="rfeed">
+      <section class="rs rintro"><div class="rbg" aria-hidden="true">${night}</div><div class="rin">${logo}<h1>Dossard Péi</h1><p>Trouve ton prochain dossard.</p><div class="rcnt">${rs.length} course${rs.length > 1 ? "s" : ""} à venir</div></div>
+        <div class="rhint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14l6-6 6 6"/></svg>Glisse vers le haut</div></section>
+      ${rs.map(slide).join("")}</div>`;
+  reelsBox.querySelectorAll(".rintro .hn").forEach(s => { s.style.display = "block"; s.setAttribute("preserveAspectRatio", "xMidYMax slice"); });
+  reelsBox.querySelectorAll("[data-rmode]").forEach(b => b.addEventListener("click", () => { const v = b.dataset.rmode; rMode(v); closeReels(); setView(v); requestAnimationFrame(() => scrollTo({ top: $("#main").offsetTop - 70, behavior: "auto" })); }));
+  reelsBox.querySelectorAll(".rs[data-id]").forEach(s => {
+    const r = RACES.find(x => x.id === s.dataset.id);
+    s.querySelectorAll("[data-ra]").forEach(b => b.addEventListener("click", () => {
+      const a = b.dataset.ra;
+      if (a === "fav") { toggleFav(r.id); const on = FAVS.has(r.id); b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); }
+      if (a === "share") shareRace(r);
+      if (a === "map") raceMap(r);
+      if (a === "cal") window.open(gcalURL(r), "_blank", "noopener");
+      if (a === "more") openDetail(r.id);
+    }));
+  });
+  reelsBox.hidden = false; document.documentElement.style.overflow = "hidden";
+  $("#v-reels")?.setAttribute("aria-pressed", "true");
+}
+function closeReels() { if (reelsBox) reelsBox.hidden = true; document.documentElement.style.overflow = ""; $("#v-reels")?.setAttribute("aria-pressed", "false"); }
+// full-screen map of one race: only its track (or its start point)
+function raceMap(r) {
+  const box = document.createElement("div"); box.className = "rmap"; box.setAttribute("role", "dialog"); box.setAttribute("aria-label", "Carte : " + r.nom);
+  box.innerHTML = `<header><b>${esc(r.nom)}<small>${dt(r.date).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })} · ${esc(r.commune)}</small></b><button type="button" aria-label="Fermer">×</button></header><div class="rmbody"><div class="rmwait">Chargement de la carte…</div></div>`;
+  const close = () => { box.remove(); removeEventListener("keydown", onKey); }, onKey = e => { if (e.key === "Escape") close(); };
+  box.querySelector("header button").addEventListener("click", close); addEventListener("keydown", onKey);
+  document.body.appendChild(box);
+  const draw = () => { const body = box.querySelector(".rmbody"), t = curTrack(r.id), ar = body.clientWidth / Math.max(1, body.clientHeight); body.innerHTML = r.ll || (t && t.pts) ? miniMap(t && t.pts, r, ar) : `<div class="rmwait">Lieu non disponible</div>`; };
+  (hasTrack(r.id) ? fetchTracks(r.id) : Promise.resolve()).then(draw, draw);
+}
+if (REELS_ON) {
+  $("#v-reels").hidden = false;
+  $("#v-reels").addEventListener("click", () => { rMode("reels"); openReels(); });
+  let m = "reels"; try { m = localStorage.getItem("dp-mode") || "reels"; } catch (e) {}
+  if (m === "reels" && !/^#c-|^#contact/.test(location.hash)) openReels();
+  else if (["liste", "calendrier", "carte"].includes(m)) setView(m);
+}
 openHash(); addEventListener("hashchange", openHash);
 contactHash(); addEventListener("hashchange", contactHash);
 fetch("data.json", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(d => {
