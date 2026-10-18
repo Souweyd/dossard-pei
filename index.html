@@ -216,6 +216,7 @@ td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space
 .search input { width: 100%; padding: 7px 12px; border-radius: 8px }
 .fav { font: inherit; font-size: 1.25rem; line-height: 1; background: none; border: 0; color: var(--muted); cursor: pointer; padding: 0 2px; flex: none }
 .fav[aria-pressed="true"] { color: var(--hot) }
+.shr { font: inherit; font-size: .85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; background: none; border: 1px solid var(--line); border-radius: 999px; padding: 4px 11px; color: var(--accent); cursor: pointer } .shr svg { width: 15px; height: 15px }
 .rhead .right { display: flex; gap: 8px; align-items: center; flex: none }
 .state.soon { background: var(--hot); color: var(--bg) }
 .bib.approx { background: transparent; color: var(--fg); border-right: 1px dashed var(--line) }
@@ -583,7 +584,7 @@ html { overflow-x: clip }
 .reels { position: fixed; inset: 0; z-index: 50; background: #0e0c0a; color: #fff }
 .reels[hidden] { display: none }
 .rfeed { height: 100%; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; overscroll-behavior: contain } .rfeed::-webkit-scrollbar { display: none }
-.rs { position: relative; height: 100dvh; height: 100svh; scroll-snap-align: start; scroll-snap-stop: always; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #14110e }
+.rs { position: relative; height: 100%; scroll-snap-align: start; scroll-snap-stop: always; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #14110e }
 .rs .bgb { position: absolute; inset: -40px; background-size: cover; background-position: center; filter: blur(26px) brightness(.5); transform: scale(1.1) }
 .rs .pimg { position: relative; width: 100%; height: 100%; object-fit: contain }
 .rs .rart { position: absolute; inset: 0; background: var(--art) center / cover no-repeat }
@@ -609,7 +610,12 @@ html { overflow-x: clip }
 .rmodes { display: flex; background: rgba(0,0,0,.42); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.15); border-radius: 999px; padding: 3px }
 .rmodes button { all: unset; cursor: pointer; color: #fff; font-size: .82rem; font-weight: 600; padding: 6px 11px; border-radius: 999px; opacity: .88 } .rmodes button.on { background: #fff; color: #1d1916; opacity: 1 }
 .rs.rintro { flex-direction: column; text-align: center; padding: 0 24px }
-.rintro .rbg { position: absolute; inset: 0 } .rintro .rbg svg { width: 100%; height: 100% }
+.rintro .rbg { position: absolute; inset: 0; background: linear-gradient(#5fb0e5, #9fd2f0) } .rintro .rbg svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block } .rintro .rbg .hn { display: none }
+.rintro .rin, .rintro .rhint { color: #2a211c } .rintro .rin h1 { color: #2a211c } .rintro .rhint svg { stroke: #2a211c }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .rintro .rin, :root:not([data-theme="light"]) .rintro .rhint, :root:not([data-theme="light"]) .rintro .rin h1 { color: #fff } :root:not([data-theme="light"]) .rintro .rhint svg { stroke: #fff } }
+:root[data-theme="dark"] .rintro .rin, :root[data-theme="dark"] .rintro .rhint, :root[data-theme="dark"] .rintro .rin h1 { color: #fff } :root[data-theme="dark"] .rintro .rhint svg { stroke: #fff }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .rintro .rbg { background: linear-gradient(#141026, #3a1d4a) } :root:not([data-theme="light"]) .rintro .rbg .hd { display: none } :root:not([data-theme="light"]) .rintro .rbg .hn { display: block } }
+:root[data-theme="dark"] .rintro .rbg { background: linear-gradient(#141026, #3a1d4a) } :root[data-theme="dark"] .rintro .rbg .hd { display: none } :root[data-theme="dark"] .rintro .rbg .hn { display: block }
 .rintro .rin { position: relative; margin-top: -18vh } .rintro .rin svg { width: 84px; height: 84px }
 .rintro h1 { margin: 10px 0 6px; font-family: inherit; font-weight: 700; text-transform: none; font-size: 2.3rem; letter-spacing: -.04em; color: #fff } .rintro p { margin: 0; opacity: .9; font-size: 1.05rem }
 .rintro .rcnt { margin-top: 18px; font-weight: 600 }
@@ -626,6 +632,17 @@ html { overflow-x: clip }
 .rmap .mmleg { position: absolute; left: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); background: var(--surface); color: var(--fg); padding: 6px 10px; border-radius: 999px; font-size: .82rem }
 .rmap .rmwait { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted) }
 .reelsbtn { --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='6' y='3' width='12' height='18' rx='2.5' fill='none' stroke='black' stroke-width='2'/%3E%3Cpath d='M10.5 9.5v5l4-2.5z'/%3E%3C/svg%3E") }
+
+/* ---------- full-screen map ---------- */
+.mfull { width: 38px; height: 38px; padding: 0 !important; display: inline-grid; place-items: center } .mfull svg { width: 18px; height: 18px }
+.mfullx { width: 44px; height: 44px; padding: 0 !important; font-size: 1.6rem; line-height: 1; display: inline-grid; place-items: center }
+.mtr { display: flex; gap: 6px; align-items: center }
+body.mapfull .mapbox { position: fixed; inset: 0; z-index: 54; border-radius: 0; border: 0 }
+body.mapfull #map { height: 100%; height: 100dvh }
+body.mapfull .maptools { top: calc(10px + env(safe-area-inset-top)) }
+body.mapfull #map-hide, body.mapfull #map-full { display: none }
+body.mapfull #map-fullx { display: inline-grid }
+body.mapfull .mapfab { display: none }
 </style>
 
 <div class="wrap">
@@ -677,7 +694,7 @@ html { overflow-x: clip }
         <svg id="map" role="img" aria-label="Carte en relief de La Réunion avec les communes de départ"></svg>
         <div class="mpop" id="mpop" hidden role="dialog" aria-label="Courses de la commune"></div>
         <div class="mapattr">© IGN · ESA · OpenStreetMap</div>
-        <div class="maptools"><span class="zbtns"><button type="button" class="toolbtn" id="z-in" aria-label="Zoomer">+</button><button type="button" class="toolbtn" id="z-out" aria-label="Dézoomer">−</button></span><span class="mtr"><button type="button" class="toolbtn" id="zoom-out" hidden>Toute l'île</button><button type="button" class="toolbtn mhide" id="map-hide">Masquer la carte</button></span></div>
+        <div class="maptools"><span class="zbtns"><button type="button" class="toolbtn" id="z-in" aria-label="Zoomer">+</button><button type="button" class="toolbtn" id="z-out" aria-label="Dézoomer">−</button></span><span class="mtr"><button type="button" class="toolbtn" id="zoom-out" hidden>Toute l'île</button><button type="button" class="toolbtn mhide" id="map-hide">Masquer la carte</button><button type="button" class="toolbtn mfull" id="map-full" aria-label="Carte en plein écran" title="Plein écran"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" class="toolbtn mfullx" id="map-fullx" aria-label="Fermer la carte plein écran" hidden>×</button></span></div>
       </div>
       <div class="maplegend" id="maplegend"></div>
     </div>
@@ -837,7 +854,8 @@ const ARTIFACT_URL = "https://claude.ai/artifact/4t8BeKe6bFhvK7sG5KcAxD";
 function toast(txt) { const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = txt; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
 function toggleFav(id) { FAVS.has(id) ? FAVS.delete(id) : FAVS.add(id); saveprefs(); render(); toast(FAVS.has(id) ? "Ajoutée à vos favoris (sur cet appareil)" : "Retirée de vos favoris"); }
 async function share(id) {
-  const r = RACES.find(x => x.id === id), url = ARTIFACT_URL + "#c-" + id;
+  const r0 = RACES.find(x => x.id === id); if (r0 && r0.id && !r0.manual) return shareRace(r0);
+  const r = r0, url = ARTIFACT_URL + "#c-" + id;
   try { await navigator.clipboard.writeText(url); toast("Lien copié : collez-le où vous voulez"); }
   catch (e) {
     const ta = document.createElement("textarea"); ta.value = url; document.body.appendChild(ta); ta.select();
@@ -1007,7 +1025,7 @@ function openDetail(id) {
         <div class="dlg-date">${d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</div>
         <h2>${esc(r.nom)}</h2>
         <div class="where"><span class="disc">${DISC[r.disc]}</span><span>${esc(r.commune)}${r.lieu && r.lieu !== r.commune ? " · " + esc(r.lieu) : ""}</span>${hasTrack(r.id) ? `<span class="gpxtag" title="Tracé disponible" aria-label="Tracé disponible" role="img">${TRK_ICO}</span>` : ""}</div>
-        <div class="dlg-state">${stateBadge(r)}${favBtn(r)}</div>
+        <div class="dlg-state">${stateBadge(r)}${favBtn(r)}${r.manual ? "" : `<button type="button" class="shr" data-share="${esc(r.id)}" aria-label="Partager cette course" title="Partager"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Partager</button>`}</div>
         <div class="eps">${(r.epreuves || []).map(epChip).join("")}</div>
       </div>
     </div>
@@ -1795,8 +1813,8 @@ try { if (localStorage.getItem("dp-nomap") === "1") setNoMap(true); } catch (e) 
   $("#minibrand").addEventListener("click", e => { e.preventDefault(); scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" }); });
 })();
 
-// ---------- Réels (mobile) — enabled for the mock-up (/maquette-reels/) or with ?reels ----------
-const REELS_ON = matchMedia("(max-width: 900px)").matches && (location.pathname.startsWith("/maquette-reels") || /[?&]reels\b/.test(location.search));
+// ---------- Réels: default view on mobile (the last mode chosen is remembered) ----------
+const REELS_ON = matchMedia("(max-width: 900px)").matches && !/[?&]noreels\b/.test(location.search);
 const R_ICO = { fav: '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>', share: '<path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"/>', map: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/>', cal: '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>' };
 let reelsBox = null;
 const rMode = v => { try { localStorage.setItem("dp-mode", v); } catch (e) {} };
@@ -1812,7 +1830,7 @@ function openReels() {
     document.body.appendChild(reelsBox);
   }
   const logo = (document.querySelector("#bigbrand svg") || document.querySelector(".logo"))?.outerHTML || "";
-  const night = document.querySelector(".herobg .hn")?.outerHTML || "";
+  const night = [...document.querySelectorAll(".herobg svg")].map(s => s.outerHTML).join("");
   const rs = filtered().sort(byDate);
   const slide = r => {
     const d = dt(r.date), n = daysTo(r.date), k = r.disc || "autre";
@@ -1838,7 +1856,7 @@ function openReels() {
       <section class="rs rintro"><div class="rbg" aria-hidden="true">${night}</div><div class="rin">${logo}<h1>Dossard Péi</h1><p>Trouve ton prochain dossard.</p><div class="rcnt">${rs.length} course${rs.length > 1 ? "s" : ""} à venir</div></div>
         <div class="rhint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14l6-6 6 6"/></svg>Glisse vers le haut</div></section>
       ${rs.map(slide).join("")}</div>`;
-  reelsBox.querySelectorAll(".rintro .hn").forEach(s => { s.style.display = "block"; s.setAttribute("preserveAspectRatio", "xMidYMax slice"); });
+  reelsBox.querySelectorAll(".rintro .rbg svg").forEach(s => s.setAttribute("preserveAspectRatio", "xMidYMax slice"));
   reelsBox.querySelectorAll("[data-rmode]").forEach(b => b.addEventListener("click", () => { const v = b.dataset.rmode; rMode(v); closeReels(); setView(v); requestAnimationFrame(() => scrollTo({ top: $("#main").offsetTop - 70, behavior: "auto" })); }));
   reelsBox.querySelectorAll(".rs[data-id]").forEach(s => {
     const r = RACES.find(x => x.id === s.dataset.id);
@@ -1851,7 +1869,7 @@ function openReels() {
       if (a === "more") openDetail(r.id);
     }));
   });
-  reelsBox.hidden = false; document.documentElement.style.overflow = "hidden";
+  reelsBox.hidden = false; document.documentElement.style.overflow = "hidden"; reelsBox.querySelector(".rfeed").scrollTop = 0;
   $("#v-reels")?.setAttribute("aria-pressed", "true");
 }
 function closeReels() { if (reelsBox) reelsBox.hidden = true; document.documentElement.style.overflow = ""; $("#v-reels")?.setAttribute("aria-pressed", "false"); }
@@ -1872,6 +1890,21 @@ if (REELS_ON) {
   if (m === "reels" && !/^#c-|^#contact/.test(location.hash)) openReels();
   else if (["liste", "calendrier", "carte"].includes(m)) setView(m);
 }
+
+// full-screen map (all devices): fixed overlay with a close button; Escape also closes
+let mapHome = null;
+function setMapFull(on) {
+  // the map box is moved to <body> while full screen, so no ancestor (sticky column, transforms) can clip it
+  const mb = $("#mapbox");
+  if (on && !mapHome) { mapHome = document.createComment("mapbox"); mb.before(mapHome); document.body.appendChild(mb); }
+  if (!on && mapHome) { mapHome.replaceWith(mb); mapHome = null; }
+  document.body.classList.toggle("mapfull", on); document.documentElement.style.overflow = on ? "hidden" : "";
+  $("#map-fullx").hidden = !on; drawPins(filtered());
+  if (on) addEventListener("keydown", mapFullKey); else removeEventListener("keydown", mapFullKey);
+}
+function mapFullKey(e) { if (e.key === "Escape" && !document.querySelector(".dlg, .lightbox")) setMapFull(false); }
+$("#map-full").addEventListener("click", () => setMapFull(true));
+$("#map-fullx").addEventListener("click", () => setMapFull(false));
 openHash(); addEventListener("hashchange", openHash);
 contactHash(); addEventListener("hashchange", contactHash);
 fetch("data.json", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(d => {
