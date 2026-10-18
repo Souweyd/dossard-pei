@@ -334,7 +334,7 @@ footer p { margin: 0 }
 .credit { text-align: center; margin: 6px 0 0 !important; font-family: var(--display); font-size: .78rem; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); opacity: .8 }
 .credit b { color: var(--fg) }
 .credit img { vertical-align: -8px; margin-right: 6px }
-@media (max-width: 900px) {
+@media (max-width: 760px) {
   .main { grid-template-columns: minmax(0, 1fr) }
   .mapcol { position: static }
   .switch #v-carte { display: block }
@@ -450,7 +450,7 @@ header.top { flex-direction: row; text-align: left } .top { display: flex; align
 th { text-transform: none; letter-spacing: 0; font-size: .78rem }
 footer { border: 0; padding-top: 6px }
 .credit { font-family: var(--body); letter-spacing: .25em }
-@media (max-width: 900px) {
+@media (max-width: 760px) {
   .main { grid-template-columns: minmax(0, 1fr) }
   .mapfab { display: inline-flex; position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 40; align-items: center; gap: 8px; font: inherit; font-weight: 600; background: var(--fg); color: var(--bg); border: 0; border-radius: 999px; padding: 12px 20px; box-shadow: 0 8px 24px rgba(0,0,0,.25); cursor: pointer }
   .mapfab svg { width: 18px; height: 18px }
@@ -485,7 +485,7 @@ footer { border: 0; padding-top: 6px }
   .main.nomap .ldate { grid-area: date; padding-top: 2px } .main.nomap .lmain { grid-area: main } .main.nomap .lstate { grid-area: state; justify-self: start }
   .main.nomap .lrow.on .lthumb { box-shadow: 0 0 0 3px var(--hot) }
 }
-@media (max-width: 900px) { .mhide, .mshow { display: none !important } }
+@media (max-width: 760px) { .mhide, .mshow { display: none !important } }
 
 /* detail sheet: close button stays reachable while scrolling; height follows the visible viewport (iOS toolbars) */
 .dlg-x { position: sticky; top: 4px; justify-self: end; right: auto; margin: -8px -8px -46px 0; width: 40px; height: 40px; padding: 0; border-radius: 50%; display: grid; place-items: center; font-size: 1.6rem;
@@ -643,6 +643,13 @@ body.mapfull .maptools { top: calc(10px + env(safe-area-inset-top)) }
 body.mapfull #map-hide, body.mapfull #map-full { display: none }
 body.mapfull #map-fullx { display: inline-grid }
 body.mapfull .mapfab { display: none }
+
+/* ---------- tablets in portrait (761–1099 px): desktop layout, list wider than the map ---------- */
+@media (min-width: 761px) and (max-width: 1099px) {
+  .main:not(.nomap) { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 18px }
+  .lrow { grid-template-columns: 34px 42px minmax(0, 1fr); gap: 10px; padding: 10px 6px } .lthumb { width: 42px; height: 56px }
+  .lstate { grid-column: 3; justify-self: start }
+}
 </style>
 
 <div class="wrap">
@@ -1814,7 +1821,7 @@ try { if (localStorage.getItem("dp-nomap") === "1") setNoMap(true); } catch (e) 
 })();
 
 // ---------- Réels: default view on mobile (the last mode chosen is remembered) ----------
-const REELS_ON = matchMedia("(max-width: 900px)").matches && !/[?&]noreels\b/.test(location.search);
+const REELS_ON = matchMedia("(max-width: 760px)").matches && !/[?&]noreels\b/.test(location.search);
 const R_ICO = { fav: '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>', share: '<path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"/>', map: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/>', cal: '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>' };
 let reelsBox = null;
 const rMode = v => { try { localStorage.setItem("dp-mode", v); } catch (e) {} };
