@@ -23,7 +23,7 @@ jobs:
       - name: Commit
         run: |
           git config user.name "Dossard Pei"; git config user.email "noreply@dossardpei.re"
-          git add -A course og sitemap.xml robots.txt
+          git add -A course og sitemap.xml robots.txt tools/first_seen.json
           if git diff --cached --quiet; then echo "rien à publier"; exit 0; fi
           git commit -m "Pages des courses [pages]"
           git pull --rebase origin main && git push origin main

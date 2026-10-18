@@ -9,6 +9,7 @@ import html, json, os, re, shutil, sys
 from datetime import date
 
 SITE = "https://dossardpei.re"
+FIRST = {}
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
 
@@ -191,7 +192,7 @@ footer{max-width:1040px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
 """
 
 
-def page(r, logo, has_og, has_trk, races=()):
+def page(r, logo, has_og, has_trk, races=(), data_date=None):
     rid = r["id"]; url = f"{SITE}/course/{rid}/"
     disc = disc_of(r); dl = date_long(r["date"])
     s = summary(r)
@@ -211,20 +212,23 @@ def page(r, logo, has_og, has_trk, races=()):
     else: st = ""
 
     # JSON-LD
-    ev = {"@context": "https://schema.org", "@type": "SportsEvent", "name": r["nom"], "startDate": r["date"],
+    ev = {"@context": "https://schema.org", "@type": "SportsEvent", "name": r["nom"], "startDate": r["date"], "endDate": r.get("fin") or r["date"],
           "eventStatus": "https://schema.org/EventScheduled", "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
           "sport": SPORT[disc], "url": url, "description": desc,
           "location": {"@type": "Place", "name": lieu or r.get("commune", ""),
                        "address": {"@type": "PostalAddress", "addressLocality": r.get("commune", ""), "addressRegion": "La Réunion", "addressCountry": "RE"}}}
     if r.get("ll"): ev["location"]["geo"] = {"@type": "GeoCoordinates", "latitude": r["ll"][0], "longitude": r["ll"][1]}
     if poster or has_og: ev["image"] = [img] + ([f"{SITE}/{poster}"] if poster else [])
-    if r.get("org"): ev["organizer"] = {"@type": "Organization", "name": r["org"], **({"url": r["page"]} if r.get("page") else {})}
+    org = {"@type": "Organization", "name": r.get("org") or r["nom"], **({"url": r["page"]} if r.get("page") else {})}
+    ev["organizer"] = org
+    ev["performer"] = {"@type": "PerformingGroup", "name": f"Participants · {r['nom']}"}
     prices = [price_num(e.get("prix")) for e in r.get("epreuves", [])]
     prices = [p for p in prices if p is not None]
-    if r.get("inscription"):
-        off = {"@type": "Offer", "url": r["inscription"], "priceCurrency": "EUR",
-               "availability": "https://schema.org/SoldOut" if r.get("complet") else "https://schema.org/InStock"}
-        if prices: off["price"] = min(prices)
+    # an offer is only declared when its price is known (Google flags offers without price)
+    if r.get("inscription") and prices:
+        off = {"@type": "Offer", "url": r["inscription"], "priceCurrency": "EUR", "price": min(prices),
+               "availability": "https://schema.org/SoldOut" if r.get("complet") else "https://schema.org/InStock",
+               "validFrom": r.get("ouverture") or (data_date or today)}
         if r.get("limite"): off["validThrough"] = r["limite"]
         ev["offers"] = off
     ld = json.dumps(ev, ensure_ascii=False).replace("</", "<\\/")
@@ -282,6 +286,12 @@ def page(r, logo, has_og, has_trk, races=()):
 
 def main():
     data = json.load(open("data.json", encoding="utf-8"))
+    global FIRST
+    fs = "tools/first_seen.json"   # date a race first appeared on the site (stable "validFrom" for Google)
+    FIRST = json.load(open(fs)) if os.path.exists(fs) else {}
+    for r in data.get("races", []):
+        if r.get("id") and r["id"] not in FIRST: FIRST[r["id"]] = date.today().isoformat()
+    json.dump(FIRST, open(fs, "w"), indent=0, sort_keys=True)
     races = [r for r in data.get("races", []) if r.get("id") and r.get("date") and re.fullmatch(r"[a-z0-9-]+", r["id"])]
     idx = open("index.html", encoding="utf-8").read()
     m = re.search(r'<svg class="logo biglogo".*?</svg>', idx, re.S)
@@ -301,7 +311,7 @@ def main():
             has_og = og_image(r, ogp, fonts) or has_og
             if has_og: open(sigp, "w").write(sig)
         os.makedirs(f"course/{rid}", exist_ok=True)
-        out = page(r, logo, has_og, rid in tracks, races)
+        out = page(r, logo, has_og, rid in tracks, races, FIRST.get(rid))
         p = f"course/{rid}/index.html"
         if not os.path.exists(p) or open(p, encoding="utf-8").read() != out:
             open(p, "w", encoding="utf-8").write(out)
