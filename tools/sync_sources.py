@@ -153,6 +153,35 @@ try:
 except Exception as e:
     errors.append(f"sportpro ({e.__class__.__name__})")
 
+# 5. Sportpro race pages (every 3 hours, to stay light on the site): a cancellation can also be
+#    written only in the presentation ("Evénement annulé… Ne pas s'inscrire") without changing the title.
+CANCEL = re.compile(r"(?i)\b(?:[ée]v[ée]nement|course|[ée]preuve|manifestation)\s+annul[ée]e?s?\b|ne\s+pas\s+s[’']inscrire")
+if NOW.hour % 3 == 0 or "--all" in sys.argv:
+    for r in data["races"]:
+        if r.get("hidden") or not can(r, "hidden"):
+            continue
+        urls = [u for u in (r.get("inscription"), r.get("page")) if u and "sportpro.re/courses/" in u]
+        for u in urls[:1]:
+            try:
+                req = urllib.request.Request(u, headers=UA)
+                s = urllib.request.urlopen(req, timeout=30).read().decode("utf-8", "replace")
+                clean = lambda x: re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", x)))
+                h1 = re.search(r"<h1[^>]*>(.*?)</h1>", s, re.S)
+                txt = clean(s)
+                i = txt.find(" Présentation ")
+                pres = txt[i:i + 900] if i >= 0 else ""
+                for stop in (" Parcours de l", " Modalités d", " Tarifs "):
+                    j = pres.find(stop)
+                    if j > 0:
+                        pres = pres[:j]
+                # only this race's own title and presentation (the sidebar lists other races)
+                if CANCEL.search((clean(h1.group(1)) if h1 else "") + " " + pres):
+                    r["hidden"] = True
+                    r["annule"] = True
+                    changes.append(f"{r['id']}:annulée")
+            except Exception as e:
+                errors.append(f"sportpro {r['id']} ({e.__class__.__name__})")
+
 if changes:
     data["updatedAt"] = NOW.isoformat(timespec="seconds")
     json.dump(data, open("data.json", "w"), ensure_ascii=False, separators=(",", ":"))
