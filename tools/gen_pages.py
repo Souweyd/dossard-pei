@@ -293,7 +293,7 @@ def main():
     for r in data.get("races", []):
         if r.get("id") and r["id"] not in FIRST: FIRST[r["id"]] = date.today().isoformat()
     json.dump(FIRST, open(fs, "w"), indent=0, sort_keys=True)
-    races = [r for r in data.get("races", []) if r.get("id") and r.get("date") and re.fullmatch(r"[a-z0-9-]+", r["id"])]
+    races = [r for r in data.get("races", []) if r.get("id") and r.get("date") and not r.get("hidden") and re.fullmatch(r"[a-z0-9-]+", r["id"])]
     idx = open("index.html", encoding="utf-8").read()
     m = re.search(r'<svg class="logo biglogo".*?</svg>', idx, re.S)
     logo = re.sub(r'class="logo biglogo"', 'aria-hidden="true"', m.group(0)) if m else ""
