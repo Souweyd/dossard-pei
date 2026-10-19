@@ -1011,7 +1011,7 @@ function drawPrev() {
   }
 }
 function hoverCom(com) { gPins.querySelectorAll(".pin").forEach(g => g.classList.toggle("hov", !!com && g.dataset.com === com)); }
-// "this weekend and soon": next races, regardless of the filters; then "last registrations":
+// "this weekend and soon": races of the next 7 days, regardless of the filters; then "last registrations":
 // races further away whose registrations close within 10 days (no duplicates)
 function scardHTML(r, mode) {
   const d = dt(r.date), n = daysTo(r.date), nl = r.limite ? daysTo(r.limite) : 99;
@@ -1024,7 +1024,8 @@ function scardHTML(r, mode) {
       <span class="sname">${esc(r.nom)}</span><span class="smeta">${meta}</span></button>`;
 }
 function renderSoon() {
-  const t = todayISO(), rs = RACES.filter(r => !r.hidden && r.date >= t).sort(byDate).slice(0, 12);
+  const t = todayISO(), rs = RACES.filter(r => !r.hidden && r.date >= t && daysTo(r.date) <= 7).sort(byDate);
+  document.querySelector("section.soon").hidden = !rs.length;
   $("#soon").innerHTML = rs.map(r => scardHTML(r, "soon")).join("");
   const seen = new Set(rs.map(r => r.id));
   const dl = RACES.filter(r => !r.hidden && !r.complet && r.limite && r.date >= t && !seen.has(r.id) && daysTo(r.limite) >= 0 && daysTo(r.limite) <= 7)
