@@ -401,7 +401,17 @@ header.top { flex-direction: row; text-align: left } .top { display: flex; align
 .swhen { position: absolute; left: 8px; top: 8px; background: var(--surface); color: var(--fg); border-radius: 999px; padding: 3px 11px; font-size: .85rem; font-weight: 700; font-variant-numeric: tabular-nums; box-shadow: 0 2px 8px rgba(0,0,0,.15) }
 .sname { font-weight: 600; font-size: .95rem; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden }
 .smeta { color: var(--muted); font-size: .82rem }
-.soon2 { margin-top: 26px }
+.soonwrap { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 28px; align-items: start }
+.soonwrap:has(#dlsec[hidden]) { grid-template-columns: minmax(0, 1fr) }
+.lastc { background: var(--surface); border-radius: 18px; padding: 16px 14px 10px; box-shadow: inset 0 0 0 1px var(--line) }
+.lastc h2 { font-family: var(--display); font-weight: 700; letter-spacing: -.02em; font-size: 1.15rem; margin: 2px 4px 10px; color: var(--fg) }
+.lrow2 { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 10px; align-items: center; width: 100%; padding: 8px 4px; border-top: 1px solid var(--line) }
+.lrow2:first-child { border-top: 0 } .lrow2:hover b { text-decoration: underline }
+.lt { position: relative; width: 44px; height: 56px; border-radius: 8px; overflow: hidden; background: linear-gradient(160deg, color-mix(in srgb, var(--dc) 80%, #000), color-mix(in srgb, var(--dc) 45%, #000)) }
+.lt img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top }
+.lx { display: grid; gap: 2px; min-width: 0 } .lx b { font-weight: 600; font-size: .92rem; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap } .lx small { color: var(--muted); font-size: .8rem }
+.lc { background: var(--hot); color: #fff; border-radius: 99px; padding: 3px 10px; font-size: .78rem; font-weight: 700; white-space: nowrap }
+@media (max-width: 1099px) { .soonwrap { grid-template-columns: minmax(0, 1fr) } .lastc { margin-top: 4px } }
 .swhen.hot { background: var(--hot, #e4572e); color: #fff }
 .sclose { position: absolute; right: 8px; bottom: 8px; background: var(--hot, #e4572e); color: #fff; border-radius: 999px; padding: 3px 10px; font-size: .78rem; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,.2) }
 .simg:has(.sclose) .sph { bottom: 40px }
@@ -691,17 +701,14 @@ body.mapfull .mapfab { display: none }
 
   <section id="admin" hidden aria-label="Administration"></section>
 
+  <div class="soonwrap">
   <section class="soon" aria-labelledby="soon-h">
     <div class="soon-head"><h2 id="soon-h">Ce week-end et bientôt</h2>
       <div class="soon-nav"><button type="button" class="snav" data-snav="-1" aria-label="Précédentes">‹</button><button type="button" class="snav" data-snav="1" aria-label="Suivantes">›</button></div></div>
     <div class="soon-row" id="soon"></div>
   </section>
-  <section class="soon soon2" id="dlsec" aria-labelledby="dl-h" hidden>
-    <div class="soon-head"><h2 id="dl-h">⏳ Dernières chances</h2>
-      <div class="soon-nav"><button type="button" class="snav" data-dnav="-1" aria-label="Précédentes">‹</button><button type="button" class="snav" data-dnav="1" aria-label="Suivantes">›</button></div></div>
-    <div class="soon-row" id="dl"></div>
-  </section>
-
+  <aside class="lastc" id="dlsec" aria-labelledby="dl-h" hidden><h2 id="dl-h">⏳ Dernières chances</h2><div id="dl"></div></aside>
+  </div>
   <section class="finder" aria-label="Recherche et filtres">
     <div class="sbar">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -1023,7 +1030,8 @@ function renderSoon() {
   const dl = RACES.filter(r => !r.hidden && !r.complet && r.limite && r.date >= t && !seen.has(r.id) && daysTo(r.limite) >= 0 && daysTo(r.limite) <= 7)
     .sort((a, b) => a.limite.localeCompare(b.limite) || byDate(a, b)).slice(0, 12);
   $("#dlsec").hidden = !dl.length;
-  $("#dl").innerHTML = dl.map(r => scardHTML(r, "dl")).join("");
+  $("#dl").innerHTML = dl.map(r => { const nl = daysTo(r.limite), d = dt(r.date);
+    return `<button type="button" class="lrow2" data-card="${esc(r.id)}" style="--dc:var(${DCOL[r.disc]})"><span class="lt${artCls(r)}">${r.poster ? `<img src="${esc(thumbOf(r))}" alt="" loading="lazy" onerror="this.remove()">` : ""}</span><span class="lx"><b>${esc(r.nom)}</b><small>${d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: d.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined })} · ${esc(r.commune)}</small></span><span class="lc">${nl <= 0 ? "Auj." : nl === 1 ? "Demain" : "J-" + nl}</span></button>`; }).join("");
   [$("#soon"), $("#dl")].forEach(row => row.querySelectorAll("[data-card]").forEach(b => b.addEventListener("click", () => openRace(b.dataset.card))));
 }
 // ---------- race detail (dialog) ----------
