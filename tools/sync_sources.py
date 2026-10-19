@@ -4,7 +4,8 @@
 - removes races whose date (or end date) is past, with their gpx entry;
 - UTOI: updates date, start time, distance, D+, price, registration deadline and "complet"
   from the public API (https://api.utoi-inscriptions.com/api/races);
-- Top Chrono: marks races "complet" when their page says so.
+- Top Chrono: marks races "complet" when their page says so;
+- Sportpro: hides races renamed "Course annulée : …" on the agenda.
 
 Never touches a field the owner corrected in the admin (state/overrides.json, exported by the
 Claude update) nor a manual race. New races, posters and tracks stay with the Claude update.
@@ -136,6 +137,21 @@ try:
             changes.append(f"{r['id']}:complet")
 except Exception as e:
     errors.append(f"topchrono ({e.__class__.__name__})")
+
+# 4. Sportpro: races renamed "Course annulée : …" on the agenda are hidden (not deleted, so the
+#    Claude update does not add them back).
+try:
+    req = urllib.request.Request("https://www.sportpro.re/courses/", headers=UA)
+    page = urllib.request.urlopen(req, timeout=30).read().decode("utf-8", "replace")
+    cancelled = {m.group(1) for m in re.finditer(r'courses/(\d{5})-([a-z0-9-]+)/', page) if "annul" in m.group(2)}
+    for r in data["races"]:
+        m = re.search(r"sportpro\.re/courses/(\d{5})-", r.get("page") or "")
+        if m and m.group(1) in cancelled and not r.get("hidden") and can(r, "hidden"):
+            r["hidden"] = True
+            r["annule"] = True
+            changes.append(f"{r['id']}:annulée")
+except Exception as e:
+    errors.append(f"sportpro ({e.__class__.__name__})")
 
 if changes:
     data["updatedAt"] = NOW.isoformat(timespec="seconds")
