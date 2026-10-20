@@ -1,0 +1,32 @@
+{
+ "name": "Dossard Péi",
+ "short_name": "Dossard Péi",
+ "description": "Toutes les courses de La Réunion au même endroit : trail, route, cross, rando et multisport.",
+ "lang": "fr",
+ "start_url": "/?ref=webapp",
+ "scope": "/",
+ "display": "standalone",
+ "orientation": "portrait",
+ "background_color": "#f5efe6",
+ "theme_color": "#f5efe6",
+ "icons": [
+  {
+   "src": "/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any"
+  },
+  {
+   "src": "/icon-maskable-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}
