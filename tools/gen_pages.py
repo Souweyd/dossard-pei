@@ -24,6 +24,17 @@ SPORT = {"trail": "Trail running", "route": "Course sur route", "marche": "Rando
 esc = lambda s: html.escape(str(s if s is not None else ""), quote=True)
 
 
+
+# French typography in visible text: no line break between a number and its unit, nor before « : ; ! ? · »
+_NB_UNIT = re.compile(r"(\d) (?=(?:€|km\b|m\b|D\+|h\b|j\b|min\b|ans?\b|places?\b|%|à \d|et \d))")
+def nbsp_html(doc):
+    def fix(m):
+        t = _NB_UNIT.sub("\\1\u00a0", m.group(1))
+        t = re.sub(r" ([:;!?»·–])", "\u00a0\\1", t)
+        return ">" + t + "<"
+    head, sep, body = doc.partition("<body")
+    return head + sep + re.sub(r">([^<>]+)<", fix, body) if sep else doc
+
 def d_of(s):
     y, m, d = map(int, s.split("-")); return date(y, m, d)
 
@@ -312,7 +323,7 @@ def main():
             has_og = og_image(r, ogp, fonts) or has_og
             if has_og: open(sigp, "w").write(sig)
         os.makedirs(f"course/{rid}", exist_ok=True)
-        out = page(r, logo, has_og, rid in tracks, races, FIRST.get(rid))
+        out = nbsp_html(page(r, logo, has_og, rid in tracks, races, FIRST.get(rid)))
         p = f"course/{rid}/index.html"
         if not os.path.exists(p) or open(p, encoding="utf-8").read() != out:
             open(p, "w", encoding="utf-8").write(out)

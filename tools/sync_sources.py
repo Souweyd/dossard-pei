@@ -85,20 +85,26 @@ try:
         page += 1
     run["utoi"] = {"metrics": {"courses": len(items)}}
     for r in data["races"]:
-        m = re.search(r"utoi-inscriptions\.com/evenements/([^/?#]+)", r.get("inscription", ""))
+        # link is either the event page (/evenements/<event>) or already the race page (/courses/<race>)
+        m = re.search(r"utoi-inscriptions\.com/(evenements|courses)/([^/?#]+)", r.get("inscription", ""))
         if r.get("source") != "utoi" or not m or len(r.get("epreuves", [])) != 1:
             continue
         ep = r["epreuves"][0]
         relay = ep.get("type") == "relais" or bool(re.search(r"relai|duo|equipe", norm(r["nom"])))
-        cands = [it for it in items if it["event"]["slug"] == m.group(1)
-                 and abs(float(it.get("distanceKm") or 0) - float(ep.get("km") or -1)) < 0.6
-                 and (it.get("format") == "RELAY") == relay]
+        if m.group(1) == "courses":
+            cands = [it for it in items if it.get("slug") == m.group(2)]
+        else:
+            cands = [it for it in items if it["event"]["slug"] == m.group(2)
+                     and abs(float(it.get("distanceKm") or 0) - float(ep.get("km") or -1)) < 0.6
+                     and (it.get("format") == "RELAY") == relay]
         if len(cands) > 1:  # e.g. relay of 5 vs relay of 10: use the leg count in the name
             n = re.search(r"\b(\d+)\b", norm(r["nom"]).replace(str(ep.get("km", "")), ""))
             cands = [c for c in cands if n and str(c.get("relayLegCount")) == n.group(1)] or cands
         if len(cands) != 1:
             continue
         it = cands[0]
+        if it.get("slug"):  # S'inscrire opens this race, not the whole event
+            setf(r, r, "inscription", f"https://utoi-inscriptions.com/courses/{it['slug']}", "lien course")
         if it.get("startAt"):
             st = dt.datetime.fromisoformat(it["startAt"].replace("Z", "+00:00")).astimezone(TZ)
             setf(r, r, "date", st.date().isoformat(), "date")
