@@ -182,7 +182,7 @@ select, .chip, input[type=text], input[type=url], input[type=date], input[type=n
 .src { color: var(--muted); font-size: .8rem; margin-left: auto }
 .detail { border-top: 1px dashed var(--line); padding-top: 10px; display: grid; gap: 10px }
 .tblwrap { overflow-x: auto }
-.rinfo { margin: 0 0 12px; padding: 10px 14px; border-radius: 12px; background: var(--accent-soft); color: var(--fg); font-size: .88rem; line-height: 1.45 } .rinfo a { font-weight: 700; white-space: nowrap }
+.dinfo { margin: 0; padding: 10px 14px; border-radius: 12px; background: var(--accent-soft); color: var(--fg); font-size: .88rem; line-height: 1.45 } .dinfo a { font-weight: 700; white-space: nowrap }
 td.est { white-space: nowrap; padding-right: 0 }
 .epins { display: inline-block; padding: 3px 10px; border-radius: 99px; background: var(--accent); color: #fff !important; font-weight: 700; font-size: .78rem; text-decoration: none !important }
 .epins:hover { filter: brightness(1.1) }
@@ -1320,7 +1320,7 @@ function detailHTML(r) {
   const srcT = gsrc ? `<div class="trksrc">Tracé : <a href="${esc(gsrc)}" target="_blank" rel="noopener">${esc(srcName(gsrc))}</a></div>` : "";
   const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}<div class="note">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : `${g.nom ? esc(g.nom) + " · " : ""}${g.km ? fmt(g.km) + " km" : ""}${g.dp ? " · " + g.dp + " m D+ (mesuré sur le tracé)" : ""}`}${srcT}</div>${miniMap(g.pts, r)}${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="note">Chargement du tracé…</div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
   return `<div class="detail">
-    ${r.info ? `<p class="rinfo">${esc(r.info)}${r.paiement ? ` <a href="${esc(r.paiement)}" target="_blank" rel="noopener">Paiement en ligne</a>` : ""}</p>` : ""}
+    ${r.info ? `<p class="dinfo">${esc(r.info)}${r.paiement ? ` <a href="${esc(r.paiement)}" target="_blank" rel="noopener">Paiement en ligne</a>` : ""}</p>` : ""}
     <div class="tblwrap"><table><thead><tr><th>Épreuve</th><th>Dist.</th><th>D+</th><th>Type</th><th>Départ</th><th>Tarif</th>${hasSt ? "<th>Statut</th>" : ""}</tr></thead><tbody><tr class="mhead"><td><span>Dist.</span><span>D+</span><span>Départ</span><span>Tarif</span></td></tr>${rows}</tbody></table></div>
     ${prof}
     ${r.approx ? `<p class="note" style="margin:0">Date à confirmer : le mois est repris de l'édition précédente. Vérifiez sur la fiche avant de vous organiser.</p>` : ""}
