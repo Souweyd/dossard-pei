@@ -187,15 +187,19 @@ td.est { white-space: nowrap; padding-right: 0 }
 .epins:hover { filter: brightness(1.1) }
 @media (max-width: 600px) {
   .detail .tblwrap { overflow: visible } .detail table thead { display: none } .detail table, .detail tbody { display: block }
-  .detail tr { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 0; padding: 10px 0; border-bottom: 1px solid var(--line) }
-  .detail tr::after { content: ""; flex-basis: 100%; order: 2 }
-  .detail td { border: 0; padding: 0; font-size: .85rem; color: var(--muted); order: 3 }
-  .detail td:first-child { order: 0; flex: 1 1 0; min-width: 0; padding-right: 10px; font-size: .95rem; font-weight: 600; color: var(--fg) }
-  .detail td.est { order: 1; text-align: right } .detail td.est .eslim { margin-top: 2px }
+  .detail tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 10px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--line) }
+  .detail td { border: 0; padding: 0; font-size: .85rem; color: var(--muted) }
+  .detail td:first-child { grid-column: 1; grid-row: 1; font-size: .95rem; font-weight: 600; color: var(--fg) }
+  .detail td.est { grid-column: 2; grid-row: 1 / span 2; text-align: right } .detail td.est .eslim { margin-top: 2px }
   .detail td:not(:first-child):not(.est):not(.mmeta) { display: none }
-  .detail td.mmeta { display: block; order: 3; flex-basis: 100%; line-height: 1.45 } .detail td.mmeta span { white-space: nowrap }
+  .detail td.mmeta { display: contents; color: var(--fg) }
+  .detail .mty { grid-column: 1; grid-row: 2; display: block; margin: 1px 0 0; font-size: .78rem; color: var(--muted) } .detail .mty:empty { display: none }
+  .detail .mpx span { display: block } .detail td:first-child .note { font-weight: 400; font-size: .8rem; color: var(--muted); margin-top: 1px }
+  .detail .mg { grid-column: 1 / -1; grid-row: 3; margin-top: 6px; color: var(--fg) }
+  .detail .mg, .detail tr.mhead td { display: grid; grid-template-columns: 1fr .75fr .7fr 1.8fr; column-gap: 10px; font-variant-numeric: tabular-nums; font-size: .86rem; line-height: 1.3 }
+  .detail tr.mhead { display: block; padding: 0 0 6px } .detail tr.mhead td { grid-column: auto; grid-row: auto } .detail tr.mhead td { color: var(--muted) !important; font-size: .66rem !important; font-weight: 600 !important; text-transform: uppercase; letter-spacing: .06em; padding: 0 }
 }
-td.mmeta { display: none }
+td.mmeta, tr.mhead { display: none }
 .eslim { display: block; margin-top: 3px; font-size: .72rem; color: var(--muted) } .eslim.hot { color: var(--hot); font-weight: 600 }
 table { border-collapse: collapse; width: 100%; font-size: .88rem }
 th, td { text-align: left; padding: 5px 8px 5px 0; border-bottom: 1px solid var(--line); vertical-align: top }
@@ -1145,7 +1149,7 @@ const PUBLIC_SITE = /(^|\.)dossardpei\.re$/.test(location.hostname);
 // French typography: never break between a number and its unit, nor before « : ; ! ? · »
 const NB_UNIT = /(\d) (?=(?:€|km\b|m\b|D\+|h\b|j\b|min\b|ans?\b|places?\b|%|à \d|et \d|euros?\b|jours?\b|heures?\b))/g;
 const NB_PUNCT = / ([:;!?»·–])/g, NB_OPEN = /([«]) /g;
-function nbText(t) { return t.replace(NB_UNIT, "$1 ").replace(NB_PUNCT, " $1").replace(NB_OPEN, "$1 "); }
+function nbText(t) { return t.replace(/non licenci/g, "non\u00a0licenci").replace(NB_UNIT, "$1 ").replace(NB_PUNCT, " $1").replace(NB_OPEN, "$1 "); }
 function nbFix(root) {
   if (!root) return;
   if (root.nodeType === 3) { const v = root.nodeValue, w = nbText(v); if (v !== w) root.nodeValue = w; return; }
@@ -1298,7 +1302,7 @@ function detailHTML(r) {
   const hasSt = (r.epreuves || []).some(e => e.url || "complet" in e);
   const rows = (r.epreuves || []).map(e => `<tr><td>${esc(e.nom)}${e.note ? `<div class="note">${esc(e.note)}</div>` : ""}</td>
     <td class="n${e.km ? "" : " z"}">${e.km ? fmt(e.km) + " km" : "–"}</td><td class="n dp${e.dp ? "" : " z"}">${e.dp ? e.dp + " m" : "–"}</td>
-    <td>${esc(e.cat || ((DISC[e.type] || "–") + (e.type === "trail" && ffaOf(e) ? " " + ffaOf(e) : "")))}</td><td class="n${e.h ? "" : " z"}">${esc(e.h || "–")}</td><td class="${e.prix ? "" : "z"}">${e.prix ? esc(e.prix) : "–"}</td>${hasSt ? `<td class="est">${epState(e, r)}</td>` : ""}<td class="mmeta">${[e.km ? fmt(e.km) + " km" : "", e.dp ? e.dp + " m D+" : "", e.cat || ((DISC[e.type] || "") + (e.type === "trail" && ffaOf(e) ? " " + ffaOf(e) : "")), e.h || "", e.prix || ""].filter(Boolean).map(x => `<span>${esc(x)}</span>`).join(" · ")}</td></tr>`).join("");
+    <td>${esc(e.cat || ((DISC[e.type] || "–") + (e.type === "trail" && ffaOf(e) ? " " + ffaOf(e) : "")))}</td><td class="n${e.h ? "" : " z"}">${esc(e.h || "–")}</td><td class="${e.prix ? "" : "z"}">${e.prix ? esc(e.prix) : "–"}</td>${hasSt ? `<td class="est">${epState(e, r)}</td>` : ""}<td class="mmeta"><span class="mty">${esc(e.cat || ((DISC[e.type] || "") + (e.type === "trail" && ffaOf(e) ? " " + ffaOf(e) : "")))}</span><span class="mg"><span>${e.km ? fmt(e.km) + " km" : "–"}</span><span>${e.dp ? e.dp + " m" : "–"}</span><span>${esc(e.h || "–")}</span><span class="mpx">${e.prix ? esc(e.prix).split(" / ").map(x => `<span>${x}</span>`).join("") : "–"}</span></span></td></tr>`).join("");
   const traces = (r.traces || []).map(t => `<a href="${esc(t.url)}" target="_blank" rel="noopener">Tracé · ${esc(t.nom)}</a>`).join("");
   const all = tracksOf(r.id), g = curTrack(r.id), gi = Math.min(TSEL[r.id] || 0, (all || [1]).length - 1);
   if (hasTrack(r.id) && !all) loadTracks(r.id);
@@ -1307,7 +1311,7 @@ function detailHTML(r) {
   const srcT = gsrc ? `<div class="trksrc">Tracé : <a href="${esc(gsrc)}" target="_blank" rel="noopener">${esc(srcName(gsrc))}</a></div>` : "";
   const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}<div class="note">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : `${g.nom ? esc(g.nom) + " · " : ""}${g.km ? fmt(g.km) + " km" : ""}${g.dp ? " · " + g.dp + " m D+ (mesuré sur le tracé)" : ""}`}${srcT}</div>${miniMap(g.pts, r)}${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="note">Chargement du tracé…</div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
   return `<div class="detail">
-    <div class="tblwrap"><table><thead><tr><th>Épreuve</th><th>Dist.</th><th>D+</th><th>Type</th><th>Départ</th><th>Tarif</th>${hasSt ? "<th>Statut</th>" : ""}</tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="tblwrap"><table><thead><tr><th>Épreuve</th><th>Dist.</th><th>D+</th><th>Type</th><th>Départ</th><th>Tarif</th>${hasSt ? "<th>Statut</th>" : ""}</tr></thead><tbody><tr class="mhead"><td><span>Dist.</span><span>D+</span><span>Départ</span><span>Tarif</span></td></tr>${rows}</tbody></table></div>
     ${prof}
     ${r.approx ? `<p class="note" style="margin:0">Date à confirmer : le mois est repris de l'édition précédente. Vérifiez sur la fiche avant de vous organiser.</p>` : ""}
     <div class="links">${r.org ? `<span class="note">Organisateur : ${esc(r.org)}</span>` : ""}${traces}${r.page && r.page !== r.inscription && r.page !== ficheOf(r) ? `<a href="${esc(r.page)}" target="_blank" rel="noopener">Site de la course</a>` : ""}<a href="#contact-${esc(r.id)}" data-contact="${esc(r.id)}" class="dlg-report">Signaler une erreur</a></div>
