@@ -6,7 +6,7 @@
   from the public API (https://api.utoi-inscriptions.com/api/races);
 - Top Chrono: marks races "complet" when their page says so;
 - Sportpro: hides races renamed "Course annulée : …" on the agenda, and copies each épreuve's own
-  link, deadline and "Complet" from the agenda (multi-épreuve S'inscrire then opens the event page).
+  link, deadline, "Complet" and price from the agenda / épreuve pages (multi-épreuve S'inscrire then opens the event page).
 
 Never touches a field the owner corrected in the admin (state/overrides.json, exported by the
 Claude update) nor a manual race. New races, posters and tracks stay with the Claude update.
@@ -258,6 +258,39 @@ if NOW.hour % 3 == 0 or "--all" in sys.argv:
                     changes.append(f"{r['id']}:annulée")
             except Exception as e:
                 errors.append(f"sportpro {r['id']} ({e.__class__.__name__})")
+
+# 6. Sportpro épreuve prices (every 3 hours): each épreuve page has its own price grid
+#    ("Dossard jetable" column; licensed / non-licensed rows for triathlons).
+def sp_price(page):
+    m = re.search(r'<table class="tabTarifs">(.*?)</table>', page, re.S)
+    if not m:
+        return None
+    rows = []
+    for tr in re.findall(r"<tr>(.*?)</tr>", m.group(1), re.S):
+        cells = [re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", c))).strip() for c in re.findall(r"<t[hd][^>]*>(.*?)</t[hd]>", tr, re.S)]
+        euros = [c for c in cells[1:] if re.fullmatch(r"\d+(?:[.,]\d+)?\s*€", c)]
+        if euros:
+            label = re.sub(r"(?i)^tarif\s*|\(.*?\)", "", cells[0]).strip()
+            rows.append((euros[0].replace(" €", " €"), label))
+    if not rows:
+        return None
+    if len({p for p, _ in rows}) == 1:
+        return rows[0][0]
+    return " / ".join(f"{p} {l}".strip() for p, l in rows)
+
+
+if NOW.hour % 3 == 0 or "--all" in sys.argv:
+    for r in data["races"]:
+        if r.get("hidden") or not can(r, "epreuves"):
+            continue
+        for ep in r.get("epreuves", []):
+            if "sportpro.re/courses/epreuves/" not in (ep.get("url") or ""):
+                continue
+            try:
+                pg = urllib.request.urlopen(urllib.request.Request(ep["url"], headers=UA), timeout=30).read().decode("utf-8", "replace")
+                setf(ep, r, "prix", sp_price(pg), "prix " + ep.get("nom", ""))
+            except Exception as e:
+                errors.append(f"sportpro prix {r['id']} ({e.__class__.__name__})")
 
 if changes:
     data["updatedAt"] = NOW.isoformat(timespec="seconds")
