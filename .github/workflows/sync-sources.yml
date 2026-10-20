@@ -13,6 +13,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  issues: write   # alarm: an issue (e-mailed by GitHub) when a source fails 3 runs in a row
 concurrency:
   group: course-pages
   cancel-in-progress: false
@@ -30,10 +31,15 @@ jobs:
           if git diff --quiet data.json; then echo "aucun changement"; exit 0; fi
           pip install -q pillow
           python tools/gen_pages.py
+      - name: Alarme sources
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tools/health_alarm.py
       - name: Commit
         run: |
           git config user.name "Dossard Pei"; git config user.email "noreply@dossardpei.re"
-          git add -A data.json course og sitemap.xml tools/first_seen.json
+          git add -A data.json course og sitemap.xml tools/first_seen.json state/health.json
           if git diff --cached --quiet; then echo "rien à publier"; exit 0; fi
           git commit -m "Synchro sources [pages]"
           git pull --rebase origin main || { git rebase --abort; echo "conflit avec une autre mise à jour : on réessaiera dans une heure"; exit 0; }

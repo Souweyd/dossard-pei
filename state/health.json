@@ -1,0 +1,39 @@
+{
+ "sportpro": {
+  "echecs": 0,
+  "etat": "ok",
+  "ref": {
+   "associees": 60,
+   "epreuves": 62,
+   "evenements": 28
+  }
+ },
+ "sportpro_pages": {
+  "echecs": 0,
+  "etat": "ok",
+  "ref": {
+   "pages": 26
+  }
+ },
+ "sportpro_prix": {
+  "echecs": 0,
+  "etat": "ok",
+  "ref": {
+   "prix": 55
+  }
+ },
+ "topchrono": {
+  "echecs": 0,
+  "etat": "ok",
+  "ref": {
+   "pages": 115
+  }
+ },
+ "utoi": {
+  "echecs": 0,
+  "etat": "ok",
+  "ref": {
+   "courses": 14
+  }
+ }
+}

@@ -11,6 +11,8 @@
 Never touches a field the owner corrected in the admin (state/overrides.json, exported by the
 Claude update) nor a manual race. New races, posters and tracks stay with the Claude update.
 Prints a one-line summary; exits 0 even when a source is unreachable (it is simply skipped).
+What each source read is recorded in state/health.json (tools/health.py); the workflow opens an
+issue when a source fails 3 runs in a row (tools/health_alarm.py).
 """
 import datetime as dt
 import html
@@ -19,6 +21,9 @@ import re
 import sys
 import unicodedata
 import urllib.request
+
+sys.dont_write_bytecode = True  # no tools/__pycache__ in the repo
+import health  # noqa: E402
 
 UA = {"User-Agent": "Mozilla/5.0 (DossardPei sync; +https://dossardpei.re)"}
 TZ = dt.timezone(dt.timedelta(hours=4))  # La Réunion
@@ -43,6 +48,7 @@ except (OSError, ValueError):
     ov = {}
 locked = {k: set(v.get("fields", [])) if isinstance(v, dict) else set(v) for k, v in ov.get("overrides", ov).items()} if isinstance(ov, dict) else {}
 changes, errors = [], []
+run = {}  # source -> {"metrics": {name: count}, "error": ...}, for state/health.json
 
 
 def can(r, field):
@@ -77,6 +83,7 @@ try:
         if page * d.get("perPage", 30) >= d.get("total", 0) or not d["items"]:
             break
         page += 1
+    run["utoi"] = {"metrics": {"courses": len(items)}}
     for r in data["races"]:
         m = re.search(r"utoi-inscriptions\.com/evenements/([^/?#]+)", r.get("inscription", ""))
         if r.get("source") != "utoi" or not m or len(r.get("epreuves", [])) != 1:
@@ -116,6 +123,7 @@ try:
             changes.append(f"{r['id']}:complet")
 except Exception as e:  # source down: skip it this hour
     errors.append(f"utoi ({e.__class__.__name__})")
+    run["utoi"] = {"metrics": {}, "error": f"{e.__class__.__name__}: {str(e)[:150]}"}
 
 # 3. Top Chrono: "COMPLET"
 try:
@@ -127,6 +135,7 @@ try:
             break
         n += 1
     by_link = {p["link"].rstrip("/"): p["id"] for p in pages}
+    run["topchrono"] = {"metrics": {"pages": len(pages)}}
     for r in data["races"]:
         link = (r.get("fiche") or r.get("inscription") or "").rstrip("/")
         if r.get("source") != "topchrono" or link not in by_link or r.get("complet"):
@@ -138,6 +147,7 @@ try:
             changes.append(f"{r['id']}:complet")
 except Exception as e:
     errors.append(f"topchrono ({e.__class__.__name__})")
+    run["topchrono"] = {"metrics": {}, "error": f"{e.__class__.__name__}: {str(e)[:150]}"}
 
 # Sportpro agenda: one card per event, one "epreuveFiche" per épreuve (button "S'inscrire" or "Complet").
 def sp_agenda(page):
@@ -203,11 +213,13 @@ try:
             changes.append(f"{r['id']}:annulée")
     # 4b. per-épreuve status from the same agenda page: link, deadline and "Complet" of each épreuve
     ag = sp_agenda(page)
+    associees = 0
     for r in data["races"]:
         m = re.search(r"sportpro\.re/courses/(\d{5})-", r.get("page") or "")
         if r.get("hidden") or not m or not ag.get(m.group(1)) or not can(r, "epreuves"):
             continue
         res = match(r.get("epreuves", []), ag[m.group(1)], r.get("nom", ""))
+        associees += len(res)
         for t in res.values():  # Sportpro also greys "Complet" once the deadline is past: that is "closed", not "full"
             if t["limite"] and t["limite"] < TODAY:
                 t["complet"] = False
@@ -227,21 +239,27 @@ try:
                 if bool(r.get("complet")) != full:
                     r["complet"] = full
                     changes.append(f"{r['id']}:complet={full}")
+    run["sportpro"] = {"metrics": {"evenements": len(ag), "epreuves": sum(len(v) for v in ag.values()),
+                                   "associees": associees}}
 except Exception as e:
     errors.append(f"sportpro ({e.__class__.__name__})")
+    run["sportpro"] = {"metrics": {}, "error": f"{e.__class__.__name__}: {str(e)[:150]}"}
 
 # 5. Sportpro race pages (every 3 hours, to stay light on the site): a cancellation can also be
 #    written only in the presentation ("Evénement annulé… Ne pas s'inscrire") without changing the title.
 CANCEL = re.compile(r"(?i)\b(?:[ée]v[ée]nement|course|[ée]preuve|manifestation)\s+annul[ée]e?s?\b|ne\s+pas\s+s[’']inscrire")
 if NOW.hour % 3 == 0 or "--all" in sys.argv:
+    lues, essais, derr = 0, 0, None
     for r in data["races"]:
         if r.get("hidden") or not can(r, "hidden"):
             continue
         urls = [u for u in (r.get("inscription"), r.get("page")) if u and "sportpro.re/courses/" in u]
         for u in urls[:1]:
+            essais += 1
             try:
                 req = urllib.request.Request(u, headers=UA)
                 s = urllib.request.urlopen(req, timeout=30).read().decode("utf-8", "replace")
+                lues += 1
                 clean = lambda x: re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", x)))
                 h1 = re.search(r"<h1[^>]*>(.*?)</h1>", s, re.S)
                 txt = clean(s)
@@ -258,6 +276,9 @@ if NOW.hour % 3 == 0 or "--all" in sys.argv:
                     changes.append(f"{r['id']}:annulée")
             except Exception as e:
                 errors.append(f"sportpro {r['id']} ({e.__class__.__name__})")
+                derr = f"{e.__class__.__name__} sur {u}"
+    if essais:  # a failure only when no page could be read at all (or the count collapses)
+        run["sportpro_pages"] = {"metrics": {"pages": lues}, **({"error": derr} if not lues and derr else {})}
 
 # 6. Sportpro épreuve prices (every 3 hours): each épreuve page has its own price grid
 #    ("Dossard jetable" column; licensed / non-licensed rows for triathlons).
@@ -280,21 +301,40 @@ def sp_price(page):
 
 
 if NOW.hour % 3 == 0 or "--all" in sys.argv:
+    prix_lus, essais, derr = 0, 0, None
     for r in data["races"]:
         if r.get("hidden") or not can(r, "epreuves"):
             continue
         for ep in r.get("epreuves", []):
             if "sportpro.re/courses/epreuves/" not in (ep.get("url") or ""):
                 continue
+            essais += 1
             try:
                 pg = urllib.request.urlopen(urllib.request.Request(ep["url"], headers=UA), timeout=30).read().decode("utf-8", "replace")
-                setf(ep, r, "prix", sp_price(pg), "prix " + ep.get("nom", ""))
+                pr = sp_price(pg)
+                prix_lus += pr is not None
+                setf(ep, r, "prix", pr, "prix " + ep.get("nom", ""))
             except Exception as e:
                 errors.append(f"sportpro prix {r['id']} ({e.__class__.__name__})")
+                derr = f"{e.__class__.__name__} sur {ep['url']}"
+    if essais:
+        run["sportpro_prix"] = {"metrics": {"prix": prix_lus}, **({"error": derr} if not prix_lus and derr else {})}
 
 if changes:
     data["updatedAt"] = NOW.isoformat(timespec="seconds")
     json.dump(data, open("data.json", "w"), ensure_ascii=False, separators=(",", ":"))
+# health of each source: state/health.json (rewritten only when its content changes) + this run's counts
+sante = ""
+try:
+    prev = health.load()
+    state = health.evaluate(prev, run, NOW)
+    health.save(state, prev)
+    sante = health.summary(state)
+    import os, tempfile
+    with open(os.path.join(os.environ.get("RUNNER_TEMP") or tempfile.gettempdir(), "health_run.json"), "w") as f:
+        json.dump({"at": NOW.isoformat(timespec="minutes"), "run": run, "errors": errors}, f, ensure_ascii=False)
+except Exception as e:
+    sante = f"santé non évaluée ({e.__class__.__name__})"
 print(f"{len(changes)} changement(s)" + (": " + ", ".join(changes) if changes else "")
-      + (" · sources en erreur : " + ", ".join(errors) if errors else ""))
+      + (" · sources en erreur : " + ", ".join(errors) if errors else "") + (" · " + sante if sante else ""))
 sys.exit(0)
