@@ -1,0 +1,1 @@
+["Trail Urbain des Letchis", "2026-12-19", "Saint-Benoît", [{"nom": "14 km", "km": 14, "h": "16h00", "cat": "Trail urbain", "type": "trail", "prix": "20 €", "note": "Ouverture des inscriptions le 24/10/2026 à 8h · à partir de la catégorie Cadet (2011 et avant)"}], "posters/trail-urbain-letchis-2026-12.webp", "posters/trail-urbain-letchis-2026-12_lg.webp", "art1"]
