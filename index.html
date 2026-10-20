@@ -1041,6 +1041,10 @@ let DETAIL = null, detailBox = null, lastFocus = null;
 const PUBLIC_SITE = /(^|\.)dossardpei\.re$/.test(location.hostname);
 // visit statistics (GoatCounter, no cookies): only loaded on dossardpei.re, silently absent elsewhere
 const gcount = (path, title, event) => { try { window.goatcounter && window.goatcounter.count && window.goatcounter.count({ path, title: title || path, event: !!event }); } catch (e) {} };
+// installed web app (home screen, Android or iPhone): one event per opening
+(function () { const sa = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true; if (!sa) return;
+  const os = /iphone|ipad|ipod/i.test(navigator.userAgent) ? "iphone" : /android/i.test(navigator.userAgent) ? "android" : "autre"; let n = 0;
+  const t = setInterval(() => { if (window.goatcounter && window.goatcounter.count) { clearInterval(t); gcount("webapp/" + os, "Ouverture web app", true); } else if (++n > 20) clearInterval(t); }, 500); })();
 let COUNTED = null;
 document.addEventListener("click", e => {
   const a = e.target.closest && e.target.closest("a[href], button[data-gpx]"); if (!a) return;
