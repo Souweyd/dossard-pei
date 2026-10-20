@@ -127,6 +127,64 @@ try:
         if full and not r.get("complet") and can(r, "complet"):
             r["complet"] = True
             changes.append(f"{r['id']}:complet")
+    # UTOI events with several races (one fiche per event, one épreuve per race): each épreuve links to its
+    # race page /courses/<slug>; its own date, time, distance, D+, price, deadline and "complet" follow the API
+    by_slug = {it.get("slug"): it for it in items if it.get("slug")}
+    for r in data["races"]:
+        if r.get("source") != "utoi" or len(r.get("epreuves", [])) < 2:
+            continue
+        hit = False
+        for ep in r["epreuves"]:
+            m = re.search(r"utoi-inscriptions\.com/courses/([^/?#]+)", ep.get("url") or "")
+            it = by_slug.get(m.group(1)) if m else None
+            if not it:
+                continue
+            hit = True
+            nm = "épreuve " + (ep.get("nom") or "")
+            if it.get("startAt"):
+                st = dt.datetime.fromisoformat(it["startAt"].replace("Z", "+00:00")).astimezone(TZ)
+                if can(r, "epreuves"):
+                    for f, v in (("date", st.date().isoformat()), ("h", st.strftime("%Hh%M"))):
+                        if ep.get(f) != v:
+                            ep[f] = v; changes.append(f"{r['id']}:{nm} {f}")
+            if not can(r, "epreuves"):
+                continue
+            km = float(it.get("distanceKm") or 0)
+            for f, v in (("km", (int(km) if km == int(km) else km) if km else None), ("dp", it.get("elevationGainM"))):
+                if v not in (None, "") and ep.get(f) != v:
+                    ep[f] = v; changes.append(f"{r['id']}:{nm} {f}")
+            if it.get("price") is not None:
+                p = it["price"] / 100
+                mo = re.match(r"\s*(\d+(?:[.,]\d+)?)\s*€?(.*)", str(ep.get("prix") or ""))
+                if not mo or float(mo.group(1).replace(",", ".")) != p:
+                    ep["prix"] = f"{p:g} €" + (mo.group(2) if mo and mo.group(2).strip() else (" / équipe" if it.get("format") == "RELAY" else ""))
+                    changes.append(f"{r['id']}:{nm} prix")
+            cd = it.get("countdown") or {}
+            if cd.get("kind") == "REGISTRATION_CLOSES" and cd.get("target"):
+                lim = dt.datetime.fromisoformat(cd["target"].replace("Z", "+00:00")).astimezone(TZ).date().isoformat()
+                if ep.get("limite") != lim:
+                    ep["limite"] = lim; changes.append(f"{r['id']}:{nm} clôture")
+            full = it.get("seatsLeft") == 0 or str(it.get("status", "")).upper() in ("FULL", "SOLD_OUT", "COMPLETE")
+            if bool(ep.get("complet")) != full:
+                ep["complet"] = full; changes.append(f"{r['id']}:{nm} complet={full}")
+        if not hit:
+            continue
+        # the event itself: first and last race days, latest deadline, full only when every race is full
+        days = sorted(e["date"] for e in r["epreuves"] if e.get("date"))
+        if days and can(r, "date"):
+            if r.get("date") != days[0]:
+                r["date"] = days[0]; changes.append(f"{r['id']}:date")
+            fin = days[-1] if days[-1] != days[0] else None
+            if r.get("fin") != fin:
+                if fin: r["fin"] = fin
+                else: r.pop("fin", None)
+                changes.append(f"{r['id']}:fin")
+        lims = [e.get("limite") for e in r["epreuves"]]
+        if all(lims) and can(r, "limite") and r.get("limite") != max(lims):
+            r["limite"] = max(lims); changes.append(f"{r['id']}:clôture")
+        full = all(e.get("complet") for e in r["epreuves"])
+        if can(r, "complet") and bool(r.get("complet")) != full:
+            r["complet"] = full; changes.append(f"{r['id']}:complet={full}")
 except Exception as e:  # source down: skip it this hour
     errors.append(f"utoi ({e.__class__.__name__})")
     run["utoi"] = {"metrics": {}, "error": f"{e.__class__.__name__}: {str(e)[:150]}"}

@@ -43,6 +43,19 @@ def date_long(s):
     d = d_of(s); return f"{JOURS[d.weekday()]} {d.day} {MOIS[d.month - 1]} {d.year}"
 
 
+def date_range(r):
+    """« jeudi 6 mai 2027 » or, for an event over several days, « du jeudi 6 au dimanche 9 mai 2027 »"""
+    if not r.get("fin") or r["fin"] == r["date"]:
+        return date_long(r["date"])
+    a, b = d_of(r["date"]), d_of(r["fin"])
+    start = f"{JOURS[a.weekday()]} {a.day}" + ("" if a.month == b.month else f" {MOIS[a.month - 1]}")
+    return f"du {start} au {date_long(r['fin'])}"
+
+
+def day_short(s):
+    d = d_of(s); return f"{JOURS[d.weekday()][:3]}. {d.day}"
+
+
 def fmt_km(k):
     return (f"{k:.1f}".rstrip("0").rstrip(".")).replace(".", ",")
 
@@ -205,10 +218,13 @@ footer{max-width:1040px;margin:0 auto;padding:0 16px 40px;color:var(--muted);fon
 
 def page(r, logo, has_og, has_trk, races=(), data_date=None):
     rid = r["id"]; url = f"{SITE}/course/{rid}/"
-    disc = disc_of(r); dl = date_long(r["date"])
+    disc = disc_of(r); dl = date_range(r)
+    md = len({e.get("date") for e in r.get("epreuves", []) if e.get("date")}) > 1
     s = summary(r)
-    title = f"{r['nom']} {d_of(r['date']).year} · {d_of(r['date']).day} {MOIS[d_of(r['date']).month - 1]} · {r.get('commune', '')} | Dossard Péi"
-    desc = f"{r['nom']} : {DISC[disc].lower()} le {dl} à {r.get('commune', '')}, La Réunion."
+    a = d_of(r["date"]); b = d_of(r.get("fin") or r["date"])
+    when = f"{a.day} {MOIS[a.month - 1]}" if a == b else (f"{a.day}–{b.day} {MOIS[b.month - 1]}" if a.month == b.month else f"{a.day} {MOIS[a.month - 1]} – {b.day} {MOIS[b.month - 1]}")
+    title = f"{r['nom']} {a.year} · {when} · {r.get('commune', '')} | Dossard Péi"
+    desc = f"{r['nom']} : {DISC[disc].lower()} {'le ' if not r.get('fin') or r['fin'] == r['date'] else ''}{dl} à {r.get('commune', '')}, La Réunion."
     if s: desc += f" {s}."
     desc += " Horaires, tarifs, parcours et lien d'inscription."
     img = f"{SITE}/og/{rid}.jpg" if has_og else f"{SITE}/og/home.jpg"
@@ -247,7 +263,7 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
     rows = "".join(
         f"<tr><td>{esc(e.get('nom'))}{note_html(e)}</td>"
         f"<td class=n>{fmt_km(e['km']) + ' km' if e.get('km') else '–'}</td><td class=n>{str(e['dp']) + ' m' if e.get('dp') else '–'}</td>"
-        f"<td>{esc(e.get('cat') or DISC.get(typ(e), '–'))}</td><td class=n>{esc(e.get('h') or '–')}</td><td>{esc(e.get('prix') or '–')}</td></tr>"
+        f"<td>{esc(e.get('cat') or DISC.get(typ(e), '–'))}</td><td class=n>{esc(((day_short(e['date']) + (' · ' if e.get('h') else '')) if md and e.get('date') else '') + (e.get('h') or '') or '–')}</td><td>{esc(e.get('prix') or '–')}</td></tr>"
         for e in r.get("epreuves", []))
     kms = sorted({e["km"] for e in r.get("epreuves", []) if e.get("km")}, reverse=True)
     tags = [f"<li>{DISC[disc]}</li>"] + [f"<li>{fmt_km(k)} km</li>" for k in kms[:5]] + ([f"<li class=st>{esc(st)}</li>"] if st else [])
@@ -327,8 +343,22 @@ def main():
         p = f"course/{rid}/index.html"
         if not os.path.exists(p) or open(p, encoding="utf-8").read() != out:
             open(p, "w", encoding="utf-8").write(out)
+    # races merged into an event ("alias": old id -> event id) keep a page that redirects to the event,
+    # so links already shared or indexed still work
+    for old, new in (data.get("alias") or {}).items():
+        if new not in keep or old in keep or not re.fullmatch(r"[a-z0-9-]+", old):
+            continue
+        url = f"{SITE}/course/{new}/"
+        os.makedirs(f"course/{old}", exist_ok=True)
+        open(f"course/{old}/index.html", "w", encoding="utf-8").write(
+            f'<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Redirection…</title>'
+            f'<link rel="canonical" href="{url}"><meta name="robots" content="noindex">'
+            f'<meta http-equiv="refresh" content="0;url=/course/{new}/"></head>'
+            f'<body><a href="/course/{new}/">Voir la course</a></body></html>')
+        keep.add(old + "#alias")
     # drop pages of races that left the data
     if os.path.isdir("course"):
+        keep |= {k[:-6] for k in keep if k.endswith("#alias")}
         for d in os.listdir("course"):
             if d not in keep: shutil.rmtree(f"course/{d}", ignore_errors=True)
     for f in os.listdir("og"):
