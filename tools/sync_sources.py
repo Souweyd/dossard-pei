@@ -5,7 +5,8 @@
 - UTOI: updates date, start time, distance, D+, price, registration deadline and "complet"
   from the public API (https://api.utoi-inscriptions.com/api/races);
 - Top Chrono: marks races "complet" when their page says so;
-- Sportpro: hides races renamed "Course annulée : …" on the agenda.
+- Sportpro: hides races renamed "Course annulée : …" on the agenda, and copies each épreuve's own
+  link, deadline and "Complet" from the agenda (multi-épreuve S'inscrire then opens the event page).
 
 Never touches a field the owner corrected in the admin (state/overrides.json, exported by the
 Claude update) nor a manual race. New races, posters and tracks stay with the Claude update.
@@ -138,6 +139,56 @@ try:
 except Exception as e:
     errors.append(f"topchrono ({e.__class__.__name__})")
 
+# Sportpro agenda: one card per event, one "epreuveFiche" per épreuve (button "S'inscrire" or "Complet").
+def sp_agenda(page):
+    out = {}
+    for card in re.split(r'<li class="course-card">', page)[1:]:
+        m = re.search(r'class="courseLink" href="courses/(\d{5})-[^"]+"', card)
+        if not m: continue
+        eps = []
+        for f in re.split(r'<div class="epreuveFiche">', card)[1:]:
+            a = re.search(r'<a href="(courses/epreuves/\d{5}-[^"]+)">([^<]+)</a>', f)
+            if not a: continue
+            km = re.search(r'lbl-distance">[^<]*</span>\s*<span class="valCourse">\s*([\d.,]+)\s*km', f)
+            lim = re.search(r"jusqu'au\s*(\d\d)/(\d\d)/(\d{4})", f)
+            full = bool(re.search(r'<input type="button" value="Complet"', f))
+            ins = "S'inscrire" in f or "S&#039;inscrire" in f
+            eps.append({"url": "https://www.sportpro.re/" + a.group(1), "nom": html.unescape(a.group(2)).strip(),
+                        "km": float(km.group(1).replace(",", ".")) if km else None,
+                        "limite": f"{lim.group(3)}-{lim.group(2)}-{lim.group(1)}" if lim else None,
+                        "complet": full, "ouvert": ins and not full})
+        out[m.group(1)] = eps
+    return out
+
+# Our épreuves are matched to the agenda ones by distance, then by the words of their names.
+STOP = {"de", "du", "des", "la", "le", "les", "a", "au", "aux", "et", "l", "d", "en"}
+def toks(s): return {t[:-1] if len(t) > 3 and t.endswith("s") else t for t in re.sub(r"(\d+) km\b", r"\1km", norm(s)).split() if t not in STOP}
+def match(ours, theirs, event=""):
+    """our épreuve -> agenda épreuve; None when unsure. Sportpro writes 0.1 km for an unknown distance."""
+    common = set.intersection(*[toks(t["nom"]) for t in theirs]) if len(theirs) > 1 else set()
+    common |= toks(event)
+    res = {}
+    for i, e in enumerate(ours):
+        k = float(e["km"]) if e.get("km") else None
+        def near(t):
+            if t["km"] is None or t["km"] <= 0.1 or k is None: return True
+            return abs(t["km"] - k) <= max(0.15, 0.03 * k)
+        c = [t for t in theirs if near(t)]
+        w = toks(e.get("nom")) - common
+        def score(t):
+            tw = toks(t["nom"]) - common
+            sure = t["km"] is not None and t["km"] > 0.1 and k is not None
+            return (2 * len(w & tw) - len(tw - w) + (3 if sure else 0))
+        sc = sorted(((score(t), t) for t in c), key=lambda x: -x[0])
+        if not sc or (len(sc) > 1 and sc[0][0] <= sc[1][0]): continue
+        best = sc[0][1]; tw = toks(best["nom"]) - common
+        sure = best["km"] is not None and best["km"] > 0.1 and k is not None
+        if w & tw or sure or (not w and not tw):   # shared words, a matching distance, or both reduced to the event name
+            res[i] = best
+    used = [id(t) for t in res.values()]
+    return {} if len(used) != len(set(used)) else res
+
+
 # 4. Sportpro: races renamed "Course annulée : …" on the agenda are hidden (not deleted, so the
 #    Claude update does not add them back).
 try:
@@ -150,6 +201,32 @@ try:
             r["hidden"] = True
             r["annule"] = True
             changes.append(f"{r['id']}:annulée")
+    # 4b. per-épreuve status from the same agenda page: link, deadline and "Complet" of each épreuve
+    ag = sp_agenda(page)
+    for r in data["races"]:
+        m = re.search(r"sportpro\.re/courses/(\d{5})-", r.get("page") or "")
+        if r.get("hidden") or not m or not ag.get(m.group(1)) or not can(r, "epreuves"):
+            continue
+        res = match(r.get("epreuves", []), ag[m.group(1)], r.get("nom", ""))
+        for t in res.values():  # Sportpro also greys "Complet" once the deadline is past: that is "closed", not "full"
+            if t["limite"] and t["limite"] < TODAY:
+                t["complet"] = False
+        for i, t in res.items():
+            ep = r["epreuves"][i]
+            for f, v in (("url", t["url"]), ("limite", t["limite"]), ("complet", t["complet"])):
+                if v is not None and ep.get(f) != v:
+                    ep[f] = v
+                    changes.append(f"{r['id']}:{ep.get('nom', i)}:{f}")
+        if len(r.get("epreuves", [])) > 1:
+            # several épreuves: S'inscrire opens the event page, which lists them all with their own buttons
+            if "/courses/epreuves/" in (r.get("inscription") or "") and can(r, "inscription"):
+                r["inscription"] = r["page"]
+                changes.append(f"{r['id']}:inscription événement")
+            if len(res) == len(r["epreuves"]) and can(r, "complet"):
+                full = all(t["complet"] for t in res.values())
+                if bool(r.get("complet")) != full:
+                    r["complet"] = full
+                    changes.append(f"{r['id']}:complet={full}")
 except Exception as e:
     errors.append(f"sportpro ({e.__class__.__name__})")
 
