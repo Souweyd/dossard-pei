@@ -401,6 +401,55 @@ header.top { flex-direction: row; text-align: left } .top { display: flex; align
 .swhen { position: absolute; left: 8px; top: 8px; background: var(--surface); color: var(--fg); border-radius: 999px; padding: 3px 11px; font-size: .85rem; font-weight: 700; font-variant-numeric: tabular-nums; box-shadow: 0 2px 8px rgba(0,0,0,.15) }
 .sname { font-weight: 600; font-size: .95rem; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden }
 .smeta { color: var(--muted); font-size: .82rem }
+
+/* home: compact hero with search, shortcuts and counters */
+.hero2 { padding-bottom: clamp(30px, 4vw, 48px) !important; padding-top: clamp(18px, 3vw, 34px) !important }
+.big .biglogo { width: clamp(52px, 6vw, 76px) } .hero2 .big h1 { font-size: clamp(2rem, 4.6vw, 3.3rem) }
+.hero2 .tagl { margin-top: 6px; font-size: clamp(1.1rem, 2vw, 1.35rem) } .hero2 .hsub { display: none }
+.hfind { max-width: 760px; margin: 16px auto 0; display: grid; gap: 12px }
+.hfind .sbar { box-shadow: 0 8px 24px rgba(0,0,0,.12); width: 100%; box-sizing: border-box; justify-self: center }
+.qchips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px }
+.qchips button { all: unset; cursor: pointer; padding: 8px 14px; border-radius: 99px; background: color-mix(in srgb, var(--surface) 90%, transparent); color: var(--fg); font-weight: 600; font-size: .92rem; box-shadow: 0 2px 8px rgba(0,0,0,.08); white-space: nowrap }
+.qchips button:hover { box-shadow: 0 0 0 2px var(--fg) inset }
+.qchips button.on { background: var(--fg); color: var(--bg) }
+.qchips b { display: inline-grid; place-items: center; min-width: 1.45em; height: 1.45em; margin-left: 4px; border-radius: 99px; background: var(--hot); color: #fff; font-size: .78em }
+.qchips b:empty { display: none }
+.hstats { justify-self: center; margin: 0; padding: 4px 12px; border-radius: 99px; background: color-mix(in srgb, var(--surface) 75%, transparent); font-weight: 600; font-size: .95rem; color: var(--fg) } .hstats span { opacity: .5; margin: 0 6px }
+@media (max-width: 760px) { .hfind { min-width: 0; max-width: 100%; grid-template-columns: minmax(0, 1fr) } .sbar { min-width: 0 } .qchips { contain: inline-size; flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; scrollbar-width: none; margin: 0 -16px; padding: 2px 16px 4px } .qchips::-webkit-scrollbar { display: none } }
+/* Scroll mode: home screen */
+.rs.rintro.rhome { justify-content: flex-start; align-items: stretch; padding: max(76px, calc(env(safe-area-inset-top) + 66px)) 20px 0 }
+.rintro.rhome .rin { margin: 0 auto !important; width: 100%; min-width: 0; max-width: 520px; text-align: left }
+.rhome .rhead { display: flex; align-items: center; justify-content: flex-start; gap: 12px } .rintro.rhome .rin .rhead svg { width: 54px; height: 54px }
+.rintro.rhome h1 { margin: 0; font-size: 1.95rem } .rhome .rtag { margin: 4px 0 14px; font-weight: 600; font-size: 1.02rem; opacity: .9 }
+.rhome .rsearch { all: unset; box-sizing: border-box; cursor: text; display: flex; align-items: center; gap: 10px; width: 100%; background: #fff; color: #776a5f; border-radius: 99px; padding: 13px 18px; font-size: 1rem; box-shadow: 0 6px 18px rgba(0,0,0,.14) }
+.rintro.rhome .rin .rsearch svg { width: 20px; height: 20px; flex: none }
+.rhome .qchips { contain: inline-size; margin: 12px -20px 0; padding: 2px 20px 4px; flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; scrollbar-width: none }
+.rhome .qchips button { background: rgba(255,255,255,.9); color: #2a211c } .rhome .qchips button.on { background: #2a211c; color: #fff }
+.rhome .hstats { display: inline-block; margin-top: 12px; background: rgba(255,255,255,.7); color: #2a211c }
+.rhome .rmapc { all: unset; box-sizing: border-box; cursor: pointer; display: block; position: relative; width: 100%; height: min(24vh, 170px); margin-top: 14px; border-radius: 18px; overflow: hidden; background: #cfe6ef url(relief_sm.webp) center 40% / cover; box-shadow: 0 6px 18px rgba(0,0,0,.16) }
+.rhome .rmapc span { position: absolute; left: 12px; bottom: 12px; background: #2a211c; color: #fff; font-weight: 700; padding: 8px 14px; border-radius: 99px; font-size: .92rem }
+.rhome .rhint { font-weight: 700 }
+/* filter sheet (bottom sheet on phones, centered dialog on larger screens) */
+.fsheet { position: fixed; inset: 0; z-index: 1200; display: flex; align-items: flex-end; justify-content: center }
+.fsheet[hidden] { display: none }
+.fsback { position: absolute; inset: 0; background: rgba(20,16,12,.45); animation: fsfade .18s ease }
+.fspanel { position: relative; width: 100%; max-height: 86vh; overflow: auto; background: var(--bg); color: var(--fg); border-radius: 22px 22px 0 0; padding: 8px 18px calc(16px + env(safe-area-inset-bottom)); box-shadow: 0 -10px 40px rgba(0,0,0,.25); animation: fsup .22s ease }
+.fspanel::before { content: ""; display: block; width: 42px; height: 5px; border-radius: 9px; background: var(--line); margin: 2px auto 8px }
+.fshead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px } .fshead h2 { margin: 0; font-size: 1.25rem }
+.fsx { all: unset; cursor: pointer; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; background: var(--surface); font-size: 1rem }
+.fspanel .filters { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; padding: 4px 0 14px; border: 0 }
+.fspanel .fgroup { display: flex; flex-direction: column; align-items: stretch; gap: 5px; font-weight: 600; font-size: .9rem }
+.fspanel .fgroup select { width: 100%; min-width: 0; border-radius: 12px; background: var(--surface); border: 1px solid transparent; padding: 11px 12px; font: inherit; font-weight: 400; color: var(--fg) }
+.fspanel .fgroup select.set { border-color: var(--fg); font-weight: 600 }
+.fsfoot { position: sticky; bottom: calc(-16px - env(safe-area-inset-bottom)); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0 4px; background: var(--bg); border-top: 1px solid var(--line) }
+.fsfoot .reset { all: unset; cursor: pointer; font-weight: 600; text-decoration: underline; padding: 8px 2px }
+.fsgo { all: unset; cursor: pointer; background: var(--fg); color: var(--bg); font-weight: 700; padding: 13px 22px; border-radius: 99px }
+@media (min-width: 761px) { .fsheet { align-items: center } .fspanel { width: min(680px, 92vw); border-radius: 22px; padding: 18px 24px 20px; box-shadow: 0 20px 60px rgba(0,0,0,.3) } .fspanel::before { display: none } .fspanel .filters { grid-template-columns: repeat(3, minmax(0, 1fr)) } .fsfoot { bottom: -20px } }
+@keyframes fsup { from { transform: translateY(40px); opacity: 0 } } @keyframes fsfade { from { opacity: 0 } }
+@media (prefers-reduced-motion: reduce) { .fspanel, .fsback { animation: none } }
+/* results first: while searching or filtering, the discovery blocks step aside */
+body.filtering .soonwrap, body.filtering .hstats { display: none }
+.fclear { all: unset; cursor: pointer; margin-left: 10px; padding: 3px 10px; border-radius: 99px; background: var(--fg); color: var(--bg); font-size: .85rem; font-weight: 600 }
 .soonwrap { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 28px; align-items: start }
 .soonwrap:has(#dlsec[hidden]) { grid-template-columns: minmax(0, 1fr) }
 .lastc { background: var(--surface); border-radius: 18px; padding: 16px 14px 10px; box-shadow: inset 0 0 0 1px var(--line) }
@@ -697,6 +746,13 @@ body.mapfull .mapfab { display: none }
     <div class="big" id="bigbrand"><svg class="logo biglogo" viewBox="0 0 64 64" role="img" aria-label="Logo Dossard Péi : dossard 974"><g transform="rotate(-6 32 32)"><rect x="5" y="10" width="54" height="44" rx="6" fill="#fff" stroke="#1d2523" stroke-width="3"/><path d="M6.5 22V16a4.5 4.5 0 0 1 4.5-4.5h42a4.5 4.5 0 0 1 4.5 4.5v6z" fill="#1d4f9c"/><g fill="#ffd400"><path d="M32 17 9.5 11.5h5zM32 17 21.6 11.5h4zM32 17 30.2 11.5h3.6zM32 17 38.4 11.5h4zM32 17 49.5 11.5h5z"/></g><path d="M24 22h16L32 16z" fill="#e3242b"/><circle cx="11.5" cy="27" r="2" fill="#1d2523"/><circle cx="52.5" cy="27" r="2" fill="#1d2523"/><circle cx="11.5" cy="48.5" r="2" fill="#1d2523"/><circle cx="52.5" cy="48.5" r="2" fill="#1d2523"/><text x="32" y="47.5" text-anchor="middle" font-family="Arial Narrow,Arial,sans-serif" font-weight="800" font-size="22" fill="#1d2523" letter-spacing="-.5">974</text></g></svg><h1>Dossard Péi</h1></div>
     <p class="tagl">Trouve ton prochain dossard.</p>
     <p class="hsub">Trail, route, cross, rando et multisport :<br><span class="nw">toutes les courses de La&nbsp;Réunion au même&nbsp;endroit.</span></p>
+    <div class="hfind"><div class="sbar">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input type="search" id="f-q" placeholder="Rechercher une course, une commune…" aria-label="Rechercher une course" autocomplete="off">
+      <button type="button" class="fbtn" id="f-toggle" aria-expanded="false" aria-controls="fsheet">Filtres<span id="f-count" hidden></span></button>
+    </div>
+    <div class="qchips" id="qchips" role="group" aria-label="Raccourcis"><button type="button" data-q="we">📅 Ce week-end <b id="q-we"></b></button><button type="button" data-q="next">Le week-end prochain</button><button type="button" data-q="near">📍 Près de moi</button><button type="button" data-q="trail">⛰️ Trail</button><button type="button" data-q="route">🏃 Route</button><button type="button" data-q="marche">🥾 Rando</button><button type="button" data-q="multisport">🏊 Multisport</button></div>
+    <p class="hstats" id="hstats"></p></div>
   </section>
 
   <section id="admin" hidden aria-label="Administration"></section>
@@ -709,13 +765,11 @@ body.mapfull .mapfab { display: none }
   </section>
   <aside class="lastc" id="dlsec" aria-labelledby="dl-h" hidden><h2 id="dl-h">⏳ Dernières chances</h2><div id="dl"></div></aside>
   </div>
-  <section class="finder" aria-label="Recherche et filtres">
-    <div class="sbar">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      <input type="search" id="f-q" placeholder="Rechercher une course, une commune…" aria-label="Rechercher une course" autocomplete="off">
-      <button type="button" class="fbtn" id="f-toggle" aria-expanded="false" aria-controls="filters">Filtres<span id="f-count" hidden></span></button>
-    </div>
-  <div class="filters" id="filters" hidden>
+  <div class="fsheet" id="fsheet" hidden>
+    <div class="fsback" data-fsclose></div>
+    <section class="fspanel" role="dialog" aria-modal="true" aria-labelledby="fs-h">
+      <div class="fshead"><h2 id="fs-h">Filtres</h2><button type="button" class="fsx" data-fsclose aria-label="Fermer les filtres">✕</button></div>
+      <div class="filters" id="filters">
     <label class="fgroup"><span>Commune</span><select id="f-commune"><option value="">Toutes les communes</option></select></label>
     <label class="fgroup"><span>Discipline</span><select id="f-disc"><option value="">Toutes disciplines</option></select></label>
     <label class="fgroup"><span>Mois</span><select id="f-mois"><option value="">Tous les mois</option></select></label>
@@ -724,10 +778,10 @@ body.mapfull .mapfab { display: none }
     <label class="fgroup"><span>Catégorie FFA</span><select id="f-ffa"><option value="">Toutes catégories</option></select></label>
     <label class="fgroup"><span>Inscriptions</span><select id="f-ouvert"><option value="">Ouvertes ou non</option><option value="1">Ouvertes</option><option value="7">Clôture sous 7 jours</option></select></label>
     <label class="fgroup"><span>Mes courses</span><select id="f-fav"><option value="">Toutes les courses</option><option value="1">Mes favoris</option></select></label>
-    <button class="reset" id="f-reset" type="button">Réinitialiser</button>
   </div>
-
-  </section>
+      <div class="fsfoot"><button class="reset" id="f-reset" type="button">Tout effacer</button><button type="button" class="fsgo" id="fs-go" data-fsclose>Voir les courses</button></div>
+    </section>
+  </div>
 
   <div class="main" id="main" data-view="liste">
     <div class="mapcol">
@@ -831,10 +885,10 @@ const FFA = [["XXS", 0, 25], ["XS", 25, 45], ["S", 45, 75], ["M", 75, 115], ["L"
 const effort = e => e.km ? e.km + (e.dp || 0) / 100 : null;
 const ffaOf = e => { const k = effort(e); return k == null ? null : FFA.find(f => k >= f[1] && k < f[2])[0]; };
 const fold = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
-let state = { q: "", commune: "", mois: "", dist: "", dp: "", ffa: "", fav: false, disc: "", ouvert: "", sel: null, open: new Set(), rview: "liste", cal: null, day: null };
+let state = { wk: "", near: null, q: "", commune: "", mois: "", dist: "", dp: "", ffa: "", fav: false, disc: "", ouvert: "", sel: null, open: new Set(), rview: "liste", cal: null, day: null };
 let FAVS = new Set();
-try { const s = JSON.parse(localStorage.getItem("trailspei") || "{}"); if (s.ouvert) state.ouvert = s.ouvert === true ? "1" : s.ouvert; if (s.disc) state.disc = s.disc === "triathlon" ? "multisport" : s.disc; FAVS = new Set(s.favs || []); } catch (e) {}
-const saveprefs = () => { try { localStorage.setItem("trailspei", JSON.stringify({ ouvert: state.ouvert, disc: state.disc, favs: [...FAVS] })); } catch (e) {} };
+try { const s = JSON.parse(localStorage.getItem("trailspei") || "{}"); /* every visitor lands on the same unfiltered page: only favourites are remembered */ FAVS = new Set(s.favs || []); } catch (e) {}
+const saveprefs = () => { try { localStorage.setItem("trailspei", JSON.stringify({ favs: [...FAVS] })); } catch (e) {} };
 
 // ---------- projection ----------
 const [LON0, LON1, LAT0, LAT1] = MAP.bounds;
@@ -865,7 +919,7 @@ function buildMonths() {
 }));
 $("#f-fav").addEventListener("change", e => { state.fav = e.target.value === "1"; render(); });
 let qT; $("#f-q").addEventListener("input", e => { clearTimeout(qT); qT = setTimeout(() => { state.q = e.target.value.trim(); render(); }, 120); });
-$("#f-reset").addEventListener("click", () => { Object.assign(state, { q: "", commune: "", mois: "", dist: "", dp: "", ffa: "", fav: false, disc: "", ouvert: "", sel: null }); $("#f-q").value = ""; saveprefs(); render(); zoomTo(null); });
+$("#f-reset").addEventListener("click", () => { Object.assign(state, { wk: "", near: null, q: "", commune: "", mois: "", dist: "", dp: "", ffa: "", fav: false, disc: "", ouvert: "", sel: null }); syncChips(); $("#f-q").value = ""; saveprefs(); render(); zoomTo(null); });
 ["liste", "calendrier", "carte"].forEach(v => $("#v-" + v).addEventListener("click", () => setView(v)));
 function setView(v) {
   if (v !== "carte") state.rview = v;
@@ -874,6 +928,37 @@ function setView(v) {
   if (v !== "carte") render(); else drawPins(filtered());
 }
 
+
+// shortcuts: this weekend / next weekend / near me (within NEAR_KM)
+const NEAR_KM = 20;
+function weekendRange(which) { const d = new Date(); d.setHours(12, 0, 0, 0); const wd = d.getDay();
+  const sat = new Date(d); sat.setDate(d.getDate() + (wd === 0 ? -1 : 6 - wd)); if (which === "next") sat.setDate(sat.getDate() + 7);
+  const sun = new Date(sat); sun.setDate(sat.getDate() + 1); return [ymd(sat), ymd(sun)]; }
+function inWeekend(r, which) { const [a, b] = weekendRange(which); return r.date <= b && (r.fin || r.date) >= a; }
+function kmTo(a, b) { const R = 6371, rad = x => x * Math.PI / 180, dLa = rad(b[0] - a[0]), dLo = rad(b[1] - a[1]);
+  const h = Math.sin(dLa / 2) ** 2 + Math.cos(rad(a[0])) * Math.cos(rad(b[0])) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); }
+function quickStats() { const t = todayISO(), up = RACES.filter(r => !r.hidden && r.date >= t), we = up.filter(r => inWeekend(r, "we")).length;
+  const html = `${up.length} courses à venir<span>·</span>${new Set(up.map(r => r.commune)).size} communes`;
+  document.querySelectorAll(".hstats").forEach(e => e.innerHTML = html);
+  document.querySelectorAll("#q-we, .q-we").forEach(e => e.textContent = we || ""); syncChips(); return { n: up.length, we }; }
+function syncChips() { document.querySelectorAll("[data-q]").forEach(b => { const k = b.dataset.q;
+  b.classList.toggle("on", k === "we" || k === "next" ? state.wk === k : k === "near" ? !!state.near : state.disc === k); b.setAttribute("aria-pressed", b.classList.contains("on")); }); }
+function quick(k, then) {
+  const on = k === "we" || k === "next" ? state.wk !== k : k === "near" ? !state.near : state.disc !== k;
+  if (on) gcount("raccourci/" + k, "Raccourci " + k, true);
+  const done = () => { saveprefs && saveprefs(); render(); syncChips(); then && then(); };
+  if (k === "we" || k === "next") { state.wk = state.wk === k ? "" : k; return done(); }
+  if (k === "near") {
+    if (state.near) { state.near = null; return done(); }
+    if (!navigator.geolocation) return toast("La localisation n'est pas disponible sur cet appareil");
+    toast("Recherche de ta position…");
+    navigator.geolocation.getCurrentPosition(p => { state.near = [p.coords.latitude, p.coords.longitude]; done();
+      toast(filtered().length ? `Courses à moins de ${NEAR_KM} km` : `Aucune course à moins de ${NEAR_KM} km`); },
+      () => toast("Position refusée ou indisponible"), { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 });
+    return;
+  }
+  state.disc = state.disc === k ? "" : k; $("#f-disc") && ($("#f-disc").value = state.disc); done();
+}
 function filtered() {
   const t = todayISO(), q = fold(state.q), eps = r => (r.epreuves || []).filter(e => e.type !== "jeunes");
   const dpf = state.dp && DPF.find(d => d[0] === state.dp)[2];
@@ -886,7 +971,9 @@ function filtered() {
     && (!dpf || eps(r).some(e => e.dp && dpf(e.dp)))
     && (!state.ffa || eps(r).some(e => ffaOf(e) === state.ffa))
     && (!state.fav || FAVS.has(r.id))
-    && (!state.ouvert || (state.ouvert === "7" ? closesSoon(r) : isOpen(r)))).sort(byDate);
+    && (!state.ouvert || (state.ouvert === "7" ? closesSoon(r) : isOpen(r)))
+    && (!state.wk || inWeekend(r, state.wk))
+    && (!state.near || (r.ll && kmTo(r.ll, state.near) <= NEAR_KM))).sort(byDate);
 }
 const sortKey = r => r.approx ? r.date.slice(0, 7) + "-99" : r.date;
 const byDate = (a, b) => sortKey(a).localeCompare(sortKey(b)) || a.nom.localeCompare(b.nom, "fr");
@@ -1227,7 +1314,7 @@ function render() {
   renderPop(rs);
   renderLegend(rs);
   renderFresh();
-  renderSoon(); syncQuick();
+  renderSoon(); syncQuick(); quickStats();
   if (DETAIL) openDetail(DETAIL);
 }
 let CHECKED = null;
@@ -1848,13 +1935,24 @@ function syncQuick() {
   document.querySelectorAll("[data-qk]").forEach(b => b.setAttribute("aria-pressed", String((state[b.dataset.qk] || "") === b.dataset.qv)));
   const n = ["commune", "disc", "mois", "dist", "dp", "ffa", "ouvert"].filter(k => state[k]).length + (state.fav ? 1 : 0);
   const c = $("#f-count"); c.hidden = !n; c.textContent = n;
+  const k = filtered().length; $("#fs-go").textContent = k ? `Voir ${k} course${k > 1 ? "s" : ""}` : "Aucune course";
+  const act = !!(n || state.q || state.wk || state.near); document.body.classList.toggle("filtering", act);
+  let fc = $("#f-clear"); if (!fc) { fc = document.createElement("button"); fc.type = "button"; fc.id = "f-clear"; fc.className = "fclear"; fc.textContent = "✕ Effacer les filtres"; fc.addEventListener("click", () => $("#f-reset").click()); $(".lhead p").appendChild(fc); }
+  fc.hidden = !act;
   document.querySelectorAll("#filters select").forEach(sel => sel.classList.toggle("set", !!sel.value));
 }
 document.querySelectorAll("[data-qk]").forEach(b => b.addEventListener("click", () => {
   const k = b.dataset.qk, v = b.dataset.qv; state[k] = state[k] === v && v ? "" : v;
   if (k === "disc" || k === "ouvert") saveprefs(); render();
 }));
-$("#f-toggle").addEventListener("click", () => { const f = $("#filters"); f.hidden = !f.hidden; $("#f-toggle").setAttribute("aria-expanded", String(!f.hidden)); });
+let fsLast = null;
+function openSheet() { gcount("filtre/ouvert", "Ouverture des filtres", true); fsLast = document.activeElement; $("#fsheet").hidden = false; $("#f-toggle").setAttribute("aria-expanded", "true"); document.documentElement.style.overflow = "hidden"; syncQuick(); setTimeout(() => $("#fsheet .fsx").focus(), 30); addEventListener("keydown", sheetKey); }
+function closeSheet() { if ($("#fsheet").hidden) return; $("#fsheet").hidden = true; $("#f-toggle").setAttribute("aria-expanded", "false"); if (!document.body.classList.contains("mapfull")) document.documentElement.style.overflow = ""; removeEventListener("keydown", sheetKey); fsLast?.focus?.({ preventScroll: true }); }
+function sheetKey(e) { if (e.key === "Escape") closeSheet(); }
+$("#f-toggle").addEventListener("click", openSheet);
+if (matchMedia("(max-width: 520px)").matches) $("#f-q").placeholder = "Course, commune…";
+document.querySelectorAll("[data-fsclose]").forEach(b => b.addEventListener("click", () => { const go = b.id === "fs-go"; closeSheet(); if (go) $("#main").scrollIntoView({ behavior: reduced() ? "auto" : "smooth" }); }));
+$("#qchips").querySelectorAll("[data-q]").forEach(b => b.addEventListener("click", () => quick(b.dataset.q, () => { const m = $("#main"); if (m) scrollTo({ top: m.offsetTop - 70, behavior: reduced() ? "auto" : "smooth" }); })));
 // floating map button: shows "Carte" in list / calendar views, and the view to go back to ("Liste" or "Calendrier") on the map
 const FAB_ICO = {
   carte: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Zm0 0v14m6-12v14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
@@ -1928,10 +2026,19 @@ function openReels() {
   reelsBox.innerHTML = `<div class="rtop"><span aria-hidden="true">${logo.replace(/class="[^"]*"/, 'class="rlogo"')}</span>
     <nav class="rmodes" aria-label="Affichage"><button type="button" class="on mi-scroll" aria-pressed="true">Scroll</button><button type="button" class="mi-liste" data-rmode="liste">Liste</button><button type="button" class="mi-cal" data-rmode="calendrier">Calendrier</button></nav></div>
     <div class="rfeed">
-      <section class="rs rintro"><div class="rbg" aria-hidden="true">${night}</div><div class="rin">${logo}<h1>Dossard Péi</h1><p>Trouve ton prochain dossard.</p><div class="rcnt">${rs.length} course${rs.length > 1 ? "s" : ""} à venir</div></div>
-        <div class="rhint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14l6-6 6 6"/></svg>Glisse vers le haut</div></section>
+      <section class="rs rintro rhome"><div class="rbg" aria-hidden="true">${night}</div><div class="rin"><div class="rhead">${logo}<h1>Dossard Péi</h1></div><p class="rtag">Trouve ton prochain dossard.</p>
+        <button type="button" class="rsearch" aria-label="Rechercher une course"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Course, commune…</button>
+        <div class="qchips" role="group" aria-label="Raccourcis"><button type="button" data-q="we">📅 Ce week-end <b class="q-we"></b></button><button type="button" data-q="next">Le week-end prochain</button><button type="button" data-q="near">📍 Près de moi</button><button type="button" data-q="trail">⛰️ Trail</button><button type="button" data-q="route">🏃 Route</button><button type="button" data-q="marche">🥾 Rando</button><button type="button" data-q="multisport">🏊 Multisport</button></div>
+        <p class="hstats"></p>
+        <button type="button" class="rmapc" aria-label="Voir la carte des courses"><span>🗺️ Voir la carte de l'île</span></button></div>
+        <div class="rhint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14l6-6 6 6"/></svg>${rs.length ? `Glisse pour voir ${rs.length > 1 ? "les " + rs.length + " courses" : "la course"}${state.wk === "we" ? " de ce week-end" : state.wk === "next" ? " du week-end prochain" : state.near ? " près de toi" : ""}` : "Aucune course pour ce choix"}</div></section>
       ${rs.map(slide).join("")}
       <section class="rs rintro rend"><div class="rbg" aria-hidden="true">${night}</div><div class="rin">${logo}<h1>Tu as tout vu !</h1><p>Suis Dossard Péi pour ne rater<br>aucun nouveau dossard.</p><div class="rsoc">${socLinks("rsb", true)}</div><button type="button" class="rtop0">↑ Revenir au début</button></div></section></div>`;
+  quickStats();
+  reelsBox.querySelector(".rsearch").addEventListener("click", () => { gcount("raccourci/recherche", "Recherche (Scroll)", true); reelsBox.querySelector("[data-rmode=liste]").click(); setTimeout(() => { scrollTo({ top: 0 }); $("#f-q").focus(); }, 120); });
+  reelsBox.querySelector(".rmapc").addEventListener("click", () => { gcount("raccourci/carte", "Aperçu carte (Scroll)", true); mapFromReels = true; closeReels(); rMode("liste"); setView("carte"); syncFab(); setTimeout(() => setMapFull(true), 60); });
+  reelsBox.querySelectorAll(".rhome [data-q]").forEach(b => b.addEventListener("click", () => quick(b.dataset.q, () => { openReels();
+    if (filtered().length) setTimeout(() => reelsBox.querySelector(".rfeed").scrollTo({ top: reelsBox.querySelector(".rfeed").clientHeight, behavior: reduced() ? "auto" : "smooth" }), 250); })));
   reelsBox.querySelector(".rtop0")?.addEventListener("click", () => reelsBox.querySelector(".rfeed").scrollTo({ top: 0, behavior: "smooth" }));
   reelsBox.querySelectorAll(".rintro .rbg svg").forEach(s => s.setAttribute("preserveAspectRatio", "xMidYMax slice"));
   reelsBox.querySelectorAll("[data-rmode]").forEach(b => b.addEventListener("click", () => { const v = b.dataset.rmode; rMode(v); closeReels(); setView(v); requestAnimationFrame(() => scrollTo({ top: $("#main").offsetTop - 70, behavior: "auto" })); }));
@@ -1970,6 +2077,7 @@ if (REELS_ON) {
 
 // full-screen map (all devices): fixed overlay with a close button; Escape also closes
 let mapHome = null;
+let mapFromReels = false;
 function setMapFull(on) {
   // the map box is moved to <body> while full screen, so no ancestor (sticky column, transforms) can clip it
   const mb = $("#mapbox");
@@ -1978,6 +2086,7 @@ function setMapFull(on) {
   document.body.classList.toggle("mapfull", on); document.documentElement.style.overflow = on ? "hidden" : "";
   $("#map-fullx").hidden = !on; drawPins(filtered());
   if (on) addEventListener("keydown", mapFullKey); else removeEventListener("keydown", mapFullKey);
+  if (!on && mapFromReels) { mapFromReels = false; setView("liste"); rMode("reels"); openReels(); }
 }
 function mapFullKey(e) { if (e.key === "Escape" && !document.querySelector(".dlg, .lightbox")) setMapFull(false); }
 $("#map-full").addEventListener("click", () => setMapFull(true));
