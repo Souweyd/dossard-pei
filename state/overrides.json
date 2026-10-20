@@ -1,1 +1,19 @@
-{"overrides": {"sans-souci": {"fields": [], "hidden": true}, "odyssea-reunion-2026-11": {"fields": ["source", "inscription", "fiche", "limite", "fin", "epreuves"], "hidden": false}}, "manual": []}
+{
+ "overrides": {
+  "sans-souci": {
+   "fields": [],
+   "hidden": true
+  },
+  "odyssea-reunion-2026-11": {
+   "fields": [
+    "source",
+    "inscription",
+    "fiche",
+    "fin",
+    "epreuves"
+   ],
+   "hidden": false
+  }
+ },
+ "manual": []
+}
