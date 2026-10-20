@@ -1,1 +1,1 @@
-["Foulées Nature Niagara", "2026-11-29", "Sainte-Suzanne", [{"nom": "Foulées Nature Niagara", "km": 25, "type": "route", "prix": "34 €"}], "posters/niagara.webp", "posters/niagara_lg.webp", "art1"]
+["Foulées Nature Niagara", "2026-11-29", "Sainte-Suzanne", [{"nom": "Foulées Nature Niagara", "km": 25, "type": "route", "prix": "34 €", "url": "https://www.sportpro.re/courses/02103-foulees-nature-niagara/", "limite": "2026-11-25", "complet": false}], "posters/niagara.webp", "posters/niagara_lg.webp", "art1"]

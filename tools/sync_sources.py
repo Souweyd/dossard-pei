@@ -162,17 +162,24 @@ def sp_agenda(page):
         m = re.search(r'class="courseLink" href="courses/(\d{5})-[^"]+"', card)
         if not m: continue
         eps = []
-        for f in re.split(r'<div class="epreuveFiche">', card)[1:]:
-            a = re.search(r'<a href="(courses/epreuves/\d{5}-[^"]+)">([^<]+)</a>', f)
+        fiches = re.split(r'<div class="epreuveFiche">', card)[1:]
+        if not fiches and "lbl-distance" in card:
+            # single-épreuve event: no épreuve card, the event card itself carries the épreuve
+            t = re.search(r'class="courseLink" href="(courses/\d{5}-[^"]+)">([^<]+)</a>', card)
+            fiches = [f'<a href="{t.group(1)}">{t.group(2)}</a>' + card] if t else []
+        for f in fiches:
+            a = re.search(r'<a href="(courses/(?:epreuves/)?\d{5}-[^"]+)">([^<]+)</a>', f)
             if not a: continue
             km = re.search(r'lbl-distance">[^<]*</span>\s*<span class="valCourse">\s*([\d.,]+)\s*km', f)
             lim = re.search(r"jusqu'au\s*(\d\d)/(\d\d)/(\d{4})", f)
+            ouv = re.search(r"ouverture le\s*(\d\d)/(\d\d)/(\d{4})(?:\s*(?:à partir de|à|dès)\s*(\d{1,2})\s*h\s*(\d\d)?)?", f)
             full = bool(re.search(r'<input type="button" value="Complet"', f))
             ins = "S'inscrire" in f or "S&#039;inscrire" in f
             eps.append({"url": "https://www.sportpro.re/" + a.group(1), "nom": html.unescape(a.group(2)).strip(),
                         "km": float(km.group(1).replace(",", ".")) if km else None,
                         "limite": f"{lim.group(3)}-{lim.group(2)}-{lim.group(1)}" if lim else None,
-                        "complet": full, "ouvert": ins and not full})
+                        "complet": full, "ouvert": ins and not full,
+                        "ouverture": f"{ouv.group(3)}-{ouv.group(2)}-{ouv.group(1)}T{int(ouv.group(4) or 0):02d}:{ouv.group(5) or '00'}" if ouv else None})
         out[m.group(1)] = eps
     return out
 
@@ -235,6 +242,25 @@ try:
                 if v is not None and ep.get(f) != v:
                     ep[f] = v
                     changes.append(f"{r['id']}:{ep.get('nom', i)}:{f}")
+        # registration opening date announced on the agenda ("ouverture le 23/10/2026 à partir de 12h00"):
+        # follows the source when it moves, and disappears once registrations are open
+        for i, t in res.items():
+            ep = r["epreuves"][i]
+            if ep.get("ouverture") != t["ouverture"]:
+                if t["ouverture"]:
+                    ep["ouverture"] = t["ouverture"]
+                else:
+                    ep.pop("ouverture", None)
+                changes.append(f"{r['id']}:{ep.get('nom', i)}:ouverture")
+        if res and len(res) == len(r.get("epreuves", [])) and can(r, "ouverture"):
+            ouvs = [t["ouverture"] for t in res.values()]
+            ro = min(ouvs) if all(ouvs) else None
+            if r.get("ouverture") != ro:
+                if ro:
+                    r["ouverture"] = ro
+                else:
+                    r.pop("ouverture", None)
+                changes.append(f"{r['id']}:ouverture={ro}")
         if len(r.get("epreuves", [])) > 1:
             # several épreuves: S'inscrire opens the event page, which lists them all with their own buttons
             if "/courses/epreuves/" in (r.get("inscription") or "") and can(r, "inscription"):
