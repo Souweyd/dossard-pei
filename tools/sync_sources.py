@@ -247,7 +247,7 @@ if NOW.hour % 3 == 0 or "--all" in sys.argv:
                 txt = clean(s)
                 i = txt.find(" Présentation ")
                 pres = txt[i:i + 900] if i >= 0 else ""
-                for stop in (" Parcours de l", " Modalités d", " Tarifs "):
+                for stop in (" Parcours de l", " Modalités d", " Tarifs ", " À venir ", " A venir "):
                     j = pres.find(stop)
                     if j > 0:
                         pres = pres[:j]
