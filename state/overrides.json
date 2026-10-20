@@ -13,6 +13,14 @@
     "epreuves"
    ],
    "hidden": false
+  },
+  "foulees-solidaires-entre-deux-2026-11": {
+   "fields": [
+    "info",
+    "inscription",
+    "paiement"
+   ],
+   "hidden": false
   }
  },
  "manual": []
