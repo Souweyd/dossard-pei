@@ -42,7 +42,7 @@ def known_keys(data):
     return txt
 
 
-def nouveautes(data, found, state_path="state/nouveautes.json"):
+def nouveautes(data, found, state_path="state/nouveautes.json", check=None):
     """found: {source: [(key, label, url)]} as listed by the platforms during this run.
     Returns the lines to report (each key once). A source seen for the first time with more than
     15 unknown entries is taken as the starting point (old pages), without report."""
@@ -56,6 +56,8 @@ def nouveautes(data, found, state_path="state/nouveautes.json"):
             st[src] = sorted({k for k, _, _ in items})
             continue
         for k, lab, u in new:
+            if check and src in check and not check[src](u):   # not a race to come in La Réunion: remembered, not reported
+                continue
             out.append(f"**{lab}** — {src} : {u}")
         st[src] = sorted(seen | {k for k, _, _ in items})
     save_if_changed(state_path, st)

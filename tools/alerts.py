@@ -41,8 +41,13 @@ def github(method, path, body=None):
         return json.load(r)
 
 
+def who():   # mentioning the owner makes GitHub e-mail him (participating notification), whatever his watch settings
+    o = os.environ.get("GITHUB_REPOSITORY_OWNER") or os.environ.get("GITHUB_REPOSITORY", "/").split("/")[0]
+    return f"@{o} " if o else ""
+
+
 def corps(kind, pbs):
-    return INTRO[kind] + "\n\n" + "\n".join(f"- {p}" for p in pbs) + \
+    return who() + INTRO[kind] + "\n\n" + "\n".join(f"- {p}" for p in pbs) + \
         "\n\n_Cette issue est mise à jour automatiquement et sera fermée quand tout sera rentré dans l'ordre._"
 
 
@@ -57,10 +62,10 @@ def info(report, open_, api):
         if parts:
             issue = open_.get(JOURNAL)
             num = issue["number"] if issue else api("POST", "/issues", {"title": JOURNAL, "body": "Fil des changements repérés automatiquement (un commentaire par passage qui a trouvé quelque chose). Laisse cette issue ouverte."})["number"]
-            api("POST", f"/issues/{num}/comments", {"body": "\n\n".join(parts)})
+            api("POST", f"/issues/{num}/comments", {"body": who() + "\n\n" + "\n\n".join(parts)})
         rc = report.get("recap")
         if rc:
-            n = api("POST", "/issues", {"title": rc["titre"], "body": rc["corps"]})["number"]
+            n = api("POST", "/issues", {"title": rc["titre"], "body": who() + "\n\n" + rc["corps"]})["number"]
             api("PATCH", f"/issues/{n}", {"state": "closed"})
             print(f"récapitulatif envoyé (#{n})")
     except Exception as e:
@@ -82,7 +87,7 @@ def sync(report, api=github):
                 old = issue.get("body") or ""
                 new = [p for p in pbs if f"- {p}" not in old]
                 if new:
-                    api("POST", f"/issues/{issue['number']}/comments", {"body": "Nouveau :\n\n" + "\n".join(f"- {p}" for p in new)})
+                    api("POST", f"/issues/{issue['number']}/comments", {"body": who() + "Nouveau :\n\n" + "\n".join(f"- {p}" for p in new)})
                 if corps(kind, pbs) != old:
                     api("PATCH", f"/issues/{issue['number']}", {"body": corps(kind, pbs)})
             elif not pbs and issue:

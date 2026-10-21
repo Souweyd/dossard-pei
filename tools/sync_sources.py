@@ -502,8 +502,19 @@ try:
             changes.append(f"{r['id']}:annulée")
     # 4b. per-épreuve status from the same agenda page: link, deadline and "Complet" of each épreuve
     ag = sp_agenda(page)
-    FOUND["Sportpro"] = [(f"courses/{m.group(1)}-", html.unescape(m.group(3)).strip() + (f" ({SP_DATES[m.group(1)]})" if m.group(1) in SP_DATES else ""), f"https://www.sportpro.re/courses/{m.group(1)}-{m.group(2)}/")
-                         for m in re.finditer(r'class="courseLink" href="courses/(\d{5})-([^"/]+)/?">([^<]+)</a>', page)]
+    # only events held in La Réunion (Sportpro also times races in Mayotte, Maurice…): the card's town must be a Réunion commune
+    import controls as _c
+    _reu = {norm(x) for x in _c.COMMUNES} | {"la plaine des cafres", "plaine des cafres", "hell bourg", "cilaos", "mafate"}
+    FOUND["Sportpro"] = []
+    for card in re.split(r'<li class="course-card">', page)[1:]:
+        m = re.search(r'class="courseLink" href="courses/(\d{5})-([^"/]+)/?">([^<]+)</a>', card)
+        if not m: continue
+        ville = re.search(r'lbl-ville">[^<]*</span>\s*<span class="valCourse">\s*([^<]+?)\s*(?:<|$)', card)
+        v = norm(html.unescape(ville.group(1))) if ville else ""
+        if v and not any(v == c or v.startswith(c + " ") for c in _reu):
+            continue
+        FOUND["Sportpro"].append((f"courses/{m.group(1)}-", html.unescape(m.group(3)).strip() + (f" ({SP_DATES[m.group(1)]})" if m.group(1) in SP_DATES else "") + (f", {ville.group(1).strip()}" if ville else ""),
+                                  f"https://www.sportpro.re/courses/{m.group(1)}-{m.group(2)}/"))
     associees = 0
     for r in data["races"]:
         m = re.search(r"sportpro\.re/courses/(\d{5})-", r.get("page") or "")
@@ -683,7 +694,19 @@ try:
                                for u in [u[0]] if u.rstrip("/").split("/")[-1] not in nav]
     except Exception:
         pass
-    rep["nouveautes"] = watch.nouveautes(data, FOUND)
+    def _future_race(u):   # a candidate page must announce a date to come (not a past edition, a challenge or a news item)
+        try:
+            t = watch.plain(fetch(u))[:20000]
+        except Exception:
+            return False
+        if re.search(r"(?i)\bchallenge\b|classement g[ée]n[ée]ral", t[:600]):
+            return False
+        for d, mo, y in re.findall(r"(\d{1,2})(?:er)?\s+(janvier|f[ée]vrier|mars|avril|mai|juin|juillet|ao[ûu]t|septembre|octobre|novembre|d[ée]cembre)\s+(20\d\d)", t, re.I):
+            k = [norm(x) for x in MOIS].index(norm(mo))
+            if f"{y}-{k + 1:02d}-{int(d):02d}" >= TODAY:
+                return True
+        return False
+    rep["nouveautes"] = watch.nouveautes(data, FOUND, check={"Chrono Run": _future_race, "Top Chrono": _future_race})
     if NOW.hour % 3 == 0 or "--all" in sys.argv:
         rep["annulation"] = watch.annulations(data, TODAY, controls.get)
     evts = watch.diff(prev_data, data, TODAY, NOW)
