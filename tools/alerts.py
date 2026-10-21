@@ -16,7 +16,9 @@ TITRES = {
     "liens": "Contrôle : liens morts sur des fiches",
     "site": "Contrôle : dossardpei.re ne fonctionne pas correctement",
     "fraicheur": "Contrôle : la synchro ne tourne plus",
+    "annulation": "Contrôle : annulation ou report repéré",
 }
+JOURNAL = "Journal : changements chez les organisateurs"
 INTRO = {
     "statut": "Le site affiche ces courses ouvertes, mais leur page d'inscription indique une fermeture. "
               "Elles s'affichent « À vérifier » sur le site tant que ce n'est pas résolu (corrige dans l'admin si besoin).",
@@ -24,6 +26,8 @@ INTRO = {
     "liens": "Ces liens ne répondent plus (vérification quotidienne) :",
     "site": "Le test du site publié (tools/site_check.py) a échoué :",
     "fraicheur": "La mise à jour automatique semble bloquée :",
+    "annulation": "Ces courses sont encore affichées sur le site, mais leur page mentionne une annulation ou un report. "
+                  "À vérifier : si c'est confirmé, la mise à jour Claude la masquera (ou corrige dans l'admin).",
 }
 
 
@@ -42,8 +46,30 @@ def corps(kind, pbs):
         "\n\n_Cette issue est mise à jour automatiquement et sera fermée quand tout sera rentré dans l'ordre._"
 
 
+def info(report, open_, api):
+    """journal of changes and new races: one comment on a permanent issue (one e-mail), weekly recap: own issue"""
+    parts = []
+    if report.get("nouveautes"):
+        parts.append("**Nouvelles courses repérées chez les organisateurs** (elles seront ajoutées au prochain passage de la mise à jour Claude, 8h57 / 13h57 / 18h57) :\n" + "\n".join(f"- {x}" for x in report["nouveautes"]))
+    if report.get("journal"):
+        parts.append("**Changements sur le site** :\n" + "\n".join(f"- {x}" for x in report["journal"]))
+    try:
+        if parts:
+            issue = open_.get(JOURNAL)
+            num = issue["number"] if issue else api("POST", "/issues", {"title": JOURNAL, "body": "Fil des changements repérés automatiquement (un commentaire par passage qui a trouvé quelque chose). Laisse cette issue ouverte."})["number"]
+            api("POST", f"/issues/{num}/comments", {"body": "\n\n".join(parts)})
+        rc = report.get("recap")
+        if rc:
+            n = api("POST", "/issues", {"title": rc["titre"], "body": rc["corps"]})["number"]
+            api("PATCH", f"/issues/{n}", {"state": "closed"})
+            print(f"récapitulatif envoyé (#{n})")
+    except Exception as e:
+        print(f"journal non envoyé ({e.__class__.__name__})")
+
+
 def sync(report, api=github):
     open_ = {i["title"]: i for i in api("GET", "/issues?state=open&per_page=100") if "pull_request" not in i}
+    info(report, open_, api)
     for kind, pbs in report.items():
         if kind not in TITRES or pbs is None:
             continue

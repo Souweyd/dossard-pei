@@ -50,6 +50,9 @@ locked = {k: set(v.get("fields", [])) if isinstance(v, dict) else set(v) for k, 
 changes, errors = [], []
 run = {}  # source -> {"metrics": {name: count}, "error": ...}, for state/health.json
 VERIF = {}  # race id -> platform that confirmed its registration state during this run
+FOUND = {}  # source -> [(key, label, url)] races listed by the platforms (new-race detector, tools/watch.py)
+SP_DATES = {}  # Sportpro event id -> date of the event (agenda)
+MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"]
 
 
 def can(r, field):
@@ -85,6 +88,7 @@ try:
             break
         page += 1
     run["utoi"] = {"metrics": {"courses": len(items)}}
+    FOUND["UTOI"] = [(it["slug"], f"{it.get('name', '')} ({(it.get('startAt') or '')[:10]})", f"https://utoi-inscriptions.com/courses/{it['slug']}") for it in items if it.get("slug")]
     for r in data["races"]:
         # link is either the event page (/evenements/<event>) or already the race page (/courses/<race>)
         m = re.search(r"utoi-inscriptions\.com/(evenements|courses)/([^/?#]+)", r.get("inscription", ""))
@@ -202,6 +206,7 @@ try:
             break
         n += 1
     by_link = {p["link"].rstrip("/"): p["id"] for p in pages}
+    FOUND["Top Chrono"] = [(p["link"].rstrip("/"), p["link"].rstrip("/").split("/")[-1].replace("-", " "), p["link"]) for p in pages]
     run["topchrono"] = {"metrics": {"pages": len(pages)}}
     # the state of each format is read from the event page itself (step 3c, ad_topchrono)
 except Exception as e:
@@ -214,6 +219,9 @@ def sp_agenda(page):
     for card in re.split(r'<li class="course-card">', page)[1:]:
         m = re.search(r'class="courseLink" href="courses/(\d{5})-[^"]+"', card)
         if not m: continue
+        dm = re.search(r'dateCourseCtnr">\s*\w+\s+(\d{1,2})\s+(\w+)\s+(\d{4})', html.unescape(card))
+        if dm and dm.group(2).lower() in MOIS:
+            SP_DATES[m.group(1)] = f"{dm.group(3)}-{MOIS.index(dm.group(2).lower()) + 1:02d}-{int(dm.group(1)):02d}"
         eps = []
         fiches = re.split(r'<div class="epreuveFiche">', card)[1:]
         if not fiches and "lbl-distance" in card:
@@ -232,7 +240,8 @@ def sp_agenda(page):
                         "km": float(km.group(1).replace(",", ".")) if km else None,
                         "limite": f"{lim.group(3)}-{lim.group(2)}-{lim.group(1)}" if lim else None,
                         "complet": full, "ouvert": ins and not full,
-                        "ouverture": f"{ouv.group(3)}-{ouv.group(2)}-{ouv.group(1)}T{int(ouv.group(4) or 0):02d}:{ouv.group(5) or '00'}" if ouv else None})
+                        "ouverture": f"{ouv.group(3)}-{ouv.group(2)}-{ouv.group(1)}T{int(ouv.group(4) or 0):02d}:{ouv.group(5) or '00'}" if ouv else None,
+                        "h": (lambda hh: f"{int(hh.group(1)):02d}h{hh.group(2)}" if hh else None)(re.search(r'heureInline">\s*(\d{1,2})h(\d\d)', f))})
         out[m.group(1)] = eps
     return out
 
@@ -278,7 +287,9 @@ def dag_races(page):
         lim = max(dt.datetime.fromisoformat(e.replace("Z", "+00:00")).astimezone(TZ).date().isoformat() for e in ends) if ends else None
         stocked = [p for p in prices if (p.get("id_stock") or -1) > 0 and p.get("total_places")]
         full = bool(stocked) and len(stocked) == len(prices) and all((p.get("remaining_places") or 0) <= 0 for p in stocked)
-        out.append({"nom": j.get("title") or "", "km": None, "limite": lim, "complet": full})
+        st = dt.datetime.fromisoformat(j["event_start_date"].replace("Z", "+00:00")).astimezone(TZ) if j.get("event_start_date") else None
+        out.append({"nom": j.get("title") or "", "km": None, "limite": lim, "complet": full,
+                    "h": st.strftime("%Hh%M") if st else None, "date": st.date().isoformat() if st else None})
     return out
 
 
@@ -302,8 +313,11 @@ if dag_targets:
             continue
         eps = r.get("epreuves", [])
         res = {0: theirs[0]} if len(eps) == 1 and len(theirs) == 1 else match(eps, theirs, r.get("nom", ""))
+        real_times = len({t.get("h") for t in theirs if t.get("h")}) >= 2
         for i, t in res.items():
             ep = eps[i]
+            if real_times and t.get("h") and ep.get("h") != t["h"]:   # start time set by the organiser on the platform
+                ep["h"] = t["h"]; changes.append(f"{r['id']}:{ep.get('nom', i)}:heure")
             if t["limite"] and ep.get("limite") != t["limite"]:
                 ep["limite"] = t["limite"]
                 changes.append(f"{r['id']}:{ep.get('nom', i)}:limite")
@@ -311,6 +325,11 @@ if dag_targets:
             if t["complet"] and not ep.get("complet"):
                 ep["complet"] = True
                 changes.append(f"{r['id']}:{ep.get('nom', i)}:complet")
+        dd = {t.get("date") for t in theirs if t.get("date")}
+        if real_times and len(dd) == 1 and not r.get("fin") and not any(e.get("date") for e in eps) and can(r, "date"):
+            nd = dd.pop()
+            if nd != r.get("date") and nd >= TODAY:
+                r["date"] = nd; changes.append(f"{r['id']}:date")
         if res and len(res) == len(eps):
             lims = [t["limite"] for t in res.values()]
             if all(lims) and can(r, "limite") and r.get("limite") != max(lims):
@@ -483,6 +502,8 @@ try:
             changes.append(f"{r['id']}:annulée")
     # 4b. per-épreuve status from the same agenda page: link, deadline and "Complet" of each épreuve
     ag = sp_agenda(page)
+    FOUND["Sportpro"] = [(f"courses/{m.group(1)}-", html.unescape(m.group(3)).strip() + (f" ({SP_DATES[m.group(1)]})" if m.group(1) in SP_DATES else ""), f"https://www.sportpro.re/courses/{m.group(1)}-{m.group(2)}/")
+                         for m in re.finditer(r'class="courseLink" href="courses/(\d{5})-([^"/]+)/?">([^<]+)</a>', page)]
     associees = 0
     for r in data["races"]:
         m = re.search(r"sportpro\.re/courses/(\d{5})-", r.get("page") or "")
@@ -490,6 +511,14 @@ try:
             continue
         res = match(r.get("epreuves", []), ag[m.group(1)], r.get("nom", ""))
         if res: VERIF[r["id"]] = "sportpro"
+        # start time of each épreuve and date of a one-day event follow the agenda (organiser's data)
+        if can(r, "epreuves"):
+            for i, t in res.items():
+                if t.get("h") and r["epreuves"][i].get("h") != t["h"]:
+                    r["epreuves"][i]["h"] = t["h"]; changes.append(f"{r['id']}:{r['epreuves'][i].get('nom', i)}:heure")
+        nd = SP_DATES.get(m.group(1))
+        if nd and nd != r.get("date") and nd >= TODAY and not r.get("fin") and not any(e.get("date") for e in r.get("epreuves", [])) and can(r, "date"):
+            r["date"] = nd; changes.append(f"{r['id']}:date")
         associees += len(res)
         for t in res.values():  # Sportpro also greys "Complet" once the deadline is past: that is "closed", not "full"
             if t["limite"] and t["limite"] < TODAY:
@@ -639,11 +668,29 @@ try:
         old_vf, stale = {}, True
     if stale or old_vf.get("races") != verif:   # no commit every hour just for the time stamp
         json.dump({"at": NOW.isoformat(timespec="minutes"), "races": verif}, open("verif.json", "w"), ensure_ascii=False, separators=(",", ":"))
+    # reference version: before the push that started this run (Claude update), else the last commit
+    ref = "HEAD~1" if os.environ.get("GITHUB_EVENT_NAME") == "push" else "HEAD"
     try:
-        prev_data = json.loads(subprocess.run(["git", "show", "HEAD:data.json"], capture_output=True, text=True, check=True).stdout)
+        prev_data = json.loads(subprocess.run(["git", "show", f"{ref}:data.json"], capture_output=True, text=True, check=True).stdout)
     except Exception:
         prev_data = None
     rep = {"statut": alertes, "qualite": controls.qualite(data, prev_data, TODAY)}
+    import watch
+    try:   # Chrono Run: its list of races (new-race detector)
+        crp = fetch("https://chronorun974.re/courses-2/")
+        nav = {"a-propos", "courses-2", "feed", "meteo", "news", "resultats-courses", "suivi-live", "wp-json", "contact", "mentions-legales", "politique-de-confidentialite"}
+        FOUND["Chrono Run"] = [(u, u.rstrip("/").split("/")[-1].replace("-", " "), u) for u in dict.fromkeys(re.findall(r'href="(https://chronorun974\.re/([a-z0-9-]+)/)"', crp))
+                               for u in [u[0]] if u.rstrip("/").split("/")[-1] not in nav]
+    except Exception:
+        pass
+    rep["nouveautes"] = watch.nouveautes(data, FOUND)
+    if NOW.hour % 3 == 0 or "--all" in sys.argv:
+        rep["annulation"] = watch.annulations(data, TODAY, controls.get)
+    evts = watch.diff(prev_data, data, TODAY, NOW)
+    jr = watch.journal_add(evts, NOW)
+    rep["journal"] = [watch.line(e) for e in evts]
+    if NOW.weekday() == 0 and NOW.hour == 7 or "--recap" in sys.argv:
+        rep["recap"] = watch.recap(data, jr, TODAY, NOW)
     if NOW.hour == 6 or "--liens" in sys.argv:
         rep["liens"] = controls.liens(data, TODAY)
     with open(os.path.join(os.environ.get("RUNNER_TEMP") or tempfile.gettempdir(), "controls.json"), "w") as f:
