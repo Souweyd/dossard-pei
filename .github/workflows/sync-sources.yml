@@ -36,10 +36,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: python tools/health_alarm.py
+      - name: Alertes contrôles
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tools/alerts.py "$RUNNER_TEMP/controls.json"
       - name: Commit
         run: |
           git config user.name "Dossard Pei"; git config user.email "noreply@dossardpei.re"
-          git add -A data.json course og sitemap.xml tools/first_seen.json state/health.json
+          git add -A data.json course og sitemap.xml tools/first_seen.json state/health.json verif.json
           if git diff --cached --quiet; then echo "rien à publier"; exit 0; fi
           git commit -m "Synchro sources [pages]"
           git pull --rebase origin main || { git rebase --abort; echo "conflit avec une autre mise à jour : on réessaiera dans une heure"; exit 0; }

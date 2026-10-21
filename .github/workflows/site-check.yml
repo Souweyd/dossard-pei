@@ -1,0 +1,31 @@
+name: Test du site publié
+# Every 2 hours (free): opens dossardpei.re like a visitor and checks that the hourly sync still runs
+# (tools/site_check.py); problems become a GitHub issue, e-mailed to the owner (tools/alerts.py).
+on:
+  schedule:
+    - cron: "41 */2 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+  issues: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Navigateur
+        run: |
+          pip install -q playwright
+          python -m playwright install --with-deps chromium > /dev/null
+      - name: Test
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tools/site_check.py "$RUNNER_TEMP/site_check.json"
+      - name: Alertes
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tools/alerts.py "$RUNNER_TEMP/site_check.json"

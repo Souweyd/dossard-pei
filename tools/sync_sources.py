@@ -49,6 +49,7 @@ except (OSError, ValueError):
 locked = {k: set(v.get("fields", [])) if isinstance(v, dict) else set(v) for k, v in ov.get("overrides", ov).items()} if isinstance(ov, dict) else {}
 changes, errors = [], []
 run = {}  # source -> {"metrics": {name: count}, "error": ...}, for state/health.json
+VERIF = {}  # race id -> platform that confirmed its registration state during this run
 
 
 def can(r, field):
@@ -103,6 +104,7 @@ try:
         if len(cands) != 1:
             continue
         it = cands[0]
+        VERIF[r["id"]] = "utoi"
         if it.get("slug"):  # S'inscrire opens this race, not the whole event
             setf(r, r, "inscription", f"https://utoi-inscriptions.com/courses/{it['slug']}", "lien course")
         if it.get("startAt"):
@@ -169,6 +171,7 @@ try:
                 ep["complet"] = full; changes.append(f"{r['id']}:{nm} complet={full}")
         if not hit:
             continue
+        VERIF[r["id"]] = "utoi"
         # the event itself: first and last race days, latest deadline, full only when every race is full
         days = sorted(e["date"] for e in r["epreuves"] if e.get("date"))
         if days and can(r, "date"):
@@ -189,7 +192,7 @@ except Exception as e:  # source down: skip it this hour
     errors.append(f"utoi ({e.__class__.__name__})")
     run["utoi"] = {"metrics": {}, "error": f"{e.__class__.__name__}: {str(e)[:150]}"}
 
-# 3. Top Chrono: "COMPLET"
+# 3. Top Chrono: list of event pages (health check); formats and their state: step 3c
 try:
     pages, n = [], 1
     while n <= 4:
@@ -200,15 +203,7 @@ try:
         n += 1
     by_link = {p["link"].rstrip("/"): p["id"] for p in pages}
     run["topchrono"] = {"metrics": {"pages": len(pages)}}
-    for r in data["races"]:
-        link = (r.get("fiche") or r.get("inscription") or "").rstrip("/")
-        if r.get("source") != "topchrono" or link not in by_link or r.get("complet"):
-            continue
-        c = get_json(f"https://www.topchrono.run/wp-json/wp/v2/pages/{by_link[link]}?_fields=content")["content"]["rendered"]
-        txt = html.unescape(re.sub(r"<[^>]+>", " ", c))
-        if re.search(r"\bCOMPLET\b", txt) and can(r, "complet"):
-            r["complet"] = True
-            changes.append(f"{r['id']}:complet")
+    # the state of each format is read from the event page itself (step 3c, ad_topchrono)
 except Exception as e:
     errors.append(f"topchrono ({e.__class__.__name__})")
     run["topchrono"] = {"metrics": {}, "error": f"{e.__class__.__name__}: {str(e)[:150]}"}
@@ -302,6 +297,7 @@ if dag_targets:
         if not theirs:
             continue
         lus += 1
+        VERIF[r["id"]] = "chronometrage"
         if not can(r, "epreuves"):
             continue
         eps = r.get("epreuves", [])
@@ -326,6 +322,153 @@ if dag_targets:
     run["chronometrage"] = {"metrics": {"pages": lus}, **({"error": derr} if not lus and derr else {})}
 
 
+# 3c. Other registration platforms: each adapter reads a page and returns, per race of the page,
+#     {"nom", "etat": "ouvert" | "clos" | "complet", "url"?}. The state shown on the site follows
+#     the platform both ways (a reopened race loses "clos"/"complet"). Read pages are recorded in
+#     VERIF (race id -> source), used by the "statut vérifié" check below.
+
+
+def fetch(u):
+    req = urllib.request.Request(u, headers={**UA, "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36", "Accept-Language": "fr-FR,fr;q=0.9"})
+    return urllib.request.urlopen(req, timeout=30).read().decode("utf-8", "replace")
+
+
+def plain(s):
+    return re.sub(r"\s+", " ", html.unescape(re.sub(r"<script.*?</script>|<style.*?</style>|<[^>]+>", " ", s, flags=re.S)))
+
+
+CLOSED = re.compile(r"(?i)inscriptions?\s+(?:sont\s+)?(?:closes?|ferm[ée]es?|termin[ée]es?|cl[ôo]tur[ée]es?)|inscription\s+termin[ée]e")
+
+
+def ad_topchrono(page):
+    out = []
+    for row in re.split(r'<div class="tc-event-cta-row">', page)[1:]:
+        lab = re.search(r'tc-event-cta-label">([^<]+)<', row)
+        btn = re.search(r'<a href="([^"]+)"[^>]*class="tc-event-btn tc-event-btn-primary">\s*([^<]+?)\s*</a>', row)
+        if not lab or not btn: continue
+        t = btn.group(2).lower()
+        etat = "complet" if "complet" in t else "clos" if re.search(r"clos|ferm|termin", t) else "ouvert" if "inscri" in t else None
+        if etat: out.append({"nom": html.unescape(lab.group(1)).strip(), "km": None, "etat": etat, "url": btn.group(1)})
+    return out
+
+
+def ad_utoire(page):
+    m = re.search(r"[ÉE]tat de l.inscription\s*:\s*Inscription\s+(\w+)", plain(page))
+    if not m: return []
+    w = m.group(1).lower()
+    etat = "ouvert" if w.startswith("ouvert") else "complet" if w.startswith("complet") else "clos"
+    return [{"nom": "", "km": None, "etat": etat}]
+
+
+def ad_sportinnovation(page):
+    out = []
+    for blk in re.split(r'<div class="raceItem', page)[1:]:
+        t = re.search(r"<h1>([^<]+)</h1>", blk)
+        if not t: continue
+        etat = "complet" if "raceItemSoldOut" in blk[:400] else "ouvert" if "btn-inscription" in blk[:200] else None
+        if etat: out.append({"nom": html.unescape(t.group(1)).strip(), "km": None, "etat": etat})
+    return out
+
+
+def ad_klikego(page):
+    t = plain(page)
+    if CLOSED.search(t): return [{"nom": "", "km": None, "etat": "clos"}]
+    if re.search(r"(?i)\bcomplet\b", t) and "S'inscrire" not in t: return [{"nom": "", "km": None, "etat": "complet"}]
+    if "S'inscrire" in t or "S&#039;inscrire" in page: return [{"nom": "", "km": None, "etat": "ouvert"}]
+    return []
+
+
+ADAPTERS = [(r"topchrono\.run/evenements/", ad_topchrono), (r"utoi\.re/produit/", ad_utoire),
+            (r"sportinnovation\.fr/Evenements/Inscriptions/", ad_sportinnovation), (r"klikego\.com/inscription/", ad_klikego)]
+
+
+def can_status(r):
+    # registration state always follows the platform, unless the owner locked "complet" himself
+    return not r.get("manual") and "complet" not in locked.get(r["id"], set())
+
+
+def set_state(r, ep, etat, label):
+    want_c, want_x = etat == "complet", etat == "clos"
+    if etat == "ouvert" and (ep.get("limite") or "9999") < TODAY:   # the platform still takes entries: a past deadline is stale
+        ep.pop("limite"); changes.append(f"{label}:clôture périmée retirée")
+    if bool(ep.get("complet")) != want_c:
+        ep["complet"] = want_c; changes.append(f"{label}:complet={want_c}")
+    if bool(ep.get("clos")) != want_x:
+        if want_x: ep["clos"] = True
+        else: ep.pop("clos", None)
+        changes.append(f"{label}:clos={want_x}")
+
+
+def match_names(ours, theirs, event=""):
+    """platform formats -> our épreuves by shared words (numbers alone never match), then the last
+    unmatched pair; ambiguous cases stay unmatched"""
+    common = (set.intersection(*[toks(t["nom"]) for t in theirs]) if len(theirs) > 1 else set()) | toks(event)
+    words = lambda x: {w for w in toks(x) - common if not w.isdigit() and not re.fullmatch(r"\d+km", w)}
+    res, used = {}, set()
+    for i, e in enumerate(ours):
+        sc = sorted(((len(words(e.get("nom")) & words(t["nom"])), j) for j, t in enumerate(theirs) if j not in used), reverse=True)
+        if sc and sc[0][0] > 0 and (len(sc) == 1 or sc[0][0] > sc[1][0]):
+            res[i] = theirs[sc[0][1]]; used.add(sc[0][1])
+    left_o = [i for i in range(len(ours)) if i not in res]
+    left_t = [j for j in range(len(theirs)) if j not in used]
+    if len(left_o) == 1 and len(left_t) == 1:
+        res[left_o[0]] = theirs[left_t[0]]
+    return res
+
+
+plat_read, plat_err = 0, None
+for r in data["races"]:
+    if r.get("hidden") or not can_status(r): continue
+    eps = r.get("epreuves", [])
+    # pages to read: the épreuves' own links when they point to a known platform, else the event link
+    per_ep = [(i, e.get("url")) for i, e in enumerate(eps) if e.get("url") and any(re.search(p, e["url"]) for p, _ in ADAPTERS)]
+    jobs = per_ep or [(None, u) for u in [r.get("inscription") or ""] if any(re.search(p, u) for p, _ in ADAPTERS)]
+    if not jobs: continue
+    ok = True
+    for i, u in jobs:
+        fn = next(f for p, f in ADAPTERS if re.search(p, u))
+        try:
+            theirs = fn(fetch(u))
+        except Exception as e:
+            plat_err = f"{e.__class__.__name__}: {str(e)[:150]}"; errors.append(f"plateforme {r['id']} ({e.__class__.__name__})"); ok = False
+            continue
+        if not theirs:
+            ok = False; continue
+        plat_read += 1
+        if i is not None:                        # one page per épreuve
+            set_state(r, eps[i], theirs[0]["etat"], f"{r['id']}:{eps[i].get('nom', i)}")
+            continue
+        if len(theirs) == 1 and not theirs[0]["nom"]:   # one state for the whole page
+            res = {k: theirs[0] for k in range(len(eps))}
+        else:
+            res = {0: theirs[0]} if len(eps) == 1 and len(theirs) == 1 else match_names(eps, theirs, r.get("nom", ""))
+            if len(res) < len(eps) or len(theirs) != len(eps):
+                states = {t["etat"] for t in theirs}
+                if len(states) == 1:   # formats differ from our épreuves but the platform says the same everywhere
+                    only = next(iter(states))
+                    res = {k: {"etat": only} for k in range(len(eps))}
+                else:
+                    ok = False
+        for k, t in res.items():
+            set_state(r, eps[k], t["etat"], f"{r['id']}:{eps[k].get('nom', k)}")
+            if t.get("url") and eps[k].get("url") != t["url"]:   # closest page to the registration of this race
+                eps[k]["url"] = t["url"]; changes.append(f"{r['id']}:{eps[k].get('nom', k)}:url")
+    if ok and eps:
+        VERIF[r["id"]] = "plateforme"
+        if (r.get("limite") or "9999") < TODAY and any(not e.get("complet") and not e.get("clos") for e in eps):
+            r.pop("limite"); changes.append(f"{r['id']}:clôture périmée retirée")
+        full = all(e.get("complet") for e in eps)
+        shut = not full and all(e.get("complet") or e.get("clos") for e in eps)
+        if bool(r.get("complet")) != full:
+            r["complet"] = full; changes.append(f"{r['id']}:complet={full}")
+        if bool(r.get("clos")) != shut:
+            if shut: r["clos"] = True
+            else: r.pop("clos", None)
+            changes.append(f"{r['id']}:clos={shut}")
+if plat_read or plat_err:
+    run["plateformes"] = {"metrics": {"pages": plat_read}, **({"error": plat_err} if not plat_read and plat_err else {})}
+
+
 # 4. Sportpro: races renamed "Course annulée : …" on the agenda are hidden (not deleted, so the
 #    Claude update does not add them back).
 try:
@@ -346,6 +489,7 @@ try:
         if r.get("hidden") or not m or not ag.get(m.group(1)) or not can(r, "epreuves"):
             continue
         res = match(r.get("epreuves", []), ag[m.group(1)], r.get("nom", ""))
+        if res: VERIF[r["id"]] = "sportpro"
         associees += len(res)
         for t in res.values():  # Sportpro also greys "Complet" once the deadline is past: that is "closed", not "full"
             if t["limite"] and t["limite"] < TODAY:
@@ -481,6 +625,35 @@ try:
         json.dump({"at": NOW.isoformat(timespec="minutes"), "run": run, "errors": errors}, f, ensure_ascii=False)
 except Exception as e:
     sante = f"santé non évaluée ({e.__class__.__name__})"
+# checks (tools/controls.py): verification state of each race (verif.json, read by the site),
+# consistency of the data, dead links once a day; problems go to tools/alerts.py through a report file
+controle = ""
+try:
+    import os, subprocess, tempfile
+    import controls
+    verif, alertes = controls.statut(data, VERIF, TODAY)
+    try:
+        old_vf = json.load(open("verif.json"))
+        stale = (NOW - dt.datetime.fromisoformat(old_vf["at"])).total_seconds() > 2.8 * 3600
+    except Exception:
+        old_vf, stale = {}, True
+    if stale or old_vf.get("races") != verif:   # no commit every hour just for the time stamp
+        json.dump({"at": NOW.isoformat(timespec="minutes"), "races": verif}, open("verif.json", "w"), ensure_ascii=False, separators=(",", ":"))
+    try:
+        prev_data = json.loads(subprocess.run(["git", "show", "HEAD:data.json"], capture_output=True, text=True, check=True).stdout)
+    except Exception:
+        prev_data = None
+    rep = {"statut": alertes, "qualite": controls.qualite(data, prev_data, TODAY)}
+    if NOW.hour == 6 or "--liens" in sys.argv:
+        rep["liens"] = controls.liens(data, TODAY)
+    with open(os.path.join(os.environ.get("RUNNER_TEMP") or tempfile.gettempdir(), "controls.json"), "w") as f:
+        json.dump(rep, f, ensure_ascii=False)
+    n = {k: len(v) for k, v in rep.items()}
+    controle = f"vérifiées {sum(v == 'ok' for v in verif.values())}/{len(verif)}, à vérifier {sum(v == 'alerte' for v in verif.values())}, " \
+               + ", ".join(f"{k} {v}" for k, v in n.items())
+except Exception as e:
+    controle = f"contrôles non faits ({e.__class__.__name__}: {e})"
 print(f"{len(changes)} changement(s)" + (": " + ", ".join(changes) if changes else "")
-      + (" · sources en erreur : " + ", ".join(errors) if errors else "") + (" · " + sante if sante else ""))
+      + (" · sources en erreur : " + ", ".join(errors) if errors else "") + (" · " + sante if sante else "")
+      + (" · " + controle if controle else ""))
 sys.exit(0)
