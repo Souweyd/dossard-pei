@@ -270,6 +270,62 @@ def match(ours, theirs, event=""):
     return {} if len(used) != len(set(used)) else res
 
 
+# 3b. chronometrage.com (DAG system): each event page embeds its registration data (__NEXT_DATA__):
+#     one "jetcode" per race with its price periods (end_date = sales close) and stock (remaining_places).
+#     Gives each épreuve its own deadline and "complet"; the event gets the latest deadline.
+def dag_races(page):
+    m = re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', page, re.S)
+    poi = json.loads(m.group(1))["props"]["pageProps"].get("initialPoi") or {} if m else {}
+    out = []
+    for j in poi.get("jetcodes") or []:
+        prices = j.get("prices") or []
+        ends = [p["end_date"] for p in prices if p.get("end_date")]
+        lim = max(dt.datetime.fromisoformat(e.replace("Z", "+00:00")).astimezone(TZ).date().isoformat() for e in ends) if ends else None
+        stocked = [p for p in prices if (p.get("id_stock") or -1) > 0 and p.get("total_places")]
+        full = bool(stocked) and len(stocked) == len(prices) and all((p.get("remaining_places") or 0) <= 0 for p in stocked)
+        out.append({"nom": j.get("title") or "", "km": None, "limite": lim, "complet": full})
+    return out
+
+
+dag_targets = [r for r in data["races"] if not r.get("hidden") and re.search(r"chronometrage\.com/events/[A-Za-z0-9_-]+", (r.get("inscription") or "") + " " + (r.get("fiche") or ""))]
+if dag_targets:
+    lus, derr = 0, None
+    for r in dag_targets:
+        u = re.search(r"https?://(?:www\.)?chronometrage\.com/events/[A-Za-z0-9_-]+", (r.get("inscription") or "") + " " + (r.get("fiche") or "")).group(0)
+        try:
+            req = urllib.request.Request(u, headers=UA)
+            theirs = dag_races(urllib.request.urlopen(req, timeout=30).read().decode("utf-8", "replace"))
+        except Exception as e:
+            derr = f"{e.__class__.__name__}: {str(e)[:150]}"
+            errors.append(f"chronometrage {r['id']} ({e.__class__.__name__})")
+            continue
+        if not theirs:
+            continue
+        lus += 1
+        if not can(r, "epreuves"):
+            continue
+        eps = r.get("epreuves", [])
+        res = {0: theirs[0]} if len(eps) == 1 and len(theirs) == 1 else match(eps, theirs, r.get("nom", ""))
+        for i, t in res.items():
+            ep = eps[i]
+            if t["limite"] and ep.get("limite") != t["limite"]:
+                ep["limite"] = t["limite"]
+                changes.append(f"{r['id']}:{ep.get('nom', i)}:limite")
+            # sold-out stock marks "complet"; never cleared here (organisers often close a nearly full race by hand)
+            if t["complet"] and not ep.get("complet"):
+                ep["complet"] = True
+                changes.append(f"{r['id']}:{ep.get('nom', i)}:complet")
+        if res and len(res) == len(eps):
+            lims = [t["limite"] for t in res.values()]
+            if all(lims) and can(r, "limite") and r.get("limite") != max(lims):
+                r["limite"] = max(lims)
+                changes.append(f"{r['id']}:clôture")
+            if all(eps[i].get("complet") for i in res) and can(r, "complet") and not r.get("complet"):
+                r["complet"] = True
+                changes.append(f"{r['id']}:complet")
+    run["chronometrage"] = {"metrics": {"pages": lus}, **({"error": derr} if not lus and derr else {})}
+
+
 # 4. Sportpro: races renamed "Course annulée : …" on the agenda are hidden (not deleted, so the
 #    Claude update does not add them back).
 try:

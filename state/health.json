@@ -1,4 +1,11 @@
 {
+ "chronometrage": {
+  "echecs": 0,
+  "etat": "ok",
+  "ref": {
+   "pages": 8
+  }
+ },
  "sportpro": {
   "echecs": 0,
   "etat": "ok",
