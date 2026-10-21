@@ -370,7 +370,7 @@ def build_jeudi(ref, data, races):
         sl.append(cta_slide(len(sl) + 1, n, P, 'TON WEEK-END<br><span style="color:#5cc4bc">+ TON COIN</span><br><span style="color:#d2481e">= TA COURSE</span>',
                             'Toute l\'île sur la carte,<br>commune par commune.', 'Enregistre et tague tes dalons'))
         pages[fmt] = sl
-    nm_ = name.lower().replace("'", '’')
+    nm_ = {'nord': 'le Nord', 'sud': 'le Sud', 'est': 'l’Est', 'ouest': 'l’Ouest'}[reg]
     lines = [f"📍 Courir dans {nm_} : {len(sel)} courses {endlab}", '']
     lines += [f"{k}. {fdate(r['_d'], short=True).capitalize()} : {r['nom']} ({r['commune']})" for k, r in enumerate(sel[:8], 1)]
     if len(sel) > 8:
