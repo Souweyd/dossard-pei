@@ -180,10 +180,27 @@ def island_svg(width, pins=(), highlight=None, relief=False, contours=False, dim
     out.append('<g fill="none" stroke="#ffffff" stroke-opacity=".9" stroke-width="2">' + ''.join(f'<path d="{c["d"]}"/>' for c in M['communes']) + '</g>')
     if highlight is not None:
         out.append(f'<g fill="none" stroke="{C["fg"]}" stroke-width="4" stroke-linejoin="round">' + ''.join(f'<path d="{c["d"]}"/>' for c in M['communes'] if _same(c['nom'], highlight)) + '</g>')
-    for p in pins:
-        x, y = P_xy(*p['ll']); r = p.get('r', 30)
-        out.append(f'<g transform="translate({x:.1f},{y:.1f})"><circle r="{r + 9}" fill="{p["color"]}" opacity=".2"/>'
-                   f'<circle r="{r}" fill="{p["color"]}" stroke="#fff" stroke-width="5"/>')
+    s = vb[2] / (M['W'] + 80)                     # pins keep the same on-screen size whatever the zoom
+    pos = [list(P_xy(*p['ll'])) for p in pins]
+    rr = [p.get('r', 30) * s for p in pins]
+    groups = []                                   # spread pins that overlap around their centre
+    for k, (x, y) in enumerate(pos):
+        for g in groups:
+            gx, gy = g['c']
+            if (x - gx) ** 2 + (y - gy) ** 2 < (2.1 * rr[k]) ** 2:
+                g['m'].append(k); break
+        else:
+            groups.append({'c': (x, y), 'm': [k]})
+    import math as _m
+    for g in groups:
+        if len(g['m']) > 1:
+            R = rr[g['m'][0]] * (1.15 if len(g['m']) == 2 else 1.25 / _m.sin(_m.pi / len(g['m'])))
+            for j, k in enumerate(g['m']):
+                a = -_m.pi / 2 + 2 * _m.pi * j / len(g['m'])
+                pos[k] = [g['c'][0] + R * _m.cos(a), g['c'][1] + R * _m.sin(a)]
+    for p, (x, y), r in zip(pins, pos, rr):
+        out.append(f'<g transform="translate({x:.1f},{y:.1f})"><circle r="{r + 9 * s:.1f}" fill="{p["color"]}" opacity=".2"/>'
+                   f'<circle r="{r:.1f}" fill="{p["color"]}" stroke="#fff" stroke-width="{5 * s:.1f}"/>')
         if p.get('n') is not None:
             fs = int(r * 1.25)
             out.append(f'<text y="{fs * .35:.0f}" text-anchor="middle" font-family="Saira" font-weight="800" font-size="{fs}" fill="#fff">{p["n"]}</text>')
