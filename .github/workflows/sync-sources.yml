@@ -29,7 +29,7 @@ jobs:
         run: python tools/sync_sources.py $([ "$GITHUB_EVENT_NAME" = push ] && echo --all)
       - name: Pages des courses
         run: |
-          if git diff --quiet data.json; then echo "aucun changement"; exit 0; fi
+          # always: a course page also changes when a deadline passes without any data change
           pip install -q pillow
           python tools/gen_pages.py
       - name: Alarme sources

@@ -6,6 +6,7 @@ sitemap.xml and robots.txt from data.json. Run from the repository root.
 The pages are light, readable on their own and indexable; the full app (map, track, profile)
 stays at / and opens the same race with /#c-<id>."""
 import html, json, os, re, shutil, sys
+import datetime as dt_mod
 from datetime import date
 
 SITE = "https://dossardpei.re"
@@ -230,13 +231,19 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
     img = f"{SITE}/og/{rid}.jpg" if has_og else f"{SITE}/og/home.jpg"
     poster = r.get("poster_lg") or r.get("poster")
     lieu = r.get("lieu") if r.get("lieu") and r.get("lieu") != r.get("commune") else ""
-    today = date.today().isoformat()
-    past = r["date"] < today
-    if r.get("complet"): st = "Complet"
-    elif past: st = "Course passée"
-    elif r.get("limite") and r["limite"] < today: st = "Inscriptions closes"
-    elif r.get("limite"): st = f"Inscriptions jusqu'au {d_of(r['limite']).day} {MOIS[d_of(r['limite']).month - 1]}"
-    else: st = ""
+    now_reu = (dt_mod.datetime.now(dt_mod.timezone.utc) + dt_mod.timedelta(hours=4)).strftime("%Y-%m-%dT%H:%M")
+    today = now_reu[:10]   # Réunion time (UTC+4), not the server's
+    past = (r.get("fin") or r["date"]) < today
+    not_yet = bool(r.get("ouverture") and r["ouverture"] > now_reu)
+    can_reg = False
+    if past: st = "Course passée"
+    elif r.get("complet"): st = "Complet"
+    elif r.get("clos") or (r.get("limite") and r["limite"] < today): st = "Inscriptions closes"
+    elif not_yet:
+        o = r["ouverture"]; st = f"Ouverture des inscriptions le {int(o[8:10])} {MOIS[int(o[5:7]) - 1]} à {int(o[11:13])}h{o[14:16] if o[14:16] != '00' else ''}"
+        can_reg = True
+    elif r.get("limite"): st = f"Inscriptions jusqu'au {d_of(r['limite']).day} {MOIS[d_of(r['limite']).month - 1]}"; can_reg = True
+    else: st = ""; can_reg = True
 
     # JSON-LD
     ev = {"@context": "https://schema.org", "@type": "SportsEvent", "name": r["nom"], "startDate": r["date"], "endDate": r.get("fin") or r["date"],
@@ -303,7 +310,7 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
 <h1>{esc(r['nom'])}</h1>
 <p class="where">{esc(r.get('commune', ''))}{' · ' + esc(lieu) if lieu else ''}{' · organisé par ' + esc(r['org']) if r.get('org') else ''}</p>
 <ul class="tags">{''.join(tags)}</ul>
-<div class="cta">{f'<a class="btn main" href="{esc(r["inscription"])}" rel="noopener" data-goatcounter-click="inscription/{esc(rid)}" data-goatcounter-title="Clic S’inscrire (page course)">S’inscrire</a>' if r.get('inscription') and not past else ''}<a class="btn map" href="/#c-{esc(rid)}">{'Carte et parcours' if has_trk else 'Voir sur la carte'} →</a></div>
+<div class="cta">{f'<a class="btn main" href="{esc(r["inscription"])}" rel="noopener" data-goatcounter-click="inscription/{esc(rid)}" data-goatcounter-title="Clic S’inscrire (page course)">{"Page d’inscription" if not_yet else "S’inscrire"}</a>' if r.get('inscription') and can_reg else ''}<a class="btn map" href="/#c-{esc(rid)}">{'Carte et parcours' if has_trk else 'Voir sur la carte'} →</a></div>
 {f'<div class="tbl"><table><thead><tr><th>Épreuve</th><th>Dist.</th><th>D+</th><th>Type</th><th>Départ</th><th>Tarif</th></tr></thead><tbody>{rows}</tbody></table></div>' if rows else ''}
 <p class="src">Informations reprises des sources officielles, à vérifier auprès de l’organisateur avant de vous inscrire.{(' · ' + ' · '.join(links)) if links else ''} · <a href="/#contact-{esc(rid)}">Signaler une erreur</a></p>
 </div></article>{related(r, races)}</main>
