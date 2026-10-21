@@ -915,6 +915,7 @@ function loadTracks(id) {
 const nowReu = () => new Date(Date.now() + 4 * 36e5).toISOString().slice(0, 16);
 const notYet = x => !!(x && x.ouverture && x.ouverture > nowReu());
 const ouvTxt = o => { const d = o.slice(0, 10), h = +o.slice(11, 13), m = o.slice(14, 16); return (d === todayISO() ? "aujourd'hui" : `le ${+d.slice(8)}/${d.slice(5, 7)}`) + ` à ${h}h${m === "00" ? "" : m}`; };
+const canReg = r => isOpen(r) || notYet(r) || !!r.approx;   // a registration button only while it is possible (or announced)
 const ctaTxt = r => notYet(r) ? "Page d'inscription" : r.approx ? "Voir la fiche" : "S'inscrire";
 const isOpen = r => !r.complet && !r.clos && !notYet(r) && (!r.limite || r.limite >= todayISO());
 // verification of each race's registration state (verif.json, written by the hourly sync on GitHub)
@@ -1082,7 +1083,7 @@ function posterHTML(r) {
 function openPoster(id) {
   const r = RACES.find(x => x.id === id); if (!r || !r.poster) return;
   const box = document.createElement("div"); box.className = "lightbox"; box.setAttribute("role", "dialog"); box.setAttribute("aria-label", "Affiche de " + r.nom);
-  box.innerHTML = `<button type="button" aria-label="Fermer">×</button><img src="${esc(bigOf(r))}" alt="Affiche de ${esc(r.nom)}" referrerpolicy="no-referrer" onerror="this.src='${esc(thumbOf(r))}'"><p>${esc(r.nom)} · affiche de l'organisateur${r.inscription ? ` · <a href="${esc(r.inscription)}" target="_blank" rel="noopener">${ctaTxt(r)}</a>` : ""}</p>`;
+  box.innerHTML = `<button type="button" aria-label="Fermer">×</button><img src="${esc(bigOf(r))}" alt="Affiche de ${esc(r.nom)}" referrerpolicy="no-referrer" onerror="this.src='${esc(thumbOf(r))}'"><p>${esc(r.nom)} · affiche de l'organisateur${r.inscription && canReg(r) ? ` · <a href="${esc(r.inscription)}" target="_blank" rel="noopener">${ctaTxt(r)}</a>` : ""}</p>`;
   const close = () => { box.remove(); removeEventListener("keydown", esc_); };
   const esc_ = e => { if (e.key === "Escape") close(); };
   box.addEventListener("click", e => { if (e.target === box || e.target.tagName === "BUTTON") close(); });
@@ -1097,7 +1098,7 @@ const ficheOf = r => r.fiche || r.page || null;
 function actionsHTML(r, withMore) {
   const open = state.open.has(r.id), src = srcOf(r);
   return `<div class="actions">
-    ${r.complet || !r.inscription ? "" : `<a class="cta" href="${esc(r.inscription)}" target="_blank" rel="noopener">${ctaTxt(r)}</a>`}
+    ${!canReg(r) || !r.inscription ? "" : `<a class="cta" href="${esc(r.inscription)}" target="_blank" rel="noopener">${ctaTxt(r)}</a>`}
     ${ficheOf(r) ? `<a class="ghostlink" href="${esc(ficheOf(r))}" target="_blank" rel="noopener">Fiche technique</a>` : ""}
     ${withMore ? `<button type="button" class="more" data-more="${esc(r.id)}" aria-expanded="${open}">${open ? "Masquer" : "Détails"}${r.traces || hasTrack(r.id) ? " et tracés" : ""}</button>` : ""}
     ${r.approx ? "" : `<a class="ghostlink" href="${esc(gcalURL(r))}" target="_blank" rel="noopener" title="Ajouter à Google Agenda">+ Agenda</a>`}
@@ -2126,7 +2127,7 @@ function openReels() {
         <button type="button" data-ra="share"><span class="ric"><svg viewBox="0 0 24 24">${R_ICO.share}</svg></span>Partager</button>
         <button type="button" data-ra="map"><span class="ric"><svg viewBox="0 0 24 24">${R_ICO.map}</svg></span>Carte</button>
         ${r.approx ? "" : `<button type="button" data-ra="cal"><span class="ric"><svg viewBox="0 0 24 24">${R_ICO.cal}</svg></span>Agenda</button>`}</div>
-      <div class="rmore"><button type="button" class="rv" data-ra="more">Voir plus</button>${r.inscription && !r.complet ? `<a class="ri" href="${esc(r.inscription)}" target="_blank" rel="noopener">${ctaTxt(r)}</a>` : ""}</div>
+      <div class="rmore"><button type="button" class="rv" data-ra="more">Voir plus</button>${r.inscription && canReg(r) ? `<a class="ri" href="${esc(r.inscription)}" target="_blank" rel="noopener">${ctaTxt(r)}</a>` : ""}</div>
     </section>`;
   };
   reelsBox.innerHTML = `<div class="rtop"><span aria-hidden="true">${logo.replace(/class="[^"]*"/, 'class="rlogo"')}</span>
