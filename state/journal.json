@@ -1,0 +1,26 @@
+[
+{
+"at": "2026-10-21T22:53+04:00",
+"t": "heure",
+"id": "ail",
+"nom": "Course de l'Ail – Course de l'Ail relais",
+"de": "07h00",
+"a": "06h00"
+},
+{
+"at": "2026-10-21T22:53+04:00",
+"t": "heure",
+"id": "pace",
+"nom": "The Pace of Mountain – Solo 70 km",
+"de": "23h59",
+"a": "00h01"
+},
+{
+"at": "2026-10-21T22:53+04:00",
+"t": "heure",
+"id": "pace",
+"nom": "The Pace of Mountain – Semi 36 km",
+"de": "23h59",
+"a": "03h00"
+}
+]
