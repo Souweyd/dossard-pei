@@ -6,6 +6,13 @@
    "pages": 8
   }
  },
+ "plateformes": {
+  "echecs": 0,
+  "etat": "ok",
+  "ref": {
+   "pages": 14
+  }
+ },
  "sportpro": {
   "echecs": 0,
   "etat": "ok",
