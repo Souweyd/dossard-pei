@@ -1346,7 +1346,7 @@ function verifLine(r) {
   const when = h < 1 ? "il y a moins d'une heure" : `il y a ${h} h`;
   if (v === "ok") return `<p class="vline ok">✓ Statut vérifié ${when}</p>`;
   if (v === "alerte") return `<p class="vline warn">⚠ La page d'inscription semble indiquer une fermeture. Vérifiez sur le site de l'organisateur avant de vous organiser.</p>`;
-  return `<p class="vline">Statut des inscriptions non vérifiable automatiquement : confirmez-le sur le site d'inscription.</p>`;
+  return `<p class="vline">Statut non vérifié : à confirmer sur le site de l'organisateur.</p>`;
 }
 function detailHTML(r) {
   const hasSt = (r.epreuves || []).some(e => e.url || "complet" in e);
