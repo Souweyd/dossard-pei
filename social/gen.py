@@ -248,7 +248,7 @@ def cover_map(i, n, P, kicker, big, sub, races, ref, highlight=None, relief=Fals
     mapw = int(min(P['W'] - 40, (ybot - ytop) / ratio))
     x = (P['W'] - mapw) // 2
     body = f'''
-    <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 60%, {C['sea']} 0%, {C['bg']} 62%)"></div>
+    {scene(P, .42)}
     {head(i, n, P)}
     <div style="position:absolute;left:64px;right:64px;top:{P['T'] + 110}px">
       <div class="saira" style="font-weight:700;font-size:40px;color:{C['hot']}">{kicker}</div>
@@ -286,7 +286,7 @@ def build_lundi(ref, data, races):
                 return fit_crop(shot_p, g, mw, mh, ring)
             sl.append(how(len(sl) + 1, n, P, 'CALENDRIER', 'TON WEEK-END<br>EN UN COUP D\'ŒIL',
                           ['Ouvre <b>dossardpei.re</b>', 'Touche <b>« Ce week-end »</b> ou <b>Calendrier</b>', 'Touche un jour : <b>la liste s\'affiche</b>'], shot))
-        sl.append(cta_slide(len(sl) + 1, n, P, 'TOUTES LES COURSES<br><span style="color:#5cc4bc">DE LA RÉUNION</span>',
+        sl.append(cta_slide(len(sl) + 1, n, P, 'TOUTES LES COURSES<br><span style="color:#0d6b67">DE LA RÉUNION</span>',
                             'Calendrier, carte, tracés<br>et liens d\'inscription.', 'Enregistre pour ce week-end'))
         pages[fmt] = sl
     clot = [r for r in rs if status(r, ref)[0] == 'clot']
@@ -317,8 +317,8 @@ def build_mardi(ref, data, races):
     for fmt, P in FMTS.items():
         n = 2 + (1 if shot_p else 0) + 1
         cover = page(f'''
-        <div style="position:absolute;inset:0;background:radial-gradient(circle at 75% 75%, {C['sea']} 0%, {C['bg']} 60%)"></div>
-        <div style="position:absolute;right:-60px;bottom:{P['B'] - 40}px;font-size:520px;line-height:1;opacity:.9">{th['emo']}</div>
+        {scene(P, .62)}
+        <div style="position:absolute;right:-30px;bottom:{P['B'] + 110}px;font-size:400px;line-height:1">{th['emo']}</div>
         {head(1, n, P)}
         <div style="position:absolute;left:64px;right:64px;top:{P['T'] + 150}px">
           <div class="saira" style="font-weight:700;font-size:44px;color:{C['hot']}">LE THÈME DE LA SEMAINE</div>
@@ -333,7 +333,7 @@ def build_mardi(ref, data, races):
                 return fit_crop(shot_p, [b[0], b[1], b[2], b[3]], mw, mh)
             sl.append(how(len(sl) + 1, n, P, 'FILTRES', 'TROUVE-LES<br>EN 2 SECONDES',
                           ['Touche <b>Filtres</b>', th['flab'], 'Touche <b>Voir les courses</b>'], shot))
-        sl.append(cta_slide(len(sl) + 1, n, P, 'TA COURSE<br><span style="color:#5cc4bc">EST SUR</span><br><span style="color:#d2481e">DOSSARD PÉI</span>',
+        sl.append(cta_slide(len(sl) + 1, n, P, 'TA COURSE<br><span style="color:#0d6b67">EST SUR</span><br><span style="color:#d2481e">DOSSARD PÉI</span>',
                             'Toutes les courses de La Réunion,<br>avec les filtres qui vont bien.', 'Enregistre pour plus tard'))
         pages[fmt] = sl
     lines = [f"{th['emo']} {th['short']} : {len(sel)} courses à La Réunion ces 10 prochaines semaines", '',
@@ -384,7 +384,7 @@ def build_jeudi(ref, data, races):
                         f'<div style="position:absolute;left:-10px;top:{mh2 * .55:.0f}px">{pp}</div></div>', mw2, tot)
             sl.append(how(len(sl) + 1, n, P, 'CARTE', 'LES COURSES<br>AUTOUR DE TOI',
                           ['Touche <b>Carte</b>', 'Agrandis la carte en plein écran', 'Touche ta commune : <b>ses courses s\'affichent</b>'], shot))
-        sl.append(cta_slide(len(sl) + 1, n, P, 'TON WEEK-END<br><span style="color:#5cc4bc">+ TON COIN</span><br><span style="color:#d2481e">= TA COURSE</span>',
+        sl.append(cta_slide(len(sl) + 1, n, P, 'TON WEEK-END<br><span style="color:#0d6b67">+ TON COIN</span><br><span style="color:#d2481e">= TA COURSE</span>',
                             'Toute l\'île sur la carte,<br>commune par commune.', 'Enregistre et tague tes dalons'))
         pages[fmt] = sl
     nm_ = {'nord': 'le Nord', 'sud': 'le Sud', 'est': 'l’Est', 'ouest': 'l’Ouest'}[reg]
@@ -432,6 +432,7 @@ def build_mois(ref, data, races):
         n = 2 + (1 if shot_p else 0) + 1
         gw = P['W'] - 64 - P['R'] if P['R'] > 64 else 740
         cover = page(f'''
+        {scene(P, .3)}
         {head(1, n, P)}
         <div style="position:absolute;left:64px;right:64px;top:{P['T'] + 100}px">
           <div class="saira" style="font-weight:700;font-size:40px;color:{C['hot']}">LE MOIS EN UN COUP D'ŒIL</div>
@@ -444,7 +445,7 @@ def build_mois(ref, data, races):
             sl.append(how(len(sl) + 1, n, P, 'CALENDRIER', 'TOUT LE MOIS<br>SUR UN ÉCRAN',
                           ['Touche <b>Calendrier</b>', 'Une pastille = une course', 'Touche un jour pour voir ses courses'],
                           lambda mw, mh: fit_crop(shot_p, info, mw, mh)))
-        sl.append(cta_slide(len(sl) + 1, n, P, f'{MOIS[m - 1].upper()}<br><span style="color:#5cc4bc">C\'EST PARTI</span>',
+        sl.append(cta_slide(len(sl) + 1, n, P, f'{MOIS[m - 1].upper()}<br><span style="color:#0d6b67">C\'EST PARTI</span>',
                             'Toutes les courses du mois,<br>dans le calendrier du site.', 'Enregistre pour tout le mois'))
         pages[fmt] = sl
     lines = [f"📅 {MOIS[m - 1].capitalize()} à La Réunion : {len(sel)} courses", '']

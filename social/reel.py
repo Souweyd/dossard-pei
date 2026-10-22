@@ -91,7 +91,7 @@ def html_reel(r, tr, bg, ref):
 #bg{{position:absolute;left:0;top:0;width:1080px;height:{H_full * sc:.0f}px;transform-origin:540px 600px}}
 #bg img{{width:100%;height:100%;display:block}}
 .shade{{position:absolute;left:0;right:0}}
-</style></head><body style="background:#0f1f1d">
+</style></head><body style="background:#2a211c">
 <div id="bg"><img src="{pathlib.Path(file).as_uri()}">
  <svg width="1080" height="{H_full * sc:.0f}" style="position:absolute;left:0;top:0">
   <path id="halo" d="{path}" fill="none" stroke="#fff" stroke-width="16" stroke-linejoin="round" stroke-linecap="round" opacity=".85"/>
@@ -99,12 +99,12 @@ def html_reel(r, tr, bg, ref):
   <circle cx="{xy[0][0]:.1f}" cy="{xy[0][1]:.1f}" r="15" fill="#1b8a3a" stroke="#fff" stroke-width="5"/>
   <circle id="dot" r="17" fill="#fff" stroke="{C['hot']}" stroke-width="7"/>
  </svg></div>
-<div class="shade" style="top:0;height:520px;background:linear-gradient(180deg,rgba(15,31,29,.85),rgba(15,31,29,0))"></div>
-<div class="shade" style="bottom:0;height:900px;background:linear-gradient(0deg,rgba(15,31,29,.96) 45%,rgba(15,31,29,0))"></div>
+<div class="shade" style="top:0;height:520px;background:linear-gradient(180deg,rgba(42,33,28,.85),rgba(42,33,28,0))"></div>
+<div class="shade" style="bottom:0;height:900px;background:linear-gradient(0deg,rgba(42,33,28,.96) 45%,rgba(42,33,28,0))"></div>
 <div id="title" style="position:absolute;left:64px;right:64px;top:170px;color:#fff">
-  <div class="saira" style="font-weight:800;font-size:52px;color:#ff9a72">{JOURS[dt.weekday()].upper()} {dt.day} {MOIS[dt.month - 1].upper()}</div>
+  <div class="saira" style="font-weight:800;font-size:52px;color:#ffb08f">{JOURS[dt.weekday()].upper()} {dt.day} {MOIS[dt.month - 1].upper()}</div>
   <div class="saira" style="font-weight:800;font-size:{ns}px;line-height:.92;margin-top:6px;text-shadow:0 4px 18px rgba(0,0,0,.4)">{esc(nm)}</div>
-  <div style="font-size:36px;font-weight:600;margin-top:12px;opacity:.9">📍 {esc(r['commune'])} · <span class="chip" style="background:{col};font-size:28px">{TYPE_LAB.get(r['_type'], 'Course')}</span></div></div>
+  <div style="font-size:36px;font-weight:600;margin-top:12px;opacity:.95">{esc(r['commune'])} · <span class="chip" style="background:{col};font-size:28px">{TYPE_LAB.get(r['_type'], 'Course')}</span></div></div>
 <div id="panel" style="position:absolute;left:64px;right:170px;top:1180px;color:#fff">
   <div style="display:flex;gap:44px;align-items:flex-end">
     <div><div class="saira" style="font-weight:800;font-size:110px;line-height:.9"><span id="km">0</span><span style="font-size:52px"> km</span></div><div style="font-size:26px;opacity:.75;font-weight:600">DISTANCE</div></div>
@@ -115,13 +115,13 @@ def html_reel(r, tr, bg, ref):
     <line x1="0" y1="{PH}" x2="{PW}" y2="{PH}" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
     <text x="0" y="{PH + 36}" fill="#fff" fill-opacity=".7" font-size="24" font-family="Inst">{int(emin)} m</text>
     <text x="{PW}" y="{PH + 36}" fill="#fff" fill-opacity=".7" font-size="24" font-family="Inst" text-anchor="end">alt. max {int(emax)} m</text></svg></div>
-<div id="end" style="position:absolute;inset:0;background:rgba(15,31,29,.92);color:#fff;opacity:0">
-  <div style="position:absolute;left:64px;right:64px;top:330px;text-align:center">
-    <div style="font-size:150px;line-height:1">⌚</div>
-    <div class="saira" style="font-weight:800;font-size:104px;line-height:.92;margin-top:30px">LE TRACÉ GPX<br><span style="color:{C['mint']}">POUR TA MONTRE</span></div>
-    <div style="font-size:40px;font-weight:500;color:#cfe1e4;margin-top:34px;line-height:1.3">Parcours, profil, infos<br>et inscription sur le site</div>
-    <div class="saira" style="display:inline-block;font-weight:800;font-size:84px;color:{C['accent']};background:#f8faf7;border-radius:26px;padding:16px 44px;margin-top:56px">dossardpei.re</div>
-    {f'<div style="font-size:38px;font-weight:700;color:#ff9a72;margin-top:40px">⏳ {esc(st)}</div>' if st else ''}
+<div id="end" style="position:absolute;inset:0;opacity:0;background:{C['bg']}">
+  {scene(FMTS['tiktok'], .62)}
+  <div style="position:absolute;left:64px;right:64px;top:330px;text-align:center;color:{C['fg']}">
+    <div class="saira" style="font-weight:800;font-size:110px;line-height:.92">LE TRACÉ GPX<br><span style="color:{C['accent']}">POUR TA MONTRE</span></div>
+    <div style="font-size:42px;font-weight:600;margin-top:34px;line-height:1.3">Parcours, profil, infos<br>et inscription sur le site</div>
+    <div class="saira" style="display:inline-block;font-weight:800;font-size:84px;color:#fff;background:{C['fg']};border-radius:999px;padding:16px 56px;margin-top:56px;box-shadow:0 18px 40px rgba(42,33,28,.25)">dossardpei.re</div>
+    {f'<div style="display:inline-block;font-size:38px;font-weight:700;color:#fff;background:{C["hot"]};border-radius:999px;padding:10px 30px;margin-top:40px">{esc(st)}</div>' if st else ''}
   </div></div>
 <script>
 const T=document.getElementById('trk'),Hh=document.getElementById('halo'),dot=document.getElementById('dot');

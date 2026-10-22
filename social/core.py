@@ -6,8 +6,10 @@ SOC = pathlib.Path(__file__).resolve().parent               # social/
 FONTS = SOC / 'fonts'
 
 # ---------------------------------------------------------------- colours / formats
-C = dict(bg='#eef2ee', surface='#f8faf7', fg='#1d2523', muted='#5b6763', line='#d3dbd5',
-         accent='#0d6b67', soft='#d6ebe7', hot='#d2481e', sea='#cfe1e4', red='#c62828', dark='#14302d', mint='#5cc4bc')
+# palette of the site (cream page, sky hero, warm dark text, teal buttons, orange alerts)
+C = dict(bg='#f5efe6', surface='#fffaf3', fg='#2a211c', muted='#6e645c', line='#e4d9ca',
+         accent='#0d6b67', soft='#d6ebe7', hot='#d2481e', sea='#cfe6f3', red='#c62828', dark='#2a211c', mint='#0d6b67',
+         sky1='#5fb0e6', sky2='#bfe0f3')
 TYPE_COL = {'trail': '#0d6b67', 'route': '#3f5fa8', 'marche': '#7b7f5a', 'cross': '#8a4f9e', 'autre': '#9a6400',
             'jeunes': '#b0567a', 'multisport': '#c0392b', 'relais': '#b07a1a'}
 TYPE_LAB = {'trail': 'Trail', 'route': 'Route', 'marche': 'Rando', 'cross': 'Cross', 'autre': 'Autre',
@@ -242,6 +244,20 @@ body{{font-family:'Inst',sans-serif;color:{C['fg']};background:{C['bg']};positio
 """
 
 
+def scene(P, horizon=.62, fade=True):
+    """Site-like background: sky gradient, blue mountains, green hills, cream page below."""
+    W, H = P['W'], P['H']; y = H * horizon
+    return f'''<svg style="position:absolute;left:0;top:0" width="{W}" height="{H}" viewBox="0 0 {W} {H}" preserveAspectRatio="none">
+      <defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{C['sky1']}"/><stop offset="{horizon:.2f}" stop-color="{C['sky2']}"/></linearGradient>
+      <linearGradient id="fd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{C['bg']}" stop-opacity="0"/><stop offset="1" stop-color="{C['bg']}"/></linearGradient></defs>
+      <rect width="{W}" height="{H}" fill="url(#sk)"/>
+      <ellipse cx="{W * .72:.0f}" cy="{H * .12:.0f}" rx="{W * .26:.0f}" ry="{H * .045:.0f}" fill="#fff" opacity=".35"/>
+      <path d="M0 {y - H * .10:.0f} L{W * .22:.0f} {y - H * .17:.0f} L{W * .45:.0f} {y - H * .09:.0f} L{W * .7:.0f} {y - H * .2:.0f} L{W} {y - H * .12:.0f} L{W} {H} L0 {H}Z" fill="#a9c2d3"/>
+      <path d="M0 {y - H * .02:.0f} L{W * .3:.0f} {y - H * .1:.0f} L{W * .62:.0f} {y - H * .03:.0f} L{W} {y - H * .08:.0f} L{W} {H} L0 {H}Z" fill="#8eaabb"/>
+      <path d="M0 {y + H * .05:.0f} Q{W * .35:.0f} {y - H * .02:.0f} {W * .7:.0f} {y + H * .03:.0f} T{W} {y + H * .02:.0f} L{W} {H} L0 {H}Z" fill="#9dbf93"/>
+      {f'<rect y="{y:.0f}" width="{W}" height="{H - y:.0f}" fill="url(#fd)"/>' if fade else ''}</svg>'''
+
+
 def page(body, P, extra=''):
     return f'<!doctype html><html><head><meta charset="utf-8"><style>{css()}html,body{{height:{P["H"]}px}}{extra}</style></head><body>{body}</body></html>'
 
@@ -264,20 +280,19 @@ def crop_img(path, x0, y0, x1, y1, w, dpr=3, radius=26, extra=''):
 
 
 def cta_slide(i, n, P, title_html, sub, save_line):
-    ghost = island_svg(1300, contours=True)
     body = f'''
-    <div style="position:absolute;inset:0;background:{C['dark']}"></div>
-    <div style="position:absolute;left:-110px;top:{P['T'] + 430}px;opacity:.10">{ghost}</div>
-    {head(i, n, P, dark=True)}
-    <div style="position:absolute;left:64px;right:64px;top:{P['T'] + 170}px;color:#fff">
+    {scene(P, .7)}
+    {head(i, n, P)}
+    <div style="position:absolute;left:64px;right:64px;top:{P['T'] + 150}px;color:{C['fg']}">
       <div class="saira" style="font-weight:800;font-size:116px;line-height:.92">{title_html}</div>
-      <div style="font-size:40px;font-weight:500;color:#cfe1e4;margin-top:36px;line-height:1.3">{sub}</div>
+      <div style="font-size:40px;font-weight:600;margin-top:30px;line-height:1.3">{sub}</div>
     </div>
-    <div style="position:absolute;left:64px;right:{P['R']}px;bottom:{P['B'] + 130}px;background:#f8faf7;border-radius:28px;padding:28px 36px;display:flex;justify-content:space-between;align-items:center">
-      <div class="saira" style="font-weight:800;font-size:84px;line-height:1;color:{C['accent']}">dossardpei.re</div>
-      <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="{C['hot']}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
-    <div style="position:absolute;left:64px;right:{P['R']}px;bottom:{P['B']}px;color:#fff;display:flex;align-items:center;gap:16px;font-size:36px;font-weight:700">
-      <svg width="40" height="40" viewBox="0 0 24 24" fill="{C['mint']}"><path d="M6 2h12a1 1 0 0 1 1 1v19l-7-5-7 5V3a1 1 0 0 1 1-1z"/></svg>{save_line}</div>'''
+    <div style="position:absolute;left:64px;right:{P['R']}px;bottom:{P['B'] + 120}px;background:{C['fg']};border-radius:999px;padding:24px 26px 24px 44px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 18px 40px rgba(42,33,28,.25)">
+      <div class="saira" style="font-weight:800;font-size:80px;line-height:1;color:#fff">dossardpei.re</div>
+      <span style="width:84px;height:84px;border-radius:50%;background:{C['hot']};display:grid;place-items:center">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
+    <div style="position:absolute;left:64px;right:{P['R']}px;bottom:{P['B']}px;color:{C['fg']};display:flex;align-items:center;gap:16px;font-size:36px;font-weight:700">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="{C['accent']}"><path d="M6 2h12a1 1 0 0 1 1 1v19l-7-5-7 5V3a1 1 0 0 1 1-1z"/></svg>{save_line}</div>'''
     return page(body, P)
 
 
