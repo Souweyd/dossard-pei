@@ -37,7 +37,8 @@ def plain(s):
 # when the adapter could not read the page, the race stays "non vérifiable"; the generic text scan
 # below is not used on them (their menus list other events "Inscription terminée": false alerts)
 ADAPTED = re.compile(r"(?i)//(?:www\.)?(?:utoi\.re|utoi-inscriptions\.com|sportpro\.re|chronometrage\.com|"
-                     r"[^/]*topchrono[^/]*|webservices\.re|sportinnovation\.fr|klikego\.com)/")
+                     r"[^/]*topchrono[^/]*|webservices\.re|sportinnovation\.fr|klikego\.com|in\.njuko\.com|"
+                     r"foulee-solidaire-polio\.netlify\.app)/")
 
 
 def main_text(page):

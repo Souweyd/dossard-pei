@@ -397,8 +397,64 @@ def ad_klikego(page):
     return []
 
 
+def ad_njuko(u):
+    """njuko registration pages are built in JavaScript; the page itself reads the public JSON of the
+    edition (front-api.njuko.com, no login), which gives per competition the registration window,
+    the price tiers and whether they are sold out. Takes the URL, not the page."""
+    slug = re.sub(r"[?#].*", "", u).rstrip("/").rsplit("/", 1)[-1]
+    req = urllib.request.Request(f"https://front-api.njuko.com/edition/url/{slug}", headers={**UA, "Accept": "application/json"})
+    d = json.load(urllib.request.urlopen(req, timeout=30))
+    now = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M")
+    out = []
+    for c in d.get("competitions") or []:
+        if c.get("hideOnFront"):
+            continue
+        nm = c.get("name")
+        nom = next((x.get("translation") for x in nm if x.get("language") == "fr"), None) if isinstance(nm, list) else nm
+        nom = nom or c.get("reportName") or ""
+        deb, fin = (c.get("startDateRegistrations") or "")[:16], (c.get("endDateRegistrations") or "")[:16]
+        prices = [x for x in c.get("prices") or [] if x.get("enabled") and (not x.get("end") or x["end"][:16] > now)]
+        sold = bool(prices) and all(x.get("soldOutAt") or (x.get("participantLimit") and (x.get("reservedCount") or 0) >= x["participantLimit"]) for x in prices)
+        if d.get("status") != "OPEN" or (fin and fin < now):
+            etat = "clos"
+        elif deb and deb > now:
+            continue                       # not open yet: not decided here (stays "non vérifiable")
+        elif sold:
+            etat = "complet"
+        elif prices:
+            etat = "ouvert"
+        else:
+            continue
+        out.append({"nom": nom.strip(), "km": None, "etat": etat})
+    return out
+
+
+ad_njuko.by_url = True
+
+
+def ad_supabase_counter(u):
+    """small registration sites made with Supabase (Foulées Solidaires de l'Entre-Deux): the page shows
+    "N inscrits sur Q" by calling the public function etat_public with the site's publishable key
+    (public by design, written in the page). Same reading as a visitor; anything unexpected -> []"""
+    page = fetch(u)
+    base = next((b for b in re.findall(r"https://[a-z0-9]{12,}\.supabase\.co", page)), None)
+    key = (re.findall(r"sb_publishable_[A-Za-z0-9_-]+", page) or re.findall(r"eyJ[\w-]+\.[\w-]+\.[\w-]+", page) or [None])[0]
+    if not base or not key:
+        return []
+    req = urllib.request.Request(f"{base}/rest/v1/rpc/etat_public", data=b"{}", method="POST",
+                                 headers={"apikey": key, "Authorization": f"Bearer {key}", "Content-Type": "application/json", **UA})
+    d = json.load(urllib.request.urlopen(req, timeout=30))
+    d = d[0] if isinstance(d, list) and d else d
+    if not isinstance(d, dict) or not isinstance(d.get("quota"), int) or not isinstance(d.get("inscrits"), int):
+        return []
+    return [{"nom": "", "km": None, "etat": "complet" if d["inscrits"] >= d["quota"] > 0 else "ouvert"}]
+
+
+ad_supabase_counter.by_url = True
+
 ADAPTERS = [(r"topchrono\.run/evenements/", ad_topchrono), (r"utoi\.re/produit/", ad_utoire),
-            (r"sportinnovation\.fr/Evenements/Inscriptions/", ad_sportinnovation), (r"klikego\.com/inscription/", ad_klikego)]
+            (r"sportinnovation\.fr/Evenements/Inscriptions/", ad_sportinnovation), (r"klikego\.com/inscription/", ad_klikego),
+            (r"in\.njuko\.com/[^/?#]+", ad_njuko), (r"foulee-solidaire-polio\.netlify\.app", ad_supabase_counter)]
 
 
 def can_status(r):
@@ -447,7 +503,7 @@ for r in data["races"]:
     for i, u in jobs:
         fn = next(f for p, f in ADAPTERS if re.search(p, u))
         try:
-            theirs = fn(fetch(u))
+            theirs = fn(u) if getattr(fn, "by_url", False) else fn(fetch(u))
         except Exception as e:
             plat_err = f"{e.__class__.__name__}: {str(e)[:150]}"; errors.append(f"plateforme {r['id']} ({e.__class__.__name__})"); ok = False
             continue

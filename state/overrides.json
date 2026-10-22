@@ -33,6 +33,13 @@
     "page"
    ],
    "hidden": false
+  },
+  "swimrun-reunion-2026-11": {
+   "fields": [
+    "epreuves",
+    "fiche"
+   ],
+   "hidden": false
   }
  },
  "manual": []
