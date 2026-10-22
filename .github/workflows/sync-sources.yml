@@ -1,7 +1,8 @@
 name: Synchro horaire des sources
 # Every hour (free): removes past races and refreshes deadlines / "complet" / times from the
 # UTOI and Top Chrono APIs (tools/sync_sources.py), then regenerates the course pages.
-# New races, posters and tracks are added by the Claude update (3 times a day).
+# Missing posters are taken from WeRun (tools/posters.py); new races and tracks are added by the
+# Claude update (3 times a day).
 on:
   schedule:
     - cron: "17 * * * *"
@@ -27,10 +28,13 @@ jobs:
         with: { python-version: "3.12" }
       - name: Synchro des sources
         run: python tools/sync_sources.py $([ "$GITHUB_EVENT_NAME" = push ] && echo --all)
+      - name: Affiches manquantes (WeRun)
+        run: |
+          pip install -q pillow
+          python tools/posters.py
       - name: Pages des courses
         run: |
           # always: a course page also changes when a deadline passes without any data change
-          pip install -q pillow
           python tools/gen_pages.py
       - name: Alarme sources
         continue-on-error: true
@@ -45,7 +49,7 @@ jobs:
       - name: Commit
         run: |
           git config user.name "Dossard Pei"; git config user.email "noreply@dossardpei.re"
-          git add -A data.json course og sitemap.xml tools/first_seen.json state/health.json state/journal.json state/nouveautes.json verif.json
+          git add -A data.json posters state/posters.json course og sitemap.xml tools/first_seen.json state/health.json state/journal.json state/nouveautes.json verif.json
           if git diff --cached --quiet; then echo "rien à publier"; exit 0; fi
           git commit -m "Synchro sources [pages]"
           git pull --rebase origin main || { git rebase --abort; echo "conflit avec une autre mise à jour : on réessaiera dans une heure"; exit 0; }
