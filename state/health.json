@@ -17,7 +17,7 @@
   "alerte": 5,
   "depuis": "2026-10-22T11:35+04:00",
   "echecs": 3,
-  "erreur": "HTTPError: HTTP Error 503: Service Unavailable",
+  "erreur": "HTTPError: HTTP Error 502: Bad Gateway",
   "etat": "ko",
   "ref": {
    "associees": 60,
