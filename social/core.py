@@ -106,7 +106,7 @@ def fmt_km(k):
 def status(r, ref):
     """(code, label) of registrations at date ref: complet / clos / bientot / clotJ / ouvert."""
     eps = r.get('epreuves', [])
-    if r.get('complet') or (eps and all(e.get('complet') for e in eps)):
+    if r.get('complet') or r.get('clos') or (eps and all(e.get('complet') or e.get('clos') for e in eps)):
         return 'complet', 'COMPLET'
     if r.get('ouverture'):
         o = d(r['ouverture'])
@@ -116,7 +116,7 @@ def status(r, ref):
     if lim:
         L = d(lim)
         if L < ref:
-            return 'clos', 'Inscriptions en ligne closes'
+            return 'complet', 'COMPLET'      # closed registrations are shown as « complet » on the visuals
         n = (L - ref).days
         if n == 0:
             return 'clot', "Clôture aujourd'hui"

@@ -48,52 +48,80 @@ TAGS = ['#trailreunion', '#run974', '#lareunion', '#974', '#courseapied']
 
 
 # ------------------------------------------------------------------ shared slide parts
-def row(r, ref, num=None):
+def row(r, ref, num=None, f=1.0):
+    """One race line; f scales it down for long lists."""
     col = TYPE_COL.get(r['_type'], C['muted'])
     code, lab = status(r, ref)
     badge = ''
     if code == 'complet':
-        badge = f'<span class="saira" style="font-weight:800;font-size:22px;color:#fff;background:{C["red"]};border-radius:7px;padding:1px 9px;margin-left:10px">COMPLET</span>'
+        badge = f'<span class="saira" style="font-weight:800;font-size:{22 * f:.0f}px;color:#fff;background:{C["red"]};border-radius:7px;padding:1px 9px;margin-left:10px">COMPLET</span>'
     elif code == 'clot':
-        badge = f'<span style="font-weight:700;font-size:20px;color:#fff;background:{C["hot"]};border-radius:7px;padding:2px 9px;margin-left:10px">{lab}</span>'
-    left = (f'<span class="saira" style="flex:none;width:56px;height:56px;border-radius:50%;background:{col};color:#fff;display:grid;place-items:center;font-weight:800;font-size:34px">{num}</span>'
+        badge = f'<span style="font-weight:700;font-size:{20 * f:.0f}px;color:#fff;background:{C["hot"]};border-radius:7px;padding:2px 9px;margin-left:10px">{lab}</span>'
+    numb = (f'<span class="saira" style="flex:none;width:{56 * f:.0f}px;height:{56 * f:.0f}px;border-radius:50%;background:{C["red"] if code == "complet" else col};color:#fff;display:grid;place-items:center;font-weight:800;font-size:{34 * f:.0f}px">{num}</span>'
             if num is not None else '')
     dt = r['_d']
-    return f'''<div style="display:flex;gap:18px;align-items:center;background:#fff;border-radius:18px;padding:14px 18px;border-left:8px solid {col}">
-      {left}<div style="flex:none;width:84px;text-align:center;line-height:1">
-        <div style="font-size:20px;font-weight:700;color:{C['muted']};text-transform:uppercase">{JOURS_C[dt.weekday()]}</div>
-        <div class="saira" style="font-size:46px;font-weight:800">{dt.day}</div>
-        <div style="font-size:18px;font-weight:600;color:{C['muted']}">{MOIS_C[dt.month - 1]}</div></div>
-      <div style="min-width:0;flex:1"><div class="saira" style="font-weight:700;font-size:36px;line-height:1.02;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{esc(r['nom'])}</div>
-        <div style="font-size:24px;font-weight:600;color:{C['muted']};margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{esc(r['commune'])}{' · ' + esc(dist_label(r)) if dist_label(r) else ''}{badge}</div></div></div>'''
+    dl = dist_label(r)
+    return f'''<div style="display:flex;gap:{16 * f:.0f}px;align-items:center;background:#fff;border-radius:{18 * f:.0f}px;padding:{12 * f:.0f}px {16 * f:.0f}px;border-left:{8 * f:.0f}px solid {col};min-width:0">
+      {numb}<div style="flex:none;width:{80 * f:.0f}px;text-align:center;line-height:1">
+        <div style="font-size:{20 * f:.0f}px;font-weight:700;color:{C['muted']};text-transform:uppercase">{JOURS_C[dt.weekday()]}</div>
+        <div class="saira" style="font-size:{44 * f:.0f}px;font-weight:800">{dt.day}</div>
+        <div style="font-size:{18 * f:.0f}px;font-weight:600;color:{C['muted']}">{MOIS_C[dt.month - 1]}</div></div>
+      <div style="min-width:0;flex:1"><div class="saira" style="font-weight:700;font-size:{36 * f:.0f}px;line-height:1.02;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{esc(r['nom'])}</div>
+        <div style="font-size:{24 * f:.0f}px;font-weight:600;color:{C['muted']};margin-top:{6 * f:.0f}px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{esc(r['commune'])}{' · ' + esc(dl) if dl else ''}{badge}</div></div></div>'''
 
 
 ROW_H = 118
 
 
-def list_slides(title_fn, races, ref, P, start_i, n_total, numbers=False, kicker=''):
-    """Paginated list of races. Returns list of html pages."""
-    top = P['T'] + 300
-    per = max(3, int((P['H'] - P['B'] - top) // (ROW_H + 14)))
-    npg = max(1, math.ceil(len(races) / per)); per = math.ceil(len(races) / npg)
-    pages = []
-    for k in range(0, len(races), per):
-        chunk = races[k:k + per]
-        rows = ''.join(row(r, ref, (k + j + 1) if numbers else None) for j, r in enumerate(chunk))
-        i = start_i + len(pages)
-        pages.append(page(f'''
-        {head(i, n_total, P)}
-        <div style="position:absolute;left:64px;right:64px;top:{P['T'] + 112}px">
-          <div class="saira" style="font-weight:700;font-size:40px;color:{C['hot']}">{kicker}</div>
-          <div class="saira" style="font-weight:800;font-size:84px;line-height:.92;margin-top:4px">{title_fn(k // per)}</div></div>
-        <div style="position:absolute;left:64px;right:{P['R']}px;top:{top}px;display:flex;flex-direction:column;gap:14px">{rows}</div>''', P))
-    return pages
+def row_small(r, ref, num=None, h=64):
+    """Two-column line: date pill + name + commune, sized to the available height h."""
+    col = TYPE_COL.get(r['_type'], C['muted'])
+    code, lab = status(r, ref)
+    dt = r['_d']
+    k = h / 64
+    badge = (f'<span class="saira" style="font-weight:800;font-size:{15 * k:.0f}px;color:#fff;background:{C["red"]};border-radius:5px;padding:0 6px;margin-left:6px">COMPLET</span>' if code == 'complet'
+             else (f'<span style="font-weight:700;font-size:{14 * k:.0f}px;color:#fff;background:{C["hot"]};border-radius:5px;padding:1px 6px;margin-left:6px">{lab.replace("Clôture ", "Clôt. ")}</span>' if code == 'clot' else ''))
+    nb = f'<b style="color:{col}">{num}.</b> ' if num is not None else ''
+    return f'''<div style="height:{h:.0f}px;display:flex;gap:{10 * k:.0f}px;align-items:center;background:#fff;border-radius:{12 * k:.0f}px;padding:0 {10 * k:.0f}px;border-left:{6 * k:.0f}px solid {col};min-width:0">
+      <div style="flex:none;width:{50 * k:.0f}px;text-align:center;line-height:1"><div style="font-size:{13 * k:.0f}px;font-weight:700;color:{C['muted']};text-transform:uppercase">{JOURS_C[dt.weekday()]}</div>
+        <div class="saira" style="font-size:{30 * k:.0f}px;font-weight:800">{dt.day}</div></div>
+      <div style="min-width:0;flex:1"><div class="saira" style="font-weight:700;font-size:{25 * k:.0f}px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{nb}{esc(r['nom'])}</div>
+        <div style="font-size:{17 * k:.0f}px;font-weight:600;color:{C['muted']};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{esc(r['commune'])}{badge}</div></div></div>'''
 
 
-def n_list_pages(n, P):
+def list_page(i, n, P, kicker, title, races, ref, numbers=False):
+    """ALL the races on one slide: full rows, smaller rows, or two columns of small rows."""
     top = P['T'] + 300
-    per = max(3, int((P['H'] - P['B'] - top) // (ROW_H + 14)))
-    return max(1, math.ceil(n / per))
+    avail = P['H'] - P['B'] - top
+    nr = len(races)
+    cols = 1
+    f = min(1.3, (avail / max(1, nr) - 12) / ROW_H)
+    if f < .62:                                    # too small in one column: two columns
+        cols = 2
+        f = min(.78, (avail / math.ceil(nr / 2) - 10) / ROW_H)
+    gap = max(6, int(14 * f))
+    if cols == 2:
+        half = math.ceil(nr / 2)
+        h = min(84, (avail - 8 * (half - 1)) / half)
+        gap = 8
+        rows = ''.join(row_small(r, ref, (k + 1) if numbers else None, h) for k, r in enumerate(races))
+    else:
+        rows = ''.join(row(r, ref, (k + 1) if numbers else None, f) for k, r in enumerate(races))
+    grid = (f'display:grid;grid-template-columns:1fr 1fr;grid-auto-flow:column;grid-template-rows:repeat({math.ceil(nr / 2)},auto);gap:{gap}px 14px'
+            if cols == 2 else f'display:flex;flex-direction:column;gap:{gap}px')
+    return page(f'''
+    {head(i, n, P)}
+    <div style="position:absolute;left:64px;right:64px;top:{P['T'] + 112}px">
+      <div class="saira" style="font-weight:700;font-size:40px;color:{C['hot']}">{kicker}</div>
+      <div class="saira" style="font-weight:800;font-size:84px;line-height:.92;margin-top:4px">{title}</div></div>
+    <div style="position:absolute;left:{64 if cols == 1 else 48}px;right:{P['R'] if cols == 1 else max(48, P['R'])}px;top:{top}px;{grid}">{rows}</div>''', P)
+
+
+def swipe(P, txt):
+    return (f'''<div style="position:absolute;right:{P['R']}px;bottom:{P['B']}px;display:flex;align-items:center;gap:14px;background:{C['fg']};color:#fff;border-radius:40px;padding:14px 18px 14px 30px">
+      <span class="saira" style="font-weight:700;font-size:40px">{txt}</span>
+      <span style="width:58px;height:58px;border-radius:50%;background:{C['hot']};display:grid;place-items:center">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>''')
 
 
 def how(i, n, P, feature, title, steps, shot):
@@ -210,36 +238,24 @@ def race_slide(i, n, P, r, ref):
     return page(body, P)
 
 
-def cover_map(i, n, P, kicker, big, sub, races, ref, highlight=None, relief=False):
+def cover_map(i, n, P, kicker, big, sub, races, ref, highlight=None, relief=False, swipe_txt=None):
     vb = region_vb(highlight, races) if highlight else None
     pins = [dict(ll=r['ll'], color=C['red'] if status(r, ref)[0] == 'complet' else TYPE_COL.get(r['_type'], C['muted']), n=k, r=40)
             for k, r in enumerate(races, 1)]
-    tt = P['R'] > 64
-    lst_items = races[:8]
-    lst = ''.join(f'''<div style="display:flex;gap:14px;align-items:flex-start">
-        <span class="saira" style="flex:none;width:48px;height:48px;border-radius:50%;background:{C['red'] if status(r, ref)[0] == 'complet' else TYPE_COL.get(r['_type'], C['muted'])};color:#fff;display:grid;place-items:center;font-weight:800;font-size:30px">{k}</span>
-        <div style="min-width:0"><div class="saira" style="font-weight:700;font-size:{34 if len(races) <= 5 else 30}px;line-height:1">{esc(r['nom'])}</div>
-        <div style="font-size:22px;font-weight:600;color:{C['muted']};margin-top:5px">{JOURS_C[r['_d'].weekday()].capitalize()} {r['_d'].day} · {esc(r['commune'])}
-        {'<span class="saira" style="font-weight:800;font-size:20px;color:#fff;background:' + C['red'] + ';border-radius:6px;padding:0 8px;margin-left:4px">COMPLET</span>' if status(r, ref)[0] == 'complet' else ''}</div></div></div>'''
-                  for k, r in enumerate(lst_items, 1))
-    more = f'<div style="font-size:26px;font-weight:700;color:{C["accent"]}">+ {len(races) - 8} autre{"s" if len(races) > 9 else ""} sur le site</div>' if len(races) > 8 else ''
-    ylist = P['T'] + 480
-    if not tt:
-        mapw = 640
-        visual = f'''<div style="position:absolute;left:24px;top:{ylist}px;{MASK if vb else ''}">{island_svg(mapw, pins, highlight=highlight, relief=relief, contours=not relief, vb=vb)}</div>
-        <div style="position:absolute;left:{mapw + 14}px;right:52px;top:{ylist + 10}px;display:flex;flex-direction:column;gap:{24 if len(races) <= 5 else 16}px">{lst}{more}</div>'''
-    else:
-        ratio = (vb[3] / vb[2]) if vb else (MAP()['H'] + 40) / (MAP()['W'] + 80)
-        mapw = int(min(P['W'] - 64 - P['R'] + 60, (P['H'] - P['B'] - ylist) / ratio))
-        visual = f'''<div style="position:absolute;left:{(P['W'] - P['R'] + 64 - mapw) // 2}px;top:{ylist}px;{MASK if vb else ''}">{island_svg(mapw, pins, highlight=highlight, relief=relief, contours=not relief, vb=vb)}</div>'''
+    ytop = P['T'] + 470
+    ybot = P['H'] - P['B'] - 100
+    ratio = (vb[3] / vb[2]) if vb else (MAP()['H'] + 40) / (MAP()['W'] + 80)
+    mapw = int(min(P['W'] - 40, (ybot - ytop) / ratio))
+    x = (P['W'] - mapw) // 2
     body = f'''
-    <div style="position:absolute;inset:0;background:radial-gradient(circle at 60% 45%, {C['sea']} 0%, {C['bg']} 62%)"></div>
+    <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 60%, {C['sea']} 0%, {C['bg']} 62%)"></div>
     {head(i, n, P)}
     <div style="position:absolute;left:64px;right:64px;top:{P['T'] + 110}px">
       <div class="saira" style="font-weight:700;font-size:40px;color:{C['hot']}">{kicker}</div>
       <div class="saira" style="font-weight:800;font-size:{150 if len(big) < 14 else 112}px;line-height:.86;letter-spacing:-1px">{big}</div>
-      <div style="font-size:34px;font-weight:600;color:{C['muted']};margin-top:12px">{sub}</div></div>
-    {visual}'''
+      <div style="font-size:36px;font-weight:600;color:{C['muted']};margin-top:12px">{sub}</div></div>
+    <div style="position:absolute;left:{x}px;top:{ytop}px;{MASK if vb else ''}">{island_svg(mapw, pins, highlight=highlight, relief=relief, contours=not relief, vb=vb)}</div>
+    {swipe(P, swipe_txt or f"Les {len(races)} courses")}'''
     return page(body, P)
 
 
@@ -257,9 +273,11 @@ def build_lundi(ref, data, races):
     shot_p, info = capture.run(capture.cal_weekend(TMP / 'cal_we.png', sat.isoformat()))
     pages = {}
     for fmt, P in FMTS.items():
-        n = 1 + len(shown) + (1 if shot_p else 0) + 1
-        sl = [cover_map(1, n, P, lab, 'CE WEEK-END', f"{len(rs)} course{'s' if len(rs) > 1 else ''} à La Réunion", rs, ref, relief=True)]
-        sl += [race_slide(k, n, P, r, ref) for k, r in enumerate(shown, 2)]
+        n = 2 + len(shown) + (1 if shot_p else 0) + 1
+        sl = [cover_map(1, n, P, lab, 'CE WEEK-END', f"{len(rs)} course{'s' if len(rs) > 1 else ''} à La Réunion", rs, ref, relief=True,
+                        swipe_txt=f"Les {len(rs)} courses" if len(rs) > 1 else 'La course')]
+        sl.append(list_page(2, n, P, lab, 'CE WEEK-END', rs, ref, numbers=True))
+        sl += [race_slide(k, n, P, r, ref) for k, r in enumerate(shown, 3)]
         if shot_p:
             def shot(mw, mh, info=info):
                 g = info['grid']
@@ -293,12 +311,11 @@ def build_mardi(ref, data, races):
             th, sel = t, s; break
     if not th:
         return None
-    sel = sel[:16]
+    sel = sel[:30]
     shot_p, info = capture.run(capture.filters(TMP / 'filters.png', th['filt']))
     pages = {}
     for fmt, P in FMTS.items():
-        nl = n_list_pages(len(sel), P)
-        n = 1 + nl + (1 if shot_p else 0) + 1
+        n = 2 + (1 if shot_p else 0) + 1
         cover = page(f'''
         <div style="position:absolute;inset:0;background:radial-gradient(circle at 75% 75%, {C['sea']} 0%, {C['bg']} 60%)"></div>
         <div style="position:absolute;right:-60px;bottom:{P['B'] - 40}px;font-size:520px;line-height:1;opacity:.9">{th['emo']}</div>
@@ -307,8 +324,9 @@ def build_mardi(ref, data, races):
           <div class="saira" style="font-weight:700;font-size:44px;color:{C['hot']}">LE THÈME DE LA SEMAINE</div>
           <div class="saira" style="font-weight:800;font-size:160px;line-height:.86;letter-spacing:-1px;margin-top:10px">{th['title']}</div>
           <div style="font-size:40px;font-weight:600;color:{C['muted']};margin-top:30px;max-width:780px;line-height:1.25">{th['sub']}</div>
-          <div class="saira" style="display:inline-block;font-weight:800;font-size:48px;color:#fff;background:{C['fg']};border-radius:16px;padding:8px 24px;margin-top:40px">{len(sel)} courses d'ici {MOIS[(ref + D.timedelta(days=70)).month - 1]} →</div></div>''', P)
-        sl = [cover] + list_slides(lambda p: th['title'].replace('<br>', ' '), sel, ref, P, 2, n, kicker=th['short'].upper())
+          <div class="saira" style="display:inline-block;font-weight:800;font-size:48px;color:#fff;background:{C['fg']};border-radius:16px;padding:8px 24px;margin-top:40px">{len(sel)} courses ces 10 prochaines semaines</div></div>
+          {swipe(P, 'Voir la liste')}''', P)
+        sl = [cover, list_page(2, n, P, 'CES 10 PROCHAINES SEMAINES', th['title'].replace('<br>', ' '), sel, ref)]
         if shot_p:
             def shot(mw, mh, info=info):
                 b = info['box']
@@ -318,7 +336,7 @@ def build_mardi(ref, data, races):
         sl.append(cta_slide(len(sl) + 1, n, P, 'TA COURSE<br><span style="color:#5cc4bc">EST SUR</span><br><span style="color:#d2481e">DOSSARD PÉI</span>',
                             'Toutes les courses de La Réunion,<br>avec les filtres qui vont bien.', 'Enregistre pour plus tard'))
         pages[fmt] = sl
-    lines = [f"{th['emo']} {th['short']} : {len(sel)} courses à La Réunion d'ici {MOIS[(ref + D.timedelta(days=70)).month - 1]}", '',
+    lines = [f"{th['emo']} {th['short']} : {len(sel)} courses à La Réunion ces 10 prochaines semaines", '',
              th['sub'], '']
     lines += [f"• {fdate(r['_d'], short=True).capitalize()} : {r['nom']} ({r['commune']})" for r in sel[:6]]
     if len(sel) > 6:
@@ -342,16 +360,15 @@ def build_jeudi(ref, data, races):
             break
     else:
         return None
-    sel = sel[:16]
+    sel = sel[:30]
     top_commune = max(communes, key=lambda c: sum(r['commune'] == c for r in sel))
     shot_p, info = capture.run(capture.map_commune(TMP / 'map.png', top_commune))
-    endlab = f"d'ici le {end.day} {MOIS[end.month - 1]}"
+    endlab = f"ces {weeks} prochaines semaines"
     pages = {}
     for fmt, P in FMTS.items():
-        nl = n_list_pages(len(sel), P)
-        n = 1 + nl + (1 if shot_p else 0) + 1
+        n = 2 + (1 if shot_p else 0) + 1
         sl = [cover_map(1, n, P, 'PRÈS DE CHEZ TOI', f'COURIR DANS<br>{name}', f"{len(sel)} courses {endlab}", sel, ref, highlight=communes, relief=True)]
-        sl += list_slides(lambda p: f'{name}', sel, ref, P, 2, n, numbers=True, kicker=endlab.upper())
+        sl.append(list_page(2, n, P, endlab.upper(), name, sel, ref, numbers=True))
         if shot_p:
             def shot(mw, mh, info=info):
                 ile = info['ile']; pop = info['pop']
@@ -412,17 +429,17 @@ def build_mois(ref, data, races):
     used = sorted({r['_type'] for r in sel})
     legend = ''.join(f'<span style="display:inline-flex;align-items:center;gap:8px;font-size:24px;font-weight:600;color:{C["muted"]};margin-right:20px"><span style="width:18px;height:18px;border-radius:50%;background:{TYPE_COL[t]}"></span>{TYPE_LAB[t]}</span>' for t in used)
     for fmt, P in FMTS.items():
-        nl = n_list_pages(len(sel), P)
-        n = 1 + nl + (1 if shot_p else 0) + 1
-        gw = P['W'] - 64 - P['R'] if P['R'] > 64 else 820
+        n = 2 + (1 if shot_p else 0) + 1
+        gw = P['W'] - 64 - P['R'] if P['R'] > 64 else 740
         cover = page(f'''
         {head(1, n, P)}
         <div style="position:absolute;left:64px;right:64px;top:{P['T'] + 100}px">
           <div class="saira" style="font-weight:700;font-size:40px;color:{C['hot']}">LE MOIS EN UN COUP D'ŒIL</div>
           <div class="saira" style="font-weight:800;font-size:150px;line-height:.86;letter-spacing:-1px">{MOIS[m - 1].upper()} {y}</div>
           <div style="font-size:36px;font-weight:600;color:{C['muted']};margin-top:10px">{len(sel)} courses à La Réunion</div></div>
-        <div style="position:absolute;left:64px;top:{P['T'] + 370}px">{month_grid(y, m, sel, gw)}<div style="margin-top:22px">{legend}</div></div>''', P)
-        sl = [cover] + list_slides(lambda p: f'{MOIS[m - 1].upper()}' + (f' ({p + 1}/{nl})' if nl > 1 else ''), sel, ref, P, 2, n, kicker='TOUTES LES COURSES DU MOIS')
+        <div style="position:absolute;left:64px;top:{P['T'] + 370}px">{month_grid(y, m, sel, gw)}<div style="margin-top:22px;max-width:{gw}px">{legend}</div></div>
+        {swipe(P, f'Les {len(sel)} courses')}''', P)
+        sl = [cover, list_page(2, n, P, 'TOUTES LES COURSES DU MOIS', MOIS[m - 1].upper(), sel, ref)]
         if shot_p:
             sl.append(how(len(sl) + 1, n, P, 'CALENDRIER', 'TOUT LE MOIS<br>SUR UN ÉCRAN',
                           ['Touche <b>Calendrier</b>', 'Une pastille = une course', 'Touche un jour pour voir ses courses'],
