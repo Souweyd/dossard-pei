@@ -33,6 +33,19 @@ def plain(s):
     return re.sub(r"\s+", " ", html.unescape(re.sub(r"<script.*?</script>|<style.*?</style>|<[^>]+>", " ", s, flags=re.S)))
 
 
+# platforms read by the sync adapters (tools/sync_sources.py, step 3c and Sportpro / chronometrage):
+# when the adapter could not read the page, the race stays "non vérifiable"; the generic text scan
+# below is not used on them (their menus list other events "Inscription terminée": false alerts)
+ADAPTED = re.compile(r"(?i)//(?:www\.)?(?:utoi\.re|utoi-inscriptions\.com|sportpro\.re|chronometrage\.com|"
+                     r"[^/]*topchrono[^/]*|webservices\.re|sportinnovation\.fr|klikego\.com)/")
+
+
+def main_text(page):
+    """page text without the site navigation (menus, header, footer, sidebars)"""
+    page = re.sub(r"(?is)<(nav|header|footer|aside)\b.*?</\1>", " ", page)
+    return plain(page)
+
+
 def get(url, timeout=25):
     req = urllib.request.Request(url, headers=BROWSER)
     with urllib.request.urlopen(req, timeout=timeout) as r:
@@ -58,7 +71,7 @@ def statut(data, verif_src, today, fetch=get):
             out[r["id"]] = "ok"
             continue
         url = r.get("inscription") or ""
-        if not url.startswith("http"):
+        if not url.startswith("http") or ADAPTED.search(url):
             out[r["id"]] = "nv"
             continue
         try:
@@ -66,7 +79,7 @@ def statut(data, verif_src, today, fetch=get):
         except (urllib.error.URLError, OSError, ValueError):
             out[r["id"]] = "nv"
             continue
-        t = plain(page)
+        t = main_text(page)
         if len(t) < 400:                     # page built in JavaScript: nothing readable
             out[r["id"]] = "nv"
             continue
