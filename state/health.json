@@ -29,7 +29,7 @@
   "alerte": 5,
   "depuis": "2026-10-22T12:00+04:00",
   "echecs": 3,
-  "erreur": "pages effondré (< 50% des 26 habituels)",
+  "erreur": "HTTPError sur https://www.sportpro.re/courses/02181-les-foulees-du-cfg/",
   "etat": "ko",
   "ref": {
    "pages": 26
