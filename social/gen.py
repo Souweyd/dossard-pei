@@ -525,7 +525,19 @@ def plan_week(monday):
 def main():
     kind, day = sys.argv[1], D.date.fromisoformat(sys.argv[2])
     data, races = load()
-    todo = plan_week(day) if kind == 'semaine' else [(kind, day)]
+    if kind == 'jour':                      # the post of the day (Mon/Tue/Thu/Fri); the 1st of the month has its own run
+        k = {0: 'lundi', 1: 'mardi', 3: 'jeudi', 4: 'vendredi'}.get(day.weekday())
+        if day.day == 1 or not k:
+            note = "le 1er du mois, c'est le post du mois (18 h 30)" if day.day == 1 else 'pas de post prévu ce jour-là'
+            report = [{'kind': k or '-', 'date': day.isoformat(), 'ok': False, 'skip': True, 'note': note}]
+            OUT.mkdir(parents=True, exist_ok=True)
+            (OUT / 'rapport.json').write_text(json.dumps(report, ensure_ascii=False, indent=1))
+            print(json.dumps(report, ensure_ascii=False, indent=1)); return
+        todo = [(k, day)]
+    elif kind == 'mois' and day.day != 1:
+        todo = [('mois', day.replace(day=1))]
+    else:
+        todo = plan_week(day) if kind == 'semaine' else [(kind, day)]
     report = []
     for k, dd in todo:
         try:
