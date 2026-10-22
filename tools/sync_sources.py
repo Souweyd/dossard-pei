@@ -674,7 +674,7 @@ try:
     verif, alertes = controls.statut(data, VERIF, TODAY)
     try:
         old_vf = json.load(open("verif.json"))
-        stale = (NOW - dt.datetime.fromisoformat(old_vf["at"])).total_seconds() > 2.8 * 3600
+        stale = (NOW - dt.datetime.fromisoformat(old_vf["at"])).total_seconds() > 1.8 * 3600
     except Exception:
         old_vf, stale = {}, True
     if stale or old_vf.get("races") != verif:   # no commit every hour just for the time stamp
