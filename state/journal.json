@@ -36,5 +36,19 @@
 "id": "odyssea-reunion-2026-11",
 "nom": "Odysséa La Réunion",
 "date": "2026-11-07"
+},
+{
+"at": "2026-10-22T14:00+04:00",
+"t": "réouvert",
+"id": "tour-ile-pedestre-utoi-2026-10",
+"nom": "Tour de l'Île pédestre",
+"date": "2026-10-31"
+},
+{
+"at": "2026-10-22T14:00+04:00",
+"t": "réouvert",
+"id": "tevelave",
+"nom": "Les Foulées du Tévelave",
+"date": "2026-11-07"
 }
 ]
