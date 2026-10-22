@@ -14,8 +14,10 @@
   }
  },
  "sportpro": {
-  "echecs": 0,
-  "etat": "ok",
+  "depuis": "2026-10-22T11:35+04:00",
+  "echecs": 1,
+  "erreur": "HTTPError: HTTP Error 503: Service Unavailable",
+  "etat": "ko",
   "ref": {
    "associees": 60,
    "epreuves": 62,
