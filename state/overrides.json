@@ -22,6 +22,17 @@
     "paiement"
    ],
    "hidden": false
+  },
+  "tropica-dingue-2026-11": {
+   "fields": [
+    "commune",
+    "epreuves",
+    "fiche",
+    "lieu",
+    "ll",
+    "page"
+   ],
+   "hidden": false
   }
  },
  "manual": []
