@@ -29,5 +29,12 @@
 "id": "pompiers-port",
 "nom": "Foulées Sapeurs-Pompiers du Port",
 "date": "2026-10-25"
+},
+{
+"at": "2026-10-22T13:01+04:00",
+"t": "complet",
+"id": "odyssea-reunion-2026-11",
+"nom": "Odysséa La Réunion",
+"date": "2026-11-07"
 }
 ]
