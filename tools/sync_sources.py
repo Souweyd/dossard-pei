@@ -762,7 +762,37 @@ try:
             if f"{y}-{k + 1:02d}-{int(d):02d}" >= TODAY:
                 return True
         return False
-    rep["nouveautes"] = watch.nouveautes(data, FOUND, check={"Chrono Run": _future_race, "Top Chrono": _future_race})
+    if NOW.hour % 3 == 0 or "--all" in sys.argv:
+        try:   # WeRun (directory, discovery only): the events it added most recently, all countries
+            wr = json.loads(fetch("https://werun.world/wp-json/wp/v2/tribe_events?orderby=date&order=desc&per_page=50&_fields=id,link,title"))
+            FOUND["WeRun"] = [(f"werun:{e['id']}", html.unescape(e["title"]["rendered"]), e["link"]) for e in wr if e.get("link")]
+        except Exception:
+            pass
+
+    def _werun_reunion(u):
+        """a WeRun page counts only if its event is in La Réunion, to come, and not already on the site
+        (same day and a shared name word); the Claude update adds it from the organiser's link"""
+        try:
+            pg = fetch(u)
+        except Exception:
+            return False
+        ld = re.search(r'"addressRegion":"([^"]*)"', pg)
+        day = re.search(r'"startDate":"(\d{4}-\d\d-\d\d)', pg)
+        if not ld or "union" not in ld.group(1) or not day or day.group(1) < TODAY:
+            return False
+        title = re.search(r"<title>([^<|]+)", pg)
+        words = {w for w in toks(html.unescape(title.group(1)) if title else "") if len(w) > 3 and not w.isdigit()} - {"trail", "course", "foulee", "reunion"}
+        d0 = dt.date.fromisoformat(day.group(1))
+        for r in data["races"]:
+            try:
+                near = abs((dt.date.fromisoformat(r["date"]) - d0).days) <= 1
+            except Exception:
+                continue
+            if near and (words & toks(r.get("nom", "")) or not words):
+                return False
+        return True
+
+    rep["nouveautes"] = watch.nouveautes(data, FOUND, check={"Chrono Run": _future_race, "Top Chrono": _future_race, "WeRun": _werun_reunion})
     if NOW.hour % 3 == 0 or "--all" in sys.argv:
         rep["annulation"] = watch.annulations(data, TODAY, controls.get)
     evts = watch.diff(prev_data, data, TODAY, NOW)
