@@ -65,6 +65,19 @@ def nouveautes(data, found, state_path="state/nouveautes.json", check=None):
 
 
 # ---------- cancellations ----------
+MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"]
+
+
+def _shown_date(r, txt):
+    """the text gives the (new) date the site already shows for this race"""
+    try:
+        y, mo, d = (int(x) for x in r["date"].split("-"))
+    except Exception:
+        return False
+    low = txt.lower()
+    return MOIS[mo - 1] in low and str(y) in low and re.search(rf"(?<!\d){d}(?:er)?(?!\d)", low) is not None
+
+
 def annulations(data, today, fetch):
     out = []
     for r in data.get("races", []):
@@ -81,6 +94,8 @@ def annulations(data, today, fetch):
                 before = t[max(0, m.start() - 45):m.start()]
                 if HEDGE.search(before + t[m.end():m.end() + 25]):
                     continue
+                if m.group(1).lower().startswith("report") and _shown_date(r, t[m.start():m.end() + 200]):
+                    continue   # postponed to the date already shown on the site: nothing to do
                 ctx = t[max(0, m.start() - 70):m.end() + 50].strip()
                 out.append(f"**{r['nom']}** ({r['date']}) : « {ctx} » — {u}")
                 break
