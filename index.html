@@ -787,6 +787,10 @@ body.mapfull .mapfab { display: none }
 .sst { display: block; margin-top: 4px } .sst:empty { display: none } .sst .state { font-size: .74rem; text-transform: none; letter-spacing: 0; font-weight: 600 }
 @media (max-width: 760px) { .soon { padding: 14px 12px 12px } }
 .soon .snav { box-shadow: inset 0 0 0 1px var(--line); background: var(--surface) } .soon .snav:hover { box-shadow: none }
+
+/* liste : le mois reste affiché en haut pendant le défilement (bandeau couleur du site, fine ligne en dessous) */
+.list > .month { position: sticky; top: calc(60px + env(safe-area-inset-top, 0px)); z-index: 6; margin-left: -6px; margin-right: -6px; padding: 12px 10px 9px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid color-mix(in srgb, var(--fg) 22%, var(--line)) }
 </style>
 
 <div class="wrap">
