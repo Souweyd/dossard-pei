@@ -780,6 +780,13 @@ body.mapfull .mapfab { display: none }
 :root[data-theme="dark"] { --st-full-bg: #4a1f1b; --st-full-fg: #ff9b8f; --st-clos-bg: #332b25; --st-clos-fg: #c9bcb0 }
 .state.full.complet, .rban-r .state.full.complet { background: var(--st-full-bg); color: var(--st-full-fg); border-color: transparent }
 .state.full.clos, .rban-r .state.full.clos { background: var(--st-clos-bg); color: var(--st-clos-fg); border-color: transparent }
+
+/* « Ce week-end et bientôt » : panneau comme « Dernières chances », statut sous chaque affiche */
+.soon { background: var(--surface); border-radius: 18px; padding: 16px 16px 14px; box-shadow: inset 0 0 0 1px var(--line) }
+.soon h2 { font-size: clamp(1.15rem, 2vw, 1.4rem) }
+.sst { display: block; margin-top: 4px } .sst:empty { display: none } .sst .state { font-size: .74rem; text-transform: none; letter-spacing: 0; font-weight: 600 }
+@media (max-width: 760px) { .soon { padding: 14px 12px 12px } }
+.soon .snav { box-shadow: inset 0 0 0 1px var(--line); background: var(--surface) } .soon .snav:hover { box-shadow: none }
 </style>
 
 <div class="wrap">
@@ -1189,7 +1196,7 @@ function scardHTML(r, mode) {
   const meta = mode === "dl" ? d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: d.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined }) + " · " + esc(r.commune) : esc(r.commune) + (r.main && r.main.km ? " · " + fmt(r.main.km) + " km" : "");
   return `<button type="button" class="scard" data-card="${esc(r.id)}" style="--dc:var(${DCOL[r.disc]})" aria-haspopup="dialog">
       <span class="simg${artCls(r)}"><span class="sph">${esc(r.nom)}</span>${r.poster ? `<img src="${esc(thumbOf(r))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}<span class="swhen${mode === "dl" ? " hot" : ""}" title="${esc(d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }))}">${when}</span>${flag}</span>
-      <span class="sname">${esc(r.nom)}</span><span class="smeta">${meta}</span></button>`;
+      <span class="sname">${esc(r.nom)}</span><span class="smeta">${meta}</span>${mode === "dl" ? "" : `<span class="sst">${stateBadge(r)}</span>`}</button>`;
 }
 function renderSoon() {
   const t = todayISO(), rs = RACES.filter(r => !r.hidden && r.date >= t && daysTo(r.date) <= 7).sort(byDate);
