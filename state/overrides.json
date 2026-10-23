@@ -4,16 +4,6 @@
    "fields": [],
    "hidden": true
   },
-  "odyssea-reunion-2026-11": {
-   "fields": [
-    "source",
-    "inscription",
-    "fiche",
-    "fin",
-    "epreuves"
-   ],
-   "hidden": false
-  },
   "foulees-solidaires-entre-deux-2026-11": {
    "fields": [
     "fiche",
