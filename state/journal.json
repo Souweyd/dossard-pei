@@ -64,5 +64,12 @@
 "id": "avirons-urbain",
 "nom": "Trail Urbain des Avirons",
 "date": "2026-10-31"
+},
+{
+"at": "2026-10-23T18:01+04:00",
+"t": "complet",
+"id": "tevelave",
+"nom": "Les Foulées du Tévelave",
+"date": "2026-11-07"
 }
 ]
