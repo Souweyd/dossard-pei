@@ -14,7 +14,6 @@
   }
  },
  "sportpro": {
-  "alerte": 5,
   "echecs": 0,
   "etat": "ok",
   "ref": {
@@ -24,21 +23,15 @@
   }
  },
  "sportpro_pages": {
-  "alerte": 5,
-  "depuis": "2026-10-22T12:00+04:00",
-  "echecs": 3,
-  "erreur": "HTTPError sur https://www.sportpro.re/courses/02181-les-foulees-du-cfg/",
-  "etat": "ko",
+  "echecs": 0,
+  "etat": "ok",
   "ref": {
    "pages": 26
   }
  },
  "sportpro_prix": {
-  "alerte": 5,
-  "depuis": "2026-10-22T12:00+04:00",
-  "echecs": 3,
-  "erreur": "HTTPError sur https://www.sportpro.re/courses/epreuves/07428-2012-2022-course-marmays-trail-charrette/",
-  "etat": "ko",
+  "echecs": 0,
+  "etat": "ok",
   "ref": {
    "prix": 55
   }
