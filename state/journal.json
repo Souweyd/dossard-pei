@@ -57,5 +57,12 @@
 "id": "artichauts",
 "nom": "Course des Artichauts",
 "date": "2026-11-15"
+},
+{
+"at": "2026-10-23T10:01+04:00",
+"t": "complet",
+"id": "avirons-urbain",
+"nom": "Trail Urbain des Avirons",
+"date": "2026-10-31"
 }
 ]
