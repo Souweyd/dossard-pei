@@ -765,6 +765,21 @@ body.mapfull .mapfab { display: none }
 .list .lrow:hover { box-shadow: 0 0 0 1px color-mix(in srgb, var(--fg) 25%, var(--line)), 0 6px 18px rgba(0,0,0,.09) }
 .list .lrow.on { box-shadow: inset 0 0 0 2px var(--hot), 0 6px 18px rgba(0,0,0,.09) }
 @media (max-width: 760px) { .list .lrow { padding: 12px 12px } }
+
+/* ordinateur, grille d'affiches : chaque course dans sa carte */
+@media (min-width: 901px) {
+  .main.nomap .lrow { background: var(--surface); box-shadow: 0 0 0 1px var(--line), 0 1px 3px rgba(0,0,0,.05); border-radius: 20px; padding: 10px 10px 14px; transition: box-shadow .15s }
+  .main.nomap .lrow:hover { box-shadow: 0 0 0 1px color-mix(in srgb, var(--fg) 25%, var(--line)), 0 8px 22px rgba(0,0,0,.10) }
+  .main.nomap .lrow.on { box-shadow: inset 0 0 0 2px var(--hot), 0 8px 22px rgba(0,0,0,.10) } .main.nomap .lrow.on .lthumb { box-shadow: none }
+  .main.nomap .lthumb { border-radius: 12px }
+}
+
+/* pastilles de statut en couleur : vert = ouvert, orange = clôture proche, rouge = complet, gris = clos */
+:root { --st-full-bg: #fde4e1; --st-full-fg: #b42318; --st-clos-bg: #ebe6df; --st-clos-fg: #5f564e }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --st-full-bg: #4a1f1b; --st-full-fg: #ff9b8f; --st-clos-bg: #332b25; --st-clos-fg: #c9bcb0 } }
+:root[data-theme="dark"] { --st-full-bg: #4a1f1b; --st-full-fg: #ff9b8f; --st-clos-bg: #332b25; --st-clos-fg: #c9bcb0 }
+.state.full.complet, .rban-r .state.full.complet { background: var(--st-full-bg); color: var(--st-full-fg); border-color: transparent }
+.state.full.clos, .rban-r .state.full.clos { background: var(--st-clos-bg); color: var(--st-clos-fg); border-color: transparent }
 </style>
 
 <div class="wrap">
@@ -1071,9 +1086,9 @@ function outlookURL(r) {
 }
 function stateBadge(r) {
   if (vstate(r) === "alerte") return `<span class="state chk">À vérifier</span>`;
-  if (r.complet) return `<span class="state full">Complet</span>`;
+  if (r.complet) return `<span class="state full complet">Complet</span>`;
   if (notYet(r)) return `<span class="state ouv">Ouverture ${ouvTxt(r.ouverture)}</span>`;
-  if (!isOpen(r)) return `<span class="state full">Clos</span>`;
+  if (!isOpen(r)) return `<span class="state full clos">Clos</span>`;
   if (r.limite) { const n = daysTo(r.limite); if (n <= 7) return `<span class="state soon">${n <= 0 ? "Clôture aujourd'hui" : "Clôture dans " + n + " j"}</span>`; return `<span class="state">Jusqu'au ${+r.limite.slice(8)}/${r.limite.slice(5, 7)}</span>`; }
   return r.approx ? "" : `<span class="state">Ouvert</span>`;
 }
@@ -1338,9 +1353,9 @@ function sourcesHTML(r) {
 // status of one épreuve (only when the source gives it épreuve by épreuve, e.g. the Sportpro agenda)
 function epState(e, r) {
   const lim = e.limite || r.limite;
-  if (lim && lim < todayISO()) return `<span class="state full">Clos</span>`;
-  if (e.complet || (r.complet && !e.url)) return `<span class="state full">Complet</span>`;
-  if (e.clos || (r.clos && !e.url)) return `<span class="state full">Clos</span>`;
+  if (lim && lim < todayISO()) return `<span class="state full clos">Clos</span>`;
+  if (e.complet || (r.complet && !e.url)) return `<span class="state full complet">Complet</span>`;
+  if (e.clos || (r.clos && !e.url)) return `<span class="state full clos">Clos</span>`;
   if (notYet(e) || (!e.url && notYet(r))) return `<span class="state ouv">Ouverture ${ouvTxt((notYet(e) ? e : r).ouverture)}</span>`;
   const n = lim ? daysTo(lim) : null;
   const when = n == null ? "" : n <= 7 ? `<span class="eslim hot">${n <= 0 ? "clôture aujourd'hui" : "clôture dans " + n + " j"}</span>` : `<span class="eslim">jusqu'au ${+lim.slice(8)}/${lim.slice(5, 7)}</span>`;
