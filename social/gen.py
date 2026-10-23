@@ -1,5 +1,6 @@
 """Dossard Péi – generator of the weekly social-media kits (Instagram/Facebook 4:5 + TikTok 9:16).
 
+Planning: Monday = week-end races, Wednesday = theme, Friday = region, 1st of the month = the month.
 Usage (from the repository root):
   python social/gen.py semaine 2026-10-26      # Monday's date -> Monday, Tuesday, Thursday, Friday (+ the 1st of the month if it falls in that week)
   python social/gen.py lundi 2026-10-26        # one post: lundi | mardi | jeudi | vendredi | mois
@@ -482,7 +483,8 @@ async def _render(pages, outdir):
     return files
 
 
-BUILDERS = {'lundi': build_lundi, 'mardi': build_mardi, 'jeudi': build_jeudi, 'mois': build_mois}
+BUILDERS = {'lundi': build_lundi, 'mardi': build_mardi, 'jeudi': build_jeudi, 'mois': build_mois,
+            'theme': build_mardi, 'region': build_jeudi}
 
 
 def make(kind, day, data, races):
@@ -513,8 +515,7 @@ def make(kind, day, data, races):
 
 def plan_week(monday):
     """[(kind, date)] for the week starting monday; the 1st of the month replaces that day's post."""
-    plan = [('lundi', monday), ('mardi', monday + D.timedelta(days=1)), ('jeudi', monday + D.timedelta(days=3)),
-            ('vendredi', monday + D.timedelta(days=4))]
+    plan = [('lundi', monday), ('theme', monday + D.timedelta(days=2)), ('region', monday + D.timedelta(days=4))]
     for k in range(7):
         dd = monday + D.timedelta(days=k)
         if dd.day == 1:
@@ -526,7 +527,7 @@ def main():
     kind, day = sys.argv[1], D.date.fromisoformat(sys.argv[2])
     data, races = load()
     if kind == 'jour':                      # the post of the day (Mon/Tue/Thu/Fri); the 1st of the month has its own run
-        k = {0: 'lundi', 1: 'mardi', 3: 'jeudi', 4: 'vendredi'}.get(day.weekday())
+        k = {0: 'lundi', 2: 'theme', 4: 'region'}.get(day.weekday())     # Monday, Wednesday, Friday
         if day.day == 1 or not k:
             note = "le 1er du mois, c'est le post du mois (18 h 30)" if day.day == 1 else 'pas de post prévu ce jour-là'
             report = [{'kind': k or '-', 'date': day.isoformat(), 'ok': False, 'skip': True, 'note': note}]
