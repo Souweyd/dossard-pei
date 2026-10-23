@@ -1119,7 +1119,7 @@ function renderGrid(rs) {
     if (m !== cur) { cur = m; html += `<h3 class="month">${cap(MOIS[+m.slice(5) - 1])}${m.slice(0, 4) !== todayISO().slice(0, 4) ? " " + m.slice(0, 4) : ""}</h3>`; }
     const seen = new Set(), eps = (r.epreuves || []).filter(e => e.km && e.type !== "jeunes").sort((a, b) => b.km - a.km).filter(e => { const k = e.km + "/" + (e.dp || ""); if (seen.has(k)) return false; seen.add(k); return true; }), shown = eps.slice(0, 3);
     html += `<button type="button" class="lrow${state.sel === r.id ? " on" : ""}" id="r-${esc(r.id)}" data-card="${esc(r.id)}" data-com="${esc(r.commune)}" style="--dc:var(${DCOL[r.disc]})" aria-haspopup="dialog">
-      <span class="ldate"><small>${JOURS[d.getDay()].replace(".", "")}</small><b>${dnum(r)}</b></span>
+      <span class="ldate"><small>${JOURS[d.getDay()].replace(".", "")}</small><b>${dnum(r).replace("–", "–<br>")}</b></span>
       <span class="lthumb${artCls(r)}"><span class="lph">${esc(r.nom)}</span>${r.poster ? `<img src="${esc(thumbOf(r))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}</span>
       <span class="lmain"><span class="lname">${esc(r.nom)}${FAVS.has(r.id) ? ` <i class="lfav" aria-label="favori">★</i>` : ""}</span>
         <span class="lmeta"><i class="ldot"></i>${DISC[r.disc]} · ${esc(r.commune)}${hasTrack(r.id) ? ` <span class="gpxtag" title="Tracé disponible" aria-label="Tracé disponible" role="img">${TRK_ICO}</span>` : ""}</span>
