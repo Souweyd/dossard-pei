@@ -34,6 +34,13 @@
   "gayar": {
    "fields": [],
    "hidden": true
+  },
+  "kalla-nescafe-2026-11": {
+   "fields": [
+    "epreuves",
+    "traces"
+   ],
+   "hidden": false
   }
  },
  "manual": [
