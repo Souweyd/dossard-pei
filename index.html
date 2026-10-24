@@ -851,6 +851,17 @@ body { letter-spacing: -.005em }
 @media (min-width: 901px) and (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .main.nomap .list .lrow { background: color-mix(in srgb, var(--dc) 16%, var(--surface)) } }
 
 .rsoc2 { display: flex; justify-content: center; gap: 12px; margin-top: 14px } .rsoc2:empty { display: none } .rsoc2 .socb { width: 40px; height: 40px; box-shadow: 0 2px 8px rgba(0,0,0,.18) } .rsoc2 .socb svg { width: 19px; height: 19px }
+
+/* une épreuve par ligne, affiche plus grande */
+.lrow { grid-template-columns: 42px 64px minmax(0, 1fr) auto } .lthumb { width: 64px; height: 86px; border-radius: 10px }
+@media (max-width: 760px) { .lrow { grid-template-columns: 34px 56px minmax(0, 1fr) } .lthumb { width: 56px; height: 76px } }
+.leps { display: grid; gap: 0; margin-top: 4px; max-width: 300px }
+.lep { display: grid !important; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; background: none !important; border: 0 !important; border-radius: 0; padding: 4px 0 !important; border-top: 1px solid color-mix(in srgb, var(--dc) 18%, var(--line)) !important; font-size: .82rem; color: var(--muted) }
+.lep:first-child { border-top: 0 !important }
+.lep .lk { display: flex; align-items: baseline; gap: 3px } .lep .lk b { font-size: 1rem; font-weight: 700; color: var(--fg); letter-spacing: -.02em; font-variant-numeric: tabular-nums }
+.lep .ld { display: inline-flex; align-items: center; gap: 4px; font-variant-numeric: tabular-nums; color: var(--fg); font-weight: 600 } .lep .ld svg { width: 13px; height: 10px; fill: var(--dc) }
+.lep.more { display: block !important; font-size: .78rem; color: var(--muted) }
+.lep .lbar { display: none }
 </style>
 
 <div class="wrap">
@@ -1219,7 +1230,7 @@ function renderGrid(rs) {
       <span class="lthumb${artCls(r)}"><span class="lph">${esc(r.nom)}</span>${r.poster ? `<img src="${esc(thumbOf(r))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}</span>
       <span class="lmain"><span class="lname">${esc(r.nom)}${FAVS.has(r.id) ? ` <i class="lfav" aria-label="favori">★</i>` : ""}</span>
         <span class="lmeta"><i class="ldot"></i><span class="vh">${DISC[r.disc]}, </span>${esc(r.commune)}${hasTrack(r.id) ? ` <span class="gpxtag" title="Tracé disponible" aria-label="Tracé disponible" role="img">${TRK_ICO}</span>` : ""}</span>
-        <span class="leps">${shown.map(e => `<span class="lep"><b>${fmt(e.km)}</b> km${e.dp ? ` · <b>${e.dp}</b> D+` : ""}</span>`).join("")}${eps.length > 3 ? `<span class="lep more">+${eps.length - 3}</span>` : ""}</span>${profSVG(r)}</span>
+        <span class="leps">${shown.map(e => `<span class="lep"><span class="lk"><i class="lbar" style="width:${Math.round(Math.max(4, Math.min(56, e.km * 56 / 70)))}px"></i><b>${fmt(e.km)}</b> km</span><span class="ld">${e.dp ? `<svg viewBox="0 0 16 12" aria-hidden="true"><path d="M1 11 6 3l3 4 2-3 4 7z"/></svg>${e.dp} m` : ""}</span></span>`).join("")}${eps.length > 3 ? `<span class="lep more">+ ${eps.length - 3} autre${eps.length - 3 > 1 ? "s" : ""}</span>` : ""}</span></span>
       <span class="lstate">${stateBadge(r)}</span></button>`;
   });
   $("#list").innerHTML = html || `<div class="empty">Aucune course ne correspond à ces filtres.<br><button class="reset" type="button" id="empty-reset">Tout afficher</button></div>`;
