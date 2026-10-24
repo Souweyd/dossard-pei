@@ -30,6 +30,10 @@
     "fiche"
    ],
    "hidden": false
+  },
+  "gayar": {
+   "fields": [],
+   "hidden": true
   }
  },
  "manual": []
