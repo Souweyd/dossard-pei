@@ -85,5 +85,12 @@
 "id": "volcarox-2027-01",
 "nom": "VolcaroX",
 "date": "2027-01-30"
+},
+{
+"at": "2026-10-24T14:29+04:00",
+"t": "ajout",
+"id": "hybrid-challenge-2027-02",
+"nom": "Hybrid Challenge",
+"date": "2027-02-12"
 }
 ]
