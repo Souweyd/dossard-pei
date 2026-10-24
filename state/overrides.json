@@ -37,8 +37,7 @@
   },
   "kalla-nescafe-2026-11": {
    "fields": [
-    "epreuves",
-    "traces"
+    "epreuves"
    ],
    "hidden": false
   }
