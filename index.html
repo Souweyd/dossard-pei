@@ -471,7 +471,7 @@ header.top { flex-direction: row; text-align: left } .top { display: flex; align
 @keyframes fsup { from { transform: translateY(40px); opacity: 0 } } @keyframes fsfade { from { opacity: 0 } }
 @media (prefers-reduced-motion: reduce) { .fspanel, .fsback { animation: none } }
 /* results first: while searching or filtering, the discovery blocks step aside */
-body.filtering .soonwrap, body.filtering .hstats { display: none }
+body.filtering .soonwrap, body.filtering .mine, body.filtering .hstats { display: none }
 .fclear { all: unset; cursor: pointer; margin-left: 10px; padding: 3px 10px; border-radius: 99px; background: var(--fg); color: var(--bg); font-size: .85rem; font-weight: 600 }
 .legrow { margin-top: 10px; font-size: .78rem } .legrow a { color: var(--muted) }
 .mldlg { width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow: auto; border: 0; border-radius: 18px; padding: 22px 24px; background: var(--bg); color: var(--fg); box-shadow: 0 20px 60px rgba(0,0,0,.3); font-size: .9rem; line-height: 1.5 }
@@ -862,6 +862,26 @@ section.soon, .lastc { box-shadow: none } .soon h2, .lastc h2 { font-weight: 800
 .lep .ld { display: inline-flex; align-items: center; gap: 4px; font-variant-numeric: tabular-nums; color: var(--fg); font-weight: 600 } .lep .ld svg { width: 13px; height: 10px; fill: var(--dc) }
 .lep.more { display: block !important; font-size: .78rem; color: var(--muted) }
 .lep .lbar { display: none }
+
+/* Mes courses */
+section.mine { background: var(--surface); border-radius: 18px; padding: 16px 16px 14px; box-shadow: inset 0 0 0 1px var(--line); margin-bottom: 18px }
+section.mine h2 { font-family: var(--display); font-weight: 800; letter-spacing: -.03em; font-size: clamp(1.15rem, 2vw, 1.4rem); margin: 0 }
+.mine-row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(280px, 340px); gap: 12px; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x mandatory; padding: 2px }
+.mine-row::-webkit-scrollbar { display: none }
+.mcard { scroll-snap-align: start; display: grid; grid-template-columns: 78px minmax(0, 1fr); gap: 12px; padding: 10px; border-radius: 16px; background: color-mix(in srgb, var(--dc) 9%, var(--surface)); box-shadow: inset 4px 0 0 var(--dc) }
+.mcard.isreg { background: color-mix(in srgb, #1f9d55 10%, var(--surface)); box-shadow: inset 4px 0 0 #1f9d55 }
+.mimg { all: unset; cursor: pointer; position: relative; width: 78px; height: 104px; border-radius: 10px; overflow: hidden; background: linear-gradient(160deg, color-mix(in srgb, var(--dc) 80%, #000), color-mix(in srgb, var(--dc) 45%, #000)) }
+.mimg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top }
+.mbody { display: grid; gap: 4px; align-content: start; min-width: 0 }
+.mname { all: unset; cursor: pointer; font-weight: 700; font-size: 1rem; letter-spacing: -.02em; line-height: 1.2 }
+.mwhen { font-size: .82rem; color: var(--muted) } .mwhen b { color: var(--fg); font-size: 1.15rem; font-weight: 800; letter-spacing: -.03em; margin-right: 2px }
+.mst .state { font-size: .74rem } .state.reg { background: #1f9d55; color: #fff }
+.mact { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 4px; font-size: .84rem }
+.mcta { background: var(--accent); color: #fff !important; text-decoration: none; font-weight: 700; padding: 5px 11px; border-radius: 10px }
+.regb { white-space: nowrap; font: inherit; font-size: .8rem; font-weight: 600; border: 1px solid var(--line); background: var(--surface); color: var(--fg); border-radius: 99px; padding: 4px 10px; cursor: pointer }
+.regb[aria-pressed="true"] { background: #1f9d55; border-color: #1f9d55; color: #fff }
+@media (max-width: 760px) { section.mine { padding: 14px 12px 12px } .mine-row { grid-auto-columns: 86% } }
+.dlg-state { flex-wrap: wrap } .mst:empty { display: none }
 </style>
 
 <div class="wrap">
@@ -888,6 +908,7 @@ section.soon, .lastc { box-shadow: none } .soon h2, .lastc h2 { font-weight: 800
 
   <section id="admin" hidden aria-label="Administration"></section>
 
+  <section class="mine" id="minesec" hidden aria-labelledby="mine-h"><div class="soon-head"><h2 id="mine-h">⭐ Mes courses</h2></div><div class="mine-row" id="mine"></div></section>
   <div class="soonwrap">
   <section class="soon" aria-labelledby="soon-h">
     <div class="soon-head"><h2 id="soon-h">Prochains départs</h2>
@@ -1034,9 +1055,9 @@ const effort = e => e.km ? e.km + (e.dp || 0) / 100 : null;
 const ffaOf = e => { const k = effort(e); return k == null ? null : FFA.find(f => k >= f[1] && k < f[2])[0]; };
 const fold = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 let state = { wk: "", near: null, q: "", commune: "", mois: "", dist: "", dp: "", ffa: "", fav: false, disc: "", ouvert: "", sel: null, open: new Set(), rview: "liste", cal: null, day: null };
-let FAVS = new Set();
-try { const s = JSON.parse(localStorage.getItem("trailspei") || "{}"); /* every visitor lands on the same unfiltered page: only favourites are remembered */ FAVS = new Set(s.favs || []); } catch (e) {}
-const saveprefs = () => { try { localStorage.setItem("trailspei", JSON.stringify({ favs: [...FAVS] })); } catch (e) {} };
+let FAVS = new Set(), REG = new Set(), FAVHINT = false;
+try { const s = JSON.parse(localStorage.getItem("trailspei") || "{}"); /* every visitor lands on the same unfiltered page: only favourites are remembered */ FAVS = new Set(s.favs || []); REG = new Set(s.reg || []); FAVHINT = !!s.hint; } catch (e) {}
+const saveprefs = () => { try { localStorage.setItem("trailspei", JSON.stringify({ favs: [...FAVS], reg: [...REG], hint: FAVHINT })); } catch (e) {} };
 
 // ---------- projection ----------
 const [LON0, LON1, LAT0, LAT1] = MAP.bounds;
@@ -1146,7 +1167,11 @@ const byDate = (a, b) => sortKey(a).localeCompare(sortKey(b)) || a.nom.localeCom
 // ---------- favourites, sharing, calendar export ----------
 const ARTIFACT_URL = "https://claude.ai/artifact/4t8BeKe6bFhvK7sG5KcAxD";
 function toast(txt) { const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = txt; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
-function toggleFav(id) { FAVS.has(id) ? FAVS.delete(id) : FAVS.add(id); saveprefs(); render(); toast(FAVS.has(id) ? "Ajoutée à vos favoris (sur cet appareil)" : "Retirée de vos favoris"); }
+function toggleFav(id) { const on = !FAVS.has(id); on ? FAVS.add(id) : (FAVS.delete(id), REG.delete(id)); const first = on && !FAVHINT; if (first) FAVHINT = true; saveprefs(); render();
+  toast(on ? (first ? "Ajoutée à Mes courses : retrouve-la en haut de l'accueil" : "Ajoutée à Mes courses") : "Retirée de Mes courses"); }
+function toggleReg(id) { const on = !REG.has(id); on ? (REG.add(id), FAVS.add(id)) : REG.delete(id); FAVHINT = true; saveprefs(); render(); if (DETAIL === id) { const b = document.querySelector(".dlg [data-reg]"); if (b) b.outerHTML = regBtn(RACES.find(x => x.id === id)); bindReg(document.querySelector(".dlg") || document); } toast(on ? "Noté : tu es inscrit ✓" : "Inscription retirée"); }
+const regBtn = r => "";
+function bindReg(root) { root.querySelectorAll("[data-reg]").forEach(b => { if (b.dataset.bound) return; b.dataset.bound = 1; b.addEventListener("click", e => { e.stopPropagation(); toggleReg(b.dataset.reg); }); }); }
 async function share(id) {
   const r0 = RACES.find(x => x.id === id); if (r0 && r0.id && !r0.manual) return shareRace(r0);
   const r = r0, url = ARTIFACT_URL + "#c-" + id;
@@ -1283,7 +1308,26 @@ function scardHTML(r, mode) {
       <span class="simg${artCls(r)}"><span class="sph">${esc(r.nom)}</span>${r.poster ? `<img src="${esc(thumbOf(r))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}<span class="swhen${mode === "dl" ? " hot" : ""}" title="${esc(d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }))}">${when}</span>${flag}</span>
       <span class="sname">${esc(r.nom)}</span><span class="smeta">${meta}</span>${mode === "dl" ? "" : `<span class="sst">${stateBadge(r)}</span>`}</button>`;
 }
+function renderMine() {
+  const t = todayISO(), rs = RACES.filter(r => FAVS.has(r.id) && !r.hidden && (r.fin || r.date) >= t).sort(byDate);
+  const sec = $("#minesec"); if (!sec) return; sec.hidden = !rs.length;
+  $("#mine").innerHTML = rs.map(r => {
+    const n = daysTo(r.date), d = dt(r.date), reg = false;
+    const when = r.date < t ? "En cours" : n === 0 ? "Jour J" : n === 1 ? "Demain" : `J-${n}`;
+    const day = d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" });
+    const st = reg ? "" : stateBadge(r);
+    return `<div class="mcard${reg ? " isreg" : ""}" style="--dc:var(${DCOL[r.disc]})">
+      <button type="button" class="mimg${artCls(r)}" data-card="${esc(r.id)}" aria-label="${esc(r.nom)}">${r.poster ? `<img src="${esc(thumbOf(r))}" alt="" loading="lazy" onerror="this.remove()">` : ""}</button>
+      <div class="mbody"><button type="button" class="mname" data-card="${esc(r.id)}">${esc(r.nom)}</button>
+        <span class="mwhen"><b>${when}</b> · ${day} · ${esc(r.commune)}</span>
+        <span class="mst">${st}</span>
+        <span class="mact">${!reg && canReg(r) && r.inscription ? `<a class="mcta" href="${esc(r.inscription)}" target="_blank" rel="noopener">${ctaTxt(r)}</a>` : ""}${r.approx ? "" : `<a class="ghostlink" href="${esc(gcalURL(r))}" target="_blank" rel="noopener">+ Agenda</a>`}${regBtn(r)}</span></div></div>`;
+  }).join("");
+  $("#mine").querySelectorAll("[data-card]").forEach(b => b.addEventListener("click", () => openRace(b.dataset.card)));
+  bindReg($("#mine"));
+}
 function renderSoon() {
+  renderMine();
   const t = todayISO(), rs = RACES.filter(r => !r.hidden && r.date >= t && daysTo(r.date) <= 7).sort(byDate);
   document.querySelector("section.soon").hidden = !rs.length;
   $("#soon").innerHTML = rs.map(r => scardHTML(r, "soon")).join("");
@@ -1382,6 +1426,7 @@ function closeDetail() {
 function bindCards(root) {
   root.querySelectorAll("[data-poster]").forEach(b => b.addEventListener("click", () => { if (!b.classList.contains("noimg")) openPoster(b.dataset.poster); }));
   root.querySelectorAll("[data-fav]").forEach(b => b.addEventListener("click", () => toggleFav(b.dataset.fav)));
+  bindReg(root);
   root.querySelectorAll("[data-share]").forEach(b => b.addEventListener("click", () => share(b.dataset.share)));
   root.querySelectorAll("[data-gpx]").forEach(b => b.addEventListener("click", () => downloadGPX(b.dataset.gpx)));
   root.querySelectorAll("[data-trk]").forEach(b => b.addEventListener("click", () => {
