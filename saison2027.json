@@ -1,0 +1,795 @@
+{
+"saison": 2027,
+"source": "Commission running de la Ligue réunionnaise d'athlétisme, réunion des organisateurs du 24/10/2026 (publié par Le Quotidien le 25/10/2026)",
+"maj": "2026-10-25",
+"evenements": [
+{
+"date": "2027-01-09",
+"nom": "ATP Urban Trail"
+},
+{
+"date": "2027-01-17",
+"nom": "Relais du Volcan"
+},
+{
+"date": "2027-01-17",
+"nom": "Trail Calbanon 974"
+},
+{
+"date": "2027-01-23",
+"nom": "Foulées de la Côte Ouest"
+},
+{
+"date": "2027-01-23",
+"nom": "Championnat de trail long sur la Transvolcano",
+"champ": true,
+"id": "championnat-trail-trans-volcano-2027-01"
+},
+{
+"date": "2027-01-30",
+"nom": "Foulées du CFG",
+"id": "cfg"
+},
+{
+"date": "2027-01-31",
+"nom": "Challenge UTOI Plaine-des-Palmistes"
+},
+{
+"date": "2027-01-31",
+"nom": "Foulées nocturnes des Berges de La Rivière-du-Mât"
+},
+{
+"date": "2027-02-06",
+"nom": "Nocturne de l’Entre-Deux"
+},
+{
+"date": "2027-02-07",
+"nom": "Championnat de trail court sur le Trail de la Crète",
+"champ": true
+},
+{
+"date": "2027-02-07",
+"nom": "Festi Trail de Saint-Leu"
+},
+{
+"date": "2027-02-13",
+"nom": "Trail Sclérose en Plaques"
+},
+{
+"date": "2027-02-13",
+"nom": "Course des Amoureux"
+},
+{
+"date": "2027-02-14",
+"nom": "Ensemb mon Zézèr"
+},
+{
+"date": "2027-02-14",
+"nom": "Foulées des Amoureux"
+},
+{
+"date": "2027-02-14",
+"nom": "Championnat régional de Cross à Saint-André",
+"champ": true
+},
+{
+"date": "2027-02-20",
+"nom": "Les Foulées de La Plaine-des-Palmistes"
+},
+{
+"date": "2027-02-20",
+"nom": "Bois-d’Olives Urban Trail"
+},
+{
+"date": "2027-02-28",
+"nom": "Trail des Anglais"
+},
+{
+"date": "2027-03-05",
+"nom": "Les Foulées de La Pointe"
+},
+{
+"date": "2027-03-07",
+"nom": "Toutes en Foulées"
+},
+{
+"date": "2027-03-07",
+"nom": "Karé de l’Est"
+},
+{
+"date": "2027-03-07",
+"nom": "Cap Volcan"
+},
+{
+"date": "2027-03-07",
+"nom": "Le Semi-Marathon de l’ADH"
+},
+{
+"date": "2027-03-07",
+"nom": "Les 10 km de l’ADH"
+},
+{
+"date": "2027-03-13",
+"nom": "2e manche du Challenge UTOI à l’Etang-Salé"
+},
+{
+"date": "2027-03-14",
+"nom": "Championnat de course de montagne sur la Verticale de la Fenêtre aux Makes",
+"champ": true
+},
+{
+"date": "2027-03-16",
+"nom": "La Trans’Réunion by TCS",
+"fin": "2027-03-20"
+},
+{
+"date": "2027-03-20",
+"nom": "Championnat du 10 km sur la Nocturne de la Ville de Saint-Paul",
+"champ": true
+},
+{
+"date": "2027-03-20",
+"nom": "Les Foulées nocturnes de la Saint-Jo"
+},
+{
+"date": "2027-03-21",
+"nom": "Trail de la Trisomie 21"
+},
+{
+"date": "2027-03-21",
+"nom": "La 0-3000"
+},
+{
+"date": "2027-03-28",
+"nom": "Up & Down"
+},
+{
+"date": "2027-03-28",
+"nom": "5 et 10 km de Saint-André"
+},
+{
+"date": "2027-03-28",
+"nom": "Boucle du Pic du Diable"
+},
+{
+"date": "2027-03-28",
+"nom": "Trail Mars Bleu à Saint-Leu"
+},
+{
+"date": "2027-04-03",
+"nom": "Saint-Jo Trail des 2 Rivières"
+},
+{
+"date": "2027-04-03",
+"nom": "Marcher, courir : un pas de plus pour la maladie de Charcot"
+},
+{
+"date": "2027-04-04",
+"nom": "10 km de Sainte-Suzanne"
+},
+{
+"date": "2027-04-04",
+"nom": "Trail des Agriculteurs"
+},
+{
+"date": "2027-04-04",
+"nom": "Trail des Cordistes"
+},
+{
+"date": "2027-04-04",
+"nom": "1re édition des 100 km de Saint-Denis"
+},
+{
+"date": "2027-04-10",
+"nom": "Trail Griffes du Diable Only In"
+},
+{
+"date": "2027-04-10",
+"nom": "Ronde de Cilaos"
+},
+{
+"date": "2027-04-10",
+"nom": "Course de côte de Salazie"
+},
+{
+"date": "2027-04-24",
+"nom": "Le Grand D-Tour"
+},
+{
+"date": "2027-04-24",
+"nom": "Le mini D-Tour"
+},
+{
+"date": "2027-04-24",
+"nom": "Camélias Raid"
+},
+{
+"date": "2027-04-24",
+"nom": "La Boucle Infernale"
+},
+{
+"date": "2027-04-24",
+"nom": "Raid et Semi-Raid 974"
+},
+{
+"date": "2027-04-24",
+"nom": "Trail du Glacier"
+},
+{
+"date": "2027-04-25",
+"nom": "Championnat du kilomètre vertical à Saint-Leu",
+"champ": true
+},
+{
+"date": "2027-05-01",
+"nom": "Trail du Volcan"
+},
+{
+"date": "2027-05-01",
+"nom": "Ascension du Piton des Neiges"
+},
+{
+"date": "2027-05-06",
+"nom": "Ultra-Trail des Géants",
+"fin": "2027-05-09",
+"id": "ultra-trail-geants-2027-05"
+},
+{
+"date": "2027-05-06",
+"nom": "Mega Salazienne"
+},
+{
+"date": "2027-05-08",
+"nom": "Toutes Sportives"
+},
+{
+"date": "2027-05-08",
+"nom": "La Papangue"
+},
+{
+"date": "2027-05-08",
+"nom": "10 km du Port"
+},
+{
+"date": "2027-05-15",
+"nom": "10 km nocturne de Saint-Denis"
+},
+{
+"date": "2027-05-15",
+"nom": "Trail de Minuit"
+},
+{
+"date": "2027-05-16",
+"nom": "La Ronde des Goyaviers"
+},
+{
+"date": "2027-05-16",
+"nom": "Les Foulées de la Cayenne (PMS)"
+},
+{
+"date": "2027-05-22",
+"nom": "Odysséa Réunion",
+"fin": "2027-05-23"
+},
+{
+"date": "2027-05-22",
+"nom": "10 km de La Plaine Oméga"
+},
+{
+"date": "2027-05-23",
+"nom": "Marathon des Blessés des Armées et Semi-Marathon"
+},
+{
+"date": "2027-05-29",
+"nom": "Junior Trail du Colorado"
+},
+{
+"date": "2027-05-29",
+"nom": "Les Foulées nocturnes de Sainte-Suzanne"
+},
+{
+"date": "2027-05-29",
+"nom": "Trail La Planèze"
+},
+{
+"date": "2027-05-29",
+"nom": "Les Foulées Run Justice Péi"
+},
+{
+"date": "2027-05-30",
+"nom": "Les Foulées de Villèle"
+},
+{
+"date": "2027-06-05",
+"nom": "Relais nocturne de Saint-André"
+},
+{
+"date": "2027-06-05",
+"nom": "Urban trail de la Rivière Saint-Louis"
+},
+{
+"date": "2027-06-06",
+"nom": "Les Foulées des saveurs palmiplainoises"
+},
+{
+"date": "2027-06-06",
+"nom": "Trail de La Roche Ecrite"
+},
+{
+"date": "2027-06-06",
+"nom": "Urban Trail du Tampon"
+},
+{
+"date": "2027-06-06",
+"nom": "L’Austral"
+},
+{
+"date": "2027-06-06",
+"nom": "Trail de La Résilience"
+},
+{
+"date": "2027-06-12",
+"nom": "Trail Fah’Ame"
+},
+{
+"date": "2027-06-12",
+"nom": "Foulées du CHU"
+},
+{
+"date": "2027-06-12",
+"nom": "7e Foulées Solidaires de Bras-Fusil"
+},
+{
+"date": "2027-06-12",
+"nom": "3e Challenge UTOI à Trois-Bassins"
+},
+{
+"date": "2027-06-13",
+"nom": "Trail des 3 Salines"
+},
+{
+"date": "2027-06-13",
+"nom": "Run Prédiction"
+},
+{
+"date": "2027-06-20",
+"nom": "Trail Urbain Ecocité"
+},
+{
+"date": "2027-06-20",
+"nom": "Ultra-Marathon des Cirques"
+},
+{
+"date": "2027-06-20",
+"nom": "XVI’Eclair"
+},
+{
+"date": "2027-06-20",
+"nom": "Challenge des Cannes à Saint-Benoît"
+},
+{
+"date": "2027-06-26",
+"nom": "Cilaos Women Trail"
+},
+{
+"date": "2027-06-26",
+"nom": "In Tour dans Fé Nwar"
+},
+{
+"date": "2027-06-27",
+"nom": "Les Foulées de Saint-Louis"
+},
+{
+"date": "2027-07-02",
+"nom": "Grand Trail de l’Ouest",
+"fin": "2027-07-04"
+},
+{
+"date": "2027-07-03",
+"nom": "Festy Trail Dionysien"
+},
+{
+"date": "2027-07-04",
+"nom": "Leu Trail de La Chaloupe"
+},
+{
+"date": "2027-07-10",
+"nom": "Trail et semi-trail de Cilaos"
+},
+{
+"date": "2027-07-12",
+"nom": "Championnat de Semi-Marathon à Sainte-Suzanne",
+"champ": true
+},
+{
+"date": "2027-07-17",
+"nom": "Trail de La Rivière-des-Galets"
+},
+{
+"date": "2027-07-25",
+"nom": "Boucle de Salazie"
+},
+{
+"date": "2027-07-25",
+"nom": "Grand Bénare-Trois Bassinoise"
+},
+{
+"date": "2027-07-30",
+"nom": "Traversée de l’Ouest et Ascension de l’Ouest"
+},
+{
+"date": "2027-07-31",
+"nom": "Run Oxygène"
+},
+{
+"date": "2027-07-31",
+"nom": "Les Foulées semi-nocturnes de la Ville de Saint-Pierre"
+},
+{
+"date": "2027-08-01",
+"nom": "Be Maho Trail"
+},
+{
+"date": "2027-08-07",
+"nom": "La Boucle du Pic Adam"
+},
+{
+"date": "2027-08-08",
+"nom": "Vaincre Parkinson"
+},
+{
+"date": "2027-08-08",
+"nom": "Championnat de Marathon sur le Marathon de La Corniche",
+"champ": true
+},
+{
+"date": "2027-08-08",
+"nom": "Les Foulées de la Corniche"
+},
+{
+"date": "2027-08-08",
+"nom": "Trail du Sud sauvage"
+},
+{
+"date": "2027-08-14",
+"nom": "Trophée de l’Océan Indien"
+},
+{
+"date": "2027-08-15",
+"nom": "Championnat des 5 km sur le Leu 5/10",
+"champ": true
+},
+{
+"date": "2027-08-15",
+"nom": "Boucle Parapente"
+},
+{
+"date": "2027-08-22",
+"nom": "Trail des Sources"
+},
+{
+"date": "2027-08-22",
+"nom": "Les Km des Photographes"
+},
+{
+"date": "2027-08-28",
+"nom": "Cimasa-Run"
+},
+{
+"date": "2027-08-28",
+"nom": "Un Ti Tour en Plus"
+},
+{
+"date": "2027-08-29",
+"nom": "Foulées Sentier Littoral Sainte-Suzanne"
+},
+{
+"date": "2027-08-29",
+"nom": "Les Foulées du Bois-d’Olives"
+},
+{
+"date": "2027-09-04",
+"nom": "10 km nocturne du Port"
+},
+{
+"date": "2027-09-05",
+"nom": "Raid Tuit-Tuit"
+},
+{
+"date": "2027-09-05",
+"nom": "Trail du Coteau Sec"
+},
+{
+"date": "2027-09-05",
+"nom": "Trail des Abeilles"
+},
+{
+"date": "2027-09-05",
+"nom": "Trail des Guêpes"
+},
+{
+"date": "2027-09-11",
+"nom": "Les Foulées féminines de La Plaine-des-Palmistes"
+},
+{
+"date": "2027-09-11",
+"nom": "Foulées pédestres du Solida’Run"
+},
+{
+"date": "2027-09-11",
+"nom": "Trail des Petits Cavaliers"
+},
+{
+"date": "2027-09-11",
+"nom": "Trail des Chouchous"
+},
+{
+"date": "2027-09-12",
+"nom": "Foulées de Manap’"
+},
+{
+"date": "2027-09-12",
+"nom": "Trail Autrement"
+},
+{
+"date": "2027-09-18",
+"nom": "Trail des Sables"
+},
+{
+"date": "2027-09-18",
+"nom": "Trail Urbain de Saint-Denis"
+},
+{
+"date": "2027-09-19",
+"nom": "Trail des Survivantes"
+},
+{
+"date": "2027-09-19",
+"nom": "Trail du Patrimoine de La Possession"
+},
+{
+"date": "2027-09-19",
+"nom": "Challenge des Cannes à Saint-Joseph"
+},
+{
+"date": "2027-09-25",
+"nom": "Océan Trail"
+},
+{
+"date": "2027-09-26",
+"nom": "Littoral Trail 3B"
+},
+{
+"date": "2027-09-26",
+"nom": "Foulées du Cœur"
+},
+{
+"date": "2027-09-26",
+"nom": "Les Foulées de Grand-Bois"
+},
+{
+"date": "2027-10-02",
+"nom": "Tour de l’Île Pédestre by UTOI",
+"fin": "2027-10-03"
+},
+{
+"date": "2027-10-02",
+"nom": "Trail Urbain du Phare"
+},
+{
+"date": "2027-10-03",
+"nom": "Les Foulées de la Fraise"
+},
+{
+"date": "2027-10-03",
+"nom": "Relais de la Ville de Saint-Denis"
+},
+{
+"date": "2027-10-03",
+"nom": "Trail des deux Pitons"
+},
+{
+"date": "2027-10-09",
+"nom": "Foulées des Florilèges"
+},
+{
+"date": "2027-10-09",
+"nom": "Trail Urbain des Maillons"
+},
+{
+"date": "2027-10-10",
+"nom": "10 km du Colosse"
+},
+{
+"date": "2027-10-14",
+"nom": "Grand Raid de La Réunion",
+"fin": "2027-10-17"
+},
+{
+"date": "2027-10-23",
+"nom": "Leu Urban Trail des Eclairs"
+},
+{
+"date": "2027-10-24",
+"nom": "Les 10 km de La Réunion"
+},
+{
+"date": "2027-10-24",
+"nom": "Course de l’Ail"
+},
+{
+"date": "2027-10-30",
+"nom": "Trail Urbain des Avirons"
+},
+{
+"date": "2027-10-31",
+"nom": "Mamz’Elles Run"
+},
+{
+"date": "2027-10-31",
+"nom": "Tamarun"
+},
+{
+"date": "2027-11-06",
+"nom": "Les Foulées de Tévelave"
+},
+{
+"date": "2027-11-07",
+"nom": "La Route du Lait"
+},
+{
+"date": "2027-11-07",
+"nom": "Foulées Nature Niagara Sainte-Suzanne"
+},
+{
+"date": "2027-11-11",
+"nom": "Trail Urbain de Saint-Leu"
+},
+{
+"date": "2027-11-11",
+"nom": "Relais Marathon de Saint-Benoît"
+},
+{
+"date": "2027-11-11",
+"nom": "Trail des Motards"
+},
+{
+"date": "2027-11-13",
+"nom": "Trail du Curcuma"
+},
+{
+"date": "2027-11-13",
+"nom": "Trail de Lesquilibre"
+},
+{
+"date": "2027-11-14",
+"nom": "Diab’Athlétique"
+},
+{
+"date": "2027-11-14",
+"nom": "Course des Artichauts"
+},
+{
+"date": "2027-11-20",
+"nom": "La Tropicadingue",
+"fin": "2027-11-21"
+},
+{
+"date": "2027-11-20",
+"nom": "Cross City Sport"
+},
+{
+"date": "2027-11-21",
+"nom": "Kalla Nescafé"
+},
+{
+"date": "2027-11-21",
+"nom": "Leu Trail des Musées"
+},
+{
+"date": "2027-11-21",
+"nom": "Les Foulées des Trois Villages"
+},
+{
+"date": "2027-11-21",
+"nom": "Cross du Vétyver"
+},
+{
+"date": "2027-11-21",
+"nom": "Trail Mac’Zheimer"
+},
+{
+"date": "2027-11-27",
+"nom": "Trail Urbain de Saint-Pierre"
+},
+{
+"date": "2027-11-27",
+"nom": "Mafate Trail Tour"
+},
+{
+"date": "2027-11-28",
+"nom": "Trail court de Villèle"
+},
+{
+"date": "2027-11-28",
+"nom": "Les Foulées de La Possession"
+},
+{
+"date": "2027-11-28",
+"nom": "Foulées nocturnes des Berges de La Rivière-du-Mât-les-Bas"
+},
+{
+"date": "2027-12-04",
+"nom": "La Boucle du Cœur de l’Est"
+},
+{
+"date": "2027-12-05",
+"nom": "Cross Edmond-Albius"
+},
+{
+"date": "2027-12-06",
+"nom": "Cross du Parc Boisé USPGA"
+},
+{
+"date": "2027-12-06",
+"nom": "La Trans-Dimitile"
+},
+{
+"date": "2027-12-11",
+"nom": "Maloya Trail"
+},
+{
+"date": "2027-12-11",
+"nom": "Trail Urbain de Sainte-Marie"
+},
+{
+"date": "2027-12-11",
+"nom": "Christmas Run"
+},
+{
+"date": "2027-12-12",
+"nom": "Marmailles Master Trail"
+},
+{
+"date": "2027-12-12",
+"nom": "Finale Challenge UTOI à Saint-Denis"
+},
+{
+"date": "2027-12-12",
+"nom": "Trail Nature de Sainte-Anne"
+},
+{
+"date": "2027-12-18",
+"nom": "Raid des Dalons",
+"fin": "2027-12-20"
+},
+{
+"date": "2027-12-18",
+"nom": "Foulées de la Liberté"
+},
+{
+"date": "2027-12-18",
+"nom": "The Pace Montain"
+},
+{
+"date": "2027-12-19",
+"nom": "Foulées du Verbal"
+},
+{
+"date": "2027-12-19",
+"nom": "Challenge des Cannes à Saint-Louis"
+},
+{
+"date": "2027-12-20",
+"nom": "Relais des Marrons"
+},
+{
+"date": "2027-12-20",
+"nom": "Trail et Rando Charrette"
+},
+{
+"date": "2027-12-20",
+"nom": "Les Foulées Cités du Volcan"
+}
+]
+}
