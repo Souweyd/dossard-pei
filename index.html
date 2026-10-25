@@ -1444,6 +1444,8 @@ function openDetail(id) {
     addEventListener("keydown", detailKey);
   }
   const d = dt(r.date), main = r.main || {};
+  const oldP = detailBox.dataset.id === id && detailBox.querySelector(".dlg-panel"), keep = oldP ? [oldP.scrollTop, detailBox.scrollTop, document.activeElement?.dataset?.i] : null;
+  detailBox.dataset.id = id;
   detailBox.setAttribute("aria-label", r.nom);
   detailBox.innerHTML = `<div class="dlg-panel" style="--dc:var(${DCOL[r.disc]})">
     <button type="button" class="dlg-x" aria-label="Fermer">×</button>
@@ -1462,6 +1464,7 @@ function openDetail(id) {
   </div>`;
   detailBox.querySelector(".dlg-x").addEventListener("click", closeDetail);
   bindCards(detailBox);
+  if (keep) { detailBox.querySelector(".dlg-panel").scrollTop = keep[0]; detailBox.scrollTop = keep[1]; if (keep[2] != null) detailBox.querySelector(`[data-trk][data-i="${keep[2]}"]`)?.focus({ preventScroll: true }); }
   detailBox.querySelector(".dlg-x").focus({ preventScroll: true });
 }
 function detailKey(e) { if (e.key === "Escape" && !document.querySelector(".lightbox")) closeDetail(); }
