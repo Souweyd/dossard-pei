@@ -1394,10 +1394,10 @@ document.addEventListener("click", e => {
 }, true);
 const setPath = p => { if (location.pathname.startsWith("/maquette")) return; if (PUBLIC_SITE && location.pathname + location.hash !== p) try { history.replaceState(history.state, "", p); } catch (e) {} };
 // opening a race shows its sheet only: the main map keeps its view (the sheet has its own mini map)
-let SAISON = null;
+let SAISON = null, SZBACK = null;
 const norm = t => String(t).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-function openSaison() {
-  gcount("saison2027/ouverture", "Ouverture calendrier 2027", true);
+function openSaison(back) {
+  if (!back) gcount("saison2027/ouverture", "Ouverture calendrier 2027", true);
   const box = document.createElement("div"); box.className = "dlg"; box.setAttribute("role", "dialog"); box.setAttribute("aria-label", "Saison 2027");
   box.innerHTML = `<div class="dlg-panel sz-panel"><button type="button" class="dlg-x" aria-label="Fermer">×</button><div class="sz-body"><p class="note">Chargement…</p></div></div>`;
   document.body.appendChild(box); document.body.classList.add("noscroll");
@@ -1411,7 +1411,7 @@ function openSaison() {
       const on = e.id && RACES.some(r => r.id === e.id && !r.hidden);
       return `<div class="sz-row${e.champ ? " champ" : ""}"><span class="sz-d"><small>${JOURS[d.getDay()].replace(".", "")}</small><b>${d.getDate()}${e.fin ? "–" + dt(e.fin).getDate() : ""}</b></span><span class="sz-n">${e.champ ? "🏆 " : ""}${esc(e.nom)}</span>${on ? `<button type="button" class="sz-ok" data-sz="${esc(e.id)}">Voir la fiche <span aria-hidden="true">›</span></button>` : ""}</div>`; }).join("")).join("");
     box.querySelector(".sz-list").innerHTML = rows || `<p class="note">Aucune course ne correspond.</p>`;
-    box.querySelectorAll("[data-sz]").forEach(b => b.addEventListener("click", () => { gcount("saison2027/fiche/" + b.dataset.sz, "Calendrier 2027 vers fiche", true); close(); openRace(b.dataset.sz); }));
+    box.querySelectorAll("[data-sz]").forEach(b => b.addEventListener("click", () => { gcount("saison2027/fiche/" + b.dataset.sz, "Calendrier 2027 vers fiche", true); const pn = box.querySelector(".dlg-panel"); SZBACK = { q: box.querySelector(".sz-q").value, t: pn.scrollTop, t2: box.scrollTop }; close(); openRace(b.dataset.sz); }));
   };
   const show = () => {
     const nb = SAISON.evenements.length, ch = SAISON.evenements.filter(e => e.champ).length;
@@ -1419,7 +1419,8 @@ function openSaison() {
       <p class="sz-sub">${nb} courses annoncées, dont ${ch} championnats de La Réunion (🏆). Dates susceptibles d'évoluer. Dès qu'un organisateur confirme sa course, elle arrive sur Dossard Péi : « Voir la fiche » donne alors les détails et le lien d'inscription.</p>
       <input type="search" class="sz-q" placeholder="Chercher une course…" aria-label="Chercher une course dans la saison">
       <div class="sz-list"></div><p class="sz-src">Source : ${esc(SAISON.source)}.</p>`;
-    box.querySelector(".sz-q").addEventListener("input", e => draw(e.target.value)); draw("");
+    const qi = box.querySelector(".sz-q"); qi.addEventListener("input", e => draw(e.target.value));
+    if (back) { qi.value = back.q; draw(back.q); requestAnimationFrame(() => { box.querySelector(".dlg-panel").scrollTop = back.t; box.scrollTop = back.t2; }); } else draw("");
   };
   if (SAISON) show(); else fetch("saison2027.json").then(r => r.json()).then(j => { SAISON = j; show(); }).catch(() => { box.querySelector(".sz-body").innerHTML = `<p class="note">Calendrier indisponible pour le moment.</p>`; });
 }
@@ -1471,6 +1472,7 @@ function closeDetail() {
   COUNTED = null;
   if (state.sel === was) { state.sel = null; render(); }
   removeEventListener("keydown", detailKey); lastFocus?.focus?.({ preventScroll: true });
+  if (SZBACK) { const b = SZBACK; SZBACK = null; openSaison(b); }
 }
 function bindCards(root) {
   root.querySelectorAll("[data-poster]").forEach(b => b.addEventListener("click", () => { if (!b.classList.contains("noimg")) openPoster(b.dataset.poster); }));
