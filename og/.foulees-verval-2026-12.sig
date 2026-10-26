@@ -1,0 +1,1 @@
+["Les Foulées du Verval", "2026-12-19", "Saint-Louis", [{"nom": "Trail 10 km", "km": 10, "h": "06h30", "prix": "Gratuit", "type": "trail"}], "posters/foulees-verval-2026-12.webp", "posters/foulees-verval-2026-12_lg.webp", "art1"]
