@@ -898,6 +898,7 @@ section.mine h2 { font-family: var(--display); font-weight: 800; letter-spacing:
 .sz-n { font-size: .95rem; line-height: 1.3 }
 .sz-ok { font: inherit; font-size: .8rem; font-weight: 700; border: 0; border-radius: 99px; padding: 6px 12px; background: var(--accent); color: #fff; cursor: pointer; white-space: nowrap }
 .sz-ok span { margin-left: 2px; font-size: 1.1em }
+.sz-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 1px }
 .sz-i { display: block; font-size: .78rem; color: var(--muted); font-weight: 400; margin-top: 2px }
 .sz-src { margin: 10px 0 0; font-size: .76rem; color: var(--muted) }
 </style>
@@ -1413,13 +1414,13 @@ function openSaison(back) {
     SAISON.evenements.filter(e => !nq || norm(e.nom).includes(nq)).forEach(e => (byM[e.date.slice(0, 7)] = byM[e.date.slice(0, 7)] || []).push(e));
     const rows = Object.keys(byM).sort().map(m => `<h3 class="sz-m">${cap(MOIS[+m.slice(5) - 1])}</h3>` + byM[m].map(e => { const d = dt(e.date);
       const on = e.id && RACES.some(r => r.id === e.id && !r.hidden);
-      return `<div class="sz-row${e.champ ? " champ" : ""}"><span class="sz-d"><small>${JOURS[d.getDay()].replace(".", "")}</small><b>${d.getDate()}${e.fin ? "–" + dt(e.fin).getDate() : ""}</b></span><span class="sz-n">${e.champ ? "🏆 " : ""}${esc(e.nom)}${e.info ? `<small class="sz-i">${esc(e.info)}</small>` : ""}</span>${on ? `<button type="button" class="sz-ok" data-sz="${esc(e.id)}">Voir la fiche <span aria-hidden="true">›</span></button>` : ""}</div>`; }).join("")).join("");
+      return `<div class="sz-row${e.champ ? " champ" : ""}"><span class="sz-d">${e.nd ? `<small>date</small><b>?</b>` : `<small>${JOURS[d.getDay()].replace(".", "")}</small><b>${d.getDate()}${e.fin ? "–" + dt(e.fin).getDate() : ""}</b>`}</span><span class="sz-n">${e.champ ? "🏆 " : ""}${esc(e.nom)}${(() => { const t = [e.nature, e.club, e.info].filter(Boolean); if (!t.length) return ""; const c = /route/i.test(e.nature) ? "--c-route" : /cross/i.test(e.nature) ? "--c-cross" : /trail|montagne/i.test(e.nature) ? "--c-trail" : e.nature ? "--c-tri" : ""; return `<small class="sz-i">${c ? `<i class="sz-dot" style="background:var(${c})"></i>` : ""}${t.map(esc).join(" · ")}</small>`; })()}</span>${on ? `<button type="button" class="sz-ok" data-sz="${esc(e.id)}">Voir la fiche <span aria-hidden="true">›</span></button>` : ""}</div>`; }).join("")).join("");
     box.querySelector(".sz-list").innerHTML = rows || `<p class="note">Aucune course ne correspond.</p>`;
     box.querySelectorAll("[data-sz]").forEach(b => b.addEventListener("click", () => { gcount("saison2027/fiche/" + b.dataset.sz, "Calendrier 2027 vers fiche", true); const pn = box.querySelector(".dlg-panel"); SZBACK = { q: box.querySelector(".sz-q").value, t: pn.scrollTop, t2: box.scrollTop }; close(); openRace(b.dataset.sz); }));
   };
   const show = () => {
     const nb = SAISON.evenements.length, ch = SAISON.evenements.filter(e => e.champ).length;
-    box.querySelector(".sz-body").innerHTML = `<p class="dlg-date">Calendrier prévisionnel</p><h2 class="sz-h">Saison ${SAISON.saison}</h2>
+    box.querySelector(".sz-body").innerHTML = `<p class="dlg-date">Calendrier provisoire de la Ligue</p><h2 class="sz-h">Saison ${SAISON.saison}</h2>
       <p class="sz-sub">${nb} courses annoncées, dont ${ch} championnats de La Réunion (🏆). Dates susceptibles d'évoluer. Dès qu'un organisateur confirme sa course, elle arrive sur Dossard Péi : « Voir la fiche » donne alors les détails et le lien d'inscription.</p>
       <input type="search" class="sz-q" placeholder="Chercher une course…" aria-label="Chercher une course dans la saison">
       <div class="sz-list"></div><p class="sz-src">Source : ${esc(SAISON.source)}${SAISON.url ? ` · <a href="${esc(SAISON.url)}" target="_blank" rel="noopener">${esc(SAISON.url.replace(/^https?:\/\//, ""))}</a>` : ""}.</p>`;

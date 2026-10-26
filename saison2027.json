@@ -1,801 +1,1171 @@
 {
 "saison": 2027,
-"source": "Ligue réunionnaise d'athlétisme (commission running), réunion des organisateurs du 24/10/2026, complété par les annonces des organisateurs",
+"titre": "Calendrier provisoire running 2027",
+"source": "Ligue réunionnaise d'athlétisme, calendrier provisoire running 2027, complété par les annonces des organisateurs",
+"url": "https://reunion.athle.fr",
 "maj": "2026-10-26",
 "evenements": [
 {
-"date": "2027-01-09",
-"nom": "ATP Urban Trail"
+"nom": "ATP Urban Trail",
+"nature": "Route",
+"club": "Athletisme Trail des Plaines",
+"date": "2027-01-09"
 },
 {
-"date": "2027-01-17",
-"nom": "Relais du Volcan"
+"nom": "Relais du Volcan",
+"nature": "Route",
+"club": "CAPC",
+"date": "2027-01-17"
 },
 {
-"date": "2027-01-17",
-"nom": "Trail Calbanon 974"
+"nom": "Trail Calbanon 974",
+"nature": "Trail",
+"club": "Dubai Auto Football Club",
+"date": "2027-01-17"
 },
 {
+"nom": "Foulées de la Côte Ouest",
+"nature": "Route",
+"club": "Association Trail Rando Passion",
+"date": "2027-01-23"
+},
+{
+"nom": "Championnat Trail long Transvolcano 67 km",
+"nature": "Trail",
+"club": "Association d’Athlétisme de Jacky Murat",
 "date": "2027-01-23",
-"nom": "Foulées de la Côte Ouest"
-},
-{
-"date": "2027-01-23",
-"nom": "Championnat de trail long sur la Transvolcano",
 "champ": true,
 "id": "championnat-trail-trans-volcano-2027-01"
 },
 {
-"date": "2027-01-30",
+"nom": "Trail Tangue/Transvolcano",
+"nature": "Trail",
+"club": "Association d’Athlétisme de Jacky Murat",
+"date": "2027-01-23",
+"id": "championnat-trail-trans-volcano-2027-01"
+},
+{
 "nom": "Foulées du CFG",
+"nature": "Route",
+"club": "ACSGS",
+"date": "2027-01-30",
 "id": "cfg"
 },
 {
-"date": "2027-01-31",
-"nom": "Challenge UTOI Plaine-des-Palmistes"
+"nom": "Challenge UTOI Plaine-des-Palmistes",
+"nature": "Route",
+"club": "Asso.Culturelle et Sportive de la Réunion",
+"date": "2027-01-31"
 },
 {
-"date": "2027-01-31",
-"nom": "Foulées nocturnes des Berges de La Rivière-du-Mât"
+"nom": "Foulées nocturnes des Berges de la Rivière du Mât-les-Bas",
+"nature": "Route",
+"club": "Ass.Team Zumbazones",
+"date": "2027-01-31"
 },
 {
-"date": "2027-02-06",
-"nom": "Nocturne de l’Entre-Deux"
+"nom": "Nocturne de L'Entre-Deux",
+"nature": "Route",
+"club": "Dimitile Sport Action",
+"date": "2027-02-06"
 },
 {
+"nom": "Championnat Trail court « Trail de la Crète »",
+"nature": "Trail",
+"club": "Saint Jo Trail Team",
 "date": "2027-02-07",
-"nom": "Championnat de trail court sur le Trail de la Crète",
 "champ": true
 },
 {
-"date": "2027-02-07",
-"nom": "Festi Trail de Saint-Leu"
+"nom": "Festi Trail Saint-Leu",
+"nature": "Trail",
+"club": "ASRC",
+"date": "2027-02-07"
 },
 {
-"date": "2027-02-13",
-"nom": "Trail Sclérose en Plaques"
+"nom": "Trail Sclérose en Plaques",
+"nature": "Trail",
+"club": "Association Tolerans",
+"date": "2027-02-13"
 },
 {
-"date": "2027-02-13",
-"nom": "Course des Amoureux"
+"nom": "Ensemb mon ZéZèr",
+"nature": "Trail",
+"club": "Bertel Evens",
+"date": "2027-02-14"
 },
 {
+"nom": "Course des Amoureux",
+"nature": "Route",
+"club": "CAPC",
+"date": "2027-02-14"
+},
+{
+"nom": "Foulées des Amoureux",
+"nature": "Route",
+"club": "A.A. de la Marine",
+"date": "2027-02-14"
+},
+{
+"nom": "Championnat régional de Cross",
+"nature": "Cross",
+"club": "ASSCC",
 "date": "2027-02-14",
-"nom": "Ensemb mon Zézèr"
-},
-{
-"date": "2027-02-14",
-"nom": "Foulées des Amoureux"
-},
-{
-"date": "2027-02-14",
-"nom": "Championnat régional de Cross à Saint-André",
 "champ": true
 },
 {
-"date": "2027-02-20",
-"nom": "Les Foulées de La Plaine-des-Palmistes"
+"nom": "Les Foulées de la Plaine-des-Palmistes",
+"nature": "Route",
+"club": "Club Athlétisme de la Plaine des Palmistes",
+"date": "2027-02-20"
 },
 {
-"date": "2027-02-20",
-"nom": "Bois-d’Olives Urban Trail"
+"nom": "Bois-d'Olives Urbain Trail",
+"nature": "Route",
+"club": "Willtrail 974",
+"date": "2027-02-20"
 },
 {
+"nom": "Trail des Anglais",
+"nature": "Trail",
+"club": "Ilop Sport",
+"date": "2027-02-28"
+},
+{
+"nom": "Trail de l’Eden",
+"nature": "Trail",
+"club": "Athlétic Club de Bras-Panon",
 "date": "2027-02-28",
-"nom": "Trail des Anglais"
+"nd": true,
+"info": "date à préciser"
 },
 {
-"date": "2027-03-05",
-"nom": "Les Foulées de La Pointe"
+"nom": "Les Foulées de la Pointe",
+"nature": "Route",
+"club": "Grimpez Athletic Club",
+"date": "2027-03-05"
 },
 {
-"date": "2027-03-07",
-"nom": "Toutes en Foulées"
+"nom": "Toutes en Foulées",
+"nature": "Route",
+"club": "Athletisme Trail des Plaines",
+"date": "2027-03-07"
 },
 {
-"date": "2027-03-07",
-"nom": "Karé de l’Est"
+"nom": "Karé de l'Est",
+"nature": "Trail",
+"club": "ACSA",
+"date": "2027-03-07"
 },
 {
-"date": "2027-03-07",
-"nom": "Cap Volcan"
+"nom": "Cap Volcan",
+"nature": "Trail",
+"club": "Saint Jo Trail Team",
+"date": "2027-03-07"
 },
 {
-"date": "2027-03-07",
-"nom": "Le Semi-Marathon de l’ADH"
+"nom": "Le Semi-Marathon de l'ADH",
+"nature": "Route",
+"club": "Athlétic Club de la Chaloupe",
+"date": "2027-03-07"
 },
 {
-"date": "2027-03-07",
-"nom": "Les 10 km de l’ADH"
+"nom": "Les 10 km de l'ADH",
+"nature": "Route",
+"club": "ADH-ACC",
+"date": "2027-03-07"
 },
 {
-"date": "2027-03-13",
-"nom": "2e manche du Challenge UTOI à l’Etang-Salé"
+"nom": "2e manche du Challenge UTOI à l'Étang-Salé",
+"nature": "Route",
+"club": "Asso.Culturelle et Sportive de la Réunion",
+"date": "2027-03-13"
 },
 {
+"nom": "Championnat Montagne « Verticale de la Fenêtre »",
+"nature": "Trail",
+"club": "Asso. Team la Riviere",
 "date": "2027-03-14",
-"nom": "Championnat de course de montagne sur la Verticale de la Fenêtre aux Makes",
 "champ": true
 },
 {
-"date": "2027-03-16",
-"nom": "La Trans’Réunion by TCS",
-"fin": "2027-03-20"
-},
-{
+"nom": "Championnat du 10 km « Nocturne de la Ville de Saint-Paul »",
+"nature": "Route",
+"club": "Athletic Club de Saint-Paul",
 "date": "2027-03-20",
-"nom": "Championnat du 10 km sur la Nocturne de la Ville de Saint-Paul",
 "champ": true
 },
 {
-"date": "2027-03-20",
-"nom": "Les Foulées nocturnes de la Saint-Jo"
+"nom": "Les Foulées nocturnes de la Saint-Jo",
+"nature": "Route",
+"club": "Cos de Saint Joseph",
+"date": "2027-03-20"
 },
 {
-"date": "2027-03-21",
-"nom": "Trail de la Trisomie 21"
+"nom": "Trail de la Trisomie 21",
+"nature": "Trail",
+"club": "C.A.St Louis",
+"date": "2027-03-21"
 },
 {
-"date": "2027-03-21",
-"nom": "La 0-3000"
+"nom": "La 0-3000m",
+"club": "974 Watts",
+"date": "2027-03-21"
 },
 {
-"date": "2027-03-28",
-"nom": "Up & Down"
+"nom": "Up & Down",
+"nature": "Trail",
+"club": "Asso. Run Run",
+"date": "2027-03-28"
 },
 {
-"date": "2027-03-28",
-"nom": "5 et 10 km de Saint-André"
+"nom": "5 km & 10 km de Saint-André",
+"nature": "Route",
+"club": "Team Koloss",
+"date": "2027-03-28"
 },
 {
-"date": "2027-03-28",
-"nom": "Boucle du Pic du Diable"
+"nom": "Boucle du Pic du Diable",
+"nature": "Route",
+"club": "Oxytrail",
+"date": "2027-03-28"
 },
 {
-"date": "2027-03-28",
-"nom": "Trail Mars Bleu à Saint-Leu"
-},
-{
+"nom": "Saint-Jo Trail des 2 Rivières",
+"nature": "Trail",
+"club": "Sport Patrimoine Animation et Cultures Sud Sauvage",
 "date": "2027-04-03",
-"nom": "Saint-Jo Trail des 2 Rivières"
+"fin": "2027-04-04"
 },
 {
-"date": "2027-04-03",
-"nom": "Marcher, courir : un pas de plus pour la maladie de Charcot"
+"nom": "10 km de Sainte-Suzanne",
+"nature": "Route",
+"club": "C.A.Sainte Suzanne",
+"date": "2027-04-04"
 },
 {
-"date": "2027-04-04",
-"nom": "10 km de Sainte-Suzanne"
+"nom": "Trail des Agriculteurs",
+"nature": "Trail",
+"club": "Asso. Sportive et Culturelle des Agriculteurs des Hauts",
+"date": "2027-04-04"
 },
 {
-"date": "2027-04-04",
-"nom": "Trail des Agriculteurs"
+"nom": "Trail des Cordistes",
+"nature": "Trail",
+"club": "ASSEC",
+"date": "2027-04-04"
 },
 {
-"date": "2027-04-04",
-"nom": "Trail des Cordistes"
+"nom": "1re édition du 100 km de Saint-Denis",
+"nature": "Route",
+"club": "Entente du Nord",
+"date": "2027-04-04"
 },
 {
-"date": "2027-04-04",
-"nom": "1re édition des 100 km de Saint-Denis"
+"nom": "Trail Griffes du Diable Only In",
+"nature": "Trail",
+"club": "Association d’Athlétisme de Jacky Murat",
+"date": "2027-04-10"
 },
 {
+"nom": "Raid et Semi-Raid 974",
+"nature": "Trail",
+"club": "Randonnée Réunion",
 "date": "2027-04-10",
-"nom": "Trail Griffes du Diable Only In"
+"fin": "2027-04-11"
 },
 {
-"date": "2027-04-10",
-"nom": "Ronde de Cilaos"
+"nom": "Ronde de Cilaos",
+"nature": "Route",
+"club": "Cilaos Trail Addict",
+"date": "2027-04-11"
 },
 {
-"date": "2027-04-10",
-"nom": "Course de côte de Salazie"
+"nom": "Course de côte de Salazie",
+"nature": "Route",
+"club": "Athletique Jeunesse Salazie",
+"date": "2027-04-11"
 },
 {
 "date": "2027-04-11",
 "nom": "Trail des Ananas",
+"nature": "Trail",
 "info": "1re édition · trail 22 km · annonce de l'organisateur, hors calendrier de la Ligue",
 "org": true
 },
 {
-"date": "2027-04-24",
-"nom": "Le Grand D-Tour"
+"nom": "Le Grand D-Tour 65 km",
+"nature": "Course Montagne",
+"club": "Asso Rando Camélias",
+"date": "2027-04-24"
 },
 {
+"nom": "La Boucle Infernale 2027",
+"nature": "Trail",
+"club": "Ouest Trail Réunion",
 "date": "2027-04-24",
-"nom": "Le mini D-Tour"
+"fin": "2027-04-25"
 },
 {
-"date": "2027-04-24",
-"nom": "Camélias Raid"
-},
-{
-"date": "2027-04-24",
-"nom": "La Boucle Infernale"
-},
-{
-"date": "2027-04-24",
-"nom": "Raid et Semi-Raid 974"
-},
-{
-"date": "2027-04-24",
-"nom": "Trail du Glacier"
-},
-{
+"nom": "Championnat du Kilomètre Vertical",
+"nature": "Trail",
+"club": "ACOSL",
 "date": "2027-04-25",
-"nom": "Championnat du kilomètre vertical à Saint-Leu",
 "champ": true
 },
 {
-"date": "2027-05-01",
-"nom": "Trail du Volcan"
+"nom": "Trail du Volcan",
+"nature": "Trail",
+"club": "CAPC / Réunion Sport",
+"date": "2027-05-01"
 },
 {
-"date": "2027-05-01",
-"nom": "Ascension du Piton des Neiges"
+"nom": "Ascension du Piton des Neiges",
+"nature": "Course Montagne",
+"club": "Cilaos Trail Addict",
+"date": "2027-05-02"
 },
 {
-"date": "2027-05-06",
+"nom": "Mega Salazienne",
+"nature": "Trail",
+"club": "Athlétic Club de Salazie",
+"date": "2027-05-06"
+},
+{
 "nom": "Ultra-Trail des Géants",
-"fin": "2027-05-09",
-"id": "ultra-trail-geants-2027-05"
-},
-{
+"nature": "Trail",
+"club": "Asso. Culturelle et Sportive de la Réunion",
+"id": "ultra-trail-geants-2027-05",
+"info": "Ultra Terrestre, Speed Goat, Trail des Pétrels, Mega Trail de l'Ouest, Trail du Colorado",
 "date": "2027-05-06",
-"nom": "Mega Salazienne"
+"fin": "2027-05-09"
 },
 {
-"date": "2027-05-08",
-"nom": "Toutes Sportives"
+"nom": "Toutes Sportives",
+"nature": "Route",
+"club": "Canne en Fleur",
+"date": "2027-05-08"
 },
 {
-"date": "2027-05-08",
-"nom": "La Papangue"
+"nom": "La Papangue",
+"nature": "Route",
+"club": "Run Altitude",
+"date": "2027-05-08"
 },
 {
-"date": "2027-05-08",
-"nom": "10 km du Port"
+"nom": "10 km du Port",
+"nature": "Route",
+"club": "Office Municipal des Sports Le Port",
+"date": "2027-05-08"
 },
 {
+"nom": "10 km nocturne de Saint-Denis",
+"nature": "Route",
+"club": "Entente du Nord",
+"date": "2027-05-15"
+},
+{
+"nom": "Trail de Minuit",
+"nature": "Trail",
+"club": "CAPOSS",
 "date": "2027-05-15",
-"nom": "10 km nocturne de Saint-Denis"
+"fin": "2027-05-16"
 },
 {
-"date": "2027-05-15",
-"nom": "Trail de Minuit"
+"nom": "La Ronde des Goyaviers",
+"nature": "Trail",
+"club": "Ass les Trailers des Hauts",
+"date": "2027-05-16"
 },
 {
-"date": "2027-05-16",
-"nom": "La Ronde des Goyaviers"
+"nom": "Les Foulées de la Cayenne (PMS)",
+"nature": "Route",
+"club": "Saint Jo Trail Team",
+"date": "2027-05-16"
 },
 {
-"date": "2027-05-16",
-"nom": "Les Foulées de la Cayenne (PMS)"
-},
-{
-"date": "2027-05-22",
 "nom": "Odysséa Réunion",
+"nature": "Route",
+"club": "Run Odysséa",
+"date": "2027-05-22",
 "fin": "2027-05-23"
 },
 {
-"date": "2027-05-22",
-"nom": "10 km de La Plaine Oméga"
+"nom": "10 km de la Plaine Oméga",
+"nature": "Route",
+"club": "BNA",
+"date": "2027-05-22"
 },
 {
-"date": "2027-05-23",
-"nom": "Marathon des Blessés des Armées et Semi-Marathon"
+"nom": "Marathon des Blessés des Armées & Semi-Marathon",
+"nature": "Route",
+"club": "Asso. Reunionnaise des Blessés des Armées",
+"date": "2027-05-23"
 },
 {
-"date": "2027-05-29",
-"nom": "Junior Trail du Colorado"
+"nom": "Junior Trail du Colorado",
+"nature": "Trail",
+"club": "La Montagne Athletisme",
+"date": "2027-05-29"
 },
 {
-"date": "2027-05-29",
-"nom": "Les Foulées nocturnes de Sainte-Suzanne"
+"nom": "Les Foulées nocturnes de Sainte-Suzanne",
+"nature": "Route",
+"club": "ACVSS",
+"date": "2027-05-29"
 },
 {
-"date": "2027-05-29",
-"nom": "Trail La Planèze"
+"nom": "Trail La Planèze",
+"nature": "Trail",
+"club": "Asso.Tolerans",
+"date": "2027-05-29"
 },
 {
-"date": "2027-05-29",
-"nom": "Les Foulées Run Justice Péi"
+"nom": "Relais nocturne de Saint-André",
+"nature": "Route",
+"club": "TCSA",
+"date": "2027-06-05"
 },
 {
-"date": "2027-05-30",
-"nom": "Les Foulées de Villèle"
+"nom": "Urban Trail de la Rivière Saint-Louis",
+"nature": "Route",
+"club": "Running Passion 974",
+"date": "2027-06-05"
 },
 {
-"date": "2027-06-05",
-"nom": "Relais nocturne de Saint-André"
+"nom": "Les Foulées des Saveurs palmiplainoises",
+"nature": "Route",
+"club": "Athletisme Trail des Plaines",
+"date": "2027-06-06"
 },
 {
-"date": "2027-06-05",
-"nom": "Urban trail de la Rivière Saint-Louis"
+"nom": "Trail de la Roche Ecrite",
+"nature": "Trail",
+"club": "Margot Run",
+"date": "2027-06-06"
 },
 {
-"date": "2027-06-06",
-"nom": "Les Foulées des saveurs palmiplainoises"
+"nom": "Urban Trail du Tampon",
+"nature": "Route",
+"club": "Mairie Tampon / Sport Pro",
+"date": "2027-06-06"
 },
 {
-"date": "2027-06-06",
-"nom": "Trail de La Roche Ecrite"
+"nom": "L'Austral",
+"nature": "Trail",
+"club": "Chrono Run 974",
+"date": "2027-06-06"
 },
 {
-"date": "2027-06-06",
-"nom": "Urban Trail du Tampon"
+"nom": "Trail de la Résilience",
+"nature": "Trail",
+"club": "Ass.Soleil dan Ker",
+"date": "2027-06-06"
 },
 {
-"date": "2027-06-06",
-"nom": "L’Austral"
+"nom": "Trail Fah'Ame",
+"nature": "Trail",
+"club": "Asso.Team la Riviere",
+"date": "2027-06-12"
 },
 {
-"date": "2027-06-06",
-"nom": "Trail de La Résilience"
+"nom": "Foulées du CHU",
+"nature": "Route",
+"club": "ACSGS",
+"date": "2027-06-12"
 },
 {
-"date": "2027-06-12",
-"nom": "Trail Fah’Ame"
+"nom": "7e Foulées solidaires de Bras-Fusil",
+"nature": "Route",
+"club": "PMS Philippe de Camaret",
+"date": "2027-06-12"
 },
 {
-"date": "2027-06-12",
-"nom": "Foulées du CHU"
+"nom": "Challenge UTOI Trois-Bassins",
+"nature": "Route",
+"club": "Asso.Culturelle et Sportive de la Réunion",
+"date": "2027-06-12"
 },
 {
-"date": "2027-06-12",
-"nom": "7e Foulées Solidaires de Bras-Fusil"
+"nom": "Trail des 3 Salines",
+"nature": "Trail",
+"club": "Trail Rando Passion",
+"date": "2027-06-13"
 },
 {
-"date": "2027-06-12",
-"nom": "3e Challenge UTOI à Trois-Bassins"
+"nom": "Run Prédiction",
+"nature": "Route",
+"club": "Club Aquatique du Chaudron",
+"date": "2027-06-13"
 },
 {
-"date": "2027-06-13",
-"nom": "Trail des 3 Salines"
+"nom": "Grand Bassin Mollaret",
+"nature": "Trail",
+"club": "Association d’Athlétisme de Jacky Murat",
+"date": "2027-06-19"
 },
 {
-"date": "2027-06-13",
-"nom": "Run Prédiction"
+"nom": "Trail Urbain Écocité",
+"nature": "Route",
+"club": "Asso.Rando Riviere des Galets",
+"date": "2027-06-20"
 },
 {
+"nom": "Ultra Marathon des Cirques",
+"nature": "Trail",
+"club": "Ilop Sport",
 "date": "2027-06-20",
-"nom": "Trail Urbain Ecocité"
+"nd": true,
+"info": "date à préciser"
 },
 {
-"date": "2027-06-20",
-"nom": "Ultra-Marathon des Cirques"
+"nom": "XVI'Eclair",
+"nature": "Route",
+"club": "La Team Eclair",
+"date": "2027-06-20"
 },
 {
-"date": "2027-06-20",
-"nom": "XVI’Eclair"
+"nom": "Les Foulées & Semi-Marathon de Saint-André",
+"nature": "Route",
+"club": "Mouvement 974",
+"date": "2027-06-20"
 },
 {
-"date": "2027-06-20",
-"nom": "Challenge des Cannes à Saint-Benoît"
+"nom": "Cilaos Women Trail",
+"nature": "Trail",
+"club": "Randonnée Réunion",
+"date": "2027-06-26"
 },
 {
-"date": "2027-06-26",
-"nom": "Cilaos Women Trail"
+"nom": "In Tour dan Fé Nwar",
+"nature": "Route",
+"club": "Bertel Evens",
+"date": "2027-06-26"
 },
 {
-"date": "2027-06-26",
-"nom": "In Tour dans Fé Nwar"
+"nom": "Trail du Bassin Boeuf",
+"nature": "Trail",
+"club": "Club Athlétique de sainte-Suzanne",
+"date": "2027-06-27"
 },
 {
-"date": "2027-06-27",
-"nom": "Les Foulées de Saint-Louis"
+"nom": "Le Mile",
+"nature": "Route",
+"club": "Ass.Sport Pro",
+"date": "2027-06-27"
 },
 {
+"nom": "Les Foulées de Saint-Louis",
+"nature": "Route",
+"club": "CASL",
+"date": "2027-06-27"
+},
+{
+"nom": "Grand Trail de l'Ouest",
+"nature": "Trail",
+"club": "La Team Lé La",
 "date": "2027-07-02",
-"nom": "Grand Trail de l’Ouest",
 "fin": "2027-07-04"
 },
 {
-"date": "2027-07-03",
-"nom": "Festy Trail Dionysien"
+"nom": "Festy Trail Dionysien",
+"nature": "Trail",
+"club": "AC Entente du Nord",
+"date": "2027-07-03"
 },
 {
-"date": "2027-07-04",
-"nom": "Leu Trail de La Chaloupe"
+"nom": "Leu Trail de la Chaloupe",
+"nature": "Trail",
+"club": "Athlétic Club Chaloupe",
+"date": "2027-07-04"
 },
 {
+"nom": "Trail et semi-trail de Cilaos",
+"nature": "Trail",
+"club": "Cilaos Trail Addict",
+"date": "2027-07-10"
+},
+{
+"nom": "Championnat Semi-Marathon Sainte-Suzanne",
+"nature": "Route",
+"club": "Team Run 974",
 "date": "2027-07-10",
-"nom": "Trail et semi-trail de Cilaos"
+"nd": true,
+"champ": true,
+"info": "date à préciser"
 },
 {
-"date": "2027-07-12",
-"nom": "Championnat de Semi-Marathon à Sainte-Suzanne",
-"champ": true
+"nom": "Trail de la Rivière des Galets",
+"nature": "Trail",
+"club": "Asso Rando Rivière des Galets",
+"date": "2027-07-17"
 },
 {
-"date": "2027-07-17",
-"nom": "Trail de La Rivière-des-Galets"
+"nom": "Boucle de Salazie",
+"nature": "Trail",
+"club": "AC Salazie",
+"date": "2027-07-25"
 },
 {
-"date": "2027-07-25",
-"nom": "Boucle de Salazie"
+"nom": "Grand Bénare-Trois Bassinoise",
+"nature": "Trail",
+"club": "AC Trois-Bassins",
+"date": "2027-07-25"
 },
 {
-"date": "2027-07-25",
-"nom": "Grand Bénare-Trois Bassinoise"
-},
-{
-"date": "2027-07-30",
 "nom": "Leu Oxygène Trail",
-"fin": "2027-07-31",
-"id": "leu-oxygene-trail-2027-07"
+"nature": "Trail",
+"club": "Canne en Fleur",
+"id": "leu-oxygene-trail-2027-07",
+"info": "Traversée de l'Ouest (30/07), Ascension de l'Ouest, Sakikour, Run Oxygène",
+"date": "2027-07-30",
+"fin": "2027-07-31"
 },
 {
-"date": "2027-07-31",
-"nom": "Les Foulées semi-nocturnes de la Ville de Saint-Pierre"
+"nom": "Les Foulées semi-nocturnes de la Ville de Saint-Pierre",
+"nature": "Route",
+"club": "ACS Grand Sud",
+"date": "2027-07-31"
 },
 {
-"date": "2027-08-01",
-"nom": "Be Maho Trail"
+"nom": "Le Be Maho Trail",
+"nature": "Trail",
+"club": "Komper Da Kour",
+"date": "2027-08-01"
 },
 {
-"date": "2027-08-07",
-"nom": "La Boucle du Pic Adam"
+"nom": "Vaincre Parkinson",
+"nature": "Trail",
+"club": "Ass Trail Rando Passion",
+"date": "2027-08-08"
 },
 {
+"nom": "Championnat Marathon de la Corniche",
+"nature": "Route",
+"club": "LRA / ASRC",
 "date": "2027-08-08",
-"nom": "Vaincre Parkinson"
-},
-{
-"date": "2027-08-08",
-"nom": "Championnat de Marathon sur le Marathon de La Corniche",
 "champ": true
 },
 {
-"date": "2027-08-08",
-"nom": "Les Foulées de la Corniche"
+"nom": "Les Foulées de la Corniche",
+"nature": "Route",
+"club": "ASRC",
+"date": "2027-08-08"
 },
 {
-"date": "2027-08-08",
-"nom": "Trail du Sud sauvage"
+"nom": "Trail du Sud Sauvage",
+"nature": "Trail",
+"club": "Sport Pro",
+"date": "2027-08-08"
 },
 {
-"date": "2027-08-14",
-"nom": "Trophée de l’Océan Indien"
+"nom": "Trophée de l'Océan Indien",
+"nature": "Trail",
+"club": "Association Culturelle et Sportive de la Reunion",
+"date": "2027-08-14"
 },
 {
+"nom": "Leu 5/10",
+"nature": "Route",
+"club": "ACOSL",
+"date": "2027-08-15"
+},
+{
+"nom": "Championnat des 5 km de Saint-Leu",
+"nature": "Route",
+"club": "ACOSL",
 "date": "2027-08-15",
-"nom": "Championnat des 5 km sur le Leu 5/10",
 "champ": true
 },
 {
-"date": "2027-08-15",
-"nom": "Boucle Parapente"
+"nom": "Boucle Parapente",
+"nature": "Trail",
+"club": "Association la Team Lé La",
+"date": "2027-08-15"
 },
 {
-"date": "2027-08-22",
-"nom": "Trail des Sources"
+"nom": "Trail des Sources",
+"nature": "Trail",
+"club": "Asso.Tolerans",
+"date": "2027-08-22"
 },
 {
+"nom": "Les Kms des Photographes",
+"nature": "Route",
+"club": "Bertel Evens",
 "date": "2027-08-22",
-"nom": "Les Km des Photographes",
 "info": "1re édition · trail 22 km, rando 10 km, course marmay, relais à 2 (selon autorisations)"
 },
 {
-"date": "2027-08-28",
-"nom": "Cimasa-Run"
+"nom": "Cimasa-Run",
+"nature": "Course Montagne",
+"club": "Randonnée Réunion",
+"date": "2027-08-28"
 },
 {
-"date": "2027-08-28",
-"nom": "Un Ti Tour en Plus"
+"nom": "Un Ti Tour en Plus",
+"nature": "Route",
+"club": "Asso.Run Run",
+"date": "2027-08-28"
 },
 {
-"date": "2027-08-29",
-"nom": "Foulées Sentier Littoral Sainte-Suzanne"
+"nom": "Foulées Sentier Littoral Sainte-Suzanne",
+"nature": "Route",
+"club": "AA La Marine",
+"date": "2027-08-29"
 },
 {
-"date": "2027-08-29",
-"nom": "Les Foulées du Bois-d’Olives"
+"nom": "Les Foulées du Bois-d'Olives",
+"nature": "Route",
+"club": "Club d’Athlétisme Loisir et Santé Sud",
+"date": "2027-08-29"
 },
 {
-"date": "2027-09-04",
-"nom": "10 km nocturne du Port"
+"nom": "10 km nocturne du Port",
+"nature": "Route",
+"club": "Office Municipal du Sport Le Port",
+"date": "2027-09-04"
 },
 {
-"date": "2027-09-05",
-"nom": "Raid Tuit-Tuit"
+"nom": "Raid Tuit-Tuit",
+"nature": "Trail",
+"club": "Maison des Parents de l'Océan Indien (MPOI)",
+"date": "2027-09-05"
 },
 {
-"date": "2027-09-05",
-"nom": "Trail du Coteau Sec"
+"nom": "Trail du Coteau Sec",
+"nature": "Trail",
+"club": "Dimitile Sport Action",
+"date": "2027-09-05"
 },
 {
-"date": "2027-09-05",
-"nom": "Trail des Abeilles"
+"nom": "Trail des Abeilles",
+"nature": "Trail",
+"club": "Team Bee Trail",
+"date": "2027-09-05"
 },
 {
-"date": "2027-09-05",
-"nom": "Trail des Guêpes"
+"nom": "Trail des Guêpes",
+"nature": "Trail",
+"club": "Team Bee Trail",
+"date": "2027-09-05"
 },
 {
-"date": "2027-09-11",
-"nom": "Les Foulées féminines de La Plaine-des-Palmistes"
+"nom": "Les Foulées féminines de la Plaine-des-Palmistes",
+"nature": "Route",
+"club": "C.A. Plaine des Palmistes",
+"date": "2027-09-11"
 },
 {
-"date": "2027-09-11",
-"nom": "Foulées pédestres du Solida’Run"
+"nom": "Foulées pédestres du Solida'Run",
+"nature": "Route",
+"club": "AHPS",
+"date": "2027-09-11"
 },
 {
-"date": "2027-09-11",
-"nom": "Trail des Petits Cavaliers"
+"nom": "Trail des Petits Cavaliers",
+"nature": "Trail",
+"club": "Club Omnisport Stade de Petite Ile",
+"date": "2027-09-11"
 },
 {
-"date": "2027-09-11",
-"nom": "Trail des Chouchous"
+"nom": "Trail des Chouchous",
+"nature": "Trail",
+"club": "A.J.Salazie",
+"date": "2027-09-11"
 },
 {
-"date": "2027-09-12",
-"nom": "Foulées de Manap’"
+"nom": "Foulées de Manap'",
+"nature": "Trail",
+"club": "St-Jo Trail Team",
+"date": "2027-09-12"
 },
 {
-"date": "2027-09-12",
-"nom": "Trail Autrement"
+"nom": "Trail Autrement",
+"nature": "Trail",
+"club": "UFOLEP 974",
+"date": "2027-09-12"
 },
 {
-"date": "2027-09-18",
-"nom": "Trail des Sables"
+"nom": "Trail des Sables",
+"nature": "Trail",
+"club": "Dominicaine Athletisme",
+"date": "2027-09-18"
 },
 {
-"date": "2027-09-18",
-"nom": "Trail Urbain de Saint-Denis"
+"nom": "Trail Urbain de Saint-Denis",
+"nature": "Route",
+"club": "Ilop Sport",
+"date": "2027-09-18"
 },
 {
-"date": "2027-09-19",
-"nom": "Trail des Survivantes"
+"nom": "Trail des Survivantes",
+"nature": "Trail",
+"club": "Sport Pro",
+"date": "2027-09-19"
 },
 {
-"date": "2027-09-19",
-"nom": "Trail du Patrimoine de La Possession"
+"nom": "Trail du Patrimoine de la Possession",
+"nature": "Trail",
+"club": "Tition Run & Bike",
+"date": "2027-09-19"
 },
 {
-"date": "2027-09-19",
-"nom": "Challenge des Cannes à Saint-Joseph"
+"nom": "Océan Trail",
+"nature": "Trail",
+"club": "Asso.Tolerans",
+"date": "2027-09-26"
 },
 {
-"date": "2027-09-25",
-"nom": "Océan Trail"
+"nom": "Littoral Trail 3B",
+"nature": "Trail",
+"club": "ACSTB",
+"date": "2027-09-26"
 },
 {
-"date": "2027-09-26",
-"nom": "Littoral Trail 3B"
+"nom": "Foulées du Cœur",
+"nature": "Route",
+"club": "Sport Pro",
+"date": "2027-09-26"
 },
 {
-"date": "2027-09-26",
-"nom": "Foulées du Cœur"
+"nom": "Les Foulées de Grand-Bois",
+"nature": "Route",
+"club": "CASL",
+"date": "2027-09-26"
 },
 {
-"date": "2027-09-26",
-"nom": "Les Foulées de Grand-Bois"
+"nom": "Trail Urbain du Phare",
+"nature": "Route",
+"club": "C.A.Sainte Suzanne",
+"date": "2027-10-02"
 },
 {
+"nom": "Tour de l'Île Pédestre by UTOI",
+"nature": "Route",
+"club": "Asso. Culturelle et Sportive de la Réunion",
 "date": "2027-10-02",
-"nom": "Tour de l’Île Pédestre by UTOI",
 "fin": "2027-10-03"
 },
 {
-"date": "2027-10-02",
-"nom": "Trail Urbain du Phare"
+"nom": "Les Foulées de la Fraise",
+"nature": "Route",
+"club": "Ass. Source V Avant",
+"date": "2027-10-03"
 },
 {
-"date": "2027-10-03",
-"nom": "Les Foulées de la Fraise"
+"nom": "Foulées des Florilèges",
+"nature": "Route",
+"club": "Sport Pro",
+"date": "2027-10-09"
 },
 {
-"date": "2027-10-03",
-"nom": "Relais de la Ville de Saint-Denis"
+"nom": "Le Trail des Lentilles",
+"nature": "Trail",
+"club": "Cilaos Trail Addict",
+"date": "2027-10-09"
 },
 {
-"date": "2027-10-03",
-"nom": "Trail des deux Pitons"
+"nom": "Trail Urbain des Maillons",
+"nature": "Route",
+"club": "Asso. Les Maillons de l'Espoir",
+"date": "2027-10-09"
 },
 {
-"date": "2027-10-09",
-"nom": "Foulées des Florilèges"
+"nom": "10 km du Colosse",
+"nature": "Route",
+"club": "AC st André",
+"date": "2027-10-10"
 },
 {
-"date": "2027-10-09",
-"nom": "Trail Urbain des Maillons"
-},
-{
-"date": "2027-10-10",
-"nom": "10 km du Colosse"
-},
-{
-"date": "2027-10-14",
 "nom": "Grand Raid de La Réunion",
+"nature": "Ultra Trail",
+"club": "Association Grand Raid",
+"date": "2027-10-14",
 "fin": "2027-10-17"
 },
 {
-"date": "2027-10-23",
-"nom": "Leu Urban Trail des Eclairs"
+"nom": "Leu Urban Trail des Eclairs",
+"nature": "Route",
+"club": "La Team Eclair",
+"date": "2027-10-23"
 },
 {
-"date": "2027-10-24",
-"nom": "Les 10 km de La Réunion"
+"nom": "Les 10 km de la Réunion",
+"nature": "Route",
+"club": "Sport Pro",
+"date": "2027-10-24"
 },
 {
-"date": "2027-10-24",
-"nom": "Course de l’Ail"
+"nom": "Course et relais de l'Ail",
+"nature": "Trail",
+"club": "Club Omnisport Stade de Petite Ile",
+"date": "2027-10-24"
 },
 {
-"date": "2027-10-30",
-"nom": "Trail Urbain des Avirons"
+"nom": "Foulées de la Gousse d'Ail",
+"nature": "Trail",
+"club": "Club Omnisport Stade de Petite Ile",
+"date": "2027-10-24"
 },
 {
-"date": "2027-10-31",
-"nom": "Mamz’Elles Run"
+"nom": "Trail Urbain des Avirons",
+"nature": "Route",
+"club": "Asso.Tolerans",
+"date": "2027-10-30"
 },
 {
-"date": "2027-10-31",
-"nom": "Tamarun"
+"nom": "Mamz'Elles Run",
+"nature": "Trail",
+"club": "Chrono Run 974",
+"date": "2027-10-31"
 },
 {
-"date": "2027-11-06",
-"nom": "Les Foulées de Tévelave"
+"nom": "Tamarun",
+"nature": "Trail",
+"club": "Trail Rando Passion",
+"date": "2027-10-31"
 },
 {
-"date": "2027-11-07",
-"nom": "La Route du Lait"
+"nom": "Les Foulées du Tévelave",
+"nature": "Route",
+"club": "Ass. La Team Choka",
+"date": "2027-11-06"
 },
 {
-"date": "2027-11-07",
-"nom": "Foulées Nature Niagara Sainte-Suzanne"
+"nom": "La Route du Lait",
+"nature": "Route",
+"club": "Asso. Sportive et Culturelle des Agriculteurs des Hauts",
+"date": "2027-11-07"
 },
 {
-"date": "2027-11-11",
-"nom": "Trail Urbain de Saint-Leu"
+"nom": "Foulées Nature Niagara Sainte-Suzanne",
+"nature": "Trail",
+"club": "AA La Marine",
+"date": "2027-11-07"
 },
 {
-"date": "2027-11-11",
-"nom": "Relais Marathon de Saint-Benoît"
+"nom": "Trail Urbain de Saint-Leu",
+"nature": "Route",
+"club": "Rando Camelias",
+"date": "2027-11-11"
 },
 {
-"date": "2027-11-11",
-"nom": "Trail des Motards"
+"nom": "Relais Marathon de Saint-Benoît",
+"nature": "Route",
+"club": "STASA",
+"date": "2027-11-11"
 },
 {
-"date": "2027-11-13",
-"nom": "Trail du Curcuma"
+"nom": "Maloya Trail",
+"nature": "Trail",
+"club": "Sport Pro",
+"date": "2027-11-11"
 },
 {
-"date": "2027-11-13",
-"nom": "Trail de Lesquilibre"
+"nom": "Trail du Curcuma",
+"nature": "Trail",
+"club": "Maison des Associations de St Joseph",
+"date": "2027-11-13"
 },
 {
-"date": "2027-11-14",
-"nom": "Diab’Athlétique"
+"nom": "Trail de Lesquilibre",
+"nature": "Trail",
+"club": "Ass.Lesquilibres",
+"date": "2027-11-13"
 },
 {
-"date": "2027-11-14",
-"nom": "Course des Artichauts"
+"nom": "Diab’Athlétique",
+"nature": "Route",
+"club": "Club d’Athlétisme Loisir et Santé Sud",
+"date": "2027-11-14"
 },
 {
+"nom": "Course des Artichauts",
+"nature": "Route",
+"club": "Athletic Club Chaloupe",
+"date": "2027-11-14"
+},
+{
+"nom": "Cross City Sport",
+"nature": "Cross",
+"club": "A.C.Entente du Nord",
+"date": "2027-11-20"
+},
+{
+"nom": "La Tropica'Dingue",
+"nature": "Course Obstacles",
+"club": "Ilop Sport",
 "date": "2027-11-20",
-"nom": "La Tropicadingue",
 "fin": "2027-11-21"
 },
 {
-"date": "2027-11-20",
-"nom": "Cross City Sport"
+"nom": "Kalla Nescafé",
+"nature": "Trail",
+"club": "Club d’Athlétisme de la Possession (CAPOSS)",
+"date": "2027-11-21"
 },
 {
-"date": "2027-11-21",
-"nom": "Kalla Nescafé"
+"nom": "Leu Trail des Musées",
+"nature": "Trail",
+"club": "ACOSL",
+"date": "2027-11-21"
 },
 {
-"date": "2027-11-21",
-"nom": "Leu Trail des Musées"
+"nom": "Les Foulées des 3 Villages",
+"nature": "Route",
+"club": "CS Crete",
+"date": "2027-11-21"
 },
 {
-"date": "2027-11-21",
-"nom": "Les Foulées des Trois Villages"
+"nom": "Cross du Vétyver",
+"nature": "Cross",
+"club": "COSPI",
+"date": "2027-11-21"
 },
 {
-"date": "2027-11-21",
-"nom": "Cross du Vétyver"
+"nom": "Trail Mac'Zheimer",
+"nature": "Route",
+"club": "Rotary Club Passeport Tampon Terre Sainte",
+"date": "2027-11-21"
 },
 {
-"date": "2027-11-21",
-"nom": "Trail Mac’Zheimer"
+"nom": "Trail Urbain de Saint-Pierre",
+"nature": "Route",
+"club": "Oxyjeune",
+"date": "2027-11-27"
 },
 {
-"date": "2027-11-27",
-"nom": "Trail Urbain de Saint-Pierre"
+"nom": "Mafate Trail Tour",
+"nature": "Trail",
+"club": "Randonnée Réunion",
+"date": "2027-11-27"
 },
 {
-"date": "2027-11-27",
-"nom": "Mafate Trail Tour"
+"nom": "Les Foulées nocturnes de Saint-Louis",
+"nature": "Route",
+"club": "Association Team La Riviere",
+"date": "2027-11-27"
 },
 {
-"date": "2027-11-28",
-"nom": "Trail court de Villèle"
+"nom": "Trail court de Villèle",
+"nature": "Trail",
+"club": "ACSP",
+"date": "2027-11-28"
 },
 {
-"date": "2027-11-28",
-"nom": "Les Foulées de La Possession"
+"nom": "Les Foulées de la Possession",
+"nature": "Route",
+"club": "Athlétic Club Possession",
+"date": "2027-11-28"
 },
 {
-"date": "2027-11-28",
-"nom": "Foulées nocturnes des Berges de La Rivière-du-Mât-les-Bas"
+"nom": "Foulées nocturnes des Berges de la Rivière du Mât-les-Bas",
+"nature": "Trail",
+"club": "Ass.Team Zumbazones",
+"date": "2027-11-28"
 },
 {
-"date": "2027-12-04",
-"nom": "La Boucle du Cœur de l’Est"
+"nom": "La Boucle du Cœur de l'Est",
+"nature": "Trail",
+"club": "Asso. Culturelle et Sportive de la Réunion",
+"date": "2027-12-04"
 },
 {
-"date": "2027-12-05",
-"nom": "Cross Edmond-Albius"
+"nom": "Cross Edmond Albius",
+"nature": "Cross",
+"club": "Athlétic Club Vanille de Sainte-Suzanne",
+"date": "2027-12-05"
 },
 {
-"date": "2027-12-06",
-"nom": "Cross du Parc Boisé USPGA"
+"nom": "Cross du Parc Boisé USPGA",
+"nature": "Cross",
+"club": "USPGA",
+"date": "2027-12-06"
 },
 {
-"date": "2027-12-06",
-"nom": "La Trans-Dimitile"
+"nom": "Kours Ti Bwa",
+"nature": "Trail",
+"club": "Sentier La Renyon",
+"date": "2027-12-06"
 },
 {
-"date": "2027-12-11",
-"nom": "Maloya Trail"
+"nom": "La Trans-Dimitile",
+"nature": "Trail",
+"club": "Dimitile Sport Action",
+"date": "2027-12-06"
 },
 {
-"date": "2027-12-11",
-"nom": "Trail Urbain de Sainte-Marie"
+"nom": "Trail Urbain de Sainte-Marie",
+"nature": "Route",
+"club": "Team Omnitrail 974",
+"date": "2027-12-11"
 },
 {
-"date": "2027-12-11",
-"nom": "Christmas Run"
+"nom": "Christmas Run",
+"nature": "Route",
+"club": "Bertel Evens",
+"date": "2027-12-11"
 },
 {
-"date": "2027-12-12",
-"nom": "Marmailles Master Trail"
+"nom": "Marmailles Masters Trail",
+"nature": "Trail",
+"club": "Randonnée Réunion",
+"date": "2027-12-12"
 },
 {
-"date": "2027-12-12",
-"nom": "Finale Challenge UTOI à Saint-Denis"
+"nom": "Relais trail Le Vieux Saint-Paul – Laperrière",
+"nature": "Trail",
+"club": "Bois de Nefles Athletisme",
+"date": "2027-12-12"
 },
 {
-"date": "2027-12-12",
-"nom": "Trail Nature de Sainte-Anne"
+"nom": "Finale Challenge UTOI Saint-Denis",
+"nature": "Route",
+"club": "Asso.Culturelle et Sportive de la Réunion",
+"date": "2027-12-12"
 },
 {
-"date": "2027-12-18",
-"nom": "Raid des Dalons",
-"fin": "2027-12-20"
+"nom": "Trail Nature de Sainte-Anne",
+"nature": "Trail",
+"club": "STASA",
+"date": "2027-12-12"
 },
 {
-"date": "2027-12-18",
-"nom": "Foulées de la Liberté"
+"nom": "Foulées de la Liberté",
+"nature": "Route",
+"club": "Handisport Club Saint Denis",
+"date": "2027-12-18"
 },
 {
-"date": "2027-12-18",
-"nom": "The Pace Montain"
+"nom": "The Pace Montain",
+"nature": "Trail",
+"club": "AC Salazie",
+"date": "2027-12-18"
 },
 {
-"date": "2027-12-19",
-"nom": "Foulées du Verbal"
+"nom": "Foulées du Verbal",
+"nature": "Route",
+"club": "Asso. Team la Riviere",
+"date": "2027-12-19"
 },
 {
-"date": "2027-12-19",
-"nom": "Challenge des Cannes à Saint-Louis"
+"nom": "Relais des Marrons",
+"nature": "Trail",
+"club": "C.A.Sainte Suzanne",
+"date": "2027-12-20"
 },
 {
-"date": "2027-12-20",
-"nom": "Relais des Marrons"
+"nom": "Trail et Rando Charrette",
+"nature": "Trail",
+"club": "Ass Trail Rando Passion",
+"date": "2027-12-20"
 },
 {
-"date": "2027-12-20",
-"nom": "Trail et Rando Charrette"
-},
-{
-"date": "2027-12-20",
-"nom": "Les Foulées Cités du Volcan"
+"nom": "Les Foulées Cité du Volcan",
+"nature": "Route",
+"club": "AAJM",
+"date": "2027-12-20"
 }
-],
-"url": "https://reunion.athle.fr"
+]
 }
