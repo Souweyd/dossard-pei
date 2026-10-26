@@ -1,7 +1,7 @@
 {
 "saison": 2027,
-"source": "Commission running de la Ligue réunionnaise d'athlétisme, réunion des organisateurs du 24/10/2026 (publié par Le Quotidien le 25/10/2026)",
-"maj": "2026-10-25",
+"source": "Commission running de la Ligue réunionnaise d'athlétisme, réunion des organisateurs du 24/10/2026 (publié par Le Quotidien le 25/10/2026), complété par les annonces des organisateurs",
+"maj": "2026-10-26",
 "evenements": [
 {
 "date": "2027-01-09",
@@ -190,6 +190,12 @@
 {
 "date": "2027-04-10",
 "nom": "Course de côte de Salazie"
+},
+{
+"date": "2027-04-11",
+"nom": "Trail des Ananas",
+"info": "1re édition · trail 22 km · annonce de l'organisateur, hors calendrier de la Ligue",
+"org": true
 },
 {
 "date": "2027-04-24",
@@ -467,7 +473,8 @@
 },
 {
 "date": "2027-08-22",
-"nom": "Les Km des Photographes"
+"nom": "Les Km des Photographes",
+"info": "1re édition · trail 22 km, rando 10 km, course marmay, relais à 2 (selon autorisations)"
 },
 {
 "date": "2027-08-28",
