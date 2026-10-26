@@ -1061,7 +1061,9 @@ const notYet = x => !!(x && x.ouverture && x.ouverture > nowReu());
 const ouvTxt = o => { const d = o.slice(0, 10), h = +o.slice(11, 13), m = o.slice(14, 16); return (d === todayISO() ? "aujourd'hui" : `le ${+d.slice(8)}/${d.slice(5, 7)}`) + ` à ${h}h${m === "00" ? "" : m}`; };
 const canReg = r => isOpen(r) || notYet(r) || !!r.approx;   // a registration button only while it is possible (or announced)
 const ctaTxt = r => notYet(r) ? "Page d'inscription" : r.approx ? "Voir la fiche" : "S'inscrire";
-const isOpen = r => !r.complet && !r.clos && !notYet(r) && (!r.limite || r.limite >= todayISO());
+// registrations announced but not open yet, opening date unknown: "avenir": true (ignored once "ouverture" is set)
+const aVenir = x => !!(x && x.avenir && !x.ouverture);
+const isOpen = r => !r.complet && !r.clos && !aVenir(r) && !notYet(r) && (!r.limite || r.limite >= todayISO());
 // verification of each race's registration state (verif.json, written by the hourly sync on GitHub)
 let VERIF_ST = { at: null, races: {} };
 const vstate = r => VERIF_ST.races[r.id] || null;
@@ -1218,6 +1220,7 @@ function stateBadge(r) {
   if (vstate(r) === "alerte") return `<span class="state chk">À vérifier</span>`;
   if (r.complet) return `<span class="state full complet">Complet</span>`;
   if (notYet(r)) return `<span class="state ouv">Ouverture ${ouvTxt(r.ouverture)}</span>`;
+  if (aVenir(r)) return `<span class="state full clos avenir">À venir</span>`;
   if (!isOpen(r)) return `<span class="state full clos">Clos</span>`;
   if (r.limite) { const n = daysTo(r.limite); if (n <= 7) return `<span class="state soon">${n <= 0 ? "Clôture aujourd'hui" : "Clôture dans " + n + " j"}</span>`; return `<span class="state">Jusqu'au ${+r.limite.slice(8)}/${r.limite.slice(5, 7)}</span>`; }
   return r.approx ? "" : `<span class="state">Ouvert</span>`;
@@ -1548,6 +1551,7 @@ function epState(e, r) {
   if (e.complet || (r.complet && !e.url)) return `<span class="state full complet">Complet</span>`;
   if (e.clos || (r.clos && !e.url)) return `<span class="state full clos">Clos</span>`;
   if (notYet(e) || (!e.url && notYet(r))) return `<span class="state ouv">Ouverture ${ouvTxt((notYet(e) ? e : r).ouverture)}</span>`;
+  if (aVenir(e) || (!e.url && !e.ouverture && aVenir(r))) return `<span class="state full clos avenir">À venir</span>`;
   const n = lim ? daysTo(lim) : null;
   const when = n == null ? "" : n <= 7 ? `<span class="eslim hot">${n <= 0 ? "clôture aujourd'hui" : "clôture dans " + n + " j"}</span>` : `<span class="eslim">jusqu'au ${+lim.slice(8)}/${lim.slice(5, 7)}</span>`;
   const url = e.url || r.inscription;

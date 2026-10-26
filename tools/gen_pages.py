@@ -239,6 +239,7 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
     if past: st = "Course passée"
     elif r.get("complet"): st = "Complet"
     elif r.get("clos") or (r.get("limite") and r["limite"] < today): st = "Inscriptions closes"
+    elif r.get("avenir") and not r.get("ouverture"): st = "Inscriptions à venir"
     elif not_yet:
         o = r["ouverture"]; st = f"Ouverture des inscriptions le {int(o[8:10])} {MOIS[int(o[5:7]) - 1]} à {int(o[11:13])}h{o[14:16] if o[14:16] != '00' else ''}"
         can_reg = True

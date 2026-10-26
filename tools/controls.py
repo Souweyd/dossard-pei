@@ -59,6 +59,8 @@ def shown_open(r, today):
         return False
     if r.get("ouverture") and r["ouverture"][:10] > today:
         return False
+    if r.get("avenir") and not r.get("ouverture"):   # registrations not open yet, date unknown
+        return False
     return not eps or any(not e.get("complet") and not e.get("clos") and not (e.get("limite") and e["limite"] < today) for e in eps)
 
 

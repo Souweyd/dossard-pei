@@ -111,6 +111,8 @@ def _state(r, today):
         return "complet"
     if r.get("clos") or (r.get("limite") and r["limite"] < today):
         return "clos"
+    if r.get("avenir") and not r.get("ouverture"):
+        return "avenir"
     return "ouvert"
 
 
@@ -137,7 +139,7 @@ def diff(prev, cur, today, now):
         if sp != sc and sc != "ouvert":
             ev.append({"at": at, "t": sc, "id": i, "nom": r["nom"], "date": r["date"]})
         elif sp != sc:
-            ev.append({"at": at, "t": "réouvert", "id": i, "nom": r["nom"], "date": r["date"]})
+            ev.append({"at": at, "t": "ouverture" if sp == "avenir" else "réouvert", "id": i, "nom": r["nom"], "date": r["date"]})
     for i, p in P.items():
         if i not in C and i not in alias and (p.get("fin") or p.get("date") or "") >= today:
             ev.append({"at": at, "t": "retrait", "id": i, "nom": p["nom"], "date": p.get("date")})
@@ -153,7 +155,8 @@ def journal_add(events, now, path="state/journal.json"):
 
 
 LIB = {"ajout": "Nouvelle course", "retrait": "Course retirée", "date": "Date modifiée", "heure": "Heure modifiée",
-       "complet": "Complète", "clos": "Inscriptions closes", "réouvert": "Inscriptions rouvertes"}
+       "complet": "Complète", "clos": "Inscriptions closes", "réouvert": "Inscriptions rouvertes",
+       "avenir": "Inscriptions à venir", "ouverture": "Inscriptions ouvertes"}
 
 
 def line(e):
