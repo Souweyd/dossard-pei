@@ -288,7 +288,12 @@ def dag_races(page):
         stocked = [p for p in prices if (p.get("id_stock") or -1) > 0 and p.get("total_places")]
         full = bool(stocked) and len(stocked) == len(prices) and all((p.get("remaining_places") or 0) <= 0 for p in stocked)
         st = dt.datetime.fromisoformat(j["event_start_date"].replace("Z", "+00:00")).astimezone(TZ) if j.get("event_start_date") else None
-        out.append({"nom": j.get("title") or "", "km": None, "limite": lim, "complet": full,
+        # price shown today: the period on sale now (else the next one); "/ équipe" for team entries
+        now_z = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M")
+        live = [p for p in prices if isinstance(p.get("price"), (int, float)) and p["price"] > 0 and (p.get("end_date") or "9")[:16] >= now_z]
+        cur = [p for p in live if (p.get("start_date") or "")[:16] <= now_z] or live
+        prix = (f"{min(p['price'] for p in cur):g} €" + (" / équipe" if any(p.get("is_teams") for p in cur) else "")) if cur else None
+        out.append({"nom": j.get("title") or "", "km": None, "limite": lim, "complet": full, "prix": prix,
                     "h": st.strftime("%Hh%M") if st else None, "date": st.date().isoformat() if st else None})
     return out
 
@@ -321,6 +326,7 @@ if dag_targets:
             if t["limite"] and ep.get("limite") != t["limite"]:
                 ep["limite"] = t["limite"]
                 changes.append(f"{r['id']}:{ep.get('nom', i)}:limite")
+            setf(ep, r, "prix", t.get("prix"), f"{ep.get('nom', i)}:prix")
             # sold-out stock marks "complet"; never cleared here (organisers often close a nearly full race by hand)
             if t["complet"] and not ep.get("complet"):
                 ep["complet"] = True
@@ -425,7 +431,10 @@ def ad_njuko(u):
             etat = "ouvert"
         else:
             continue
-        out.append({"nom": nom.strip(), "km": None, "etat": etat})
+        live = [x.get("value") for x in prices if isinstance(x.get("value"), (int, float)) and x["value"] > 0]
+        km = re.search(r"(\d+(?:[.,]\d+)?)\s*km", nom, re.I)
+        out.append({"nom": nom.strip(), "km": float(km.group(1).replace(",", ".")) if km else None, "etat": etat,
+                    **({"prix": f"{min(live):g} €"} if live and etat == "ouvert" else {})})
     return out
 
 
@@ -524,6 +533,13 @@ for r in data["races"]:
                     res = {k: {"etat": only} for k in range(len(eps))}
                 else:
                     ok = False
+        if any(t.get("prix") for t in theirs) and can(r, "epreuves"):   # price given by the platform (njuko)
+            pm = {0: theirs[0]} if len(eps) == 1 and len(theirs) == 1 else match(eps, theirs, r.get("nom", ""))
+            lo, lt = [k for k in range(len(eps)) if k not in pm], [t for t in theirs if all(t is not v for v in pm.values())]
+            if len(lo) == 1 and len(lt) == 1:   # the last unmatched pair
+                pm[lo[0]] = lt[0]
+            for k, t in pm.items():
+                setf(eps[k], r, "prix", t.get("prix"), f"{eps[k].get('nom', k)}:prix")
         for k, t in res.items():
             set_state(r, eps[k], t["etat"], f"{r['id']}:{eps[k].get('nom', k)}")
             if t.get("url") and eps[k].get("url") != t["url"]:   # closest page to the registration of this race
@@ -686,13 +702,14 @@ def sp_price(page):
     return " / ".join(f"{p} {l}".strip() for p, l in rows)
 
 
-if NOW.hour % 3 == 0 or "--all" in sys.argv:
+FULL_PRIX = NOW.hour % 3 == 0 or "--all" in sys.argv   # every 3 hours all prices; each hour the épreuves still without one (new races)
+if True:
     prix_lus, essais, derr = 0, 0, None
     for r in data["races"]:
         if r.get("hidden") or not can(r, "epreuves"):
             continue
         for ep in r.get("epreuves", []):
-            if "sportpro.re/courses/epreuves/" not in (ep.get("url") or ""):
+            if "sportpro.re/courses/epreuves/" not in (ep.get("url") or "") or (not FULL_PRIX and ep.get("prix")):
                 continue
             essais += 1
             try:
@@ -703,7 +720,7 @@ if NOW.hour % 3 == 0 or "--all" in sys.argv:
             except Exception as e:
                 errors.append(f"sportpro prix {r['id']} ({e.__class__.__name__})")
                 derr = f"{e.__class__.__name__} sur {ep['url']}"
-    if essais:
+    if essais and FULL_PRIX:
         run["sportpro_prix"] = {"metrics": {"prix": prix_lus}, **({"error": derr} if not prix_lus and derr else {})}
 
 if changes:
