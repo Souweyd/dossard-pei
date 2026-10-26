@@ -7,11 +7,11 @@ FONTS = SOC / 'fonts'
 
 # ---------------------------------------------------------------- colours / formats
 # palette of the site (cream page, sky hero, warm dark text, teal buttons, orange alerts)
-C = dict(bg='#f5efe6', surface='#fffaf3', fg='#2a211c', muted='#6e645c', line='#e4d9ca',
-         accent='#0d6b67', soft='#d6ebe7', hot='#d2481e', sea='#cfe6f3', red='#c62828', dark='#2a211c', mint='#0d6b67',
+C = dict(bg='#f2f2f7', surface='#ffffff', fg='#111113', muted='#6e6e73', line='#e3e3e8',
+         accent='#00968f', soft='#e0f2f1', hot='#e5502e', sea='#d9e6e6', red='#b42318', dark='#111113', mint='#00968f',
          sky1='#5fb0e6', sky2='#bfe0f3')
-TYPE_COL = {'trail': '#0d6b67', 'route': '#3f5fa8', 'marche': '#7b7f5a', 'cross': '#8a4f9e', 'autre': '#9a6400',
-            'jeunes': '#b0567a', 'multisport': '#c0392b', 'relais': '#b07a1a'}
+TYPE_COL = {'trail': '#2e7d32', 'route': '#5a6b7b', 'marche': '#9a8170', 'cross': '#a0782c', 'autre': '#9a6400',
+            'jeunes': '#d6336c', 'multisport': '#0a76c2', 'relais': '#d9a000'}
 TYPE_LAB = {'trail': 'Trail', 'route': 'Route', 'marche': 'Rando', 'cross': 'Cross', 'autre': 'Autre',
             'jeunes': 'Jeunes', 'multisport': 'Multisport', 'relais': 'Relais'}
 TYPE_EMO = {'trail': '⛰️', 'route': '🏃', 'marche': '🥾', 'cross': '👟', 'autre': '🏅', 'jeunes': '🧒',
@@ -26,11 +26,11 @@ MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août
 MOIS_C = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.']
 
 REGIONS = {
-    'nord': ('LE NORD', ['Saint-Denis', 'Sainte-Marie', 'Sainte-Suzanne']),
-    'ouest': ("L'OUEST", ['Le Port', 'La Possession', 'Saint-Paul', 'Trois-Bassins', 'Saint-Leu', 'Les Avirons']),
-    'sud': ('LE SUD', ["L'Étang-Salé", 'Saint-Louis', 'Saint-Pierre', 'Le Tampon', 'Entre-Deux', 'Petite-Île',
+    'nord': ('le Nord', ['Saint-Denis', 'Sainte-Marie', 'Sainte-Suzanne']),
+    'ouest': ("l'Ouest", ['Le Port', 'La Possession', 'Saint-Paul', 'Trois-Bassins', 'Saint-Leu', 'Les Avirons']),
+    'sud': ('le Sud', ["L'Étang-Salé", 'Saint-Louis', 'Saint-Pierre', 'Le Tampon', 'Entre-Deux', 'Petite-Île',
                        'Saint-Joseph', 'Saint-Philippe', 'Cilaos']),
-    'est': ("L'EST", ['Sainte-Rose', 'Saint-Benoît', 'Bras-Panon', 'Saint-André', 'La Plaine-des-Palmistes', 'Salazie']),
+    'est': ("l'Est", ['Sainte-Rose', 'Saint-Benoît', 'Bras-Panon', 'Saint-André', 'La Plaine-des-Palmistes', 'Salazie']),
 }
 REGION_ORDER = ['ouest', 'sud', 'est', 'nord']
 
@@ -225,20 +225,28 @@ def _same(nom, lst):
 LOGO = (ROOT / 'favicon.svg').read_text()
 
 
+# Polices : depuis la DA « épuré + running » du site, Inter remplace Instrument Sans (famille Inst)
+# et Saira Condensed (la famille CSS « Saira » pointe désormais vers Inter, classe .saira conservée).
 def css():
     f = FONTS.as_uri()
     return f"""
-@font-face{{font-family:'Inst';font-weight:400 700;src:url('{f}/InstrumentSans.woff2') format('woff2');}}
-@font-face{{font-family:'Saira';font-weight:600;src:url('{f}/SairaCondensed-600.woff2') format('woff2');}}
-@font-face{{font-family:'Saira';font-weight:700;src:url('{f}/SairaCondensed-700.woff2') format('woff2');}}
-@font-face{{font-family:'Saira';font-weight:800;src:url('{f}/SairaCondensed-800.woff2') format('woff2');}}
+@font-face{{font-family:'Inst';font-weight:400;src:url('{f}/inter-latin-400-normal.woff2') format('woff2');}}
+@font-face{{font-family:'Inst';font-weight:500;src:url('{f}/inter-latin-500-normal.woff2') format('woff2');}}
+@font-face{{font-family:'Inst';font-weight:600;src:url('{f}/inter-latin-600-normal.woff2') format('woff2');}}
+@font-face{{font-family:'Inst';font-weight:700;src:url('{f}/inter-latin-700-normal.woff2') format('woff2');}}
+@font-face{{font-family:'Saira';font-weight:600;src:url('{f}/inter-latin-600-normal.woff2') format('woff2');}}
+@font-face{{font-family:'Saira';font-weight:700;src:url('{f}/inter-latin-700-normal.woff2') format('woff2');}}
+@font-face{{font-family:'Saira';font-weight:800;src:url('{f}/inter-latin-800-normal.woff2') format('woff2');}}
+@font-face{{font-family:'Saira';font-weight:900;src:url('{f}/inter-latin-900-normal.woff2') format('woff2');}}
+
 *{{box-sizing:border-box;margin:0;padding:0}}
 html,body{{width:1080px;overflow:hidden}}
 body{{font-family:'Inst',sans-serif;color:{C['fg']};background:{C['bg']};position:relative}}
-.saira{{font-family:'Saira',sans-serif}}
+.saira{{font-family:'Saira',sans-serif;letter-spacing:-.035em}}
+body{{letter-spacing:-.01em}}
 .brand{{display:flex;align-items:center;gap:16px}}
 .brand svg{{width:62px;height:62px}}
-.brand b{{font-family:'Saira';font-weight:800;font-size:40px;letter-spacing:.5px;line-height:1}}
+.brand b{{font-family:'Saira';font-weight:800;font-size:40px;letter-spacing:-.03em;line-height:1}}
 .count{{font-weight:600;font-size:24px;color:{C['muted']};background:rgba(255,255,255,.75);border-radius:30px;padding:8px 18px}}
 .chip{{display:inline-block;font-weight:700;font-size:26px;color:#fff;border-radius:10px;padding:6px 14px}}
 """
@@ -266,7 +274,7 @@ def head(i, n, P, dark=False):
     col = '#fff' if dark else C['fg']
     cnt = 'background:rgba(255,255,255,.12);color:#cfe1e4' if dark else ''
     return f'''<div style="position:absolute;left:64px;right:64px;top:{P['T']}px;display:flex;justify-content:space-between;align-items:center;color:{col}">
-      <div class="brand">{LOGO}<b>DOSSARD PÉI</b></div><span class="count" style="{cnt}">{i}/{n}</span></div>'''
+      <div class="brand">{LOGO}<b>Dossard Péi</b></div><span class="count" style="{cnt}">{i}/{n}</span></div>'''
 
 
 def crop_img(path, x0, y0, x1, y1, w, dpr=3, radius=26, extra=''):
@@ -275,7 +283,7 @@ def crop_img(path, x0, y0, x1, y1, w, dpr=3, radius=26, extra=''):
     fw = Image.open(path).size[0] / dpr
     sc = w / (x1 - x0); h = (y1 - y0) * sc
     return (f'<div style="width:{w}px;height:{h:.0f}px;overflow:hidden;position:relative;border-radius:{radius}px;'
-            f'box-shadow:0 26px 60px rgba(29,37,35,.28),0 0 0 1px rgba(29,37,35,.08);background:#fbf8f2">'
+            f'box-shadow:0 26px 60px rgba(29,37,35,.28),0 0 0 1px rgba(29,37,35,.08);background:#fff">'
             f'<img src="{pathlib.Path(path).as_uri()}" style="position:absolute;left:{-x0 * sc:.1f}px;top:{-y0 * sc:.1f}px;width:{fw * sc:.1f}px">{extra}</div>'), h, sc
 
 
@@ -287,7 +295,7 @@ def cta_slide(i, n, P, title_html, sub, save_line):
       <div class="saira" style="font-weight:800;font-size:116px;line-height:.92">{title_html}</div>
       <div style="font-size:40px;font-weight:600;margin-top:30px;line-height:1.3">{sub}</div>
     </div>
-    <div style="position:absolute;left:64px;right:{P['R']}px;bottom:{P['B'] + 120}px;background:{C['fg']};border-radius:999px;padding:24px 26px 24px 44px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 18px 40px rgba(42,33,28,.25)">
+    <div style="position:absolute;left:64px;right:{P['R']}px;bottom:{P['B'] + 120}px;background:{C['fg']};border-radius:999px;padding:24px 26px 24px 44px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 18px 40px rgba(0,0,0,.18)">
       <div class="saira" style="font-weight:800;font-size:80px;line-height:1;color:#fff">dossardpei.re</div>
       <span style="width:84px;height:84px;border-radius:50%;background:{C['hot']};display:grid;place-items:center">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>
