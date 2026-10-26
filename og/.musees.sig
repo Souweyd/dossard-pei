@@ -1,1 +1,1 @@
-["Leu Trail des Musées", "2026-12-06", "Saint-Leu", [{"nom": "Leu Trail des Musées", "km": 26, "dp": 560, "h": "06h00", "prix": "26 € jusqu'au 6/11, puis 29 €", "type": "trail", "limite": "2026-11-25"}], "posters/musees.webp", "posters/musees_lg.webp", "art1"]
+["Leu Trail des Musées", "2026-12-06", "Saint-Leu", [{"nom": "Leu Trail des Musées", "km": 26, "dp": 560, "h": "06h00", "prix": "26 €", "type": "trail", "limite": "2026-11-25"}], "posters/musees.webp", "posters/musees_lg.webp", "art1"]
