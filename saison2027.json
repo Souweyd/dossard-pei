@@ -415,11 +415,9 @@
 },
 {
 "date": "2027-07-30",
-"nom": "Traversée de l’Ouest et Ascension de l’Ouest"
-},
-{
-"date": "2027-07-31",
-"nom": "Run Oxygène"
+"nom": "Leu Oxygène Trail",
+"fin": "2027-07-31",
+"id": "leu-oxygene-trail-2027-07"
 },
 {
 "date": "2027-07-31",
