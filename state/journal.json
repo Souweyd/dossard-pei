@@ -99,5 +99,19 @@
 "id": "3villages",
 "nom": "Les Foulées des 3 Villages",
 "date": "2026-11-22"
+},
+{
+"at": "2026-10-26T10:05+04:00",
+"t": "réouvert",
+"id": "curcuma",
+"nom": "Les Montées Curcuma",
+"date": "2026-11-07"
+},
+{
+"at": "2026-10-26T10:05+04:00",
+"t": "avenir",
+"id": "leu-oxygene-trail-2027-07",
+"nom": "Leu Oxygène Trail",
+"date": "2027-07-30"
 }
 ]
