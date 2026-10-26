@@ -18,29 +18,29 @@ TMP = SOC / 'out' / '_tmp'
 def _has(r, f): return any(f(e) for e in r.get('epreuves', []))
 
 THEMES = [
-    dict(id='premiere', emo='🎽', title='TA PREMIÈRE<br>COURSE', short='Ta première course',
+    dict(id='premiere', emo='🎽', title='Ta première<br>course', short='Ta première course',
          sub='Moins de 15 km, moins de 500 m de D+ : idéal pour se lancer.',
          pred=lambda r: _has(r, lambda e: e.get('km') and e['km'] < 15 and (e.get('dp') or 0) < 500 and e.get('type') in ('route', 'trail', 'cross')),
          filt={'f-dist': 'court', 'f-dp': 'dp1'}, cta='Tague quelqu\'un qui devrait se lancer 👇', flab='Distance « < 15 km » et Dénivelé « < 500 m »', tag='#premierecourse'),
-    dict(id='relais', emo='🤝', title='À FAIRE<br>EN ÉQUIPE', short='Les relais',
+    dict(id='relais', emo='🤝', title='À faire<br>en équipe', short='Les relais',
          sub='Relais entre potes, collègues ou en famille.', pred=lambda r: 'relais' in r['_types'], cta='Tague ton équipe de relais 👇',
          filt={'f-disc': 'relais'}, flab='Discipline « Relais »', tag='#relais'),
-    dict(id='gros-dp', emo='⛰️', title='LES GROS<br>DÉNIVELÉS', short='Les gros D+',
+    dict(id='gros-dp', emo='⛰️', title='Les gros<br>dénivelés', short='Les gros D+',
          sub='Plus de 1 500 m de D+ : pour les grimpeurs.', pred=lambda r: _has(r, lambda e: (e.get('dp') or 0) >= 1500 and e.get('type') in ('trail', 'marche')), cta='Tu es plutôt montée ou descente ? 👇',
          filt={'f-dp': 'dp3'}, flab='Dénivelé « 1 500 – 3 000 m »', tag='#trailrunning'),
-    dict(id='marmailles', emo='🧒', title='AVEC LES<br>MARMAILLES', short='Les courses jeunes',
+    dict(id='marmailles', emo='🧒', title='Avec les<br>marmailles', short='Les courses jeunes',
          sub='Des courses pour les enfants, le même jour que les grands.', pred=lambda r: 'jeunes' in r['_types'], cta='Tague les parents de futurs champions 👇',
          filt={'f-disc': 'jeunes'}, flab='Discipline « Jeunes »', tag='#marmailles'),
-    dict(id='route', emo='🏃', title='SUR LA<br>ROUTE', short='Les courses sur route',
+    dict(id='route', emo='🏃', title='Sur la<br>route', short='Les courses sur route',
          sub='10 km, semi, foulées : pour aller vite.', pred=lambda r: 'route' in r['_types'], cta='Ton record sur 10 km ? Dis-le en commentaire 👇',
          filt={'f-disc': 'route'}, flab='Discipline « Route »', tag='#running'),
-    dict(id='rando', emo='🥾', title='RANDO<br>ET MARCHE', short='Rando et marche',
+    dict(id='rando', emo='🥾', title='Rando<br>et marche', short='Rando et marche',
          sub='Pas besoin de courir pour prendre un dossard.', pred=lambda r: 'marche' in r['_types'], cta='Tague ton binôme de rando 👇',
          filt={'f-disc': 'marche'}, flab='Discipline « Rando / marche »', tag='#randonnee'),
-    dict(id='longues', emo='🔥', title='LES LONGUES<br>DISTANCES', short='Les longues distances',
+    dict(id='longues', emo='🔥', title='Les longues<br>distances', short='Les longues distances',
          sub='Plus de 30 km : les grosses sorties de la saison.', pred=lambda r: _has(r, lambda e: (e.get('km') or 0) > 30 and e.get('type') in ('trail', 'route', 'marche')), cta='Ta plus longue course, c\'était combien ? 👇',
          filt={'f-dist': 'long'}, flab='Distance « > 30 km »', tag='#ultratrail'),
-    dict(id='multisport', emo='🏊', title='TRIATHLON,<br>SWIMRUN…', short='Le multisport',
+    dict(id='multisport', emo='🏊', title='Triathlon,<br>swimrun…', short='Le multisport',
          sub='Nager, pédaler, courir : les épreuves multisport.', pred=lambda r: 'multisport' in r['_types'], cta='Nage, vélo ou course : ton point fort ? 👇',
          filt={'f-disc': 'multisport'}, flab='Discipline « Multisport »', tag='#triathlon'),
 ]
@@ -68,7 +68,7 @@ def row(r, ref, num=None, f=1.0):
         <div class="saira" style="font-size:{44 * f:.0f}px;font-weight:800">{dt.day}</div>
         <div style="font-size:{18 * f:.0f}px;font-weight:600;color:{C['muted']}">{MOIS_C[dt.month - 1]}</div></div>
       <div style="min-width:0;flex:1"><div class="saira" style="font-weight:700;font-size:{36 * f:.0f}px;line-height:1.02;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{esc(r['nom'])}</div>
-        <div style="font-size:{24 * f:.0f}px;font-weight:600;color:{C['muted']};margin-top:{6 * f:.0f}px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{esc(r['commune'])}{' · ' + esc(dl) if dl else ''}{badge}</div></div></div>'''
+        <div style="font-size:{24 * f:.0f}px;font-weight:600;color:{C['muted']};margin-top:{6 * f:.0f}px;display:flex;align-items:center;white-space:nowrap"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis">{esc(r['commune'])}{' · ' + esc(dl) if dl else ''}</span><span style="flex:none;display:inline-flex">{badge}</span></div></div></div>'''
 
 
 ROW_H = 118
@@ -114,7 +114,7 @@ def list_page(i, n, P, kicker, title, races, ref, numbers=False):
     {head(i, n, P)}
     <div style="position:absolute;left:64px;right:64px;top:{P['T'] + 112}px">
       <div class="saira" style="font-weight:700;font-size:40px;color:{C['hot']}">{kicker}</div>
-      <div class="saira" style="font-weight:800;font-size:84px;line-height:.92;margin-top:4px">{title}</div></div>
+      <div class="saira" style="font-weight:800;font-size:76px;line-height:1;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{title}</div></div>
     <div style="position:absolute;left:{64 if cols == 1 else 48}px;right:{P['R'] if cols == 1 else max(48, P['R'])}px;top:{top}px;{grid}">{rows}</div>''', P)
 
 
@@ -234,7 +234,7 @@ def race_slide(i, n, P, r, ref):
         <svg width="30" height="30" viewBox="0 0 24 24" fill="{C['hot']}"><path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>
         {esc(r['commune'])}{f'<span style="color:{C["line"]}">|</span><span>{esc(dist_label(r))}</span>' if dist_label(r) else ''}</div>{extra}</div>
     <div style="position:absolute;left:64px;right:64px;bottom:{P['B'] - 8}px;display:flex;align-items:center;justify-content:space-between">
-      <div class="brand">{LOGO}<div><b>DOSSARD PÉI</b><div style="font-weight:700;color:{C['accent']};font-size:28px">dossardpei.re</div></div></div>
+      <div class="brand">{LOGO}<div><b>Dossard Péi</b><div style="font-weight:700;color:{C['accent']};font-size:28px">dossardpei.re</div></div></div>
       <div style="text-align:right;font-weight:600;font-size:26px;color:{C['muted']}">{right}</div></div>'''
     return page(body, P)
 
@@ -253,7 +253,7 @@ def cover_map(i, n, P, kicker, big, sub, races, ref, highlight=None, relief=Fals
     {head(i, n, P)}
     <div style="position:absolute;left:64px;right:64px;top:{P['T'] + 110}px">
       <div class="saira" style="font-weight:700;font-size:40px;color:{C['hot']}">{kicker}</div>
-      <div class="saira" style="font-weight:800;font-size:{150 if len(big) < 14 else 112}px;line-height:.86;letter-spacing:-1px">{big}</div>
+      <div class="saira" style="font-weight:800;font-size:{150 if len(big) < 14 else 112}px;line-height:.86;letter-spacing:-.045em">{big}</div>
       <div style="font-size:36px;font-weight:600;color:{C['muted']};margin-top:12px">{sub}</div></div>
     <div style="position:absolute;left:{x}px;top:{ytop}px;{MASK if vb else ''}">{island_svg(mapw, pins, highlight=highlight, relief=relief, contours=not relief, vb=vb)}</div>
     {swipe(P, swipe_txt or f"Les {len(races)} courses")}'''
@@ -275,9 +275,9 @@ def build_lundi(ref, data, races):
     pages = {}
     for fmt, P in FMTS.items():
         n = 2 + len(shown) + (1 if shot_p else 0) + 1
-        sl = [cover_map(1, n, P, lab, 'CE WEEK-END', f"{len(rs)} course{'s' if len(rs) > 1 else ''} à La Réunion", rs, ref, relief=True,
+        sl = [cover_map(1, n, P, lab, 'Ce week-end', f"{len(rs)} course{'s' if len(rs) > 1 else ''} à La Réunion", rs, ref, relief=True,
                         swipe_txt=f"Les {len(rs)} courses" if len(rs) > 1 else 'La course')]
-        sl.append(list_page(2, n, P, lab, 'CE WEEK-END', rs, ref, numbers=True))
+        sl.append(list_page(2, n, P, lab, 'Ce week-end', rs, ref, numbers=True))
         sl += [race_slide(k, n, P, r, ref) for k, r in enumerate(shown, 3)]
         if shot_p:
             def shot(mw, mh, info=info):
@@ -285,9 +285,9 @@ def build_lundi(ref, data, races):
                 ring = lambda sc: (f'<div style="position:absolute;left:{(info["cell"][0] - g[0]) * sc - 8:.0f}px;top:{(info["cell"][1] - g[1]) * sc - 8:.0f}px;'
                                    f'width:{info["cell"][2] * sc + 16:.0f}px;height:{info["cell"][3] * sc + 16:.0f}px;border:6px solid {C["hot"]};border-radius:14px"></div>')
                 return fit_crop(shot_p, g, mw, mh, ring)
-            sl.append(how(len(sl) + 1, n, P, 'CALENDRIER', 'TON WEEK-END<br>EN UN COUP D\'ŒIL',
+            sl.append(how(len(sl) + 1, n, P, 'CALENDRIER', 'Ton week-end<br>en un coup d\'œil',
                           ['Ouvre <b>dossardpei.re</b>', 'Touche <b>« Ce week-end »</b> ou <b>Calendrier</b>', 'Touche un jour : <b>la liste s\'affiche</b>'], shot))
-        sl.append(cta_slide(len(sl) + 1, n, P, 'TOUTES LES COURSES<br><span style="color:#0d6b67">DE LA RÉUNION</span>',
+        sl.append(cta_slide(len(sl) + 1, n, P, 'Toutes les courses<br><span style="color:#00968f">de La Réunion</span>',
                             'Calendrier, carte, tracés<br>et liens d\'inscription.', 'Enregistre pour ce week-end'))
         pages[fmt] = sl
     clot = [r for r in rs if status(r, ref)[0] == 'clot']
@@ -323,18 +323,18 @@ def build_mardi(ref, data, races):
         {head(1, n, P)}
         <div style="position:absolute;left:64px;right:64px;top:{P['T'] + 150}px">
           <div class="saira" style="font-weight:700;font-size:44px;color:{C['hot']}">LE THÈME DE LA SEMAINE</div>
-          <div class="saira" style="font-weight:800;font-size:160px;line-height:.86;letter-spacing:-1px;margin-top:10px">{th['title']}</div>
+          <div class="saira" style="font-weight:800;font-size:140px;line-height:.9;letter-spacing:-.045em;margin-top:10px">{th['title']}</div>
           <div style="font-size:40px;font-weight:600;color:{C['muted']};margin-top:30px;max-width:780px;line-height:1.25">{th['sub']}</div>
           <div class="saira" style="display:inline-block;font-weight:800;font-size:48px;color:#fff;background:{C['fg']};border-radius:16px;padding:8px 24px;margin-top:40px">{len(sel)} courses ces 10 prochaines semaines</div></div>
           {swipe(P, 'Voir la liste')}''', P)
-        sl = [cover, list_page(2, n, P, 'CES 10 PROCHAINES SEMAINES', th['title'].replace('<br>', ' '), sel, ref)]
+        sl = [cover, list_page(2, n, P, 'CES 10 PROCHAINES SEMAINES', th['short'], sel, ref)]
         if shot_p:
             def shot(mw, mh, info=info):
                 b = info['box']
                 return fit_crop(shot_p, [b[0], b[1], b[2], b[3]], mw, mh)
-            sl.append(how(len(sl) + 1, n, P, 'FILTRES', 'TROUVE-LES<br>EN 2 SECONDES',
+            sl.append(how(len(sl) + 1, n, P, 'FILTRES', 'Trouve-les<br>en 2 secondes',
                           ['Touche <b>Filtres</b>', th['flab'], 'Touche <b>Voir les courses</b>'], shot))
-        sl.append(cta_slide(len(sl) + 1, n, P, 'TA COURSE<br><span style="color:#0d6b67">EST SUR</span><br><span style="color:#d2481e">DOSSARD PÉI</span>',
+        sl.append(cta_slide(len(sl) + 1, n, P, 'Ta course<br><span style="color:#00968f">est sur</span><br><span style="color:#e5502e">Dossard Péi</span>',
                             'Toutes les courses de La Réunion,<br>avec les filtres qui vont bien.', 'Enregistre pour plus tard'))
         pages[fmt] = sl
     lines = [f"{th['emo']} {th['short']} : {len(sel)} courses à La Réunion ces 10 prochaines semaines", '',
@@ -368,8 +368,8 @@ def build_jeudi(ref, data, races):
     pages = {}
     for fmt, P in FMTS.items():
         n = 2 + (1 if shot_p else 0) + 1
-        sl = [cover_map(1, n, P, 'PRÈS DE CHEZ TOI', f'COURIR DANS<br>{name}', f"{len(sel)} courses {endlab}", sel, ref, highlight=communes, relief=True)]
-        sl.append(list_page(2, n, P, endlab.upper(), name, sel, ref, numbers=True))
+        sl = [cover_map(1, n, P, 'PRÈS DE CHEZ TOI', f'Courir dans<br>{name}', f"{len(sel)} courses {endlab}", sel, ref, highlight=communes, relief=True)]
+        sl.append(list_page(2, n, P, endlab.upper(), name[0].upper() + name[1:], sel, ref, numbers=True))
         if shot_p:
             def shot(mw, mh, info=info):
                 ile = info['ile']; pop = info['pop']
@@ -383,9 +383,9 @@ def build_jeudi(ref, data, races):
                     return None
                 return (f'<div style="position:relative;width:{mw2}px;height:{tot:.0f}px">{m}'
                         f'<div style="position:absolute;left:-10px;top:{mh2 * .55:.0f}px">{pp}</div></div>', mw2, tot)
-            sl.append(how(len(sl) + 1, n, P, 'CARTE', 'LES COURSES<br>AUTOUR DE TOI',
+            sl.append(how(len(sl) + 1, n, P, 'CARTE', 'Les courses<br>autour de toi',
                           ['Touche <b>Carte</b>', 'Agrandis la carte en plein écran', 'Touche ta commune : <b>ses courses s\'affichent</b>'], shot))
-        sl.append(cta_slide(len(sl) + 1, n, P, 'TON WEEK-END<br><span style="color:#0d6b67">+ TON COIN</span><br><span style="color:#d2481e">= TA COURSE</span>',
+        sl.append(cta_slide(len(sl) + 1, n, P, 'Ton week-end<br><span style="color:#00968f">+ ton coin</span><br><span style="color:#e5502e">= ta course</span>',
                             'Toute l\'île sur la carte,<br>commune par commune.', 'Enregistre et tague tes dalons'))
         pages[fmt] = sl
     nm_ = {'nord': 'le Nord', 'sud': 'le Sud', 'est': 'l’Est', 'ouest': 'l’Ouest'}[reg]
@@ -437,16 +437,16 @@ def build_mois(ref, data, races):
         {head(1, n, P)}
         <div style="position:absolute;left:64px;right:64px;top:{P['T'] + 100}px">
           <div class="saira" style="font-weight:700;font-size:40px;color:{C['hot']}">LE MOIS EN UN COUP D'ŒIL</div>
-          <div class="saira" style="font-weight:800;font-size:150px;line-height:.86;letter-spacing:-1px">{MOIS[m - 1].upper()} {y}</div>
+          <div class="saira" style="font-weight:800;font-size:118px;line-height:.95;letter-spacing:-.045em;white-space:nowrap">{MOIS[m - 1].capitalize()} {y}</div>
           <div style="font-size:36px;font-weight:600;color:{C['muted']};margin-top:10px">{len(sel)} courses à La Réunion</div></div>
         <div style="position:absolute;left:64px;top:{P['T'] + 370}px">{month_grid(y, m, sel, gw)}<div style="margin-top:22px;max-width:{gw}px">{legend}</div></div>
         {swipe(P, f'Les {len(sel)} courses')}''', P)
-        sl = [cover, list_page(2, n, P, 'TOUTES LES COURSES DU MOIS', MOIS[m - 1].upper(), sel, ref)]
+        sl = [cover, list_page(2, n, P, 'TOUTES LES COURSES DU MOIS', MOIS[m - 1].capitalize(), sel, ref)]
         if shot_p:
-            sl.append(how(len(sl) + 1, n, P, 'CALENDRIER', 'TOUT LE MOIS<br>SUR UN ÉCRAN',
+            sl.append(how(len(sl) + 1, n, P, 'CALENDRIER', 'Tout le mois<br>sur un écran',
                           ['Touche <b>Calendrier</b>', 'Une pastille = une course', 'Touche un jour pour voir ses courses'],
                           lambda mw, mh: fit_crop(shot_p, info, mw, mh)))
-        sl.append(cta_slide(len(sl) + 1, n, P, f'{MOIS[m - 1].upper()}<br><span style="color:#0d6b67">C\'EST PARTI</span>',
+        sl.append(cta_slide(len(sl) + 1, n, P, f'{MOIS[m - 1].capitalize()}<br><span style="color:#00968f">c\'est parti</span>',
                             'Toutes les courses du mois,<br>dans le calendrier du site.', 'Enregistre pour tout le mois'))
         pages[fmt] = sl
     lines = [f"📅 {MOIS[m - 1].capitalize()} à La Réunion : {len(sel)} courses", '']
