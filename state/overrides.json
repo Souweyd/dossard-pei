@@ -40,6 +40,13 @@
     "epreuves"
    ],
    "hidden": false
+  },
+  "leu-oxygene-trail-2027-07": {
+   "fields": [
+    "clos",
+    "info"
+   ],
+   "hidden": false
   }
  },
  "manual": [
