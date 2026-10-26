@@ -114,6 +114,8 @@ def status(r, ref):
         o = d(r['ouverture'])
         if o > ref:
             return 'bientot', f"Inscriptions dès le {o.day} {MOIS_C[o.month - 1]}"
+    elif r.get('avenir'):
+        return 'bientot', 'Inscriptions à venir'   # not open yet, opening date unknown
     lim = r.get('limite')
     if lim:
         L = d(lim)
