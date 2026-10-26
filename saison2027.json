@@ -1,6 +1,6 @@
 {
 "saison": 2027,
-"source": "Commission running de la Ligue réunionnaise d'athlétisme, réunion des organisateurs du 24/10/2026 (publié par Le Quotidien le 25/10/2026), complété par les annonces des organisateurs",
+"source": "Ligue réunionnaise d'athlétisme (commission running), réunion des organisateurs du 24/10/2026, complété par les annonces des organisateurs",
 "maj": "2026-10-26",
 "evenements": [
 {
@@ -796,5 +796,6 @@
 "date": "2027-12-20",
 "nom": "Les Foulées Cités du Volcan"
 }
-]
+],
+"url": "https://reunion.athle.fr"
 }
