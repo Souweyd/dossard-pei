@@ -1,4 +1,9 @@
 {
+"http://www.aajm.re": {
+"at": "2026-10-27T20:02+04:00",
+"changed": "2026-10-27T19:01+04:00",
+"h": "a6a964c8a851c551ac2bdbedb3867b4d876cfd11435254ab80f87269200781be"
+},
 "https://chronometrage.com/": {
 "at": "2026-10-27T19:08+04:00",
 "changed": "2026-10-27T19:01+04:00",
@@ -7,7 +12,8 @@
 "https://gotrail.run/calendrier-trails/reunion": {
 "at": "2026-10-27T19:08+04:00",
 "changed": "2026-10-27T19:01+04:00",
-"h": "d152e0dcf44ee35889145ac112c7ff5f508f8eab8231bbe1cfce5b2791658357"
+"h": "d152e0dcf44ee35889145ac112c7ff5f508f8eab8231bbe1cfce5b2791658357",
+"pending": "d09d09d95cf47c801ce72ae8fe8acc121cedf2fff62f72ae9185b0ebd2f432b2"
 },
 "https://ilop.re/ilop-sport/outdoor/": {
 "at": "2026-10-27T19:08+04:00",
