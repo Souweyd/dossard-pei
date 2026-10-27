@@ -27,3 +27,6 @@ Fichiers : `core.py` (données, couleurs, carte, gabarits communs), `gen.py` (fo
 `capture.py` (captures du site), `reel.py` (vidéo du vendredi), `fonts/` (Inter — OFL, police des visuels depuis la DA « épuré + running » ; Instrument Sans et Saira Condensed conservées).
 
 Automatisation : des tâches planifiées Claude lancent `jour` 30 min avant chaque publication (lundi 6 h 30, mercredi 18 h, vendredi 16 h 30) et `mois` le 1er à 18 h, puis envoient images et légendes.
+
+## Charte : drapeau de La Réunion (Lo Mahavéli)
+Tout dessin du drapeau (logo, dossard, bandeau) : fond bleu marine, volcan rouge en bas au centre et **exactement 5 rayons jaunes** qui partent du sommet du volcan, comme dans `favicon.svg`. Jamais 6 rayons, jamais des rayons partant du bas du bandeau.
