@@ -320,6 +320,30 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
 """
 
 
+HOME_HEAD = re.compile(r'<link rel="canonical"[^>]*>|<meta property="og:[^>]*>|<meta name="twitter:card"[^>]*>|'
+                       r'<script type="application/ld\+json">.*?</script>|<title>.*?</title>|<meta name="description"[^>]*>', re.S)
+
+
+def app_page(idx, static_doc, rid):
+    """The page of a race = the full site (same as a click on the race: list behind, race open in the
+    dialog), with the race's own title, description, share image and structured data, and its static
+    summary in <noscript> (readable without JavaScript)."""
+    sh, _, sb = static_doc.partition("</head>")
+    tags = "".join(re.findall(r'<title>.*?</title>|<meta name="description"[^>]*>|<link rel="canonical"[^>]*>|<meta property="og:[^>]*>|'
+                              r'<meta name="twitter:card"[^>]*>|<script type="application/ld\+json">.*?</script>', sh, re.S))
+    m = re.search(r"<main>.*</main>", sb, re.S)
+    # index.html has no </head> / <body> tags: the head ends with the first </style>, the page starts at <div class="wrap">
+    i = idx.find('<div class="wrap">')
+    if i < 0:
+        return static_doc
+    head, body = HOME_HEAD.sub("", idx[:i]), idx[i:]
+    # open this race at start: the site reads #c-<id> (then shows /course/<id>/ again in the address bar)
+    go = f'<script>if(!/^#/.test(location.hash))history.replaceState(null,"",location.pathname+"#c-{rid}");</script>\n'
+    j = head.find("<style>")
+    head = head[:j] + tags + "\n" + go + head[j:] if j >= 0 else head + tags + go
+    return head + (f"<noscript>{m.group(0)}</noscript>\n" if m else "") + body
+
+
 def main():
     data = json.load(open("data.json", encoding="utf-8"))
     global FIRST
@@ -347,7 +371,7 @@ def main():
             has_og = og_image(r, ogp, fonts) or has_og
             if has_og: open(sigp, "w").write(sig)
         os.makedirs(f"course/{rid}", exist_ok=True)
-        out = nbsp_html(page(r, logo, has_og, rid in tracks, races, FIRST.get(rid)))
+        out = app_page(idx, nbsp_html(page(r, logo, has_og, rid in tracks, races, FIRST.get(rid))), rid)
         p = f"course/{rid}/index.html"
         if not os.path.exists(p) or open(p, encoding="utf-8").read() != out:
             open(p, "w", encoding="utf-8").write(out)
