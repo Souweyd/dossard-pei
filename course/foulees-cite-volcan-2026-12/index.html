@@ -932,7 +932,7 @@ section.mine h2 { font-family: var(--display); font-weight: 800; letter-spacing:
 .sz-d.wk { background: color-mix(in srgb, var(--fg) 6%, transparent) }
 .sz-d.nd { background: transparent; border: 1px dashed var(--line) }
 .sz-d small { display: block; font-size: .62rem; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: .05em }
-.sz-d b { display: block; font-size: 1.3rem; font-weight: 800; letter-spacing: -.03em; margin: 2px 0 }
+.sz-d b { display: block; font-size: 1.3rem; font-weight: 800; letter-spacing: -.03em; margin: 3px 0 1px }
 .sz-m + .sz-day { border-top: 0 }
 .sz-rs { display: grid; gap: 0 }
 .sz-r { display: flex; align-items: center; gap: 10px; padding: 6px 0 6px 12px; border-left: 3px solid var(--kc); }
@@ -1595,7 +1595,7 @@ function openSaison(back) {
     const rows = Object.keys(byM).sort().map(m => { const days = {}; byM[m].forEach(e => { const k = e.nd ? "?" : e.date + (e.fin || ""); (days[k] = days[k] || []).push(e); });
       return `<section class="sz-sec" data-m="${m}"><h3 class="sz-m">${cap(MOIS[+m.slice(5) - 1])} <small>${byM[m].length} course${byM[m].length > 1 ? "s" : ""}</small></h3>` +
         Object.keys(days).sort((a, b) => a === "?" ? 1 : b === "?" ? -1 : a < b ? -1 : 1).map(k => { const e0 = days[k][0], d = dt(e0.date), we = !e0.nd && (d.getDay() === 0 || d.getDay() === 6);
-          return `<div class="sz-day"><div class="sz-d${we ? "" : " wk"}${e0.nd ? " nd" : ""}">${e0.nd ? `<small>date</small><b>?</b>` : `<small>${JOURS[d.getDay()].replace(".", "")}</small><b>${d.getDate()}${e0.fin ? "–" + dt(e0.fin).getDate() : ""}</b><small>${MOIS[d.getMonth()].slice(0, 4).replace(/\.$/, "")}.</small>`}</div><div class="sz-rs">${days[k].map(row).join("")}</div></div>`; }).join("") + `</section>`; }).join("");
+          return `<div class="sz-day"><div class="sz-d${we ? "" : " wk"}${e0.nd ? " nd" : ""}">${e0.nd ? `<small>date</small><b>?</b>` : `<small>${JOURS[d.getDay()].replace(".", "")}</small><b>${d.getDate()}${e0.fin ? "–" + dt(e0.fin).getDate() : ""}</b>${e0.fin && e0.fin.slice(0, 7) !== e0.date.slice(0, 7) ? `<small>${MOIS[dt(e0.fin).getMonth()].slice(0, 4)}.</small>` : ""}`}</div><div class="sz-rs">${days[k].map(row).join("")}</div></div>`; }).join("") + `</section>`; }).join("");
     box.querySelector(".sz-list").innerHTML = rows || `<p class="note">Aucune course ne correspond.</p>`;
     box.querySelectorAll("[data-sz]").forEach(b => b.addEventListener("click", () => { gcount("saison2027/fiche/" + b.dataset.sz, "Calendrier 2027 vers fiche", true); const pn = box.querySelector(".dlg-panel"); SZBACK = { f: { ...F }, q: box.querySelector(".sz-q").value, t: pn.scrollTop, t2: box.scrollTop }; close(); openRace(b.dataset.sz); }));
     spy();
