@@ -1570,6 +1570,7 @@ function verifLine(r) {
   const v = vstate(r); if (!v || !VERIF_ST.at || (r.fin || r.date) < todayISO()) return "";
   const h = Math.max(0, Math.round((Date.now() - new Date(VERIF_ST.at).getTime()) / 36e5));
   const when = h < 1 ? "il y a moins d'une heure" : `il y a ${h} h`;
+  if (v === "ok" && h > 6) return "";   // stale check (copy not refreshed): say nothing rather than an old « vérifié »
   if (v === "ok") return `<p class="vline ok">✓ Statut vérifié ${when}</p>`;
   if (v === "alerte") return `<p class="vline warn">⚠ La page d'inscription semble indiquer une fermeture. Vérifiez sur le site de l'organisateur avant de vous organiser.</p>`;
   return `<p class="vline">Statut des inscriptions à confirmer sur le site d'inscription.</p>`;
