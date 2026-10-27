@@ -321,7 +321,7 @@ td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space
 .pcard.on { border-color: var(--hot); box-shadow: 0 0 0 1px var(--hot) }
 body.noscroll { overflow: hidden }
 .dlg { position: fixed; inset: 0; z-index: 55; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 16px }
-.dlg-panel { position: relative; width: min(760px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; background: var(--surface); color: var(--fg); border-radius: 14px; padding: 18px; display: grid; gap: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.35); border-top: 6px solid var(--dc) }
+.dlg-panel { position: relative; overflow-x: hidden; width: min(760px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; background: var(--surface); color: var(--fg); border-radius: 14px; padding: 18px; display: grid; gap: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.35); border-top: 6px solid var(--dc) }
 .dlg-x { position: absolute; right: 8px; top: 6px; font: inherit; font-size: 1.8rem; line-height: 1; background: none; border: 0; color: var(--fg); cursor: pointer; padding: 4px 10px; z-index: 1 }
 .dlg-top { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 16px; align-items: start }
 .dlg-top:not(:has(.dlg-poster)) { grid-template-columns: minmax(0, 1fr) }
@@ -941,7 +941,7 @@ section.mine h2 { font-family: var(--display); font-weight: 800; letter-spacing:
 .epc-t span { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-size: .72rem; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: var(--muted) }
 .epc-t span::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--dc); flex: none }
 .epc-st { text-align: right; flex: none } .epc-st .eslim { display: block; margin-top: 3px }
-.eps { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-top: 11px }
+.epst { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-top: 11px }
 .eps-s.none b { color: var(--muted); font-weight: 600 }
 .eps-s b em { font-style: normal; font-weight: 500; font-size: .82em; color: var(--muted) }
 .eps-s { display: flex; align-items: flex-start; gap: 7px; min-width: 0 }
@@ -1771,7 +1771,7 @@ function epCards(r) {
       stat("price", prix.map(x => { const m = /^(\d+(?:[.,]\d+)?\s?€)\s*(.*)$/.exec(x.trim()); return m && m[2] ? `${esc(m[1])} <em>${esc(m[2])}</em>` : esc(x); }), "tarif")].join("");
     return `<article class="epc" style="--dc:var(${DCOL[e.type] || DCOL[r.disc] || "--c-marche"})">
       <div class="epc-h"><div class="epc-t"><h5>${esc(e.nom)}</h5>${type ? `<span>${esc(type)}</span>` : ""}</div>${hasSt ? `<div class="epc-st">${epState(e, r)}</div>` : ""}</div>
-      ${stats ? `<div class="eps">${stats}</div>` : ""}
+      ${stats ? `<div class="epst">${stats}</div>` : ""}
       ${place ? `<p class="epc-n">${epSvg("pin")}Départ : ${place}</p>` : ""}${e.note ? `<p class="epc-n">${esc(e.note)}</p>` : ""}
     </article>`; }).join("");
 }
