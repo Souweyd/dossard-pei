@@ -1,7 +1,9 @@
 name: Synchro horaire des sources
 # Every hour (free): removes past races and refreshes deadlines / "complet" / times from the
 # UTOI and Top Chrono APIs (tools/sync_sources.py), then regenerates the course pages.
-# Missing posters are taken from WeRun (tools/posters.py), race-day weather from MET Norway
+# Missing posters are taken from the races' own pages or WeRun (tools/posters.py), missing tracks
+# from Trace de Trail / Openrunner links (tools/tracks.py); tools/triage.py lists the sources that
+# changed for the Claude update (state/todo.json), race-day weather from MET Norway
 # (tools/weather.py, every 3 hours); new races and tracks are added by the
 # Claude update (3 times a day).
 on:
@@ -29,13 +31,16 @@ jobs:
         with: { python-version: "3.12" }
       - name: Synchro des sources
         run: python tools/sync_sources.py $([ "$GITHUB_EVENT_NAME" = push ] && echo --all)
-      - name: Affiches manquantes (WeRun)
+      - name: Affiches et tracés manquants
         run: |
           pip install -q pillow
           python tools/posters.py
+          python tools/tracks.py
           python tools/profiles.py
       - name: Météo des courses (MET Norway, toutes les 3 h)
         run: python tools/weather.py
+      - name: Tri pour la mise à jour Claude (sources modifiées)
+        run: python tools/triage.py
       - name: Pages des courses
         run: |
           # always: a course page also changes when a deadline passes without any data change
@@ -53,7 +58,7 @@ jobs:
       - name: Commit
         run: |
           git config user.name "Dossard Pei"; git config user.email "noreply@dossardpei.re"
-          git add -A data.json profiles.json posters state/posters.json course og sitemap.xml tools/first_seen.json state/health.json state/journal.json state/nouveautes.json verif.json weather.json
+          git add -A data.json profiles.json posters state/posters.json course og sitemap.xml tools/first_seen.json state/health.json state/journal.json state/nouveautes.json verif.json weather.json gpx state/tracks.json state/watch.json state/todo.json
           if git diff --cached --quiet; then echo "rien à publier"; exit 0; fi
           git commit -m "Synchro sources [pages]"
           git pull --rebase origin main || { git rebase --abort; echo "conflit avec une autre mise à jour : on réessaiera dans une heure"; exit 0; }

@@ -1,0 +1,29 @@
+{
+ "at": "2026-10-27T19:08+04:00",
+ "since": "2026-10-27T19:01+04:00",
+ "rien": true,
+ "sources": [],
+ "avenir": [],
+ "illisibles": [
+  {
+   "id": "aajm",
+   "url": "http://www.aajm.re",
+   "erreur": "URLError"
+  },
+  {
+   "id": "dimitile",
+   "url": "https://www.helloasso.com/associations/dimitile-sports-actions/evenements/les-foulees-solidaires-de-l-entre-deux-tous-contre-la-polio",
+   "erreur": "HTTPError 403"
+  },
+  {
+   "id": "saint-benoit",
+   "url": "https://www.saint-benoit.re/evenements/",
+   "erreur": "HTTPError 404"
+  },
+  {
+   "id": "milesrepublic",
+   "url": "https://fr.milesrepublic.com/run/la-reunion",
+   "erreur": "HTTPError 429"
+  }
+ ]
+}

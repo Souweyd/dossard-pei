@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Posters for the races that have none, taken from WeRun (run by the hourly workflow, free).
+"""Posters for the races that have none (run by the hourly workflow, free): first on the race's own
+pages (Sportpro « Affiches », chronometrage.com media.dag-system image, Top Chrono og:image,
+Klikego « affiche » image), then on WeRun.
 
 WeRun hosts the organisers' posters of many Réunion races ("Affiche-<name>.jpg"; its logos are
 "Logo-..." files and are never taken). For each visible race to come without a poster (UTOI races keep
@@ -65,6 +67,32 @@ def find(r):
     return None
 
 
+ORG = [   # poster on the race's own pages (organiser or registration platform)
+    (r"sportpro\.re/", r"""(?:https?://www\.sportpro\.re/|/)?res/images/Affiches/[^"'<>\s]+?\.(?:jpe?g|png|webp)"""),
+    (r"chronometrage\.com/events/", r"""https://media\.dag-system\.com/[^"'<>\s]+?\.(?:jpe?g|png|webp)"""),
+    (r"topchrono\.run/", r"""<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)"""),
+    (r"klikego\.com/", r"""https?://[^"'<>\s]*affiche[^"'<>\s]*?\.(?:jpe?g|png|webp)"""),
+]
+
+
+def find_org(r):
+    """poster URL found on the race's own pages, or None (ignores Sportpro's « _defaut » placeholder)"""
+    for u in dict.fromkeys(x for x in (r.get("fiche"), r.get("inscription"), r.get("page")) if x):
+        for site, pat in ORG:
+            if not re.search(site, u):
+                continue
+            try:
+                page = get(u)
+            except Exception:
+                continue
+            for m in re.finditer(pat, page, re.I):
+                img = html.unescape(m.group(1) if m.groups() else m.group(0))
+                if "_defaut" in img.lower() or "logo" in img.rsplit("/", 1)[-1].lower():
+                    continue
+                return urllib.parse.urljoin(u, img)
+    return None
+
+
 def main(today, now):
     from PIL import Image
     data = json.load(open("data.json"))
@@ -88,7 +116,9 @@ def main(today, now):
         if tried.get(r["id"], "") > (now - dt.timedelta(hours=24)).isoformat():
             continue
         tried[r["id"]] = now.isoformat(timespec="minutes")
-        url = find(r)
+        url, org = find_org(r), True
+        if not url:
+            url, org = find(r), False
         if not url:
             continue
         try:
@@ -101,7 +131,7 @@ def main(today, now):
                 im = bg
             else:
                 im = im.convert("RGB")
-            if im.width > 4 * im.height:
+            if im.width > 4 * im.height or (org and min(im.size) < 300):   # banner, or icon-sized image
                 continue
             for name, width, q in ((f"posters/{r['id']}.webp", 420, 78), (f"posters/{r['id']}_lg.webp", 1100, 82)):
                 k = min(1, width / im.width)
