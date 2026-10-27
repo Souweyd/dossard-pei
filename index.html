@@ -988,6 +988,11 @@ header.top.on .brand { opacity: 1 } header.top .topr { opacity: var(--hp, 0) }
 
 .favlink { background: var(--surface) !important; color: var(--fg) !important; margin-left: 8px } .favlink b { font-weight: 700; margin-left: 2px }
 .favlink[hidden] { display: none !important }
+
+.favlink.on { background: #f5b400 !important; color: #2a1d00 !important }
+
+.szrow { justify-self: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px } .szrow .szlink { margin: 8px 0 0 !important }
+@media (max-width: 520px) { .szrow .szlink { font-size: .86rem; padding: 7px 12px } }
 </style>
 
 <div class="wrap">
@@ -1009,7 +1014,7 @@ header.top.on .brand { opacity: 1 } header.top .topr { opacity: var(--hp, 0) }
       <button type="button" class="fbtn" id="f-toggle" aria-expanded="false" aria-controls="fsheet">Filtres<span id="f-count" hidden></span></button>
     </div>
     <div class="qchips" id="qchips" role="group" aria-label="Raccourcis"><button type="button" data-q="we">📅 Ce week-end <b id="q-we"></b></button><button type="button" data-q="next">Le week-end prochain</button><button type="button" data-q="near">📍 Près de moi</button><button type="button" data-q="trail" style="--dc:var(--c-trail)"><i class="qdot"></i>Trail</button><button type="button" data-q="route" style="--dc:var(--c-route)"><i class="qdot"></i>Route</button><button type="button" data-q="marche" style="--dc:var(--c-marche)"><i class="qdot"></i>Rando</button><button type="button" data-q="multisport" style="--dc:var(--c-tri)"><i class="qdot"></i>Multisport</button></div>
-    <p class="hstats" id="hstats"></p><button type="button" class="qsaison szlink">🗓️ Calendrier 2027 <span aria-hidden="true">›</span></button></div>
+    <p class="hstats" id="hstats"></p><div class="szrow"><button type="button" class="qsaison szlink">🗓️ Calendrier 2027 <span aria-hidden="true">›</span></button><button type="button" class="favlink szlink" hidden aria-pressed="false">⭐ Mes courses <b class="favn"></b></button></div></div>
   </section>
 
   <section id="admin" hidden aria-label="Administration"></section>
@@ -1423,9 +1428,12 @@ function scardHTML(r, mode) {
 }
 // « ⭐ Mes courses (n) » on the Scroll home: shown as soon as one race to come is in the favourites
 function favLinkSync() { const t = todayISO(), n = RACES.filter(r => FAVS.has(r.id) && !r.hidden && (r.fin || r.date) >= t).length;
-  document.querySelectorAll(".favlink").forEach(b => { b.hidden = !n; const c = b.querySelector(".favn"); if (c) c.textContent = n ? `(${n})` : ""; }); }
+  document.querySelectorAll(".favlink").forEach(b => { b.hidden = !n && !state.fav; b.classList.toggle("on", !!state.fav); b.setAttribute("aria-pressed", String(!!state.fav)); const c = b.querySelector(".favn"); if (c) c.textContent = n ? `(${n})` : ""; }); }
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest(".favlink"); if (!b || b.closest(".reels")) return;
+  state.fav = !state.fav; gcount("raccourci/mes-courses", "Mes courses", true); render(); favLinkSync();
+  const l = document.querySelector(".list, #list"); if (state.fav && l) l.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "start" }); });
 function renderMine() {
-  favLinkSync();
+  favLinkSync(); if ($("#minesec")) $("#minesec").hidden = true; return;   // favourites: the « ⭐ Mes courses » button under the quick filters
   const t = todayISO(), rs = RACES.filter(r => FAVS.has(r.id) && !r.hidden && (r.fin || r.date) >= t).sort(byDate);
   const sec = $("#minesec"); if (!sec) return; sec.hidden = !rs.length;
   $("#mine").innerHTML = rs.map(r => {
@@ -1795,6 +1803,7 @@ function profSVG(r) {
   return `<span class="lprof" title="Profil : ${lo} → ${hi} m"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path class="pa" d="M0,${H} L${pts.join(" L")} L${W},${H} Z"/><path class="pl" d="M${pts.join(" L")}"/></svg><small>${lo}–${hi} m</small></span>`;
 }
 function render() {
+  try { favLinkSync(); } catch (e) {}
   $("#f-commune").value = state.commune; $("#f-disc").value = state.disc; typeof syncD === "function" && syncD(); $("#f-mois").value = state.mois; $("#f-dist").value = state.dist; $("#f-ouvert").value = state.ouvert;
   $("#f-dp").value = state.dp; $("#f-ffa").value = state.ffa; $("#f-fav").value = state.fav ? "1" : "";
   $("#f-fav").options[1].textContent = "Mes favoris" + (FAVS.size ? ` (${FAVS.size})` : "");
