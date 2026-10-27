@@ -499,10 +499,11 @@
 "date": "2027-06-13"
 },
 {
-"nom": "Grand Bassin Mollaret",
+"nom": "Trail Grand Bassin Mollaret",
 "nature": "Trail",
 "club": "Association d’Athlétisme de Jacky Murat",
-"date": "2027-06-19"
+"date": "2027-06-19",
+"id": "trail-grand-bassin-2027-06"
 },
 {
 "nom": "Trail Urbain Écocité",
