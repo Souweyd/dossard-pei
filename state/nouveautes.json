@@ -178,12 +178,17 @@
 "WeRun": [
 "werun:10004",
 "werun:10053",
+"werun:10246",
+"werun:10287",
 "werun:10308",
+"werun:10320",
 "werun:10351",
 "werun:10398",
 "werun:10444",
 "werun:10458",
 "werun:10506",
+"werun:10517",
+"werun:10524",
 "werun:10530",
 "werun:10571",
 "werun:10598",
@@ -312,6 +317,7 @@
 "werun:9540",
 "werun:9825",
 "werun:9893",
-"werun:9942"
+"werun:9942",
+"werun:9977"
 ]
 }
