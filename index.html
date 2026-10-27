@@ -1892,7 +1892,9 @@ function drawPins(rs) {
   if (selT && selT.pts) el("polyline", { points: selT.pts.map(p => P(p[0], p[1]).map(v => v.toFixed(2)).join(",")).join(" "), class: "trace" }, gTrace);
   Object.entries(byC).forEach(([com, list]) => {
     if (selR && selR.commune === com && zoomK < .5) { list.filter(r => r.id !== state.sel).concat(list.filter(r => r.id === state.sel)).forEach(r => pin(P(...r.ll), [r], r.id === state.sel, r.nom, () => selectRace(r.id), scale, false, r.id !== state.sel)); return; }
-    const lat = list.reduce((s, r) => s + r.ll[0], 0) / list.length, lon = list.reduce((s, r) => s + r.ll[1], 0) / list.length;
+    // start point of each race in THIS commune (an épreuve leaving from another commune has its own ll)
+    const lls = list.map(r => r.commune === com ? r.ll : ((r.epreuves || []).find(e => e.commune === com && e.ll) || {}).ll || r.ll);
+    const lat = lls.reduce((s, l) => s + l[0], 0) / lls.length, lon = lls.reduce((s, l) => s + l[1], 0) / lls.length;
     const on = selR ? list.includes(selR) : state.commune === com;
     pin(P(lat, lon), list, on, com, () => { state.commune = state.commune === com ? "" : com; state.sel = null; render(); fitCommune(); }, scale, selR && !on);
   });
