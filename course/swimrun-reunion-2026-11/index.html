@@ -903,6 +903,57 @@ section.mine h2 { font-family: var(--display); font-weight: 800; letter-spacing:
 .sz-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 1px }
 .sz-i { display: block; font-size: .78rem; color: var(--muted); font-weight: 400; margin-top: 2px }
 .sz-src { margin: 10px 0 0; font-size: .76rem; color: var(--muted) }
+.sz-panel { width: min(760px, 100%); padding-top: 0 !important; gap: 0 !important }
+.sz-body { display: block }
+.sz-panel .dlg-x { top: 10px !important; margin: 10px -8px -50px 0 !important }
+.sz-panel .sz-bar { padding-right: 64px } .sz-panel .sz-ft, .sz-panel .sz-mos { margin-right: -64px; padding-right: 22px }
+.sz-hd { padding: 22px 52px 12px 0; text-align: left !important } .sz-hd > * { text-align: left !important; margin-left: 0 !important }
+.sz-hd .dlg-date { margin: 0 0 4px }
+.sz-kpi { justify-content: flex-start; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px }
+.sz-kpi span { font-size: .8rem; color: var(--muted); background: color-mix(in srgb, var(--fg) 6%, transparent); border-radius: 99px; padding: 5px 10px }
+.sz-kpi b { color: var(--fg); font-weight: 800 }
+.sz-kpi .sz-warn { background: color-mix(in srgb, #f5b400 16%, transparent); color: color-mix(in srgb, #b07d00 80%, var(--fg)) }
+.sz-bar { position: sticky; top: 0; z-index: 2; background: var(--surface); margin: 0 -22px; padding: 10px 22px 8px; border-bottom: 1px solid var(--line); display: grid; gap: 8px }
+.sz-qw { position: relative }
+.sz-q { width: 100%; box-sizing: border-box; padding: 10px 14px !important; border-radius: 12px !important; font-size: .98rem !important; background: var(--bg) !important }
+.sz-count { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: .78rem; color: var(--muted); pointer-events: none }
+.sz-ft, .sz-mos { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -22px; padding: 0 22px }
+.sz-ft::-webkit-scrollbar, .sz-mos::-webkit-scrollbar { display: none }
+.sz-f { font: inherit; font-size: .8rem; font-weight: 600; white-space: nowrap; border: 1px solid var(--line); background: transparent; color: var(--fg); border-radius: 99px; padding: 6px 11px; cursor: pointer }
+.sz-f.on { background: var(--fg); color: var(--surface); border-color: var(--fg) }
+.sz-mo { font: inherit; font-size: .78rem; font-weight: 700; flex: 1 0 auto; min-width: 48px; border: 0; background: color-mix(in srgb, var(--fg) 6%, transparent); color: var(--fg); border-radius: 10px; padding: 6px 8px 5px; cursor: pointer; display: grid; justify-items: center; gap: 1px; line-height: 1.1 }
+.sz-mo i { font-style: normal; font-size: .68rem; font-weight: 600; color: var(--muted) }
+.sz-mo.on { background: var(--accent); color: #fff } .sz-mo.on i { color: rgba(255,255,255,.85) }
+.sz-mo:disabled { opacity: .35; cursor: default }
+.sz-m { margin: 22px 0 6px; font-family: var(--display); font-weight: 800; font-size: 1.3rem; letter-spacing: -.02em; display: flex; align-items: baseline; gap: 8px }
+.sz-m small { font-family: var(--body, inherit); font-size: .78rem; font-weight: 600; color: var(--muted); letter-spacing: 0 }
+.sz-day { display: grid; grid-template-columns: 54px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-top: 1px solid var(--line) }
+.sz-d { align-self: start; text-align: center; line-height: 1; border-radius: 12px; padding: 7px 0 6px; background: color-mix(in srgb, var(--accent) 12%, transparent);  }
+.sz-d.wk { background: color-mix(in srgb, var(--fg) 6%, transparent) }
+.sz-d.nd { background: transparent; border: 1px dashed var(--line) }
+.sz-d small { display: block; font-size: .62rem; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: .05em }
+.sz-d b { display: block; font-size: 1.3rem; font-weight: 800; letter-spacing: -.03em; margin: 2px 0 }
+.sz-m + .sz-day { border-top: 0 }
+.sz-rs { display: grid; gap: 0 }
+.sz-r { display: flex; align-items: center; gap: 10px; padding: 6px 0 6px 12px; border-left: 3px solid var(--kc); }
+.sz-r + .sz-r { margin-top: 6px }
+.sz-r.champ { background: linear-gradient(90deg, color-mix(in srgb, #f5b400 14%, transparent), transparent 85%); border-left-color: #e0a400; border-radius: 0 10px 10px 0 }
+.sz-n { flex: 1; min-width: 0; font-size: .95rem; line-height: 1.3 }
+.sz-n b { font-weight: 650 }
+.sz-ch { display: block; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: color-mix(in srgb, #b07d00 85%, var(--fg)); margin-bottom: 1px }
+.sz-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; background: var(--kc) }
+.sz-i { display: block; font-size: .78rem; color: var(--muted); font-weight: 400; margin-top: 2px }
+.sz-ok { font: inherit; font-size: .78rem; font-weight: 700; border: 0; border-radius: 99px; padding: 6px 11px; background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); cursor: pointer; white-space: nowrap; flex: none }
+.sz-ok:hover { background: var(--accent); color: #fff }
+.sz-src { margin: 18px 0 0; font-size: .76rem; color: var(--muted) }
+@media (max-width: 640px) {
+  .sz-hd { padding-top: 18px }
+  .sz-bar { margin: 0 -14px; padding: 8px 14px 8px } .sz-ft, .sz-mos { margin: 0 -14px; padding: 0 14px }
+  .sz-day { grid-template-columns: 46px minmax(0, 1fr); gap: 10px }
+  .sz-r { flex-wrap: wrap; row-gap: 6px } .sz-ok { margin-left: 0 }
+  .sz-r .sz-n { flex-basis: 100% }
+}
+
 
 /* race-day weather: a sky-coloured card (same in light and dark mode), like a weather app */
 .swx.wxchip { margin-left: 6px; padding: 1px 7px 1px 5px; font-size: .78em; gap: 3px; cursor: inherit; white-space: nowrap } .swx.wxchip .wxsv { width: 13px; height: 13px }
@@ -1529,23 +1580,43 @@ function openSaison(back) {
   const close = () => { box.remove(); document.body.classList.remove("noscroll"); document.removeEventListener("keydown", esc_); };
   const esc_ = e => { if (e.key === "Escape") close(); };
   document.addEventListener("keydown", esc_); box.addEventListener("click", e => { if (e.target === box) close(); }); box.querySelector(".dlg-x").addEventListener("click", close);
-  const draw = q => {
-    const nq = norm(q || ""), byM = {};
-    SAISON.evenements.filter(e => !nq || norm(e.nom).includes(nq)).forEach(e => (byM[e.date.slice(0, 7)] = byM[e.date.slice(0, 7)] || []).push(e));
-    const rows = Object.keys(byM).sort().map(m => `<h3 class="sz-m">${cap(MOIS[+m.slice(5) - 1])}</h3>` + byM[m].map(e => { const d = dt(e.date);
-      const on = e.id && RACES.some(r => r.id === e.id && !r.hidden);
-      return `<div class="sz-row${e.champ ? " champ" : ""}"><span class="sz-d">${e.nd ? `<small>date</small><b>?</b>` : `<small>${JOURS[d.getDay()].replace(".", "")}</small><b>${d.getDate()}${e.fin ? "–" + dt(e.fin).getDate() : ""}</b>`}</span><span class="sz-n">${e.champ ? "🏆 " : ""}${esc(e.nom)}${(() => { const t = [e.nature, e.club, e.info].filter(Boolean); if (!t.length) return ""; const c = /route/i.test(e.nature) ? "--c-route" : /cross/i.test(e.nature) ? "--c-cross" : /trail|montagne/i.test(e.nature) ? "--c-trail" : e.nature ? "--c-tri" : ""; return `<small class="sz-i">${c ? `<i class="sz-dot" style="background:var(${c})"></i>` : ""}${t.map(esc).join(" · ")}</small>`; })()}</span>${on ? `<button type="button" class="sz-ok" data-sz="${esc(e.id)}">Voir la fiche <span aria-hidden="true">›</span></button>` : ""}</div>`; }).join("")).join("");
+  const F = { q: "", t: "", m: "" };
+  const kindOf = e => /route/i.test(e.nature) ? "route" : /cross/i.test(e.nature) ? "cross" : /trail|montagne/i.test(e.nature) ? "trail" : "autre";
+  const KC = { route: "--c-route", trail: "--c-trail", cross: "--c-cross", autre: "--c-tri" };
+  const pass = e => (!F.q || norm(e.nom + " " + (e.club || "")).includes(F.q)) && (!F.t || (F.t === "champ" ? e.champ : F.t === "fiche" ? e.id && RACES.some(r => r.id === e.id && !r.hidden) : F.t === "autre" ? !["route", "trail"].includes(kindOf(e)) : kindOf(e) === F.t));
+  const draw = () => {
+    const byM = {}, list = SAISON.evenements.filter(pass);
+    list.forEach(e => (byM[e.date.slice(0, 7)] = byM[e.date.slice(0, 7)] || []).push(e));
+    box.querySelectorAll(".sz-mo").forEach(b => { const n = (byM[b.dataset.m] || []).length; b.disabled = !n; b.querySelector("i").textContent = n || ""; });
+    box.querySelector(".sz-count").textContent = list.length === SAISON.evenements.length ? "" : `${list.length} course${list.length > 1 ? "s" : ""}`;
+    const row = e => { const on = e.id && RACES.some(r => r.id === e.id && !r.hidden), k = kindOf(e);
+      const t = [e.nature, e.club, e.info].filter(Boolean);
+      return `<div class="sz-r${e.champ ? " champ" : ""}" style="--kc:var(${KC[k]})"><div class="sz-n">${e.champ ? `<span class="sz-ch">🏆 Championnat de La Réunion</span>` : ""}<b>${esc(e.nom)}</b>${t.length ? `<small class="sz-i"><i class="sz-dot"></i>${t.map(esc).join(" · ")}</small>` : ""}</div>${on ? `<button type="button" class="sz-ok" data-sz="${esc(e.id)}">Voir la fiche <span aria-hidden="true">›</span></button>` : ""}</div>`; };
+    const rows = Object.keys(byM).sort().map(m => { const days = {}; byM[m].forEach(e => { const k = e.nd ? "?" : e.date + (e.fin || ""); (days[k] = days[k] || []).push(e); });
+      return `<section class="sz-sec" data-m="${m}"><h3 class="sz-m">${cap(MOIS[+m.slice(5) - 1])} <small>${byM[m].length} course${byM[m].length > 1 ? "s" : ""}</small></h3>` +
+        Object.keys(days).sort((a, b) => a === "?" ? 1 : b === "?" ? -1 : a < b ? -1 : 1).map(k => { const e0 = days[k][0], d = dt(e0.date), we = !e0.nd && (d.getDay() === 0 || d.getDay() === 6);
+          return `<div class="sz-day"><div class="sz-d${we ? "" : " wk"}${e0.nd ? " nd" : ""}">${e0.nd ? `<small>date</small><b>?</b>` : `<small>${JOURS[d.getDay()].replace(".", "")}</small><b>${d.getDate()}${e0.fin ? "–" + dt(e0.fin).getDate() : ""}</b><small>${MOIS[d.getMonth()].slice(0, 4).replace(/\.$/, "")}.</small>`}</div><div class="sz-rs">${days[k].map(row).join("")}</div></div>`; }).join("") + `</section>`; }).join("");
     box.querySelector(".sz-list").innerHTML = rows || `<p class="note">Aucune course ne correspond.</p>`;
-    box.querySelectorAll("[data-sz]").forEach(b => b.addEventListener("click", () => { gcount("saison2027/fiche/" + b.dataset.sz, "Calendrier 2027 vers fiche", true); const pn = box.querySelector(".dlg-panel"); SZBACK = { q: box.querySelector(".sz-q").value, t: pn.scrollTop, t2: box.scrollTop }; close(); openRace(b.dataset.sz); }));
+    box.querySelectorAll("[data-sz]").forEach(b => b.addEventListener("click", () => { gcount("saison2027/fiche/" + b.dataset.sz, "Calendrier 2027 vers fiche", true); const pn = box.querySelector(".dlg-panel"); SZBACK = { f: { ...F }, q: box.querySelector(".sz-q").value, t: pn.scrollTop, t2: box.scrollTop }; close(); openRace(b.dataset.sz); }));
+    spy();
   };
+  const spy = () => { const pn = box.querySelector(".dlg-panel"), bar = box.querySelector(".sz-bar"); if (!bar) return; const y = bar.getBoundingClientRect().bottom + 4; let cur = "";
+    box.querySelectorAll(".sz-sec").forEach(s => { if (s.getBoundingClientRect().top <= y + 2) cur = s.dataset.m; }); cur = cur || box.querySelector(".sz-sec")?.dataset.m || "";
+    if (cur !== F.m) { F.m = cur; box.querySelectorAll(".sz-mo").forEach(b => b.classList.toggle("on", b.dataset.m === cur)); const a = box.querySelector(`.sz-mo[data-m="${cur}"]`); a && a.parentNode.scrollTo({ left: a.offsetLeft - a.parentNode.clientWidth / 2 + a.offsetWidth / 2, behavior: "smooth" }); } };
   const show = () => {
-    const nb = SAISON.evenements.length, ch = SAISON.evenements.filter(e => e.champ).length;
-    box.querySelector(".sz-body").innerHTML = `<p class="dlg-date">Calendrier provisoire de la Ligue</p><h2 class="sz-h">Saison ${SAISON.saison}</h2>
-      <p class="sz-sub">${nb} courses annoncées, dont ${ch} championnats de La Réunion (🏆). Dates susceptibles d'évoluer.</p>
-      <input type="search" class="sz-q" placeholder="Chercher une course…" aria-label="Chercher une course dans la saison">
+    const nb = SAISON.evenements.length, ch = SAISON.evenements.filter(e => e.champ).length, ms = [...new Set(SAISON.evenements.map(e => e.date.slice(0, 7)))].sort();
+    box.querySelector(".sz-body").innerHTML = `<div class="sz-hd"><p class="dlg-date">Calendrier provisoire de la Ligue</p><h2 class="sz-h">Saison ${SAISON.saison}</h2>
+      <div class="sz-kpi"><span><b>${nb}</b> courses</span><span><b>${ch}</b> championnats</span><span class="sz-warn">Dates susceptibles d'évoluer</span></div></div>
+      <div class="sz-bar"><div class="sz-qw"><input type="search" class="sz-q" placeholder="Course ou club…" aria-label="Chercher une course ou un club dans la saison"><span class="sz-count"></span></div>
+      <div class="sz-ft" role="group" aria-label="Filtrer">${[["", "Toutes"], ["route", "Route"], ["trail", "Trail"], ["autre", "Cross et autres"], ["champ", "🏆 Championnats"], ["fiche", "Fiche dispo"]].map(([k, l]) => `<button type="button" class="sz-f${k === F.t ? " on" : ""}" data-f="${k}" aria-pressed="${k === F.t}">${l}</button>`).join("")}</div>
+      <nav class="sz-mos" aria-label="Aller au mois">${ms.map(m => `<button type="button" class="sz-mo" data-m="${m}">${["Jan","Fév","Mar","Avr","Mai","Juin","Juil","Août","Sep","Oct","Nov","Déc"][+m.slice(5) - 1]}<i></i></button>`).join("")}</nav></div>
       <div class="sz-list"></div><p class="sz-src">Source : ${esc(SAISON.source)}${SAISON.url ? ` · <a href="${esc(SAISON.url)}" target="_blank" rel="noopener">${esc(SAISON.url.replace(/^https?:\/\//, ""))}</a>` : ""}.</p>`;
-    const qi = box.querySelector(".sz-q"); qi.addEventListener("input", e => draw(e.target.value));
-    if (back) { qi.value = back.q; draw(back.q); requestAnimationFrame(() => { box.querySelector(".dlg-panel").scrollTop = back.t; box.scrollTop = back.t2; }); } else draw("");
+    const pn = box.querySelector(".dlg-panel"), qi = box.querySelector(".sz-q");
+    qi.addEventListener("input", e => { F.q = norm(e.target.value.trim()); draw(); });
+    box.querySelectorAll(".sz-f").forEach(b => b.addEventListener("click", () => { F.t = b.dataset.f; box.querySelectorAll(".sz-f").forEach(x => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); }); draw(); }));
+    box.querySelectorAll(".sz-mo").forEach(b => b.addEventListener("click", () => { const s = box.querySelector(`.sz-sec[data-m="${b.dataset.m}"]`); if (s) pn.scrollTo({ top: s.offsetTop - box.querySelector(".sz-bar").offsetHeight - 6, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }));
+    pn.addEventListener("scroll", spy, { passive: true });
+    if (back) { qi.value = back.q || ""; Object.assign(F, back.f || {}, { m: "" }); box.querySelectorAll(".sz-f").forEach(x => { x.classList.toggle("on", x.dataset.f === F.t); x.setAttribute("aria-pressed", x.dataset.f === F.t); }); draw(); requestAnimationFrame(() => { pn.scrollTop = back.t; box.scrollTop = back.t2; spy(); }); } else draw();
   };
   if (SAISON) show(); else fetch("saison2027.json").then(r => r.json()).then(j => { SAISON = j; show(); }).catch(() => { box.querySelector(".sz-body").innerHTML = `<p class="note">Calendrier indisponible pour le moment.</p>`; });
 }
