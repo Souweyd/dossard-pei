@@ -207,5 +207,12 @@
 "nom": "Maloya Trail – Maloya Trail",
 "de": "06h00",
 "a": "07h00"
+},
+{
+"at": "2026-10-28T19:26+04:00",
+"t": "ajout",
+"id": "festi-trail-saint-leu-2027-02",
+"nom": "Festi Trail de Saint-Leu",
+"date": "2027-02-07"
 }
 ]
