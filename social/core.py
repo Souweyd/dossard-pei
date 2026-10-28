@@ -332,5 +332,4 @@ def caption(lines, tags, fmt):
     txt = '\n'.join(lines)
     if fmt == 'tiktok':
         txt = txt.replace(' (lien en bio)', '')
-        t = [x for x in t if x != '#courseapied'][:4] + ['#pourtoi']
-    return txt + '\n\n' + ' '.join(t[:5])
+    return txt + '\n\n' + ' '.join(t[:4])

@@ -45,7 +45,7 @@ THEMES = [
          filt={'f-disc': 'multisport'}, flab='Discipline « Multisport »', tag='#triathlon'),
 ]
 
-TAGS = ['#trailreunion', '#run974', '#lareunion', '#974', '#courseapied']
+TAGS = ['#trail', '#run', '#iledelareunion', '#reunionisland']      # the owner's 4 hashtags, same on every network
 
 
 # ------------------------------------------------------------------ shared slide parts
@@ -296,7 +296,7 @@ def build_lundi(ref, data, races):
         lines.append(f"📅 {JOURS_C[dd.weekday()].capitalize()} {dd.day} : " + ' · '.join(f"{r['nom']} ({r['commune']})" for r in rs if r['_d'] == dd))
     if clot:
         lines += ['', '⏳ Dernières inscriptions : ' + ' · '.join(f"{r['nom']} ({status(r, ref)[1].replace('Clôture ', '').lower()})" for r in clot)]
-    lines += ['', 'Infos et inscriptions 👉 dossardpei.re (lien en bio)', '', 'Tu cours ou tu vas encourager ? Dis-le en commentaire 👇']
+    lines += ['', 'Infos et inscriptions 👉 dossardpei.re (lien en bio)']
     return pages, lines, TAGS
 
 
@@ -342,8 +342,8 @@ def build_mardi(ref, data, races):
     lines += [f"• {fdate(r['_d'], short=True).capitalize()} : {r['nom']} ({r['commune']})" for r in sel[:6]]
     if len(sel) > 6:
         lines.append(f"… et {len(sel) - 6} autre{'s' if len(sel) > 7 else ''}")
-    lines += ['', f"Sur dossardpei.re : Filtres → {th['flab']} (lien en bio)", '', th.get('cta', 'Tague quelqu\'un que ça intéresse 👇')]
-    return pages, lines, TAGS[:4] + [th['tag']]
+    lines += ['', f"Sur dossardpei.re : Filtres → {th['flab']} (lien en bio)"]
+    return pages, lines, TAGS
 
 
 # ------------------------------------------------------------------ THURSDAY : a region (map)
@@ -393,8 +393,8 @@ def build_jeudi(ref, data, races):
     lines += [f"{k}. {fdate(r['_d'], short=True).capitalize()} : {r['nom']} ({r['commune']})" for k, r in enumerate(sel[:8], 1)]
     if len(sel) > 8:
         lines.append(f"… et {len(sel) - 8} autre{'s' if len(sel) > 9 else ''}")
-    lines += ['', 'Toutes les courses sur la carte 👉 dossardpei.re (lien en bio)', '', 'Tague tes dalons du coin 👇']
-    return pages, lines, TAGS[:4] + ['#' + _norm(top_commune).replace(' ', '')]
+    lines += ['', 'Toutes les courses sur la carte 👉 dossardpei.re (lien en bio)']
+    return pages, lines, TAGS
 
 
 # ------------------------------------------------------------------ 1st of the month (calendar)
@@ -454,7 +454,7 @@ def build_mois(ref, data, races):
     for wk, grp in itertools.groupby(sel, key=lambda r: r['_d'].isocalendar()[1]):
         g = list(grp)
         lines.append(f"• Semaine du {g[0]['_d'].day} : " + ' · '.join(r['nom'] for r in g[:5]) + (f" (+{len(g) - 5})" if len(g) > 5 else ''))
-    lines += ['', 'Le calendrier complet 👉 dossardpei.re (lien en bio)', '', 'Enregistre pour tout le mois 🔖']
+    lines += ['', 'Le calendrier complet 👉 dossardpei.re (lien en bio)']
     return pages, lines, TAGS
 
 
