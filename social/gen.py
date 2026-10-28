@@ -38,7 +38,7 @@ THEMES = [
          sub='Pas besoin de courir pour prendre un dossard.', pred=lambda r: 'marche' in r['_types'], cta='Tague ton binôme de rando 👇',
          filt={'f-disc': 'marche'}, flab='Discipline « Rando / marche »', tag='#randonnee'),
     dict(id='longues', emo='🔥', title='Les longues<br>distances', short='Les longues distances',
-         sub='Plus de 30 km : les grosses sorties de la saison.', pred=lambda r: _has(r, lambda e: (e.get('km') or 0) > 30 and e.get('type') in ('trail', 'route', 'marche')), cta='Ta plus longue course, c\'était combien ? 👇',
+         sub='Plus de 30 km.', pred=lambda r: _has(r, lambda e: (e.get('km') or 0) > 30 and e.get('type') in ('trail', 'route', 'marche')), cta='Ta plus longue course, c\'était combien ? 👇',
          filt={'f-dist': 'long'}, flab='Distance « > 30 km »', tag='#ultratrail'),
     dict(id='multisport', emo='🏊', title='Triathlon,<br>swimrun…', short='Le multisport',
          sub='Nager, pédaler, courir : les épreuves multisport.', pred=lambda r: 'multisport' in r['_types'], cta='Nage, vélo ou course : ton point fort ? 👇',
