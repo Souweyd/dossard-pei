@@ -9,7 +9,8 @@ Checked:
   - source pages unreadable for 24 h or more (state/todo.json « illisibles », first failure kept here);
   - weather older than 6 h while a race is within 7 days;
   - races of the next 30 days without poster, races (trail) of the next 14 days without track;
-  - corrections made by the data guard (state/guard.json) since the last summary.
+  - corrections made by the data guard (state/guard.json) since the last summary;
+  - races whose épreuves were not all recognised on their registration page (state/partiels.json).
 State: state/digest.json {"sent": date, "seen": {url: first failure}}. Never fails the workflow.
 """
 import datetime as dt
@@ -69,6 +70,10 @@ def problems(now, st):
             out.append(f"Sans affiche, dans {d} j : {r['nom']} ({r['date']})")
         if d <= 14 and r["id"] not in data.get("gpx", {}) and any(e.get("type") == "trail" for e in r.get("epreuves", [])):
             out.append(f"Trail sans tracé, dans {d} j : {r['nom']} ({r['date']})")
+    for rid, v in load("state/partiels.json", {}).items():   # page read but épreuves not recognised: state not checked
+        if rid in races and not races[rid].get("hidden"):
+            out.append(f"Épreuves non reconnues sur {v.get('source')} : {races[rid]['nom']} — {', '.join(v.get('epreuves') or [])}"
+                       f" (la plateforme dit : {', '.join(v.get('plateforme') or [])}). Statut d'inscription non vérifié.")
     g = load("state/guard.json", {})
     if g.get("at", "") > st.get("sent_at", "") and (g.get("notes") or g.get("restored")):
         out += [f"Garde-fou : {n}" for n in (g.get("notes") or [])[:10]]

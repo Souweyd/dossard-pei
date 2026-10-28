@@ -17,6 +17,7 @@ issue when a source fails 3 runs in a row (tools/health_alarm.py).
 import datetime as dt
 import html
 import json
+import os
 import re
 import sys
 import unicodedata
@@ -51,6 +52,10 @@ locked = {k: set(v.get("fields", [])) if isinstance(v, dict) else set(v) for k, 
 changes, errors = [], []
 run = {}  # source -> {"metrics": {name: count}, "error": ...}, for state/health.json
 VERIF = {}  # race id -> platform that confirmed its registration state during this run
+# race id -> {"source", "epreuves": [names]}: page read, but some of our épreuves not recognised among the
+# platform's races. Such a race is NOT marked verified (its state may be wrong on the site) and is listed in
+# state/partiels.json, reported by the daily summary until the names are matched (or fixed by hand).
+PARTIAL = {}
 FOUND = {}  # source -> [(key, label, url)] races listed by the platforms (new-race detector, tools/watch.py)
 SP_DATES = {}  # Sportpro event id -> date of the event (agenda)
 MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"]
@@ -270,6 +275,9 @@ def match(ours, theirs, event=""):
     common |= toks(event)
     res = {}
     for i, e in enumerate(ours):
+        same = [t for t in theirs if norm(t["nom"]) == norm(e.get("nom"))] or [t for t in theirs if toks(t["nom"]) == toks(e.get("nom"))]
+        if len(same) == 1:   # the very same name on both sides (the distances may disagree a little)
+            res[i] = same[0]; continue
         k = float(e["km"]) if e.get("km") else None
         def near(t):
             if t["km"] is None or t["km"] <= 0.1 or k is None: return True
@@ -331,11 +339,22 @@ if dag_targets:
         if not theirs:
             continue
         lus += 1
-        VERIF[r["id"]] = "chronometrage"
         if not can(r, "epreuves"):
+            VERIF[r["id"]] = "chronometrage"
             continue
         eps = r.get("epreuves", [])
         res = {0: theirs[0]} if len(eps) == 1 and len(theirs) == 1 else match(eps, theirs, r.get("nom", ""))
+        lo, lt = [k for k in range(len(eps)) if k not in res], [t for t in theirs if all(t is not v for v in res.values())]
+        if len(lo) == 1 and len(lt) == 1:   # the last unmatched pair
+            res[lo[0]] = lt[0]
+        if len(res) < len(eps) and len(theirs) >= len(eps) and len({t["complet"] for t in theirs}) == 1 and theirs[0]["complet"]:
+            res.update({k: {**theirs[0], "nom": "", "limite": max(t["limite"] or "" for t in theirs) or None, "prix": None, "h": None}
+                        for k in range(len(eps)) if k not in res})   # every race of the page is full: so is each of ours
+        if len(res) == len(eps):
+            VERIF[r["id"]] = "chronometrage"
+        else:
+            PARTIAL[r["id"]] = {"source": "chronometrage", "epreuves": [eps[k].get("nom", "") for k in range(len(eps)) if k not in res],
+                                "plateforme": [t["nom"] for t in theirs]}
         real_times = len({t.get("h") for t in theirs if t.get("h")}) >= 2
         for i, t in res.items():
             ep = eps[i]
@@ -508,7 +527,11 @@ def match_names(ours, theirs, event=""):
     words = lambda x: {w for w in toks(x) - common if not w.isdigit() and not re.fullmatch(r"\d+km", w)}
     res, used = {}, set()
     for i, e in enumerate(ours):
-        sc = sorted(((len(words(e.get("nom")) & words(t["nom"])), j) for j, t in enumerate(theirs) if j not in used), reverse=True)
+        ac = acro(e.get("nom"), True)
+        kms = lambda x: {w for w in toks(x) if re.fullmatch(r"\d+(?:[.,]\d+)?km", w)}
+        # shared words first; the same distance (« 21 km ») only decides when no word does
+        sc = sorted((((len(words(e.get("nom")) & words(t["nom"])) + (2 if ac and ac == acro(t["nom"]) else 0)) * 10 + len(kms(e.get("nom")) & kms(t["nom"])), j)
+                     for j, t in enumerate(theirs) if j not in used), reverse=True)
         if sc and sc[0][0] > 0 and (len(sc) == 1 or sc[0][0] > sc[1][0]):
             res[i] = theirs[sc[0][1]]; used.add(sc[0][1])
     left_o = [i for i in range(len(ours)) if i not in res]
@@ -551,6 +574,8 @@ for r in data["races"]:
                     res = {k: {"etat": only} for k in range(len(eps))}
                 else:
                     ok = False
+                    PARTIAL[r["id"]] = {"source": "plateforme", "epreuves": [eps[k].get("nom", "") for k in range(len(eps)) if k not in res],
+                                        "plateforme": [t["nom"] for t in theirs]}
         if any(t.get("prix") for t in theirs) and can(r, "epreuves"):   # price given by the platform (njuko)
             pm = {0: theirs[0]} if len(eps) == 1 and len(theirs) == 1 else match(eps, theirs, r.get("nom", ""))
             lo, lt = [k for k in range(len(eps)) if k not in pm], [t for t in theirs if all(t is not v for v in pm.values())]
@@ -611,7 +636,10 @@ try:
         if r.get("hidden") or not m or not ag.get(m.group(1)) or not can(r, "epreuves"):
             continue
         res = match(r.get("epreuves", []), ag[m.group(1)], r.get("nom", ""))
-        if res: VERIF[r["id"]] = "sportpro"
+        if res and len(res) == len(r.get("epreuves", [])): VERIF[r["id"]] = "sportpro"
+        elif r.get("epreuves"):
+            PARTIAL[r["id"]] = {"source": "sportpro", "epreuves": [e.get("nom", "") for k, e in enumerate(r["epreuves"]) if k not in res],
+                                "plateforme": [t["nom"] for t in ag[m.group(1)]]}
         # start time of each épreuve and date of a one-day event follow the agenda (organiser's data)
         if can(r, "epreuves"):
             for i, t in res.items():
@@ -757,6 +785,13 @@ if changes:
     data["updatedAt"] = NOW.isoformat(timespec="seconds")
     json.dump(data, open("data.json", "w"), ensure_ascii=False, separators=(",", ":"))
 # health of each source: state/health.json (rewritten only when its content changes) + this run's counts
+try:   # races whose épreuves were not all recognised (daily summary)
+    old_p = json.load(open("state/partiels.json")) if os.path.exists("state/partiels.json") else None
+    new_p = {k: v for k, v in sorted(PARTIAL.items())}
+    if old_p != new_p:
+        json.dump(new_p, open("state/partiels.json", "w"), ensure_ascii=False, indent=1)
+except Exception:
+    pass
 sante = ""
 try:
     prev = health.load()
