@@ -575,7 +575,7 @@ footer { border: 0; padding-top: 6px }
 .mshow { box-shadow: none; display: inline-flex; align-items: center; gap: 6px } .mshow::before { content: ""; width: 14px; height: 14px; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Zm0 0v14m6-12v14' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Zm0 0v14m6-12v14' fill='none' stroke='black' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat }
 .mshow:hover, .mhide:hover { background: var(--fg); color: var(--bg) }
 .lhr { display: inline-flex; align-items: center; gap: 12px }
-@media (min-width: 901px) {
+@media (min-width: 761px) {   /* from tablets up: « Masquer la carte » works wherever the button is shown */
   .main.nomap { grid-template-columns: minmax(0, 1fr) } .main.nomap .mapcol { display: none }
   .main.nomap .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 22px 18px }
   .main.nomap .month { grid-column: 1 / -1; margin-bottom: -6px }
@@ -778,7 +778,7 @@ body.mapfull .mapfab { display: none }
 @media (max-width: 760px) { .list .lrow { padding: 12px 12px } }
 
 /* ordinateur, grille d'affiches : chaque course dans sa carte */
-@media (min-width: 901px) {
+@media (min-width: 761px) {
   .main.nomap .lrow { background: var(--surface); box-shadow: 0 0 0 1px var(--line), 0 1px 3px rgba(0,0,0,.05); border-radius: 20px; padding: 10px 10px 14px; transition: box-shadow .15s }
   .main.nomap .lrow:hover { box-shadow: 0 0 0 1px color-mix(in srgb, var(--fg) 25%, var(--line)), 0 8px 22px rgba(0,0,0,.10) }
   .main.nomap .lrow.on { box-shadow: inset 0 0 0 2px var(--hot), 0 8px 22px rgba(0,0,0,.10) } .main.nomap .lrow.on .lthumb { box-shadow: none }
@@ -854,12 +854,12 @@ section.soon, .lastc { box-shadow: none } .soon h2, .lastc h2 { font-weight: 800
 .socb.soc-ig, .socb.soc-tt, .socb.soc-fb { border: 0; color: #fff !important } .socb.soc-ig { background: linear-gradient(45deg, #f9a13a, #e1306c 55%, #833ab4) } .socb.soc-tt { background: #111 } .socb.soc-fb { background: #1877f2 }
 .socb.soc-ig:hover, .socb.soc-tt:hover, .socb.soc-fb:hover { color: #fff !important }
 
-@media (min-width: 901px) {
+@media (min-width: 761px) {
   .main.nomap .list .lrow { background: color-mix(in srgb, var(--dc) 9%, var(--surface)); box-shadow: inset 0 4px 0 var(--dc) }
   .main.nomap .list .lrow:hover { box-shadow: inset 0 4px 0 var(--dc), 0 8px 22px rgba(0,0,0,.08) }
   .main.nomap .list .lrow.on { box-shadow: inset 0 0 0 2px var(--hot) }
 }
-@media (min-width: 901px) and (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .main.nomap .list .lrow { background: color-mix(in srgb, var(--dc) 16%, var(--surface)) } }
+@media (min-width: 761px) and (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .main.nomap .list .lrow { background: color-mix(in srgb, var(--dc) 16%, var(--surface)) } }
 
 .rsoc2 { display: flex; justify-content: center; gap: 12px; margin-top: 14px } .rsoc2:empty { display: none } .rsoc2 .socb { width: 40px; height: 40px; box-shadow: 0 2px 8px rgba(0,0,0,.18) } .rsoc2 .socb svg { width: 19px; height: 19px }
 
@@ -1023,7 +1023,14 @@ section.mine h2 { font-family: var(--display); font-weight: 800; letter-spacing:
   border-bottom: 1px solid var(--line); opacity: 0; pointer-events: none; transition: opacity .18s }
 .dlg-bar span { font-weight: 700; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; max-width: 100% }
 .dlg-panel { grid-template-columns: minmax(0, 1fr) }   /* a long name in the bar never widens the sheet */
-.dlg-head { grid-template-columns: minmax(0, 1fr) } .dlg-head .eps > * { max-width: 100%; white-space: normal; overflow-wrap: anywhere }
+.dlg-head { grid-template-columns: minmax(0, 1fr) }
+.actions .agl { margin-left: auto; font-size: .9rem; color: var(--accent); text-decoration: none; white-space: nowrap }
+.actions .agl:hover { text-decoration: underline }
+.ended { background: color-mix(in srgb, var(--fg) 7%, transparent); border-radius: 12px; padding: 10px 14px; font-weight: 600; font-size: .92rem }
+/* readable buttons and badges (WCAG AA): darker turquoise behind white text in light mode, dark text on the bright turquoise in dark mode, deeper red for countdown badges */
+.epins, .cta, .szlink:not(.favlink), .sz-mo.on { background: #00807a !important; color: #fff !important }
+.lc, .rinfo .rj, .state.soon, #f-count, .qchips b, .cform button[type=submit], .rmore .ri, .swhen.hot { background: #cc3d1b !important; color: #fff !important }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .epins, :root:not([data-theme="light"]) .cta, :root:not([data-theme="light"]) .szlink:not(.favlink), :root:not([data-theme="light"]) .sz-mo.on { background: #2ccfc6 !important; color: #062624 !important } :root:not([data-theme="light"]) .sz-mo.on i { color: rgba(6,38,36,.7) } } .dlg-head .eps > * { max-width: 100%; white-space: normal; overflow-wrap: anywhere }
 /* scrollbar drawn inside the rounded sheet: thin rounded thumb, no square track, kept clear of the corners */
 .dlg-panel::-webkit-scrollbar { width: 12px }
 .dlg-panel::-webkit-scrollbar-track { background: transparent; margin: 22px 0 }
@@ -1182,7 +1189,8 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": 
 const fmt = n => String(n).replace(".", ",");
 const keff = e => e.km && e.dp ? Math.round((e.km + e.dp / 100) * 10) / 10 : null;
 const dt = d => new Date(d + "T12:00:00");
-const todayISO = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 6e4).toISOString().slice(0, 10); };
+// « today » is the date in La Réunion (UTC+4, no daylight saving), whatever the visitor's device time zone
+const todayISO = () => new Date(Date.now() + 4 * 36e5).toISOString().slice(0, 10);
 
 // ---------- data: snapshot (baked hourly) + live admin layer (db) ----------
 let BASE = JSON.parse(document.getElementById("snapshot").textContent);
@@ -1253,7 +1261,8 @@ const DPF = [["dp1", "< 500 m", v => v < 500], ["dp2", "500 – 1 500 m", v => v
 const FFA = [["XXS", 0, 25], ["XS", 25, 45], ["S", 45, 75], ["M", 75, 115], ["L", 115, 155], ["XL", 155, 210], ["XXL", 210, 1e9]];
 const effort = e => e.km ? e.km + (e.dp || 0) / 100 : null;
 const ffaOf = e => { const k = effort(e); return k == null ? null : FFA.find(f => k >= f[1] && k < f[2])[0]; };
-const fold = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+// search text: no accents, hyphens and apostrophes as spaces, « st / ste » as « saint / sainte » (« st pierre », « etang sale » find Saint-Pierre, L'Étang-Salé)
+const fold = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[-'’_.]/g, " ").replace(/\bste\b/g, "sainte").replace(/\bst\b/g, "saint").replace(/\s+/g, " ").trim();
 let state = { wk: "", near: null, q: "", commune: "", mois: "", dist: "", dp: "", ffa: "", fav: false, disc: "", ouvert: "", sel: null, open: new Set(), rview: "liste", cal: null, day: null };
 let FAVS = new Set(), REG = new Set(), FAVHINT = false;
 try { const s = JSON.parse(localStorage.getItem("trailspei") || "{}"); /* every visitor lands on the same unfiltered page: only favourites are remembered */ FAVS = new Set(s.favs || []); REG = new Set(s.reg || []); FAVHINT = !!s.hint; } catch (e) {}
@@ -1304,7 +1313,7 @@ function setView(v) {
 
 // shortcuts: this weekend / next weekend / near me (within NEAR_KM)
 const NEAR_KM = 20;
-function weekendRange(which) { const d = new Date(); d.setHours(12, 0, 0, 0); const wd = d.getDay();
+function weekendRange(which) { const d = dt(todayISO()); const wd = d.getDay();
   const sat = new Date(d); sat.setDate(d.getDate() + (wd === 0 ? -1 : 6 - wd)); if (which === "next") sat.setDate(sat.getDate() + 7);
   const sun = new Date(sat); sun.setDate(sat.getDate() + 1); return [ymd(sat), ymd(sun)]; }
 // events spread over several days: each épreuve may carry its own date, commune, place and coordinates
@@ -1374,7 +1383,7 @@ const regBtn = r => "";
 function bindReg(root) { root.querySelectorAll("[data-reg]").forEach(b => { if (b.dataset.bound) return; b.dataset.bound = 1; b.addEventListener("click", e => { e.stopPropagation(); toggleReg(b.dataset.reg); }); }); }
 async function share(id) {
   const r0 = RACES.find(x => x.id === id); if (r0 && r0.id && !r0.manual) return shareRace(r0);
-  const r = r0, url = ARTIFACT_URL + "#c-" + id;
+  const r = r0, url = "https://dossardpei.re/#c-" + id;
   try { await navigator.clipboard.writeText(url); toast("Lien copié : collez-le où vous voulez"); }
   catch (e) {
     const ta = document.createElement("textarea"); ta.value = url; document.body.appendChild(ta); ta.select();
@@ -1386,14 +1395,15 @@ function gcalURL(r) {
   const m = /^(\d{1,2})\s*h\s*(\d{2})?/i.exec(r.main.h || (r.epreuves || []).find(e => e.h)?.h || "");
   const d = r.date.replace(/-/g, ""), pad = n => String(n).padStart(2, "0");
   let dates;
-  if (m) { const h = +m[1], mi = +(m[2] || 0), e = Math.min(23, h + 4); dates = `${d}T${pad(h)}${pad(mi)}00/${d}T${pad(e)}${pad(mi)}00`; }
+  if (r.fin && r.fin > r.date) dates = `${d}/${ymd(new Date(dt(r.fin).getTime() + 864e5)).replace(/-/g, "")}`;   // event over several days: all-day, first to last day
+  else if (m) { const h = +m[1], mi = +(m[2] || 0), e = Math.min(23, h + 4); dates = `${d}T${pad(h)}${pad(mi)}00/${d}T${pad(e)}${pad(mi)}00`; }
   else { const n = new Date(dt(r.date).getTime() + 864e5); dates = `${d}/${ymd(n).replace(/-/g, "")}`; }
   const eps = (r.epreuves || []).filter(e => e.km).map(e => `${fmt(e.km)} km${e.dp ? " / " + e.dp + " D+" : ""}${e.h ? " à " + e.h : ""}`).join(" · ");
-  const details = [eps, r.limite ? "Clôture des inscriptions : " + dt(r.limite).toLocaleDateString("fr-FR") : "", "Inscription : " + (r.inscription || r.page || ""), "Fiche Dossard Péi : " + ARTIFACT_URL + "#c-" + r.id].filter(Boolean).join("\n");
+  const details = [eps, r.limite ? "Clôture des inscriptions : " + dt(r.limite).toLocaleDateString("fr-FR") : "", "Inscription : " + (r.inscription || r.page || ""), "Fiche Dossard Péi : " + (r.manual ? "https://dossardpei.re/#c-" + r.id : "https://dossardpei.re/course/" + r.id + "/")].filter(Boolean).join("\n");
   return "https://calendar.google.com/calendar/render?" + new URLSearchParams({ action: "TEMPLATE", text: r.nom, dates, ctz: "Indian/Reunion", details, location: (r.lieu && r.lieu !== r.commune ? r.lieu + ", " : "") + r.commune + ", La Réunion" });
 }
 function outlookURL(r) {
-  return "https://outlook.live.com/calendar/0/deeplink/compose?" + new URLSearchParams({ path: "/calendar/action/compose", rru: "addevent", subject: r.nom, startdt: r.date, enddt: ymd(new Date(dt(r.date).getTime() + 864e5)), allday: "true", location: r.commune + ", La Réunion", body: "Inscription : " + (r.inscription || r.page || "") });
+  return "https://outlook.live.com/calendar/0/deeplink/compose?" + new URLSearchParams({ path: "/calendar/action/compose", rru: "addevent", subject: r.nom, startdt: r.date, enddt: ymd(new Date(dt(r.fin && r.fin > r.date ? r.fin : r.date).getTime() + 864e5)), allday: "true", location: r.commune + ", La Réunion", body: "Inscription : " + (r.inscription || r.page || "") });
 }
 function stateBadge(r) {
   if (vstate(r) === "alerte") return `<span class="state chk">À vérifier</span>`;
@@ -1435,7 +1445,7 @@ function actionsHTML(r, withMore) {
     ${!canReg(r) || !r.inscription ? "" : `<a class="cta" href="${esc(r.inscription)}" target="_blank" rel="noopener">${ctaTxt(r)}</a>`}
     ${ficheOf(r) ? `<a class="ghostlink" href="${esc(ficheOf(r))}" target="_blank" rel="noopener">Fiche technique</a>` : ""}
     ${withMore ? `<button type="button" class="more" data-more="${esc(r.id)}" aria-expanded="${open}">${open ? "Masquer" : "Détails"}${r.traces || hasTrack(r.id) ? " et tracés" : ""}</button>` : ""}
-    ${r.approx ? "" : `<a class="ghostlink" href="${esc(gcalURL(r))}" target="_blank" rel="noopener" title="Ajouter à Google Agenda">+ Agenda</a>`}
+    ${r.approx ? "" : `<a class="agl" href="${esc(gcalURL(r))}" target="_blank" rel="noopener" title="Ajouter la course à Google Agenda">Ajouter à mon agenda</a>`}
   </div>`;
 }
 const favBtn = r => `<button type="button" class="fav" data-fav="${esc(r.id)}" aria-pressed="${FAVS.has(r.id)}" aria-label="${FAVS.has(r.id) ? "Retirer des favoris" : "Ajouter aux favoris"}" title="${FAVS.has(r.id) ? "Retirer des favoris" : "Ajouter aux favoris"}">${FAVS.has(r.id) ? "★" : "☆"}</button>`;
@@ -1530,7 +1540,7 @@ function renderMine() {
       <div class="mbody"><button type="button" class="mname" data-card="${esc(r.id)}">${esc(r.nom)}</button>
         <span class="mwhen"><b>${when}</b> · ${day} · ${esc(r.commune)}</span>
         <span class="mst">${st}</span>
-        <span class="mact">${!reg && canReg(r) && r.inscription ? `<a class="mcta" href="${esc(r.inscription)}" target="_blank" rel="noopener">${ctaTxt(r)}</a>` : ""}${r.approx ? "" : `<a class="ghostlink" href="${esc(gcalURL(r))}" target="_blank" rel="noopener">+ Agenda</a>`}${regBtn(r)}</span></div></div>`;
+        <span class="mact">${!reg && canReg(r) && r.inscription ? `<a class="mcta" href="${esc(r.inscription)}" target="_blank" rel="noopener">${ctaTxt(r)}</a>` : ""}${r.approx ? "" : `<a class="ghostlink" href="${esc(gcalURL(r))}" target="_blank" rel="noopener" title="Ajouter la course à Google Agenda">Ajouter à mon agenda</a>`}${regBtn(r)}</span></div></div>`;
   }).join("");
   $("#mine").querySelectorAll("[data-card]").forEach(b => b.addEventListener("click", () => openRace(b.dataset.card)));
   bindReg($("#mine"));
@@ -1589,10 +1599,13 @@ document.addEventListener("click", e => {
   if (a.classList.contains("cta") || a.classList.contains("epins")) gcount("inscription/" + id, "Clic S'inscrire", true);
   else gcount("sortie/" + u.hostname.replace(/^www\./, ""), "Lien sortant", true);
 }, true);
+// opening a sheet adds a history entry, so the phone's Back button closes the sheet instead of leaving the site
+const pushPath = p => { if (location.pathname.startsWith("/maquette") || !PUBLIC_SITE) return; try { history.pushState({ dp: "fiche" }, "", p); } catch (e) {} };
+addEventListener("popstate", () => { if (detailBox && !(history.state && history.state.dp)) closeDetail(); });
 const setPath = p => { if (location.pathname.startsWith("/maquette")) return; if (PUBLIC_SITE && location.pathname + location.hash !== p) try { history.replaceState(history.state, "", p); } catch (e) {} };
 // opening a race shows its sheet only: the main map keeps its view (the sheet has its own mini map)
 let SAISON = null, SZBACK = null;
-const norm = t => String(t).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const norm = t => fold(t);
 function openSaison(back) {
   if (!back) gcount("saison2027/ouverture", "Ouverture calendrier 2027", true);
   const box = document.createElement("div"); box.className = "dlg"; box.setAttribute("role", "dialog"); box.setAttribute("aria-label", "Saison 2027");
@@ -1651,7 +1664,8 @@ function openRace(id) {
 function openDetail(id) {
   const r = RACES.find(x => x.id === id); if (!r) return;
   DETAIL = id; loadTracks(id);
-  if (!r.manual && /^[a-z0-9-]+$/.test(id)) setPath("/course/" + id + "/");
+  { const p = !r.manual && /^[a-z0-9-]+$/.test(id) ? "/course/" + id + "/" : location.pathname; if (!detailBox) pushPath(p); else setPath(p); }
+  document.title = r.nom + " | Dossard Péi";
   if (COUNTED !== id) { COUNTED = id; gcount("/course/" + id + "/", r.nom + " (fiche)"); }
   if (!detailBox) {
     lastFocus = document.activeElement;
@@ -1677,6 +1691,7 @@ function openDetail(id) {
         <div class="eps">${(r.epreuves || []).map(epChip).join("")}</div>
       </div>
     </div>
+    ${(r.fin || r.date) < todayISO() ? `<div class="ended">🏁 Cette course est terminée. Les prochaines sont sur l'accueil.</div>` : ""}
     ${actionsHTML(r, false)}
     ${detailHTML(r)}
   </div>`;
@@ -1694,7 +1709,7 @@ function openDetail(id) {
   if (keep) { detailBox.querySelector(".dlg-panel").scrollTop = keep[0]; detailBox.scrollTop = keep[1]; if (keep[2] != null) detailBox.querySelector(`[data-trk][data-i="${keep[2]}"]`)?.focus({ preventScroll: true }); }
   detailBox.querySelector(".dlg-x").focus({ preventScroll: true });
 }
-function detailKey(e) { if (e.key === "Escape" && !document.querySelector(".lightbox")) closeDetail(); }
+function detailKey(e) { if (e.key === "Escape" && !document.querySelector(".lightbox, .cform, dialog[open]")) closeDetail(); }   // Escape closes only the top window (contact form, enlarged poster…)
 // phone sheet: pull it down from the top to close it
 function sheetSwipe(pn) {
   if (!pn || !matchMedia("(max-width: 720px)").matches) return;
@@ -1709,7 +1724,7 @@ function closeDetail() {
   if (!detailBox) return;
   const was = DETAIL, box = detailBox;
   if (reduced()) box.remove(); else { box.classList.add("out"); setTimeout(() => box.remove(), 230); }
-  detailBox = null; DETAIL = null; document.body.classList.remove("noscroll"); setPath("/");
+  detailBox = null; DETAIL = null; document.body.classList.remove("noscroll"); setPath("/"); document.title = "Dossard Péi";
   COUNTED = null;
   if (state.sel === was) { state.sel = null; render(); }
   removeEventListener("keydown", detailKey); lastFocus?.focus?.({ preventScroll: true });
@@ -1776,7 +1791,7 @@ function sourcesHTML(r) {
   add("Inscription :", r.inscription);
   if (r.page && r.page !== r.inscription) add("Organisateur :", r.page);
   if (r.affiche) add("Affiche :", r.affiche, host(r.affiche));
-  if (GPX[r.id] && GPX[r.id].src) add("Tracé :", GPX[r.id].src);
+  if (GPX[r.id] && (GPX[r.id].src || GPX[r.id].source)) add("Tracé :", GPX[r.id].src || GPX[r.id].source);
   return `<div class="srcs"><b>Sources</b> ${items.join(" · ")} · Carte : IGN (relief, sentiers), ESA WorldCover, © OpenStreetMap${wxOf(r).length ? " · Météo : MET Norway" : ""}</div>`;
 }
 // status of one épreuve (only when the source gives it épreuve by épreuve, e.g. the Sportpro agenda)
@@ -2602,7 +2617,6 @@ function openHash() {
   const m = /^#c-(.+)$/.exec(location.hash || ""); if (!m) return;
   let id = decodeURIComponent(m[1]); if (!RACES.some(x => x.id === id) && (BASE.alias || {})[id]) id = BASE.alias[id];
   const r = RACES.find(x => x.id === id); if (!r || state.sel === id) return;
-  if ((r.fin || r.date) < todayISO()) return;
   Object.assign(state, { q: "", commune: "", mois: "", dist: "", dp: "", ffa: "", fav: false, disc: "", ouvert: "" });
   openRace(id);
 }
@@ -2689,7 +2703,8 @@ function brandGhost(svg, name, gap) {
 })();
 
 // ---------- Réels: default view on mobile (the last mode chosen is remembered) ----------
-const REELS_ON = matchMedia("(max-width: 760px)").matches && !/[?&]noreels\b/.test(location.search);
+// Scroll is for phones and tablets held upright (touch screen): a narrow window on a computer gets the list
+const REELS_ON = matchMedia("(max-width: 760px)").matches && matchMedia("(pointer: coarse)").matches && !/[?&]noreels\b/.test(location.search);
 const R_ICO = { fav: '<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>', share: '<path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7"/>', map: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/>', cal: '<rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>' };
 let reelsBox = null;
 // the mode chosen is kept for the current visit only: every new visit on a phone opens on Scroll (the home with all the bands)
