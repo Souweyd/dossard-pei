@@ -134,7 +134,8 @@ def manquants(now):
         if not shut and verif.get(r["id"]) == "nv":
             miss.append("état des inscriptions (aucune plateforme lisible : ouvert ? complet ?)")
         if miss:
-            link = r.get("inscription") or r.get("fiche") or r.get("page") or ""
+            # where the details are: the Chrono Run technical sheet (and its règlement) rather than the chronometrage registration page
+            link = r.get("page") if "chronorun974" in (r.get("page") or "") else (r.get("inscription") or r.get("fiche") or r.get("page") or "")
             out.append(f"{dd.day} {MOIS[dd.month - 1]} — **{r['nom']}** : " + " · ".join(miss) + (f" — {link}" if link else ""))
     return out
 
