@@ -17,6 +17,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with: { ref: main }   # the latest version (this run may have waited behind the hourly update)
       - uses: actions/setup-python@v5
         with: { python-version: "3.12" }
       - run: pip install pillow
@@ -24,7 +25,14 @@ jobs:
       - name: Commit
         run: |
           git config user.name "Dossard Pei"; git config user.email "noreply@dossardpei.re"
-          git add -A course og sitemap.xml robots.txt tools/first_seen.json
-          if git diff --cached --quiet; then echo "rien à publier"; exit 0; fi
-          git commit -m "Pages des courses [pages]"
-          git pull --rebase origin main && git push origin main
+          # another update may have pushed meanwhile: on a conflict the pages are rebuilt on top of it (3 tries)
+          for i in 1 2 3; do
+            git add -A course og sitemap.xml robots.txt tools/first_seen.json
+            if git diff --cached --quiet; then echo "rien à publier"; exit 0; fi
+            git commit -q -m "Pages des courses [pages]"
+            if git pull --rebase origin main && git push origin main; then exit 0; fi
+            git rebase --abort 2>/dev/null || true
+            git fetch -q origin main && git reset -q --hard origin/main
+            python tools/gen_pages.py
+          done
+          exit 1
