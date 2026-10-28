@@ -1,1 +1,1 @@
-["Les Foulées du CFG", "2027-01-30", "Saint-Benoît", [{"nom": "10 km", "km": 10, "type": "route", "prix": "17 €", "url": "https://www.sportpro.re/courses/02181-les-foulees-du-cfg/", "limite": "2027-01-26", "complet": false}], "posters/cfg.webp", "posters/cfg_lg.webp", "art1"]
+["Les Foulées du CFG", "2027-01-30", "Saint-Benoît", [{"nom": "10 km", "km": 10, "type": "route", "prix": "17 €", "url": "https://www.sportpro.re/courses/02181-les-foulees-du-cfg/", "limite": "2027-01-26", "complet": false, "h": "19h30"}], "posters/cfg.webp", "posters/cfg_lg.webp", "art1"]
