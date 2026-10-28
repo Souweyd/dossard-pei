@@ -121,7 +121,7 @@ def manquants(now):
             if n: miss.append("tarif (" + ", ".join(n) + ")")
         n = eps_without(lambda e: not e.get("h"))
         if n: miss.append("heure de départ (" + ", ".join(n) + ")")
-        n = eps_without(lambda e: not e.get("km") and e.get("type") not in ("jeunes",))
+        n = eps_without(lambda e: not e.get("km") and e.get("type") not in ("jeunes",) and not e.get("sans_km"))   # sans_km: no distance given by the organiser (by category…)
         if n: miss.append("distance (" + ", ".join(n) + ")")
         n = eps_without(lambda e: not e.get("dp") and e.get("type") == "trail")
         if n: miss.append("D+ (" + ", ".join(n) + ")")
@@ -131,7 +131,8 @@ def manquants(now):
             miss.append("affiche")
         if d <= 30 and r["id"] not in data.get("gpx", {}) and any(e.get("type") == "trail" for e in eps):
             miss.append("tracé")
-        if not shut and verif.get(r["id"]) == "nv":
+        recent = (r.get("verifie_le") or "") >= (today - dt.timedelta(days=7)).isoformat()   # state checked by hand in the last 7 days
+        if not shut and verif.get(r["id"]) == "nv" and not recent:
             miss.append("état des inscriptions (aucune plateforme lisible : ouvert ? complet ?)")
         if miss:
             # where the details are: the Chrono Run technical sheet (and its règlement) rather than the chronometrage registration page

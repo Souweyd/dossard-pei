@@ -53,6 +53,18 @@
     "epreuves"
    ],
    "hidden": false
+  },
+  "marmailles-masters-trail-2026-12": {
+   "fields": [
+    "epreuves"
+   ],
+   "hidden": false
+  },
+  "relais-trail-vieux-saint-paul-2026-12": {
+   "fields": [
+    "epreuves"
+   ],
+   "hidden": false
   }
  },
  "manual": [

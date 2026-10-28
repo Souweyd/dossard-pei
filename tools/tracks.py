@@ -5,6 +5,7 @@ For each visible race to come without a track (data.json gpx), its own pages (fi
 inscription and the épreuves' links) are searched for a public track:
   - Trace de Trail: tracedetrail.fr/fr/iframe/<n> (or /fr/trace/<n>): the iframe page holds the
     points as JSON objects {"lon":X,"lat":Y,…,"y":altitude} in Web Mercator (EPSG:3857);
+  - WeRun: werun.world/course/<slug>/ pages hold the tracks as {"label", "points": [[lat, lon, ele]]};
   - Openrunner: openrunner.com/embed/<code> or embed.html?code=<code>: the embedded-routes API
     gives a Google polyline (precision 5) and the altitudes as a 1-D delta polyline every
     `interval` metres.
@@ -26,6 +27,7 @@ UA = {"User-Agent": "Mozilla/5.0 (DossardPei sync; +https://dossardpei.re)", "Ac
 TZ = dt.timezone(dt.timedelta(hours=4))
 TDT = re.compile(r"tracedetrail\.fr/(?:[a-z]{2}/)?(iframe|trace)/(\d+)")
 ORN = re.compile(r"openrunner\.com/(?:route-embed/|embed/|embed\.html\?code=)([0-9a-zA-Z]+)")
+WRN = re.compile(r"https?://(?:www\.)?werun\.world/(?:course/[a-z0-9-]+/?|\?p=\d+)")
 
 
 def get(u, ref=None):
@@ -48,6 +50,21 @@ def tracedetrail(kind, n):
         pts.append([lat, lon, float(y.group(1)) if y else 0.0])
     t = re.search(r"<title>([^<]+)</title>", h)
     return [{"nom": t.group(1).split("|")[0].strip() if t else "", "pts": pts, "src": f"https://tracedetrail.fr/fr/{kind}/{n}"}] if len(pts) > 10 else []
+
+
+def werun(u):
+    """WeRun race page: each track is written in the page as {"label": name, "points": [[lat, lon, ele], …]}"""
+    h = get(u)
+    out = []
+    for m in re.finditer(r'"label":"([^"]*)","points":(\[\[.*?\]\])', h):
+        try:
+            arr = json.loads(m.group(2))
+        except ValueError:
+            continue
+        pts = [[p[0], p[1], float(p[2]) if len(p) > 2 and p[2] is not None else 0.0] for p in arr if len(p) >= 2]
+        if len(pts) > 10:
+            out.append({"nom": m.group(1), "pts": pts, "src": u})
+    return out
 
 
 def dec(s, dims):
@@ -127,6 +144,11 @@ def main(now):
                     found += tracedetrail(kind, n)
                 except Exception as e:
                     print(f"tracé {rid} tracedetrail {n} : {e.__class__.__name__}")
+            for w in dict.fromkeys([u] if WRN.match(u) else WRN.findall(h)):   # a WeRun page linked by the race page
+                try:
+                    found += werun(w)
+                except Exception as e:
+                    print(f"tracé {rid} werun : {e.__class__.__name__}")
             for c in dict.fromkeys(ORN.findall(h)):
                 try:
                     found += openrunner(c, u)
