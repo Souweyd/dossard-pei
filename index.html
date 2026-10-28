@@ -489,6 +489,15 @@ body.filtering .soonwrap, body.filtering .mine, body.filtering .hstats { display
 .lx { display: grid; gap: 2px; min-width: 0 } .lx b { font-weight: 600; font-size: .92rem; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap } .lx small { color: var(--muted); font-size: .8rem }
 .lc { background: var(--hot); color: #fff; border-radius: 99px; padding: 3px 10px; font-size: .78rem; font-weight: 700; white-space: nowrap }
 @media (max-width: 1099px) { .soonwrap { grid-template-columns: minmax(0, 1fr) } .lastc { margin-top: 4px } }
+/* side by side: « Dernière ligne droite » takes the height of « Prochains départs » and its list scrolls inside, with a fade showing there is more */
+@media (min-width: 1100px) {
+  .soonwrap { align-items: stretch }
+  .lastc { contain: size; display: flex; flex-direction: column; min-height: 320px }
+  .lastc h2 { flex: none }
+  #dl { flex: 1 1 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin: 0 -8px 0 0; padding-right: 8px; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--fg) 22%, transparent) transparent;
+    --fb: 0px; --ft: 0px; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 var(--ft), #000 calc(100% - var(--fb)), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 var(--ft), #000 calc(100% - var(--fb)), transparent 100%) }
+  #dl.more-b { --fb: 56px } #dl.more-t { --ft: 28px }
+}
 .swhen.hot { background: var(--hot, #e4572e); color: #fff }
 .sclose { position: absolute; right: 8px; bottom: 8px; background: var(--hot, #e4572e); color: #fff; border-radius: 999px; padding: 3px 10px; font-size: .78rem; font-weight: 700; box-shadow: 0 2px 8px rgba(0,0,0,.2) }
 .simg:has(.sclose) .sph { bottom: 40px }
@@ -1528,6 +1537,7 @@ function renderSoon() {
     .filter(x => x.c && daysTo(x.c.l) <= 7)
     .sort((a, b) => a.c.l.localeCompare(b.c.l) || byDate(a.r, b.r)).slice(0, 12);
   $("#dlsec").hidden = !dl.length;
+  requestAnimationFrame(dlFade);
   $("#dl").innerHTML = dl.map(({ r, c }) => { const nl = daysTo(c.l), d = dt(r.date), part = c.tot > 1 && c.n < c.tot ? ` · ${c.n} format${c.n > 1 ? "s" : ""} sur ${c.tot}` : "";
     return `<button type="button" class="lrow2" data-card="${esc(r.id)}" style="--dc:var(${DCOL[r.disc]})"><span class="lt${artCls(r)}">${r.poster ? `<img src="${esc(thumbOf(r))}" alt="" loading="lazy" onerror="this.remove()">` : ""}</span><span class="lx"><b>${esc(r.nom)}</b><small>${d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: d.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined })} · ${esc(r.commune)}${part}</small></span><span class="lc">${nl <= 0 ? "Auj." : nl === 1 ? "Demain" : "J-" + nl}</span></button>`; }).join("");
   [$("#soon"), $("#dl")].forEach(row => row.querySelectorAll("[data-card]").forEach(b => b.addEventListener("click", () => openRace(b.dataset.card))));
@@ -2619,6 +2629,9 @@ function syncFab() {
 }
 $("#mapfab").addEventListener("click", () => { const toMap = $("#main").dataset.view !== "carte"; setView(toMap ? "carte" : state.rview); syncFab();
   if (toMap) scrollTo({ top: $("#main").offsetTop - 8, behavior: reduced() ? "auto" : "smooth" }); });
+// fades at the ends of the « Dernière ligne droite » list when more rows are hidden above or below
+function dlFade() { const l = $("#dl"); if (!l) return; l.classList.toggle("more-b", l.scrollHeight - l.clientHeight - l.scrollTop > 4); l.classList.toggle("more-t", l.scrollTop > 4); }
+$("#dl")?.addEventListener("scroll", dlFade, { passive: true }); addEventListener("resize", () => requestAnimationFrame(dlFade));
 document.querySelectorAll("[data-dnav]").forEach(b => b.addEventListener("click", () => { const row = $("#dl"); row.scrollBy({ left: +b.dataset.dnav * row.clientWidth * .85, behavior: reduced() ? "auto" : "smooth" }); }));
 document.querySelectorAll("[data-snav]").forEach(b => b.addEventListener("click", () => { const row = $("#soon"); row.scrollBy({ left: +b.dataset.snav * row.clientWidth * .85, behavior: reduced() ? "auto" : "smooth" }); }));
 // desktop: hide / show the map (remembered on this device)
