@@ -252,6 +252,18 @@ def sp_agenda(page):
 # Our épreuves are matched to the agenda ones by distance, then by the words of their names.
 STOP = {"de", "du", "des", "la", "le", "les", "a", "au", "aux", "et", "l", "d", "en"}
 def toks(s): return {t[:-1] if len(t) > 3 and t.endswith("s") else t for t in re.sub(r"(\d+) km\b", r"\1km", norm(s)).split() if t not in STOP}
+def acro(s, ours=False):
+    """initials of a race name: « MAFATE TRAIL TOUR » -> mtt; on our side a word already written in capitals
+    (an acronym) is kept whole: « Ultra MTT » -> umtt. Lets « MTT » meet « MAFATE TRAIL TOUR »."""
+    out = ""
+    for w in re.findall(r"[A-Za-zÀ-ÿ]+", s or ""):
+        n = norm(w)
+        if not n or n in STOP:
+            continue
+        out += n if ours and len(w) >= 2 and w.isupper() else n[0]
+    return out if len(out) >= 2 else None
+
+
 def match(ours, theirs, event=""):
     """our épreuve -> agenda épreuve; None when unsure. Sportpro writes 0.1 km for an unknown distance."""
     common = set.intersection(*[toks(t["nom"]) for t in theirs]) if len(theirs) > 1 else set()
@@ -264,15 +276,17 @@ def match(ours, theirs, event=""):
             return abs(t["km"] - k) <= max(0.15, 0.03 * k)
         c = [t for t in theirs if near(t)]
         w = toks(e.get("nom")) - common
+        ac = acro(e.get("nom"), True)
+        same_ac = lambda t: ac is not None and ac == acro(t["nom"])   # « MT » = « MAFATE TRAIL »
         def score(t):
             tw = toks(t["nom"]) - common
             sure = t["km"] is not None and t["km"] > 0.1 and k is not None
-            return (2 * len(w & tw) - len(tw - w) + (3 if sure else 0))
+            return (2 * len(w & tw) - len(tw - w) + (3 if sure else 0) + (4 if same_ac(t) else 0))
         sc = sorted(((score(t), t) for t in c), key=lambda x: -x[0])
         if not sc or (len(sc) > 1 and sc[0][0] <= sc[1][0]): continue
         best = sc[0][1]; tw = toks(best["nom"]) - common
         sure = best["km"] is not None and best["km"] > 0.1 and k is not None
-        if w & tw or sure or (not w and not tw):   # shared words, a matching distance, or both reduced to the event name
+        if w & tw or sure or same_ac(best) or (not w and not tw):   # shared words, a matching distance, or both reduced to the event name
             res[i] = best
     used = [id(t) for t in res.values()]
     return {} if len(used) != len(set(used)) else res
