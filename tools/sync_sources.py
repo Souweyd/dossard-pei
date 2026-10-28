@@ -956,6 +956,22 @@ if NOW.hour % 6 == 2 or "--all" in sys.argv or "--textes" in sys.argv:
         if msgs:
             ECARTS["texte"][r["id"]] = msgs
 
+# climb of a trail épreuve left blank by the organiser: taken from its track (the organiser's own GPX, measured
+# by tools/tracks.py) when exactly one track has the same distance (± 8 %); the note says it is measured
+for r in data["races"]:
+    trs = (data.get("gpx", {}).get(r["id"]) or {}).get("tracks") or []
+    if r.get("hidden") or not trs or not can(r, "epreuves"):
+        continue
+    for e in r.get("epreuves", []):
+        if e.get("dp") or e.get("type") != "trail" or not e.get("km"):
+            continue
+        k = float(e["km"])
+        c = [t for t in trs if t.get("km") and t.get("dp") and abs(t["km"] - k) <= .08 * k]
+        if len(c) == 1:
+            e["dp"] = c[0]["dp"]
+            e["note"] = ((e.get("note") or "") + " ; D+ mesuré sur le tracé de l'organisateur").lstrip(" ;")
+            changes.append(f"{r['id']}:{e.get('nom')}:D+ du tracé")
+
 # differences: each category written by this run replaces the stored one; pins at a town centre kept 7 days
 try:
     old_e = json.load(open("state/ecarts.json")) if os.path.exists("state/ecarts.json") else {}

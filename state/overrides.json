@@ -46,6 +46,13 @@
     "epreuves"
    ],
    "hidden": false
+  },
+  "mafate-trail-tour-2026-11": {
+   "fields": [
+    "date",
+    "epreuves"
+   ],
+   "hidden": false
   }
  },
  "manual": [
