@@ -10,6 +10,7 @@ import sys, asyncio, pathlib, datetime as D, json, shutil, math
 from core import *
 from core import _norm, _same
 import capture
+import charte as CH
 
 OUT = SOC / 'out'
 TMP = SOC / 'out' / '_tmp'
@@ -261,34 +262,25 @@ def cover_map(i, n, P, kicker, big, sub, races, ref, highlight=None, relief=Fals
 
 
 def build_lundi(ref, data, races):
+    """Ce week-end (charte : ambiance matin) : couverture île + liste + 4 courses au plus (ouvertes d'abord) + fin."""
     sat = ref + D.timedelta(days=5)
     days = [ref + D.timedelta(days=k) for k in (4, 5, 6)]
     rs = upcoming(races, days[0], days[-1])
     rs = [r for r in rs if r['_d'] != days[0] or (r['_h'] and int(r['_h'][:2]) >= 16)]   # Friday only if evening
     if not rs:
         return None
-    shown = rs[:8]
-    sun = sat + D.timedelta(days=1)
-    lab = (f"SAM. {dnum(sat)} & DIM. {dnum(sun)} {MOIS[sun.month - 1].upper()}" if sat.month == sun.month
-           else f"SAM. {dnum(sat)} {MOIS_C[sat.month - 1].upper()} & DIM. {dnum(sun)} {MOIS_C[sun.month - 1].upper()}")
-    shot_p, info = capture.run(capture.cal_weekend(TMP / 'cal_we.png', sat.isoformat()))
+    first = min(r['_d'] for r in rs)
+    lab = f"{CH.dlabel(first)} – {CH.dlabel(days[-1])}".upper().replace('.', '') if first != days[-1] else CH.dlabel(first).upper().replace('.', '')
+    shown = sorted(rs, key=lambda r: (status(r, ref)[0] == 'complet', r['_d'], r['_h'] or '99'))[:4]
+    shown = sorted(shown, key=lambda r: (r['_d'], r['_h'] or '99'))
     pages = {}
-    for fmt, P in FMTS.items():
-        n = 2 + len(shown) + (1 if shot_p else 0) + 1
-        sl = [cover_map(1, n, P, lab, 'Ce week-end', f"{len(rs)} course{'s' if len(rs) > 1 else ''} à La Réunion", rs, ref, relief=True,
-                        swipe_txt=f"Les {len(rs)} courses" if len(rs) > 1 else 'La course')]
-        sl.append(list_page(2, n, P, lab, 'Ce week-end', rs, ref, numbers=True))
-        sl += [race_slide(k, n, P, r, ref) for k, r in enumerate(shown, 3)]
-        if shot_p:
-            def shot(mw, mh, info=info):
-                g = info['grid']
-                ring = lambda sc: (f'<div style="position:absolute;left:{(info["cell"][0] - g[0]) * sc - 8:.0f}px;top:{(info["cell"][1] - g[1]) * sc - 8:.0f}px;'
-                                   f'width:{info["cell"][2] * sc + 16:.0f}px;height:{info["cell"][3] * sc + 16:.0f}px;border:6px solid {C["hot"]};border-radius:14px"></div>')
-                return fit_crop(shot_p, g, mw, mh, ring)
-            sl.append(how(len(sl) + 1, n, P, 'CALENDRIER', 'Ton week-end<br>en un coup d\'œil',
-                          ['Ouvre <b>dossardpei.re</b>', 'Touche <b>« Ce week-end »</b> ou <b>Calendrier</b>', 'Touche un jour : <b>la liste s\'affiche</b>'], shot))
-        sl.append(cta_slide(len(sl) + 1, n, P, 'Toutes les courses<br><span style="color:#00968f">de La Réunion</span>',
-                            'Calendrier, carte, tracés<br>et liens d\'inscription.', 'Enregistre pour ce week-end'))
+    for fmt, P in CH.LAYOUT.items():
+        nl = CH.n_list_pages(P, rs)
+        n = 1 + nl + len(shown) + 1
+        sl = [CH.cover_island(P, 1, n, 'matin', lab, 'Ce week-end', f"{len(rs)} course{'s' if len(rs) > 1 else ''} à La Réunion", rs, ref)]
+        sl += CH.list_pages(P, 2, n, 'Le programme du week-end', f"{len(rs)} course{'s' if len(rs) > 1 else ''}", rs, ref, numbers=True)
+        sl += [CH.race_slide(P, len(sl) + 1 + k, n, r, ref) for k, r in enumerate(shown)]
+        sl.append(CH.fin(P, 'matin'))
         pages[fmt] = sl
     clot = [r for r in rs if status(r, ref)[0] == 'clot']
     lines = [f"Ce week-end, {len(rs)} course{'s' if len(rs) > 1 else ''} à La Réunion 🏃⛰️", '']
@@ -300,8 +292,9 @@ def build_lundi(ref, data, races):
     return pages, lines, TAGS
 
 
-# ------------------------------------------------------------------ TUESDAY : a theme (filters)
+# ------------------------------------------------------------------ WEDNESDAY : a theme (filters)
 def build_mardi(ref, data, races):
+    """Thème (charte : ambiance couchant) : couverture + liste + capture des filtres + fin."""
     horizon = upcoming(races, ref, ref + D.timedelta(days=70))
     k0 = week_index(ref) % len(THEMES)
     th = sel = None
@@ -315,27 +308,18 @@ def build_mardi(ref, data, races):
     sel = sel[:30]
     shot_p, info = capture.run(capture.filters(TMP / 'filters.png', th['filt']))
     pages = {}
-    for fmt, P in FMTS.items():
-        n = 2 + (1 if shot_p else 0) + 1
-        cover = page(f'''
-        {scene(P, .62)}
-        <div style="position:absolute;right:-30px;bottom:{P['B'] + 110}px;font-size:400px;line-height:1">{th['emo']}</div>
-        {head(1, n, P)}
-        <div style="position:absolute;left:64px;right:64px;top:{P['T'] + 150}px">
-          <div class="saira" style="font-weight:700;font-size:44px;color:{C['hot']}">LE THÈME DE LA SEMAINE</div>
-          <div class="saira" style="font-weight:800;font-size:140px;line-height:.9;letter-spacing:-.045em;margin-top:10px">{th['title']}</div>
-          <div style="font-size:40px;font-weight:600;color:{C['muted']};margin-top:30px;max-width:780px;line-height:1.25">{th['sub']}</div>
-          <div class="saira" style="display:inline-block;font-weight:800;font-size:48px;color:#fff;background:{C['fg']};border-radius:16px;padding:8px 24px;margin-top:40px">{len(sel)} courses ces 10 prochaines semaines</div></div>
-          {swipe(P, 'Voir la liste')}''', P)
-        sl = [cover, list_page(2, n, P, 'CES 10 PROCHAINES SEMAINES', th['short'], sel, ref)]
+    for fmt, P in CH.LAYOUT.items():
+        nl = CH.n_list_pages(P, sel)
+        n = 1 + nl + (1 if shot_p else 0) + 1
+        sl = [CH.cover_theme(P, 1, n, th, sel, ref)]
+        sl += CH.list_pages(P, 2, n, 'Ces 10 prochaines semaines', th['short'], sel, ref)
         if shot_p:
             def shot(mw, mh, info=info):
                 b = info['box']
                 return fit_crop(shot_p, [b[0], b[1], b[2], b[3]], mw, mh)
-            sl.append(how(len(sl) + 1, n, P, 'FILTRES', 'Trouve-les<br>en 2 secondes',
-                          ['Touche <b>Filtres</b>', th['flab'], 'Touche <b>Voir les courses</b>'], shot))
-        sl.append(cta_slide(len(sl) + 1, n, P, 'Ta course<br><span style="color:#00968f">est sur</span><br><span style="color:#e5502e">Dossard Péi</span>',
-                            'Toutes les courses de La Réunion,<br>avec les filtres qui vont bien.', 'Enregistre pour plus tard'))
+            sl.append(CH.how_slide(P, len(sl) + 1, n, 'Filtres', 'Trouve-les en 2 secondes',
+                                   ['Touche <b>Filtres</b>', th['flab'], 'Touche <b>Voir les courses</b>'], shot))
+        sl.append(CH.fin(P, 'couchant'))
         pages[fmt] = sl
     lines = [f"{th['emo']} {th['short']} : {len(sel)} courses à La Réunion ces 10 prochaines semaines", '',
              th['sub'], '']
@@ -346,8 +330,9 @@ def build_mardi(ref, data, races):
     return pages, lines, TAGS
 
 
-# ------------------------------------------------------------------ THURSDAY : a region (map)
+# ------------------------------------------------------------------ FRIDAY : a region (map)
 def build_jeudi(ref, data, races):
+    """Région (charte : ambiance lagon) : couverture carte de la région + liste + capture de la carte + fin."""
     k0 = week_index(ref) % len(REGION_ORDER)
     for weeks in (6, 10):
         for k in range(len(REGION_ORDER)):
@@ -365,15 +350,16 @@ def build_jeudi(ref, data, races):
     top_commune = max(communes, key=lambda c: sum(r['commune'] == c for r in sel))
     shot_p, info = capture.run(capture.map_commune(TMP / 'map.png', top_commune))
     endlab = f"ces {weeks} prochaines semaines"
+    vb = region_vb(communes, sel)
     pages = {}
-    for fmt, P in FMTS.items():
-        n = 2 + (1 if shot_p else 0) + 1
-        sl = [cover_map(1, n, P, 'PRÈS DE CHEZ TOI', f'Courir dans<br>{name}', f"{len(sel)} courses {endlab}", sel, ref, highlight=communes, relief=True)]
-        sl.append(list_page(2, n, P, endlab.upper(), name[0].upper() + name[1:], sel, ref, numbers=True))
+    for fmt, P in CH.LAYOUT.items():
+        nl = CH.n_list_pages(P, sel)
+        n = 1 + nl + (1 if shot_p else 0) + 1
+        sl = [CH.cover_region(P, 1, n, 'Près de chez toi', f'Courir dans<br>{name}', f"{len(sel)} courses {endlab}", sel, ref, communes, vb)]
+        sl += CH.list_pages(P, 2, n, endlab, name[0].upper() + name[1:], sel, ref, numbers=True)
         if shot_p:
             def shot(mw, mh, info=info):
                 ile = info['ile']; pop = info['pop']
-                # island (css 0..470 x 128..565) + popup card overlaid at bottom-left
                 mw2 = min(mw, int(mh * 470 / 437 * .95))
                 m, mh2, _ = crop_img(ile, 0, 128, 470, 565, mw2)
                 pw = int(mw2 * .58)
@@ -383,10 +369,9 @@ def build_jeudi(ref, data, races):
                     return None
                 return (f'<div style="position:relative;width:{mw2}px;height:{tot:.0f}px">{m}'
                         f'<div style="position:absolute;left:-10px;top:{mh2 * .55:.0f}px">{pp}</div></div>', mw2, tot)
-            sl.append(how(len(sl) + 1, n, P, 'CARTE', 'Les courses<br>autour de toi',
-                          ['Touche <b>Carte</b>', 'Agrandis la carte en plein écran', 'Touche ta commune : <b>ses courses s\'affichent</b>'], shot))
-        sl.append(cta_slide(len(sl) + 1, n, P, 'Ton week-end<br><span style="color:#00968f">+ ton coin</span><br><span style="color:#e5502e">= ta course</span>',
-                            'Toute l\'île sur la carte,<br>commune par commune.', 'Enregistre et tague tes dalons'))
+            sl.append(CH.how_slide(P, len(sl) + 1, n, 'Carte', 'Les courses autour de toi',
+                                   ['Touche <b>Carte</b>', 'Agrandis la carte en plein écran', 'Touche ta commune : <b>ses courses s\'affichent</b>'], shot))
+        sl.append(CH.fin(P, 'lagon'))
         pages[fmt] = sl
     nm_ = {'nord': 'le Nord', 'sud': 'le Sud', 'est': 'l’Est', 'ouest': 'l’Ouest'}[reg]
     lines = [f"📍 Courir dans {nm_} : {len(sel)} courses {endlab}", '']
@@ -398,27 +383,8 @@ def build_jeudi(ref, data, races):
 
 
 # ------------------------------------------------------------------ 1st of the month (calendar)
-def month_grid(y, m, races, w):
-    import calendar
-    cal = calendar.Calendar(0).monthdatescalendar(y, m)
-    cell = w / 7
-    hdr = ''.join(f'<div style="text-align:center;font-weight:700;font-size:{cell * .2:.0f}px;color:{C["muted"]}">{j.upper()}</div>' for j in JOURS_C)
-    cells = ''
-    for wk in cal:
-        for dd in wk:
-            rs = [r for r in races if r['_d'] == dd]
-            dots = ''.join(f'<span style="width:{cell * .16:.0f}px;height:{cell * .16:.0f}px;border-radius:50%;background:{TYPE_COL.get(r["_type"], C["muted"])}"></span>' for r in rs[:6])
-            out = dd.month != m
-            we = dd.weekday() >= 5
-            cells += f'''<div style="height:{cell:.0f}px;border-radius:{cell * .16:.0f}px;background:{'transparent' if out else ('#fff' if not we else '#fff7f2')};
-                {'' if out else 'box-shadow:0 0 0 1px ' + C['line'] + ';'}padding:{cell * .1:.0f}px;opacity:{.25 if out else 1}">
-                <div class="saira" style="font-weight:800;font-size:{cell * .3:.0f}px;line-height:1">{dd.day}</div>
-                <div style="display:flex;flex-wrap:wrap;gap:{cell * .05:.0f}px;margin-top:{cell * .07:.0f}px">{'' if out else dots}</div></div>'''
-    return f'''<div style="width:{w}px"><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:10px">{hdr}</div>
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px">{cells}</div></div>'''
-
-
 def build_mois(ref, data, races):
+    """Le mois (charte : ambiance soir) : couverture calendrier + liste + capture du calendrier + fin."""
     y, m = ref.year, ref.month
     import calendar
     last = D.date(y, m, calendar.monthrange(y, m)[1])
@@ -427,27 +393,16 @@ def build_mois(ref, data, races):
         return None
     shot_p, info = capture.run(capture.cal_month(TMP / 'cal_m.png', f'{y}-{m:02d}'))
     pages = {}
-    used = sorted({r['_type'] for r in sel})
-    legend = ''.join(f'<span style="display:inline-flex;align-items:center;gap:8px;font-size:24px;font-weight:600;color:{C["muted"]};margin-right:20px"><span style="width:18px;height:18px;border-radius:50%;background:{TYPE_COL[t]}"></span>{TYPE_LAB[t]}</span>' for t in used)
-    for fmt, P in FMTS.items():
-        n = 2 + (1 if shot_p else 0) + 1
-        gw = P['W'] - 64 - P['R'] if P['R'] > 64 else 740
-        cover = page(f'''
-        {scene(P, .3)}
-        {head(1, n, P)}
-        <div style="position:absolute;left:64px;right:64px;top:{P['T'] + 100}px">
-          <div class="saira" style="font-weight:700;font-size:40px;color:{C['hot']}">LE MOIS EN UN COUP D'ŒIL</div>
-          <div class="saira" style="font-weight:800;font-size:118px;line-height:.95;letter-spacing:-.045em;white-space:nowrap">{MOIS[m - 1].capitalize()} {y}</div>
-          <div style="font-size:36px;font-weight:600;color:{C['muted']};margin-top:10px">{len(sel)} courses à La Réunion</div></div>
-        <div style="position:absolute;left:64px;top:{P['T'] + 370}px">{month_grid(y, m, sel, gw)}<div style="margin-top:22px;max-width:{gw}px">{legend}</div></div>
-        {swipe(P, f'Les {len(sel)} courses')}''', P)
-        sl = [cover, list_page(2, n, P, 'TOUTES LES COURSES DU MOIS', MOIS[m - 1].capitalize(), sel, ref)]
+    for fmt, P in CH.LAYOUT.items():
+        nl = CH.n_list_pages(P, sel)
+        n = 1 + nl + (1 if shot_p else 0) + 1
+        sl = [CH.cover_month(P, 1, n, y, m, sel, ref)]
+        sl += CH.list_pages(P, 2, n, 'Toutes les courses du mois', MOIS[m - 1].capitalize(), sel, ref)
         if shot_p:
-            sl.append(how(len(sl) + 1, n, P, 'CALENDRIER', 'Tout le mois<br>sur un écran',
-                          ['Touche <b>Calendrier</b>', 'Une pastille = une course', 'Touche un jour pour voir ses courses'],
-                          lambda mw, mh: fit_crop(shot_p, info, mw, mh)))
-        sl.append(cta_slide(len(sl) + 1, n, P, f'{MOIS[m - 1].capitalize()}<br><span style="color:#00968f">c\'est parti</span>',
-                            'Toutes les courses du mois,<br>dans le calendrier du site.', 'Enregistre pour tout le mois'))
+            sl.append(CH.how_slide(P, len(sl) + 1, n, 'Calendrier', 'Tout le mois sur un écran',
+                                   ['Touche <b>Calendrier</b>', 'Une pastille = une course', 'Touche un jour pour voir ses courses'],
+                                   lambda mw, mh: fit_crop(shot_p, info, mw, mh)))
+        sl.append(CH.fin(P, 'soir'))
         pages[fmt] = sl
     lines = [f"📅 {MOIS[m - 1].capitalize()} à La Réunion : {len(sel)} courses", '']
     import itertools
@@ -466,7 +421,7 @@ async def _render(pages, outdir):
     async with async_playwright() as p:
         b = await p.chromium.launch()
         for fmt, sl in pages.items():
-            P = FMTS[fmt]
+            P = CH.LAYOUT[fmt]
             d_ = outdir / fmt; d_.mkdir(parents=True, exist_ok=True)
             pg = await b.new_page(viewport={'width': 1080, 'height': P['H']})
             files[fmt] = []
