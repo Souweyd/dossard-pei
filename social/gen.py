@@ -293,6 +293,16 @@ def build_lundi(ref, data, races):
 
 
 # ------------------------------------------------------------------ WEDNESDAY : a theme (filters)
+def stxt(r, ref):
+    """registration state written after a race in the captions (same as the visuals), so nobody reads a list
+    of races as « places left » when a race is full or closed"""
+    code, lab = status(r, ref)
+    if code == 'complet':
+        full = r.get('complet') or any(e.get('complet') for e in r.get('epreuves', []))
+        return ' · complet' if full else ' · inscriptions closes'
+    return ' · ' + (lab[0].lower() + lab[1:] if lab else 'inscriptions ouvertes')
+
+
 def build_mardi(ref, data, races):
     """Thème (charte : ambiance couchant) : couverture + liste + capture des filtres + fin."""
     horizon = upcoming(races, ref, ref + D.timedelta(days=70))
@@ -323,7 +333,7 @@ def build_mardi(ref, data, races):
         pages[fmt] = sl
     lines = [f"{th['emo']} {th['short']} : {len(sel)} courses à La Réunion ces 10 prochaines semaines", '',
              th['sub'], '']
-    lines += [f"• {fdate(r['_d'], short=True).capitalize()} : {r['nom']} ({r['commune']})" for r in sel[:6]]
+    lines += [f"• {fdate(r['_d'], short=True).capitalize()} : {r['nom']} ({r['commune']}){stxt(r, ref)}" for r in sel[:6]]
     if len(sel) > 6:
         lines.append(f"… et {len(sel) - 6} autre{'s' if len(sel) > 7 else ''}")
     lines += ['', f"Sur dossardpei.re : Filtres → {th['flab']} (lien en bio)"]
@@ -375,7 +385,7 @@ def build_jeudi(ref, data, races):
         pages[fmt] = sl
     nm_ = {'nord': 'le Nord', 'sud': 'le Sud', 'est': 'l’Est', 'ouest': 'l’Ouest'}[reg]
     lines = [f"📍 Courir dans {nm_} : {len(sel)} courses {endlab}", '']
-    lines += [f"{k}. {fdate(r['_d'], short=True).capitalize()} : {r['nom']} ({r['commune']})" for k, r in enumerate(sel[:8], 1)]
+    lines += [f"{k}. {fdate(r['_d'], short=True).capitalize()} : {r['nom']} ({r['commune']}){stxt(r, ref)}" for k, r in enumerate(sel[:8], 1)]
     if len(sel) > 8:
         lines.append(f"… et {len(sel) - 8} autre{'s' if len(sel) > 9 else ''}")
     lines += ['', 'Toutes les courses sur la carte 👉 dossardpei.re (lien en bio)']
