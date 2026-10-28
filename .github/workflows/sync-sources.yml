@@ -46,6 +46,11 @@ jobs:
         run: python tools/weather.py
       - name: Tri pour la mise à jour Claude (sources modifiées)
         run: python tools/triage.py
+      - name: Résumé quotidien des petits problèmes (une fois par jour)
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tools/digest.py
       - name: Pages des courses
         run: |
           # always: a course page also changes when a deadline passes without any data change
@@ -63,7 +68,7 @@ jobs:
       - name: Commit
         run: |
           git config user.name "Dossard Pei"; git config user.email "noreply@dossardpei.re"
-          git add -A data.json profiles.json posters state/posters.json course og sitemap.xml tools/first_seen.json state/health.json state/journal.json state/nouveautes.json verif.json weather.json gpx state/tracks.json state/watch.json state/todo.json state/guard.json
+          git add -A data.json profiles.json posters state/posters.json course og sitemap.xml tools/first_seen.json state/health.json state/journal.json state/nouveautes.json verif.json weather.json gpx state/tracks.json state/watch.json state/todo.json state/guard.json state/digest.json assets mm
           if git diff --cached --quiet; then echo "rien à publier"; exit 0; fi
           git commit -m "Synchro sources [pages]"
           git pull --rebase origin main || { git rebase --abort; echo "conflit avec une autre mise à jour : on réessaiera dans une heure"; exit 0; }
