@@ -177,5 +177,20 @@
 "nom": "Maloya Trail – Rando Maloya",
 "de": "06h00",
 "a": "07h30"
+},
+{
+"at": "2026-10-28T17:01+04:00",
+"t": "réouvert",
+"id": "curcuma",
+"nom": "Les Montées Curcuma",
+"date": "2026-11-07"
+},
+{
+"at": "2026-10-28T17:01+04:00",
+"t": "date",
+"id": "maloya",
+"nom": "Maloya Trail",
+"de": "2026-11-11",
+"a": "2026-12-12"
 }
 ]
