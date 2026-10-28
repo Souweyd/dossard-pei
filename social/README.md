@@ -9,6 +9,7 @@ et de captures du site en ligne.
 | Lundi | Les courses du week-end (avec les clôtures) | Calendrier / « Ce week-end » |
 | Mercredi | Un thème (rotation : première course, relais, gros D+…) | Filtres |
 | Vendredi | Une région (rotation : Ouest, Sud, Est, Nord) | Carte |
+| Vendredi soir | Story « Météo des courses » du week-end (`meteo.py`, vidéo + image) | Météo des fiches |
 
 Le 1er du mois remplace le post du jour s'il tombe un lundi, mercredi ou vendredi. (`reel.py` / `vendredi` : reel du parcours d'une course, plus utilisé dans le planning.)
 
@@ -30,3 +31,10 @@ Automatisation : des tâches planifiées Claude lancent `jour` 30 min avant chaq
 
 ## Charte : drapeau de La Réunion (Lo Mahavéli)
 Tout dessin du drapeau (logo, dossard, bandeau) : fond bleu marine, volcan rouge en bas au centre et **exactement 5 rayons jaunes** qui partent du sommet du volcan, comme dans `favicon.svg`. Jamais 6 rayons, jamais des rayons partant du bas du bandeau.
+
+## Stories
+- `nouveau.py <id>…` : story « Nouveau dossard », seulement pour une fiche dont les inscriptions sont ouvertes ou dont la date d'ouverture est annoncée (pas « À venir » sans date, pas complète).
+- `meteo.py <vendredi>` : story « Météo des courses » (samedi et dimanche, 5 courses au plus), même bloc météo que le site ; `rec.py` enregistre la vidéo image par image.
+
+## Légendes
+Pas d'appel à commenter, taguer ou enregistrer. Toujours ces 4 hashtags : #trail #run #iledelareunion #reunionisland.
