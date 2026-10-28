@@ -614,13 +614,21 @@ header.top .topr { position: absolute; top: 50%; right: max(16px, calc((100vw - 
 /* ---------- illustrated landscape behind the header (day: Hauts trail, night: sunset over the cirques) ---------- */
 html { overflow-x: clip }
 .hero2 { position: relative; isolation: isolate; padding-top: clamp(28px, 4vw, 56px); padding-bottom: clamp(110px, 11vw, 170px) }
-.herobg { position: absolute; z-index: -1; top: -40px; bottom: -30px; left: 50%; width: 100vw; transform: translateX(-50%); overflow: hidden; pointer-events: none; background: linear-gradient(#5fb0e5, #9fd2f0) }
+.herobg { position: absolute; z-index: -1; top: -40px; bottom: -30px; left: 50%; width: 100vw; transform: translateX(-50%); overflow: hidden; pointer-events: none; background: linear-gradient(var(--k1), var(--k2)) }
+/* sky of the header by the time of day in La Réunion (charte des posts) : lagon (sunrise → 9 h), jour,
+   couchant (1 h before → 30 min after sunset), soir (night) ; the phone's dark mode always gets « soir » (set by the script) */
+:root { --k1: #5fb0e5; --k2: #a9d8f2; --k3: #e3f3fa; --z1: #8fb0bf; --z2: #a9c6d0; --z3: #c3d9df; --mt: #86aab0; --hf: #6f9f78; --hn: #4d8858; --gr: #e7d3a8; --gs: #c9b083; --rn: #26332b; --pa: #2f6a3f; --pb: #356f44; --cw: #fff }
+:root[data-mood="lagon"] { --k1: #3fb3b0; --k2: #8fd6d0; --k3: #e3f6f3; --z1: #9cc7c1; --z2: #b2d6d0; --z3: #c8e4df; --mt: #79aaa3; --hf: #8fbe8a; --hn: #6fa36c; --pa: #3d7550; --pb: #457d57 }
+:root[data-mood="couchant"] { --k1: #f0a36f; --k2: #f6c49c; --k3: #fbe1c6; --z1: #d3b0a6; --z2: #dcc0b6; --z3: #e6d0c6; --mt: #b88f8a; --hf: #b5b183; --hn: #929a68; --gr: #eed6ad; --pa: #55663f; --pb: #5d6f45; --cw: #fff6ec }
+:root[data-mood="soir"] { --k1: #1b3766; --k2: #355a92; --k3: #557cb0; --z1: #4a6390; --z2: #56709c; --z3: #6680a8; --mt: #3a5078; --hf: #4f6f62; --hn: #40604f; --gr: #8a8473; --gs: #6c6656; --rn: #151d2b; --pa: #24423a; --pb: #2b4c42; --cw: rgba(255,255,255,.35) }
+:root[data-mood="soir"] .hero2 h1, :root[data-mood="soir"] .hero2 .tagl, :root[data-mood="soir"] .hero2 .hsub { color: #fff; text-shadow: 0 1px 8px rgba(14,24,48,.55) }
+:root[data-mood="soir"] .rintro .rin, :root[data-mood="soir"] .rintro .rhint, :root[data-mood="soir"] .rintro .rin h1 { color: #fff } :root[data-mood="soir"] .rintro .rhint svg { stroke: #fff }
 .herobg svg { position: absolute; inset: 0; width: 100%; height: 100% }
-.herobg .hn { display: none }
+.herobg .hstars { display: none } :root[data-mood="soir"] .hstars { display: block }
 .herobg::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--bg) }
 .hero2 .hsub { color: color-mix(in srgb, var(--fg) 78%, transparent) }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .herobg { background: linear-gradient(#141026, #3a1d4a) } :root:not([data-theme="light"]) .herobg .hd { display: none } :root:not([data-theme="light"]) .herobg .hn { display: block } :root:not([data-theme="light"]) .hero2 .hsub { text-shadow: 0 1px 8px rgba(20,16,38,.6) } }
-:root[data-theme="dark"] .herobg { background: linear-gradient(#141026, #3a1d4a) } :root[data-theme="dark"] .herobg .hd { display: none } :root[data-theme="dark"] .herobg .hn { display: block } :root[data-theme="dark"] .hero2 .hsub { text-shadow: 0 1px 8px rgba(20,16,38,.6) }
+@media (prefers-color-scheme: dark) {  :root:not([data-theme="light"]) .hero2 .hsub { text-shadow: 0 1px 8px rgba(14,24,48,.55) } }
+ :root[data-theme="dark"] .hero2 .hsub { text-shadow: 0 1px 8px rgba(14,24,48,.55) }
 @media (max-width: 700px) { .hero2 { padding-bottom: 120px } .herobg svg { top: auto; height: 240px; -webkit-mask-image: linear-gradient(transparent, #000 35%); mask-image: linear-gradient(transparent, #000 35%) } }
 
 /* ---------- illustrated stand-ins for races without a poster (one per discipline, mirrored for variety) ---------- */
@@ -677,7 +685,7 @@ html { overflow-x: clip }
 .dlg-report { color: var(--muted); font-size: .85rem }
 
 /* ---------- Réels: full-screen vertical feed of upcoming races (mobile) ---------- */
-.reels { position: fixed; inset: 0; z-index: 50; background: #0e0c0a; color: #fff }
+.reels { position: fixed; inset: 0; z-index: 50; background: #0d1626; color: #fff }
 .reels[hidden] { display: none }
 .rfeed { height: 100%; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; overscroll-behavior: contain } .rfeed::-webkit-scrollbar { display: none }
 .rs { position: relative; height: 100%; scroll-snap-align: start; scroll-snap-stop: always; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #14110e }
@@ -785,7 +793,7 @@ section.soon { background: var(--surface); border-radius: 18px; padding: 16px 16
 /* ===== essai « épuré + running » ===== */
 :root { --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; --body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; --mono: var(--body);
   --bg: #f2f2f7; --surface: #ffffff; --fg: #111113; --muted: #6e6e73; --line: #e3e3e8; --accent: #00968f; --accent-soft: color-mix(in srgb, #00968f 12%, #fff) }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #000; --surface: #1c1c1e; --fg: #f5f5f7; --muted: #98989d; --line: #2c2c2e; --accent: #2ccfc6; --accent-soft: color-mix(in srgb, #2ccfc6 18%, #1c1c1e) } }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0d1626; --surface: #172238; --fg: #f3f5fa; --muted: #9aa7be; --line: #26334d; --accent: #2ccfc6; --accent-soft: color-mix(in srgb, #2ccfc6 18%, #172238) } }
 body { letter-spacing: -.005em }
 .list .lrow { box-shadow: none; border-radius: 18px } .list .lrow:hover { box-shadow: 0 6px 18px rgba(0,0,0,.07) }
 .lname { font-weight: 700; font-size: 1.06rem; letter-spacing: -.02em }
@@ -1017,6 +1025,11 @@ html.reels-open .wrap { content-visibility: hidden }
 .endbox p { margin: 0; color: var(--muted); font-size: .95rem } .endico { font-size: 2.2rem; line-height: 1 }
 .endx { position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; border-radius: 50%; border: 0; background: color-mix(in srgb, var(--fg) 8%, transparent); color: var(--fg); font-size: 1.4rem; line-height: 1; cursor: pointer }
 @media (prefers-reduced-motion: reduce) { .endpop { animation: none } }
+/* space kept for the track while it loads (map + profile): the sheet does not grow when it arrives */
+.mm-ph { background: linear-gradient(110deg, var(--sea) 30%, color-mix(in srgb, var(--sea) 70%, #fff) 50%, var(--sea) 70%); background-size: 250% 100%; animation: mmph 1.4s linear infinite }
+.prof-ph { aspect-ratio: 560 / 120; border-radius: 8px; background: color-mix(in srgb, var(--fg) 5%, transparent) }
+@keyframes mmph { from { background-position: 100% 0 } to { background-position: -150% 0 } }
+@media (prefers-reduced-motion: reduce) { .mm-ph { animation: none } }
 .ended { background: color-mix(in srgb, var(--fg) 7%, transparent); border-radius: 12px; padding: 10px 14px; font-weight: 600; font-size: .92rem }
 /* readable buttons and badges (WCAG AA): darker turquoise behind white text in light mode, dark text on the bright turquoise in dark mode, deeper red for countdown badges */
 .epins, .cta, .szlink:not(.favlink), .sz-mo.on { background: #00807a !important; color: #fff !important }
