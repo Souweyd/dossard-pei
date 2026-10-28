@@ -1,5 +1,5 @@
 {
- "at": "2026-10-28T07:02+04:00",
+ "at": "2026-10-28T08:01+04:00",
  "since": "2026-10-27T19:01+04:00",
  "rien": false,
  "sources": [
@@ -11,11 +11,6 @@
  ],
  "avenir": [],
  "illisibles": [
-  {
-   "id": "aajm",
-   "url": "http://www.aajm.re",
-   "erreur": "URLError"
-  },
   {
    "id": "dimitile",
    "url": "https://www.helloasso.com/associations/dimitile-sports-actions/evenements/les-foulees-solidaires-de-l-entre-deux-tous-contre-la-polio",
@@ -30,11 +25,6 @@
    "id": "milesrepublic",
    "url": "https://fr.milesrepublic.com/run/la-reunion",
    "erreur": "HTTPError 429"
-  },
-  {
-   "id": "trail-grand-bassin-2027-06",
-   "url": "https://www.aajm.re/courses/trail-grand-bassin/",
-   "erreur": "URLError"
   }
  ]
 }

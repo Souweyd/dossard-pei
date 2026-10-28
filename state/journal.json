@@ -162,5 +162,12 @@
 "id": "curcuma",
 "nom": "Les Montées Curcuma",
 "date": "2026-11-07"
+},
+{
+"at": "2026-10-28T08:00+04:00",
+"t": "complet",
+"id": "foulees-verval-2026-12",
+"nom": "Les Foulées du Verval",
+"date": "2026-12-19"
 }
 ]
