@@ -214,5 +214,29 @@
 "id": "festi-trail-saint-leu-2027-02",
 "nom": "Festi Trail de Saint-Leu",
 "date": "2027-02-07"
+},
+{
+"at": "2026-10-28T21:16+04:00",
+"t": "distance",
+"id": "pace",
+"nom": "The Pace of Mountain – Solo 70 km",
+"de": "70 km",
+"a": "71 km"
+},
+{
+"at": "2026-10-28T21:16+04:00",
+"t": "dénivelé",
+"id": "pace",
+"nom": "The Pace of Mountain – Solo 70 km",
+"de": "3165 m",
+"a": "3900 m"
+},
+{
+"at": "2026-10-28T21:16+04:00",
+"t": "distance",
+"id": "pace",
+"nom": "The Pace of Mountain – Semi 36 km",
+"de": "36 km",
+"a": "37 km"
 }
 ]
