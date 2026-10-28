@@ -36,7 +36,8 @@ def main():
         if len(m.group(2)) < MIN:
             return m.group(0)
         # url(...) in a stylesheet is relative to the stylesheet (assets/), not to the page: made absolute
-        css = re.sub(r"url\((['\"]?)(?![a-z]+:|/|#)", r"url(\1/", m.group(2))
+        css = re.sub(r"url\(\s*(['\"]?)([^'\")]*)", lambda u: u.group(0) if re.match(r"[a-z]+:|/|#", u.group(2), re.I) or not u.group(2)
+                     else f"url({u.group(1)}/{u.group(2)}", m.group(2))
         return f'<link rel="stylesheet" href="{out("css", css)}">'
 
     def script(m):
