@@ -8,7 +8,8 @@ to the owner). Nothing is posted on a day without problem.
 Checked:
   - source pages unreadable for 24 h or more (state/todo.json « illisibles », first failure kept here);
   - weather older than 6 h while a race is within 7 days;
-  - races of the next 30 days without poster, races (trail) of the next 14 days without track;
+  - « Infos manquantes »: races of the next 90 days with a missing price, start time, distance, climb,
+    registration link, poster / track (30 days) or a registration state no platform confirms;
   - corrections made by the data guard (state/guard.json) since the last summary;
   - races whose épreuves were not all recognised on their registration page (state/partiels.json).
 State: state/digest.json {"sent": date, "seen": {url: first failure}}. Never fails the workflow.
@@ -64,12 +65,6 @@ def problems(now, st):
             out.append(f"Météo pas mise à jour depuis {int(age)} h (MET Norway)")
     except Exception:
         out.append("Météo : fichier weather.json illisible")
-    for r in soon:
-        d = (dt.date.fromisoformat(r["date"]) - today).days
-        if d <= 30 and not r.get("poster"):
-            out.append(f"Sans affiche, dans {d} j : {r['nom']} ({r['date']})")
-        if d <= 14 and r["id"] not in data.get("gpx", {}) and any(e.get("type") == "trail" for e in r.get("epreuves", [])):
-            out.append(f"Trail sans tracé, dans {d} j : {r['nom']} ({r['date']})")
     for rid, v in load("state/partiels.json", {}).items():   # page read but épreuves not recognised: state not checked
         if rid in races and not races[rid].get("hidden"):
             out.append(f"Épreuves non reconnues sur {v.get('source')} : {races[rid]['nom']} — {', '.join(v.get('epreuves') or [])}"
@@ -96,16 +91,70 @@ def problems(now, st):
     return out
 
 
+MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."]
+HORIZON = 90   # days: races further away are left out (their details are rarely out yet)
+
+
+def manquants(now):
+    """infos missing on the sheets of the races of the next HORIZON days, one line per race with the link to
+    look at: price, start time, distance, climb (trails), registration link, poster (30 days), track (trails,
+    30 days), registration state that no platform confirms. Full / closed races: only what still matters."""
+    today = now.date()
+    data = load("data.json", {"races": []})
+    verif = load("verif.json", {}).get("races", {})
+    out = []
+    for r in sorted(data["races"], key=lambda r: r.get("date") or ""):
+        if r.get("hidden") or not r.get("date"):
+            continue
+        dd = dt.date.fromisoformat(r["date"])
+        d = (dd - today).days
+        if d < 0 or d > HORIZON:
+            continue
+        eps = r.get("epreuves", [])
+        shut = r.get("complet") or r.get("clos") or (eps and all(e.get("complet") or e.get("clos") for e in eps))
+        miss = []
+        def eps_without(cond):
+            names = [e.get("nom", "?") for e in eps if cond(e)]
+            return names if len(names) < len(eps) or len(eps) == 1 else ["toutes"]
+        if not shut:
+            n = eps_without(lambda e: not e.get("prix") and not (e.get("complet") or e.get("clos")))
+            if n: miss.append("tarif (" + ", ".join(n) + ")")
+        n = eps_without(lambda e: not e.get("h"))
+        if n: miss.append("heure de départ (" + ", ".join(n) + ")")
+        n = eps_without(lambda e: not e.get("km") and e.get("type") not in ("jeunes",))
+        if n: miss.append("distance (" + ", ".join(n) + ")")
+        n = eps_without(lambda e: not e.get("dp") and e.get("type") == "trail")
+        if n: miss.append("D+ (" + ", ".join(n) + ")")
+        if not r.get("inscription") and not shut:
+            miss.append("lien d'inscription")
+        if d <= 30 and not r.get("poster"):
+            miss.append("affiche")
+        if d <= 30 and r["id"] not in data.get("gpx", {}) and any(e.get("type") == "trail" for e in eps):
+            miss.append("tracé")
+        if not shut and verif.get(r["id"]) == "nv":
+            miss.append("état des inscriptions (aucune plateforme lisible : ouvert ? complet ?)")
+        if miss:
+            link = r.get("inscription") or r.get("fiche") or r.get("page") or ""
+            out.append(f"{dd.day} {MOIS[dd.month - 1]} — **{r['nom']}** : " + " · ".join(miss) + (f" — {link}" if link else ""))
+    return out
+
+
 def main(now):
     st = load("state/digest.json", {})
     pbs = problems(now, st)
+    mq = manquants(now)
     due = now.hour >= 7 and st.get("sent") != now.date().isoformat()
     if due:
         st["sent"], st["sent_at"] = now.date().isoformat(), now.isoformat(timespec="minutes")
-        if pbs and os.environ.get("GH_TOKEN") and os.environ.get("GITHUB_REPOSITORY"):
+        if (pbs or mq) and os.environ.get("GH_TOKEN") and os.environ.get("GITHUB_REPOSITORY"):
             owner = os.environ.get("GITHUB_REPOSITORY_OWNER", "")
-            body = (f"@{owner} " if owner else "") + f"**{now.strftime('%d/%m/%Y')}** : {len(pbs)} point(s) à regarder.\n\n" + \
-                "\n".join(f"- {p}" for p in pbs) + "\n\n_Résumé envoyé une fois par jour, seulement quand il y a quelque chose._"
+            body = (f"@{owner} " if owner else "") + f"**{now.strftime('%d/%m/%Y')}**"
+            if pbs:
+                body += f" : {len(pbs)} point(s) à regarder.\n\n" + "\n".join(f"- {p}" for p in pbs)
+            if mq:
+                body += f"\n\n### Infos manquantes ({len(mq)} course{'s' if len(mq) > 1 else ''} des {HORIZON} prochains jours)\n" \
+                        "_À compléter si tu trouves l'info : envoie-la (ou une capture) à Claude._\n\n" + "\n".join(f"- {m}" for m in mq)
+            body += "\n\n_Résumé envoyé une fois par jour, seulement quand il y a quelque chose._"
             try:
                 found = [i for i in github("GET", "/issues?state=open&per_page=100") if i.get("title") == TITLE]
                 num = found[0]["number"] if found else github("POST", "/issues", {"title": TITLE, "body": "Les petits problèmes du jour, réunis en un message (un commentaire par jour)."})["number"]
@@ -116,8 +165,8 @@ def main(now):
     old = load("state/digest.json", None)
     if old != st:
         json.dump(st, open("state/digest.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1, sort_keys=True)
-    print(f"résumé : {len(pbs)} point(s){' — envoyé' if st.get('sent') == now.date().isoformat() and due and pbs else ''}")
-    for p in pbs:
+    print(f"résumé : {len(pbs)} point(s), {len(mq)} course(s) avec infos manquantes{' — envoyé' if st.get('sent') == now.date().isoformat() and due and (pbs or mq) else ''}")
+    for p in pbs + mq:
         print("  -", p)
 
 
