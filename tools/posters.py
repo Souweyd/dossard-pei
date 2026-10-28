@@ -14,6 +14,7 @@ import datetime as dt
 import html
 import io
 import json
+import os
 import re
 import sys
 import unicodedata
@@ -145,6 +146,22 @@ def main(today, now):
         tried.pop(r["id"], None)
         changed = True
         added.append(r["nom"])
+    # small 160 px thumbnail for the list images shown at 44–56 px (every poster, also the ones added by hand)
+    for r in data["races"]:
+        src = r.get("poster_lg") or r.get("poster") or ""
+        if not re.fullmatch(r"posters/[a-z0-9-]+(?:_lg)?\.webp", src) or not os.path.exists(src):
+            continue
+        xs = f"posters/{r['id']}_xs.webp"
+        if r.get("poster_xs") == xs and os.path.exists(xs):
+            continue
+        try:
+            im = Image.open(src).convert("RGB")
+            k = min(1, 160 / im.width)
+            im.resize((round(im.width * k), round(im.height * k)), Image.LANCZOS).save(xs, "WEBP", quality=74)
+            r["poster_xs"] = xs
+            changed = True
+        except Exception as e:
+            print(f"vignette {r['id']} : {e.__class__.__name__}")
     tried = {k: v for k, v in tried.items() if v > (now - dt.timedelta(days=7)).isoformat()}
     json.dump(tried, open("state/posters.json", "w"), ensure_ascii=False, indent=0, sort_keys=True)
     if changed:
