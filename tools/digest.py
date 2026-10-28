@@ -75,7 +75,9 @@ def problems(now, st):
             out.append(f"Épreuves non reconnues sur {v.get('source')} : {races[rid]['nom']} — {', '.join(v.get('epreuves') or [])}"
                        f" (la plateforme dit : {', '.join(v.get('plateforme') or [])}). Statut d'inscription non vérifié.")
     for rid, v in load("state/ecarts.json", {}).items():   # start town different on the organiser's page
-        if rid in races and v.get("lieu"):
+        if rid in races and v.get("lieu", {}).get("epingle"):
+            out.append(f"Lieu modifié : {races[rid]['nom']} — départ à {v['lieu']['organisateur']}, épingle placée au centre de la commune (lieu exact non trouvé, à ajuster si besoin)")
+        elif rid in races and v.get("lieu"):
             out.append(f"Lieu différent : {races[rid]['nom']} — le site dit {v['lieu'].get('site')}, la page de l'organisateur dit {v['lieu'].get('organisateur')} (lieu et épingle à corriger à la main)")
     g = load("state/guard.json", {})
     if g.get("at", "") > st.get("sent_at", "") and (g.get("notes") or g.get("restored")):

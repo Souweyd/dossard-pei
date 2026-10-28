@@ -766,8 +766,39 @@ def sp_facts(page):
     km = re.search(r"Distance\s*:\s*(\d+(?:[.,]\d+)?)\s*km", t)
     dp = re.search(r"D[ée]nivel[ée]\s*:\s*(\d+)\s*m\b", t)
     ville = re.search(r"Ville\s*:\s*(.+?)\s+(?:Heure de d[ée]part|Lieu de d[ée]part|Ajouter)", t)
+    lieu = re.search(r"Lieu de d[ée]part\s*:\s*(.+?)\s+(?:Lieu d.arriv[ée]e|Ajouter|S.inscrire)", t)
     return {"km": float(km.group(1).replace(",", ".")) if km else None, "dp": int(dp.group(1)) if dp else None,
-            "ville": ville.group(1).strip() if ville else None}
+            "ville": ville.group(1).strip() if ville else None, "lieu": lieu.group(1).strip()[:80] if lieu else None}
+
+
+def geo_start(lieu, ville):
+    """map position of a start: the start place written by the organiser (IGN geocoding: named places, then
+    addresses), kept only when it lies in the right town of La Réunion with a good score; else the centre of
+    the town. Returns (lat, lon, precise) or None."""
+    import urllib.parse
+    def ask(q, **kw):
+        u = "https://data.geopf.fr/geocodage/search?" + urllib.parse.urlencode({"q": q, "limit": 5, **kw})
+        for f in json.load(net.urlopen(urllib.request.Request(u, headers=UA), timeout=30)).get("features", []):
+            lon, lat = f["geometry"]["coordinates"]
+            city = f["properties"].get("city")
+            city = city if isinstance(city, list) else [city]
+            if -21.42 < lat < -20.85 and 55.2 < lon < 55.85 and any(norm(c or "") == norm(ville) for c in city) and f["properties"].get("score", 0) >= .6:
+                return round(lat, 5), round(lon, 5)
+        return None
+    qs = []
+    if lieu:
+        l2 = re.sub(r"([a-zà-ÿ])([A-Z])", r"\1 \2", lieu)                      # « HellBourg » -> « Hell Bourg »
+        qs = [l2] + [m for m in re.findall(r"(?:\bd[eu]s?\s+|\bd'|\bà\s+)([A-ZÉ][\w' -]+)$", l2)]   # « … de Hell Bourg » -> « Hell Bourg »
+    try:
+        for q in qs:
+            for idx in ("poi", "address"):
+                hit = ask(q, index=idx)
+                if hit:
+                    return hit + (True,)
+        hit = ask(ville, index="address", type="municipality")
+        return hit + (False,) if hit else None
+    except Exception:
+        return None
 
 
 ECARTS = {}   # race id -> differences to look at by hand (town on the organiser's page), state/ecarts.json
@@ -780,7 +811,7 @@ if True:
     for r in data["races"]:
         if r.get("hidden") or not can(r, "epreuves"):
             continue
-        villes = []
+        villes, lieux = [], []
         for ep in r.get("epreuves", []):
             if "sportpro.re/courses/epreuves/" not in (ep.get("url") or "") or (not FULL_PRIX and ep.get("prix")):
                 continue
@@ -798,16 +829,26 @@ if True:
                 if f["dp"] and f["dp"] != ep.get("dp"):
                     setf(ep, r, "dp", f["dp"], "D+ " + ep.get("nom", ""))
                 if f["ville"]:
-                    villes.append(f["ville"])
+                    villes.append(f["ville"]); lieux.append((f["ville"], f["lieu"]))
             except Exception as e:
                 errors.append(f"sportpro prix {r['id']} ({e.__class__.__name__})")
                 derr = f"{e.__class__.__name__} sur {ep['url']}"
-        # town: the start can move (Maloya Trail: Sainte-Rose -> Hell-Bourg). Not changed here (the map pin
-        # would stay at the old place): reported by the daily summary when most épreuve pages agree on another town
+        # town: the start can move (Maloya Trail: Sainte-Rose -> Hell-Bourg). When most épreuve pages agree on
+        # another town of La Réunion, the race follows: town, start place, and the map pin (geocoded start place,
+        # else the centre of the town). Without a position the change is not made and the summary reports it.
         if villes:
             top = max(set(villes), key=villes.count)
-            if villes.count(top) * 2 > len(villes) and top in _cc.COMMUNES and norm(top) != norm(r.get("commune", "")):
-                ECARTS[r["id"]] = {"lieu": {"site": r.get("commune"), "organisateur": top}}
+            if villes.count(top) * 2 > len(villes) and top in _cc.COMMUNES and norm(top) != norm(r.get("commune", "")) and can(r, "commune"):
+                lt = [l for v, l in lieux if v == top and l]
+                lieu = max(set(lt), key=lt.count) if lt else None
+                pos = geo_start(lieu, top)
+                if pos:
+                    r["commune"] = top; r["lieu"] = lieu or top; r["ll"] = [pos[0], pos[1]]
+                    changes.append(f"{r['id']}:lieu {top}")
+                    if not pos[2]:
+                        ECARTS[r["id"]] = {"lieu": {"site": top, "organisateur": top, "epingle": "centre de la commune"}}
+                else:
+                    ECARTS[r["id"]] = {"lieu": {"site": r.get("commune"), "organisateur": top}}
     if essais and FULL_PRIX:
         try:
             if not os.path.exists("state/ecarts.json") or ECARTS != json.load(open("state/ecarts.json")):
