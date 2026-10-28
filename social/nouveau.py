@@ -79,12 +79,12 @@ body{{font-family:I,sans-serif;color:{INK};position:relative;background:{CREAM}}
 </style></head><body>{scene()}
 <div style="position:absolute;left:0;right:0;top:200px;display:flex;justify-content:center">
   <div class="s" style="background:{NAVY};color:#fff;font-weight:800;font-size:46px;letter-spacing:1px;padding:8px 30px;border-radius:14px;border:5px solid {INK};border-bottom:8px solid {SUN};transform:rotate(-2deg);box-shadow:0 12px 24px rgba(29,37,35,.25)">Nouveau dossard</div></div>
-<div style="position:absolute;left:150px;right:150px;top:310px;height:960px;display:flex;align-items:center;justify-content:center">
-  <img src="{img}" style="max-width:780px;max-height:960px;border-radius:26px;border:8px solid #fff;box-shadow:0 30px 60px rgba(29,37,35,.35);display:block"></div>
+<div style="position:absolute;left:150px;right:150px;top:340px;height:930px;display:flex;align-items:center;justify-content:center">
+  <img src="{img}" style="max-width:780px;max-height:930px;border-radius:26px;border:8px solid #fff;box-shadow:0 30px 60px rgba(29,37,35,.35);display:block"></div>
 <div style="position:absolute;left:64px;right:64px;top:1300px;text-align:center">
   <div class="s" style="font-weight:800;font-size:{fs}px;line-height:.95">{esc(nm)}</div>
   <div style="font-size:38px;font-weight:600;margin-top:14px">{esc(when(r))} · {esc(r['commune'])}</div>
-  {f'<div style="font-size:34px;font-weight:600;color:{MUTED};margin-top:8px">{esc(dist)}</div>' if dist else ''}
+  {f'<div style="font-size:34px;font-weight:600;color:{INK};margin-top:8px">{esc(dist)}</div>' if dist else ''}
   {f'<div style="display:inline-block;margin-top:16px;font-weight:700;font-size:30px;color:#fff;background:{bc};border-radius:999px;padding:6px 22px">{esc(b)}</div>' if b else ''}</div>
 <div style="position:absolute;left:0;right:0;top:1580px;display:flex;justify-content:center">
   <div style="display:flex;align-items:center;gap:22px;background:#fff;border:6px solid {INK};border-radius:999px;padding:14px 40px 14px 18px;box-shadow:0 16px 30px rgba(29,37,35,.22)">
