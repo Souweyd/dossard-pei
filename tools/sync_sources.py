@@ -914,6 +914,18 @@ if True:
 #    a distance or a climb of an épreuve that appears nowhere on the page, or a start town not named on the
 #    page while another one is. Reported by the daily summary (« À vérifier sur la page de l'organisateur »).
 #    Sportpro and UTOI races are left out (checked field by field above).
+def pdf_text(u):
+    """text of a PDF (pdftotext from poppler, present on the GitHub runners); empty when it cannot be read"""
+    import subprocess, tempfile
+    try:
+        req = urllib.request.Request(u, headers=UA)
+        with tempfile.NamedTemporaryFile(suffix=".pdf") as f:
+            f.write(net.urlopen(req, timeout=30).read()); f.flush()
+            return subprocess.run(["pdftotext", "-q", f.name, "-"], capture_output=True, text=True, timeout=30).stdout[:200000]
+    except Exception:
+        return ""
+
+
 KMRE = re.compile(r"(?<![\d.,])(\d{1,3}(?:[.,]\d{1,2})?)\s?(?:km|kms|kilom[eè]tres?)\b", re.I)
 DPRE = re.compile(r"(?:(\d[\d  .]{0,5}\d|\d)\s?m(?:[eè]tres?)?\s?(?:de\s)?(?:D\+|d[ée]nivel[ée]\s?(?:positif)?|de d[ée]nivel)|(?:D\+|d[ée]nivel[ée]\s?(?:positif)?)\s?:?\s?(\d[\d  .]{0,5}\d))", re.I)
 if NOW.hour % 6 == 2 or "--all" in sys.argv or "--textes" in sys.argv:
@@ -932,7 +944,12 @@ if NOW.hour % 6 == 2 or "--all" in sys.argv or "--textes" in sys.argv:
                 if re.search(r"in\.njuko\.com/", u):
                     txt += " " + " ".join(t["nom"] for t in ad_njuko(u))
                 else:
-                    txt += " " + plain(fetch(u))
+                    pg = fetch(u)
+                    txt += " " + plain(pg)
+                    # the règlement linked by the page often holds what the page does not (start times, D+…)
+                    for pdf in list(dict.fromkeys(re.findall(r"""(https?://[^"'\s<>]+?\.pdf)""", pg)))[:6]:
+                        if re.search(r"(?i)r[eè]glement|reglt|rules", pdf):
+                            txt += " " + pdf_text(pdf)
                 main_ok |= u in mains
             except Exception:
                 pass
