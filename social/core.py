@@ -151,8 +151,13 @@ _MAP = None
 def MAP():
     global _MAP
     if _MAP is None:
+        # the map used to be inline in index.html; since the site split (assets/app.<hash>.js) it lives in the app script
         s = (ROOT / 'index.html').read_text()
         m = re.search(r'MAP\s*=\s*\{', s)
+        if not m:
+            js = re.search(r'assets/app\.[0-9a-f]+\.js', s)
+            s = (ROOT / js.group(0)).read_text() if js else ''
+            m = re.search(r'MAP\s*=\s*\{', s)
         _MAP, _ = json.JSONDecoder().raw_decode(s[m.end() - 1:])
     return _MAP
 
