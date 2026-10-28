@@ -77,10 +77,11 @@
 "champ": true
 },
 {
-"nom": "Festi Trail Saint-Leu",
+"nom": "Festi Trail de Saint-Leu",
 "nature": "Trail",
 "club": "ASRC",
-"date": "2027-02-07"
+"date": "2027-02-07",
+"id": "festi-trail-saint-leu-2027-02"
 },
 {
 "nom": "Trail Sclérose en Plaques",
