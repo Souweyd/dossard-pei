@@ -913,21 +913,24 @@ if NOW.hour % 6 == 2 or "--all" in sys.argv or "--textes" in sys.argv:
         if any("sportpro.re" in (u or "") or "utoi" in (u or "") for u in urls):
             continue
         urls = list(dict.fromkeys(u for u in urls if u and re.match(r"https?://[^/]+/.+", u)))   # pages of the race, not a site's home page
-        txt = ""
+        txt, main_ok = "", False
+        mains = {r.get(k) for k in ("fiche", "inscription", "page")}
         for u in urls[:4]:
             try:
                 if re.search(r"in\.njuko\.com/", u):
                     txt += " " + " ".join(t["nom"] for t in ad_njuko(u))
                 else:
                     txt += " " + plain(fetch(u))
+                main_ok |= u in mains
             except Exception:
                 pass
-        if len(txt) < 200 and not re.search(r"\bkm\b", txt):
+        # the race's own page must have been read (a registration site alone lists other events too)
+        if not main_ok or (len(txt) < 200 and not re.search(r"\bkm\b", txt)):
             continue
         kms = [float(x.replace(",", ".")) for x in KMRE.findall(txt)]
         dps = [int(re.sub(r"\D", "", a or b)) for a, b in DPRE.findall(txt) if re.sub(r"\D", "", a or b)]
         msgs = []
-        for e in r.get("epreuves", []):
+        for e in (r.get("epreuves", []) if can(r, "epreuves") else []):   # épreuves set by hand (locked): not compared
             k = float(e["km"]) if e.get("km") else None
             leg = re.search(r"[x×]\s*(\d+(?:[.,]\d+)?)\s*km", e.get("nom") or "")   # relay « 5 × 3,7 km »: a leg is enough
             ok_v = [k] + ([float(leg.group(1).replace(",", "."))] if leg else [])
