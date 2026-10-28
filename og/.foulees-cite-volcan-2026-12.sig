@@ -1,1 +1,1 @@
-["Les Foulées de la Cité du Volcan", "2026-12-20", "Le Tampon", [{"nom": "Course", "type": "route", "prix": "20 €"}], "posters/foulees-cite-volcan-2026-12.webp", "posters/foulees-cite-volcan-2026-12_lg.webp", "art1"]
+["Les Foulées de la Cité du Volcan", "2026-12-20", "Le Tampon", [{"nom": "Course", "type": "route", "prix": "20 €", "h": "09h00"}], "posters/foulees-cite-volcan-2026-12.webp", "posters/foulees-cite-volcan-2026-12_lg.webp", "art1"]
