@@ -68,7 +68,7 @@ jobs:
       - name: Commit
         run: |
           git config user.name "Dossard Pei"; git config user.email "noreply@dossardpei.re"
-          git add -A data.json profiles.json posters state/posters.json course og sitemap.xml tools/first_seen.json state/health.json state/journal.json state/nouveautes.json verif.json weather.json gpx state/tracks.json state/watch.json state/todo.json state/guard.json state/digest.json state/partiels.json assets mm
+          git add -A data.json profiles.json posters state/posters.json course og sitemap.xml tools/first_seen.json state/health.json state/journal.json state/nouveautes.json verif.json weather.json gpx state/tracks.json state/watch.json state/todo.json state/guard.json state/digest.json state/partiels.json state/ecarts.json assets mm
           if git diff --cached --quiet; then echo "rien à publier"; exit 0; fi
           git commit -m "Synchro sources [pages]"
           git pull --rebase origin main || { git rebase --abort; echo "conflit avec une autre mise à jour : on réessaiera dans une heure"; exit 0; }

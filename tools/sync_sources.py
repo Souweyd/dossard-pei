@@ -760,12 +760,27 @@ def sp_price(page):
     return " / ".join(f"{p} {l}".strip() for p, l in rows)
 
 
+def sp_facts(page):
+    """distance, climb and town of an épreuve page (« Distance : 12 km Dénivelé : 556 m … Ville : Salazie »)"""
+    t = plain(page)
+    km = re.search(r"Distance\s*:\s*(\d+(?:[.,]\d+)?)\s*km", t)
+    dp = re.search(r"D[ée]nivel[ée]\s*:\s*(\d+)\s*m\b", t)
+    ville = re.search(r"Ville\s*:\s*(.+?)\s+(?:Heure de d[ée]part|Lieu de d[ée]part|Ajouter)", t)
+    return {"km": float(km.group(1).replace(",", ".")) if km else None, "dp": int(dp.group(1)) if dp else None,
+            "ville": ville.group(1).strip() if ville else None}
+
+
+ECARTS = {}   # race id -> differences to look at by hand (town on the organiser's page), state/ecarts.json
+
+
 FULL_PRIX = NOW.hour % 3 == 0 or "--all" in sys.argv   # every 3 hours all prices; each hour the épreuves still without one (new races)
 if True:
     prix_lus, essais, derr = 0, 0, None
+    import controls as _cc
     for r in data["races"]:
         if r.get("hidden") or not can(r, "epreuves"):
             continue
+        villes = []
         for ep in r.get("epreuves", []):
             if "sportpro.re/courses/epreuves/" not in (ep.get("url") or "") or (not FULL_PRIX and ep.get("prix")):
                 continue
@@ -775,10 +790,30 @@ if True:
                 pr = sp_price(pg)
                 prix_lus += pr is not None
                 setf(ep, r, "prix", pr, "prix " + ep.get("nom", ""))
+                # distance and climb follow the organiser's page (an event can be reworked after it was listed);
+                # Sportpro writes 0.1 km for an unknown distance
+                f = sp_facts(pg)
+                if f["km"] and f["km"] > 0.1 and abs(f["km"] - float(ep.get("km") or 0)) >= 0.05:
+                    setf(ep, r, "km", int(f["km"]) if f["km"] == int(f["km"]) else f["km"], "distance " + ep.get("nom", ""))
+                if f["dp"] and f["dp"] != ep.get("dp"):
+                    setf(ep, r, "dp", f["dp"], "D+ " + ep.get("nom", ""))
+                if f["ville"]:
+                    villes.append(f["ville"])
             except Exception as e:
                 errors.append(f"sportpro prix {r['id']} ({e.__class__.__name__})")
                 derr = f"{e.__class__.__name__} sur {ep['url']}"
+        # town: the start can move (Maloya Trail: Sainte-Rose -> Hell-Bourg). Not changed here (the map pin
+        # would stay at the old place): reported by the daily summary when most épreuve pages agree on another town
+        if villes:
+            top = max(set(villes), key=villes.count)
+            if villes.count(top) * 2 > len(villes) and top in _cc.COMMUNES and norm(top) != norm(r.get("commune", "")):
+                ECARTS[r["id"]] = {"lieu": {"site": r.get("commune"), "organisateur": top}}
     if essais and FULL_PRIX:
+        try:
+            if not os.path.exists("state/ecarts.json") or ECARTS != json.load(open("state/ecarts.json")):
+                json.dump(ECARTS, open("state/ecarts.json", "w"), ensure_ascii=False, indent=1)
+        except Exception:
+            pass
         run["sportpro_prix"] = {"metrics": {"prix": prix_lus}, **({"error": derr} if not prix_lus and derr else {})}
 
 if changes:

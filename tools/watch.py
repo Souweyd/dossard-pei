@@ -131,6 +131,14 @@ def diff(prev, cur, today, now):
         p = P[i]
         if p.get("date") != r.get("date"):
             ev.append({"at": at, "t": "date", "id": i, "nom": r["nom"], "de": p.get("date"), "a": r.get("date")})
+        pe = {e.get("nom"): e for e in p.get("epreuves", [])}
+        for e in r.get("epreuves", []):   # distance / climb changed by the organiser
+            o = pe.get(e.get("nom"))
+            for f, t, u in (("km", "distance", " km"), ("dp", "dénivelé", " m")):
+                if o and o.get(f) and e.get(f) and o[f] != e[f]:
+                    ev.append({"at": at, "t": t, "id": i, "nom": f"{r['nom']} – {e['nom']}", "de": f"{o[f]}{u}".replace(".", ","), "a": f"{e[f]}{u}".replace(".", ",")})
+        if p.get("commune") != r.get("commune"):
+            ev.append({"at": at, "t": "lieu", "id": i, "nom": r["nom"], "de": p.get("commune"), "a": r.get("commune")})
         hp = {e.get("nom"): e.get("h") for e in p.get("epreuves", [])}
         for e in r.get("epreuves", []):
             if e.get("nom") in hp and hp[e["nom"]] and e.get("h") and hp[e["nom"]] != e["h"]:
@@ -155,12 +163,13 @@ def journal_add(events, now, path="state/journal.json"):
 
 
 LIB = {"ajout": "Nouvelle course", "retrait": "Course retirée", "date": "Date modifiée", "heure": "Heure modifiée",
+       "distance": "Distance modifiée", "dénivelé": "Dénivelé modifié", "lieu": "Lieu modifié",
        "complet": "Complète", "clos": "Inscriptions closes", "réouvert": "Inscriptions rouvertes",
        "avenir": "Inscriptions à venir", "ouverture": "Inscriptions ouvertes"}
 
 
 def line(e):
-    if e["t"] in ("date", "heure"):
+    if e["t"] in ("date", "heure", "distance", "dénivelé", "lieu"):
         return f"{LIB[e['t']]} : **{e['nom']}** ({e['de']} → {e['a']})"
     return f"{LIB.get(e['t'], e['t'])} : **{e['nom']}** ({e.get('date', '')})"
 
