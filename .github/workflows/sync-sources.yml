@@ -24,6 +24,7 @@ concurrency:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 25   # a source that hangs can no longer hold the hourly update for hours
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 2 }   # the version before a push is the reference of the checks
@@ -37,6 +38,10 @@ jobs:
           python tools/posters.py
           python tools/tracks.py
           python tools/profiles.py
+      - name: Garde-fou data.json (nettoyage, pas de perte massive de courses)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python tools/guard.py
       - name: Météo des courses (MET Norway, toutes les 3 h)
         run: python tools/weather.py
       - name: Tri pour la mise à jour Claude (sources modifiées)
@@ -58,7 +63,7 @@ jobs:
       - name: Commit
         run: |
           git config user.name "Dossard Pei"; git config user.email "noreply@dossardpei.re"
-          git add -A data.json profiles.json posters state/posters.json course og sitemap.xml tools/first_seen.json state/health.json state/journal.json state/nouveautes.json verif.json weather.json gpx state/tracks.json state/watch.json state/todo.json
+          git add -A data.json profiles.json posters state/posters.json course og sitemap.xml tools/first_seen.json state/health.json state/journal.json state/nouveautes.json verif.json weather.json gpx state/tracks.json state/watch.json state/todo.json state/guard.json
           if git diff --cached --quiet; then echo "rien à publier"; exit 0; fi
           git commit -m "Synchro sources [pages]"
           git pull --rebase origin main || { git rebase --abort; echo "conflit avec une autre mise à jour : on réessaiera dans une heure"; exit 0; }

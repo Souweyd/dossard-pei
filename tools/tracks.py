@@ -20,6 +20,8 @@ import re
 import sys
 import urllib.request
 
+import net  # one honest User-Agent, polite delay, size and time limits on every request
+
 UA = {"User-Agent": "Mozilla/5.0 (DossardPei sync; +https://dossardpei.re)", "Accept-Language": "fr-FR,fr;q=0.9"}
 TZ = dt.timezone(dt.timedelta(hours=4))
 TDT = re.compile(r"tracedetrail\.fr/(?:[a-z]{2}/)?(iframe|trace)/(\d+)")
@@ -28,7 +30,7 @@ ORN = re.compile(r"openrunner\.com/(?:route-embed/|embed/|embed\.html\?code=)([0
 
 def get(u, ref=None):
     h = dict(UA, **({"Referer": ref} if ref else {}))
-    with urllib.request.urlopen(urllib.request.Request(u, headers=h), timeout=30) as r:
+    with net.urlopen(urllib.request.Request(u, headers=h), timeout=30) as r:
         return r.read().decode("utf-8", "replace")
 
 

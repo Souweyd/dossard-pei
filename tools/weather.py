@@ -17,6 +17,8 @@ import json
 import sys
 import urllib.request
 
+import net  # one honest User-Agent, polite delay, size and time limits on every request
+
 UA = {"User-Agent": "DossardPei/1.0 (+https://dossardpei.re; contact@dossardpei.re)"}
 TZ = dt.timezone(dt.timedelta(hours=4))
 DAYS = 7
@@ -24,7 +26,7 @@ DAYS = 7
 
 def get(lat, lon, alt=None):
     u = f"https://api.met.no/weatherapi/locationforecast/2.0/complete?lat={lat:.4f}&lon={lon:.4f}" + (f"&altitude={int(alt)}" if alt is not None else "")
-    with urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=30) as r:
+    with net.urlopen(urllib.request.Request(u, headers=UA), timeout=30) as r:
         ts = json.load(r)["properties"]["timeseries"]
     out = []
     for t in ts:
@@ -87,11 +89,15 @@ def near(fc, when):
 
 
 def due(now, data):
-    """every 3 hours, or at once when a race of the next 7 days is missing from weather.json"""
-    if now.hour % 3 == 0 or "--all" in sys.argv:
+    """when the last forecast is 3 hours old or more (a delayed or skipped run is caught up at the next
+    one), or at once when a race of the next 7 days is missing from weather.json"""
+    if "--all" in sys.argv:
         return True
     try:
-        have = json.load(open("weather.json")).get("races", {})
+        w = json.load(open("weather.json"))
+        have = w.get("races", {})
+        if now - dt.datetime.fromisoformat(w["at"]) >= dt.timedelta(hours=2, minutes=50):
+            return True
     except Exception:
         return True
     for r in data["races"]:
@@ -107,6 +113,10 @@ def main(now):
         return
     today = now.date()
     out, calls = {}, 0
+    try:
+        prev = json.load(open("weather.json")).get("races", {})
+    except Exception:
+        prev = {}
     for r in data["races"]:
         if r.get("hidden") or not r.get("ll"):
             continue
@@ -123,35 +133,44 @@ def main(now):
             calls += fct is not None
         except Exception as e:
             print(f"météo {r['id']} : {e.__class__.__name__}")
+            if r["id"] in prev:   # forecast unavailable this time: the previous one stays
+                out[r["id"]] = prev[r["id"]]
             continue
         res = []
-        for day in days:
-            sh = start_h(r, day)
-            h, m, lg = sh if sh else (8, 0, None)
-            t0 = dt.datetime.combine(dt.date.fromisoformat(day), dt.time(h, m), TZ)
-            dur = hours_of(lg) if lg else 3.0
-            t1 = t0 + dt.timedelta(hours=dur)
-            s0 = near(fc, t0)
-            win = [s for s in fc if t0 - dt.timedelta(hours=s["span"]) < s["at"] <= t1] or [s0]
-            temps = [s["t"] for s in win if s["t"] is not None]
-            syms = [s["sym"] for s in win if s["sym"]]
-            j = (dt.date.fromisoformat(day) - today).days
-            item = {"date": day, "h": f"{h:02d}h{m:02d}" if sh else None, "j": j, "precise": s0["span"] == 1,
-                    "start": {"t": round(s0["t"]), "sym": s0["sym"], "w": round((s0["w"] or 0) * 3.6), "rain": round(s0["rain"], 1)},
-                    "window": {"hours": round(dur, 1), "tmin": round(min(temps)), "tmax": round(max(temps)),
-                               "rain": round(sum(s["rain"] for s in win), 1),
-                               "w": round(max((s["g"] or s["w"] or 0) for s in win) * 3.6),
-                               "sym": max(set(syms), key=syms.count) if syms else s0["sym"]}}
-            if fct:
-                st = near(fct, t0 + (t1 - t0) / 2)
-                item["top"] = {"alt": int(top[2]), "t": round(st["t"])}
-            if any(e.get("type") == "trail" for e in r.get("epreuves", [])):
-                v0 = t0.replace(hour=0, minute=0) - dt.timedelta(days=1)
-                vr = sum(s["rain"] for s in fc if v0 <= s["at"] < v0 + dt.timedelta(days=1))
-                if vr >= 5:
-                    item["veille"] = round(vr)
-            res.append(item)
+        try:
+            for day in days:
+                sh = start_h(r, day)
+                h, m, lg = sh if sh else (8, 0, None)
+                t0 = dt.datetime.combine(dt.date.fromisoformat(day), dt.time(h, m), TZ)
+                dur = hours_of(lg) if lg else 3.0
+                t1 = t0 + dt.timedelta(hours=dur)
+                s0 = near(fc, t0)
+                win = [s for s in fc if t0 - dt.timedelta(hours=s["span"]) < s["at"] <= t1] or [s0]
+                temps = [s["t"] for s in win if s["t"] is not None]
+                syms = [s["sym"] for s in win if s["sym"]]
+                j = (dt.date.fromisoformat(day) - today).days
+                item = {"date": day, "h": f"{h:02d}h{m:02d}" if sh else None, "j": j, "precise": s0["span"] == 1,
+                        "start": {"t": round(s0["t"]), "sym": s0["sym"], "w": round((s0["w"] or 0) * 3.6), "rain": round(s0["rain"], 1)},
+                        "window": {"hours": round(dur, 1), "tmin": round(min(temps)), "tmax": round(max(temps)),
+                                   "rain": round(sum(s["rain"] for s in win), 1),
+                                   "w": round(max((s["g"] or s["w"] or 0) for s in win) * 3.6),
+                                   "sym": max(set(syms), key=syms.count) if syms else s0["sym"]}}
+                if fct:
+                    st = near(fct, t0 + (t1 - t0) / 2)
+                    item["top"] = {"alt": int(top[2]), "t": round(st["t"])}
+                if any(e.get("type") == "trail" for e in r.get("epreuves", [])):
+                    v0 = t0.replace(hour=0, minute=0) - dt.timedelta(days=1)
+                    vr = sum(s["rain"] for s in fc if v0 <= s["at"] < v0 + dt.timedelta(days=1))
+                    if vr >= 5:
+                        item["veille"] = round(vr)
+                res.append(item)
+        except Exception as e:   # one race with incomplete data (a missing temperature…) never stops the others
+            print(f"météo {r['id']} : {e.__class__.__name__}")
+            continue
         out[r["id"]] = res
+    if not calls and any(0 <= (dt.date.fromisoformat(r.get("fin") or r["date"]) - today).days <= DAYS for r in data["races"] if not r.get("hidden") and r.get("ll")):
+        print("météo : aucune prévision obtenue, le fichier précédent est gardé")   # MET Norway down: never empty the site's weather
+        return
     json.dump({"at": now.isoformat(timespec="minutes"), "src": "MET Norway", "races": out},
               open("weather.json", "w"), ensure_ascii=False, separators=(",", ":"))
     print(f"météo : {len(out)} course(s), {calls} appel(s)")

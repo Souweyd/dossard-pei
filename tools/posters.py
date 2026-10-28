@@ -20,6 +20,8 @@ import unicodedata
 import urllib.parse
 import urllib.request
 
+import net  # one honest User-Agent, polite delay, size and time limits on every request
+
 UA = {"User-Agent": "Mozilla/5.0 (DossardPei sync; +https://dossardpei.re)"}
 STOP = {"de", "du", "des", "la", "le", "les", "l", "d", "et", "a", "au", "aux", "en", "sur", "trail", "course",
         "courses", "foulees", "foulee", "reunion", "edition", "run", "the", "of"}
@@ -37,7 +39,7 @@ def words(s):
 def get(u, raw=False):
     for i in range(2):
         try:
-            with urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=30) as r:
+            with net.urlopen(urllib.request.Request(u, headers=UA), timeout=30) as r:
                 b = r.read()
             return b if raw else b.decode("utf-8", "replace")
         except Exception:

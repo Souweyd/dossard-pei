@@ -9,6 +9,11 @@ import html, json, os, re, shutil, sys
 import datetime as dt_mod
 from datetime import date
 
+
+def reu_today():
+    """today in La Réunion (UTC+4): the runner's clock is UTC"""
+    return (dt_mod.datetime.now(dt_mod.timezone.utc) + dt_mod.timedelta(hours=4)).date()
+
 SITE = "https://dossardpei.re"
 FIRST = {}
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -159,7 +164,7 @@ def og_image(r, out, fonts):
 
 # ---------------------------------------------------------------- related races
 def related(r, races):
-    today = date.today().isoformat()
+    today = reu_today().isoformat()
     up = [x for x in races if x["id"] != r["id"] and x["date"] >= today]
     d = d_of(r["date"]); wd = d.weekday()
     sat = d.toordinal() - (wd - 5 if wd >= 5 else wd + 2)        # Saturday of that weekend (or the one before a weekday race)
@@ -350,7 +355,7 @@ def main():
     fs = "tools/first_seen.json"   # date a race first appeared on the site (stable "validFrom" for Google)
     FIRST = json.load(open(fs)) if os.path.exists(fs) else {}
     for r in data.get("races", []):
-        if r.get("id") and r["id"] not in FIRST: FIRST[r["id"]] = date.today().isoformat()
+        if r.get("id") and r["id"] not in FIRST: FIRST[r["id"]] = reu_today().isoformat()
     json.dump(FIRST, open(fs, "w"), indent=0, sort_keys=True)
     races = [r for r in data.get("races", []) if r.get("id") and r.get("date") and not r.get("hidden") and re.fullmatch(r"[a-z0-9-]+", r["id"])]
     idx = open("index.html", encoding="utf-8").read()
@@ -363,18 +368,21 @@ def main():
     tracks = data.get("gpx", {})
     for r in races:
         rid = r["id"]; keep.add(rid)
-        ogp = f"og/{rid}.jpg"
-        has_og = os.path.exists(ogp)
-        sig = json.dumps([r.get(k) for k in ("nom", "date", "commune", "epreuves", "poster", "poster_lg")] + ["art1"], ensure_ascii=False)
-        sigp = f"og/.{rid}.sig"
-        if not has_og or not os.path.exists(sigp) or open(sigp).read() != sig:
-            has_og = og_image(r, ogp, fonts) or has_og
-            if has_og: open(sigp, "w").write(sig)
-        os.makedirs(f"course/{rid}", exist_ok=True)
-        out = app_page(idx, nbsp_html(page(r, logo, has_og, rid in tracks, races, FIRST.get(rid))), rid)
-        p = f"course/{rid}/index.html"
-        if not os.path.exists(p) or open(p, encoding="utf-8").read() != out:
-            open(p, "w", encoding="utf-8").write(out)
+        try:   # one malformed race never stops the others (its previous page is kept)
+            ogp = f"og/{rid}.jpg"
+            has_og = os.path.exists(ogp)
+            sig = json.dumps([r.get(k) for k in ("nom", "date", "commune", "epreuves", "poster", "poster_lg")] + ["art1"], ensure_ascii=False)
+            sigp = f"og/.{rid}.sig"
+            if not has_og or not os.path.exists(sigp) or open(sigp).read() != sig:
+                has_og = og_image(r, ogp, fonts) or has_og
+                if has_og: open(sigp, "w").write(sig)
+            os.makedirs(f"course/{rid}", exist_ok=True)
+            out = app_page(idx, nbsp_html(page(r, logo, has_og, rid in tracks, races, FIRST.get(rid))), rid)
+            p = f"course/{rid}/index.html"
+            if not os.path.exists(p) or open(p, encoding="utf-8").read() != out:
+                open(p, "w", encoding="utf-8").write(out)
+        except Exception as e:
+            print(f"page {rid} non générée ({e.__class__.__name__}: {e})")
     # races merged into an event ("alias": old id -> event id) keep a page that redirects to the event,
     # so links already shared or indexed still work
     for old, new in (data.get("alias") or {}).items():
@@ -397,7 +405,7 @@ def main():
         base = f[1:-4] if f.startswith(".") else f[:-4]
         if f != "home.jpg" and base not in keep: os.remove(f"og/{f}")
     # sitemap + robots
-    lastmod = (data.get("updatedAt") or date.today().isoformat())[:10]
+    lastmod = (data.get("updatedAt") or reu_today().isoformat())[:10]
     urls = [f"<url><loc>{SITE}/</loc><lastmod>{lastmod}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>"]
     for r in sorted(races, key=lambda r: r["date"]):
         urls.append(f"<url><loc>{SITE}/course/{r['id']}/</loc><lastmod>{lastmod}</lastmod><changefreq>weekly</changefreq></url>")

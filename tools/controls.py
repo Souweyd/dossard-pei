@@ -18,11 +18,13 @@ import re
 import urllib.error
 import urllib.request
 
+import net  # one honest User-Agent, polite delay, size and time limits on every request
+
 COMMUNES = {"Bras-Panon", "Cilaos", "Entre-Deux", "L'Étang-Salé", "La Plaine-des-Palmistes", "La Possession",
             "Le Port", "Le Tampon", "Les Avirons", "Les Trois-Bassins", "Trois-Bassins", "Petite-Île", "Saint-André",
             "Saint-Benoît", "Saint-Denis", "Saint-Joseph", "Saint-Leu", "Saint-Louis", "Saint-Paul", "Saint-Philippe",
             "Saint-Pierre", "Sainte-Marie", "Sainte-Rose", "Sainte-Suzanne", "Salazie"}
-BROWSER = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+BROWSER = {"User-Agent": net.UA,   # honest identification (never a browser's User-Agent)
            "Accept-Language": "fr-FR,fr;q=0.9"}
 CLOSED = re.compile(r"(?i)inscriptions?\s+(?:sont\s+|est\s+)?(?:closes?|ferm[ée]es?|termin[ée]es?|cl[ôo]tur[ée]es?)"
                     r"|inscription\s+termin[ée]e|plus\s+de\s+places?\s+disponibles?|sold\s*out|guichets?\s+ferm[ée]s?")
@@ -49,7 +51,7 @@ def main_text(page):
 
 def get(url, timeout=25):
     req = urllib.request.Request(url, headers=BROWSER)
-    with urllib.request.urlopen(req, timeout=timeout) as r:
+    with net.urlopen(req, timeout=timeout) as r:
         return r.status, r.geturl(), r.read(600_000).decode("utf-8", "replace")
 
 

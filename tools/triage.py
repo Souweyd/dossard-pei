@@ -27,6 +27,8 @@ import re
 import sys
 import urllib.request
 
+import net  # one honest User-Agent, polite delay, size and time limits on every request
+
 UA = {"User-Agent": "Mozilla/5.0 (DossardPei sync; +https://dossardpei.re)", "Accept-Language": "fr-FR,fr;q=0.9"}
 TZ = dt.timezone(dt.timedelta(hours=4))
 # sources whose new races are already found by tools/sync_sources.py (issue n° 2 candidates): not watched here
@@ -52,7 +54,7 @@ def text_of(page):
 
 
 def fetch(u):
-    with urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=30) as r:
+    with net.urlopen(urllib.request.Request(u, headers=UA), timeout=30) as r:
         return r.read().decode("utf-8", "replace")
 
 

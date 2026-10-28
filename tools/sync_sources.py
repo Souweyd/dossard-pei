@@ -24,15 +24,16 @@ import urllib.request
 
 sys.dont_write_bytecode = True  # no tools/__pycache__ in the repo
 import health  # noqa: E402
+import net  # noqa: E402  (one honest User-Agent, polite delay, size and time limits on every request)
 
-UA = {"User-Agent": "Mozilla/5.0 (DossardPei sync; +https://dossardpei.re)"}
+UA = {"User-Agent": net.UA}
 TZ = dt.timezone(dt.timedelta(hours=4))  # La Réunion
 NOW = dt.datetime.now(TZ)
 TODAY = NOW.date().isoformat()
 
 
 def get_json(url):
-    with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as r:
+    with net.urlopen(urllib.request.Request(url, headers=UA), timeout=30) as r:
         return json.load(r)
 
 
@@ -113,8 +114,11 @@ try:
             setf(r, r, "inscription", f"https://utoi-inscriptions.com/courses/{it['slug']}", "lien course")
         if it.get("startAt"):
             st = dt.datetime.fromisoformat(it["startAt"].replace("Z", "+00:00")).astimezone(TZ)
-            setf(r, r, "date", st.date().isoformat(), "date")
-            setf(ep, r, "h", st.strftime("%Hh%M"), "heure")
+            if st.date().isoformat() >= TODAY:   # a date already past from a source is never applied (it would delete the race)
+                setf(r, r, "date", st.date().isoformat(), "date")
+                setf(ep, r, "h", st.strftime("%Hh%M"), "heure")
+            else:
+                errors.append(f"utoi {r['id']} : date passée ignorée ({st.date().isoformat()})")
         km = float(it.get("distanceKm") or 0)
         setf(ep, r, "km", int(km) if km == int(km) else km, "km")
         setf(ep, r, "dp", it.get("elevationGainM"), "D+")
@@ -149,7 +153,7 @@ try:
             nm = "épreuve " + (ep.get("nom") or "")
             if it.get("startAt"):
                 st = dt.datetime.fromisoformat(it["startAt"].replace("Z", "+00:00")).astimezone(TZ)
-                if can(r, "epreuves"):
+                if can(r, "epreuves") and st.date().isoformat() >= TODAY:   # never a past date from a source
                     for f, v in (("date", st.date().isoformat()), ("h", st.strftime("%Hh%M"))):
                         if ep.get(f) != v:
                             ep[f] = v; changes.append(f"{r['id']}:{nm} {f}")
@@ -178,7 +182,7 @@ try:
         VERIF[r["id"]] = "utoi"
         # the event itself: first and last race days, latest deadline, full only when every race is full
         days = sorted(e["date"] for e in r["epreuves"] if e.get("date"))
-        if days and can(r, "date"):
+        if days and can(r, "date") and days[-1] >= TODAY:
             if r.get("date") != days[0]:
                 r["date"] = days[0]; changes.append(f"{r['id']}:date")
             fin = days[-1] if days[-1] != days[0] else None
@@ -305,7 +309,7 @@ if dag_targets:
         u = re.search(r"https?://(?:www\.)?chronometrage\.com/events/[A-Za-z0-9_-]+", (r.get("inscription") or "") + " " + (r.get("fiche") or "")).group(0)
         try:
             req = urllib.request.Request(u, headers=UA)
-            theirs = dag_races(urllib.request.urlopen(req, timeout=30).read().decode("utf-8", "replace"))
+            theirs = dag_races(net.urlopen(req, timeout=30).read().decode("utf-8", "replace"))
         except Exception as e:
             derr = f"{e.__class__.__name__}: {str(e)[:150]}"
             errors.append(f"chronometrage {r['id']} ({e.__class__.__name__})")
@@ -354,8 +358,8 @@ if dag_targets:
 
 
 def fetch(u):
-    req = urllib.request.Request(u, headers={**UA, "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36", "Accept-Language": "fr-FR,fr;q=0.9"})
-    return urllib.request.urlopen(req, timeout=30).read().decode("utf-8", "replace")
+    req = urllib.request.Request(u, headers={**UA, "Accept-Language": "fr-FR,fr;q=0.9"})
+    return net.urlopen(req, timeout=30).read().decode("utf-8", "replace")
 
 
 def plain(s):
@@ -409,7 +413,7 @@ def ad_njuko(u):
     the price tiers and whether they are sold out. Takes the URL, not the page."""
     slug = re.sub(r"[?#].*", "", u).rstrip("/").rsplit("/", 1)[-1]
     req = urllib.request.Request(f"https://front-api.njuko.com/edition/url/{slug}", headers={**UA, "Accept": "application/json"})
-    d = json.load(urllib.request.urlopen(req, timeout=30))
+    d = json.load(net.urlopen(req, timeout=30))
     now = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M")
     out = []
     for c in d.get("competitions") or []:
@@ -452,7 +456,7 @@ def ad_supabase_counter(u):
         return []
     req = urllib.request.Request(f"{base}/rest/v1/rpc/etat_public", data=b"{}", method="POST",
                                  headers={"apikey": key, "Authorization": f"Bearer {key}", "Content-Type": "application/json", **UA})
-    d = json.load(urllib.request.urlopen(req, timeout=30))
+    d = json.load(net.urlopen(req, timeout=30))
     d = d[0] if isinstance(d, list) and d else d
     if not isinstance(d, dict) or not isinstance(d.get("quota"), int) or not isinstance(d.get("inscrits"), int):
         return []
@@ -564,7 +568,7 @@ if plat_read or plat_err:
 #    Claude update does not add them back).
 try:
     req = urllib.request.Request("https://www.sportpro.re/courses/", headers=UA)
-    page = urllib.request.urlopen(req, timeout=30).read().decode("utf-8", "replace")
+    page = net.urlopen(req, timeout=30).read().decode("utf-8", "replace")
     cancelled = {m.group(1) for m in re.finditer(r'courses/(\d{5})-([a-z0-9-]+)/', page) if "annul" in m.group(2)}
     for r in data["races"]:
         m = re.search(r"sportpro\.re/courses/(\d{5})-", r.get("page") or "")
@@ -649,7 +653,13 @@ except Exception as e:
 
 # 5. Sportpro race pages (every 3 hours, to stay light on the site): a cancellation can also be
 #    written only in the presentation ("Evénement annulé… Ne pas s'inscrire") without changing the title.
+#    Only a cancellation in the page TITLE hides the race. One found in the presentation is reported
+#    (issue « annulation ou report repéré ») and the race stays shown: conditional phrases such as
+#    « ne pas s'inscrire si vous n'êtes pas licencié » or « en cas d'alerte cyclonique, toute course
+#    annulée sera remboursée » must never hide a race.
 CANCEL = re.compile(r"(?i)\b(?:[ée]v[ée]nement|course|[ée]preuve|manifestation)\s+annul[ée]e?s?\b|ne\s+pas\s+s[’']inscrire")
+SP_ANNUL = []   # cancellations seen only in a Sportpro presentation: reported, not hidden
+import watch  # noqa: E402  (HEDGE: conditional wording)
 if NOW.hour % 3 == 0 or "--all" in sys.argv:
     lues, essais, derr = 0, 0, None
     for r in data["races"]:
@@ -660,7 +670,7 @@ if NOW.hour % 3 == 0 or "--all" in sys.argv:
             essais += 1
             try:
                 req = urllib.request.Request(u, headers=UA)
-                s = urllib.request.urlopen(req, timeout=30).read().decode("utf-8", "replace")
+                s = net.urlopen(req, timeout=30).read().decode("utf-8", "replace")
                 lues += 1
                 clean = lambda x: re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", x)))
                 h1 = re.search(r"<h1[^>]*>(.*?)</h1>", s, re.S)
@@ -672,10 +682,16 @@ if NOW.hour % 3 == 0 or "--all" in sys.argv:
                     if j > 0:
                         pres = pres[:j]
                 # only this race's own title and presentation (the sidebar lists other races)
-                if CANCEL.search((clean(h1.group(1)) if h1 else "") + " " + pres):
+                if CANCEL.search(clean(h1.group(1)) if h1 else ""):
                     r["hidden"] = True
                     r["annule"] = True
                     changes.append(f"{r['id']}:annulée")
+                else:
+                    for m in CANCEL.finditer(pres):
+                        if watch.HEDGE.search(pres[max(0, m.start() - 45):m.start()] + pres[m.end():m.end() + 40]):
+                            continue
+                        SP_ANNUL.append(f"**{r['nom']}** ({r['date']}) : « {pres[max(0, m.start() - 70):m.end() + 50].strip()} » — {u}")
+                        break
             except Exception as e:
                 errors.append(f"sportpro {r['id']} ({e.__class__.__name__})")
                 derr = f"{e.__class__.__name__} sur {u}"
@@ -713,7 +729,7 @@ if True:
                 continue
             essais += 1
             try:
-                pg = urllib.request.urlopen(urllib.request.Request(ep["url"], headers=UA), timeout=30).read().decode("utf-8", "replace")
+                pg = net.urlopen(urllib.request.Request(ep["url"], headers=UA), timeout=30).read().decode("utf-8", "replace")
                 pr = sp_price(pg)
                 prix_lus += pr is not None
                 setf(ep, r, "prix", pr, "prix " + ep.get("nom", ""))
@@ -811,7 +827,7 @@ try:
 
     rep["nouveautes"] = watch.nouveautes(data, FOUND, check={"Chrono Run": _future_race, "Top Chrono": _future_race, "WeRun": _werun_reunion})
     if NOW.hour % 3 == 0 or "--all" in sys.argv:
-        rep["annulation"] = watch.annulations(data, TODAY, controls.get)
+        rep["annulation"] = watch.annulations(data, TODAY, controls.get) + SP_ANNUL
     evts = watch.diff(prev_data, data, TODAY, NOW)
     jr = watch.journal_add(evts, NOW)
     rep["journal"] = [watch.line(e) for e in evts]
