@@ -81,7 +81,8 @@ def summary(r):
     for e in sorted(eps, key=lambda e: -e["km"])[:4]:
         s = f"{fmt_km(e['km'])} km"
         if e.get("dp"): s += f" ({e['dp']} m D+)"
-        parts.append(s)
+        if s not in parts:   # two épreuves of the same distance (e.g. solo and relay) are named once
+            parts.append(s)
     return ", ".join(parts)
 
 
@@ -261,14 +262,16 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
     if poster or has_og: ev["image"] = [img] + ([f"{SITE}/{poster}"] if poster else [])
     org = {"@type": "Organization", "name": r.get("org") or r["nom"], **({"url": r["page"]} if r.get("page") else {})}
     ev["organizer"] = org
-    ev["performer"] = {"@type": "PerformingGroup", "name": f"Participants · {r['nom']}"}
     prices = [price_num(e.get("prix")) for e in r.get("epreuves", [])]
     prices = [p for p in prices if p is not None]
     # an offer is only declared when its price is known (Google flags offers without price)
     if r.get("inscription") and prices:
-        off = {"@type": "Offer", "url": r["inscription"], "priceCurrency": "EUR", "price": min(prices),
-               "availability": "https://schema.org/SoldOut" if r.get("complet") else "https://schema.org/InStock",
-               "validFrom": r.get("ouverture") or (data_date or today)}
+        # several prices (one per épreuve): a range « de … à … € » rather than the cheapest one only
+        off = {"@type": "Offer", "price": min(prices)} if len(set(prices)) == 1 else \
+              {"@type": "AggregateOffer", "lowPrice": min(prices), "highPrice": max(prices), "offerCount": len(prices)}
+        off.update({"url": r["inscription"], "priceCurrency": "EUR",
+                    "availability": "https://schema.org/SoldOut" if r.get("complet") else "https://schema.org/InStock",
+                    "validFrom": r.get("ouverture") or (data_date or today)})
         if r.get("limite"): off["validThrough"] = r["limite"]
         ev["offers"] = off
     ld = json.dumps(ev, ensure_ascii=False).replace("</", "<\\/")
@@ -404,6 +407,17 @@ def main():
     for f in os.listdir("og"):
         base = f[1:-4] if f.startswith(".") else f[:-4]
         if f != "home.jpg" and base not in keep: os.remove(f"og/{f}")
+    # posters and tracks of races that left the data (past races): files no longer referenced anywhere
+    refs = open("data.json", encoding="utf-8").read() + open("index.html", encoding="utf-8").read()
+    for extra in ("saison2027.json", "profiles.json"):
+        if os.path.exists(extra):
+            refs += open(extra, encoding="utf-8").read()
+    for folder in ("posters", "gpx"):
+        if not os.path.isdir(folder):
+            continue
+        for f in os.listdir(folder):
+            if f"{folder}/{f}" not in refs and f.split("_")[0].split(".")[0] not in keep:
+                os.remove(f"{folder}/{f}")
     # sitemap + robots
     lastmod = (data.get("updatedAt") or reu_today().isoformat())[:10]
     urls = [f"<url><loc>{SITE}/</loc><lastmod>{lastmod}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>"]

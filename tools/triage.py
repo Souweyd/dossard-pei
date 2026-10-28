@@ -105,11 +105,14 @@ def main(now):
         if not w:
             watch[u] = {"h": h, "at": stamp, "changed": ack or stamp}   # first sight: not a change
         elif w.get("h") == h:
-            w.pop("pending", None)
-        elif w.get("pending") == h:   # the new content is seen twice in a row: a real change, not a flicker
+            w.pop("pending", None); w.pop("since", None)
+        elif w.get("pending") == h or (w.get("since") and now - dt.datetime.fromisoformat(w["since"]) >= dt.timedelta(hours=24)):
+            # the new content is seen twice in a row (a real change, not a flicker), or the page has kept
+            # changing for 24 h (some pages never show the same text twice): reported either way
             watch[u] = {"h": h, "at": stamp, "changed": stamp}
         else:
             w["pending"] = h
+            w.setdefault("since", stamp)
         done[u] = True
         if watch[u]["changed"] > ack and ack:
             out["sources" if kind == "source" else "avenir"].append({"id": ident, "url": u, "changed": watch[u]["changed"]})
