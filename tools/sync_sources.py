@@ -79,8 +79,10 @@ def sp_facts(page):
     dp = re.search(r"D[ée]nivel[ée]\s*:\s*(\d+)\s*m\b", t)
     ville = re.search(r"Ville\s*:\s*(.+?)\s+(?:Heure de d[ée]part|Lieu de d[ée]part|Ajouter)", t)
     lieu = re.search(r"Lieu de d[ée]part\s*:\s*(.+?)\s+(?:Lieu d.arriv[ée]e|Ajouter|S.inscrire)", t)
+    heure = re.search(r"Heure de d[ée]part\s*:\s*(\d{1,2})\s*h\s*(\d{2})", t)
     return {"km": float(km.group(1).replace(",", ".")) if km else None, "dp": int(dp.group(1)) if dp else None,
-            "ville": ville.group(1).strip() if ville else None, "lieu": lieu.group(1).strip()[:80] if lieu else None}
+            "ville": ville.group(1).strip() if ville else None, "lieu": lieu.group(1).strip()[:80] if lieu else None,
+            "h": f"{int(heure.group(1)):02d}h{heure.group(2)}" if heure else None}
 
 
 def geo_start(lieu, ville):
@@ -865,12 +867,18 @@ if True:
         if r.get("hidden") or not can(r, "epreuves"):
             continue
         villes, lieux = [], []
-        for ep in r.get("epreuves", []):
-            if "sportpro.re/courses/epreuves/" not in (ep.get("url") or "") or (not FULL_PRIX and ep.get("prix")):
+        eps_r = r.get("epreuves", [])
+        for ep in eps_r:
+            # the épreuve's own page; a one-épreuve event has its details (time, distance, prices) on the event page itself
+            src_u = ep.get("url") or ""
+            if "sportpro.re/courses/epreuves/" not in src_u:
+                ev = next((u for u in (src_u, r.get("page") or "", r.get("inscription") or "") if re.search(r"sportpro\.re/courses/\d{5}-", u)), None)
+                src_u = ev if ev and len(eps_r) == 1 else ""
+            if not src_u or (not FULL_PRIX and ep.get("prix") and ep.get("h")):
                 continue
             essais += 1
             try:
-                pg = net.urlopen(urllib.request.Request(ep["url"], headers=UA), timeout=30).read().decode("utf-8", "replace")
+                pg = net.urlopen(urllib.request.Request(src_u, headers=UA), timeout=30).read().decode("utf-8", "replace")
                 pr = sp_price(pg)
                 prix_lus += pr is not None
                 setf(ep, r, "prix", pr, "prix " + ep.get("nom", ""))
@@ -881,11 +889,15 @@ if True:
                     setf(ep, r, "km", int(f["km"]) if f["km"] == int(f["km"]) else f["km"], "distance " + ep.get("nom", ""))
                 if f["dp"] and f["dp"] != ep.get("dp"):
                     setf(ep, r, "dp", f["dp"], "D+ " + ep.get("nom", ""))
+                if f["h"] and f["h"] != ep.get("h"):   # start time written on the page
+                    setf(ep, r, "h", f["h"], "heure " + ep.get("nom", ""))
+                if not pr and re.search(r"(?i)" + re.escape(re.sub(r"\s*\d{4}\s*-\s*\d{4}", "", ep.get("nom", "")).split()[0] if ep.get("nom") else "§") + r"[^.€]{0,40}:\s*inscription gratuite", plain(pg)):
+                    setf(ep, r, "prix", "Gratuit", "prix " + ep.get("nom", ""))
                 if f["ville"]:
                     villes.append(f["ville"]); lieux.append((f["ville"], f["lieu"]))
             except Exception as e:
                 errors.append(f"sportpro prix {r['id']} ({e.__class__.__name__})")
-                derr = f"{e.__class__.__name__} sur {ep['url']}"
+                derr = f"{e.__class__.__name__} sur {src_u}"
         # town: the start can move (Maloya Trail: Sainte-Rose -> Hell-Bourg): when most épreuve pages agree on
         # another town of La Réunion, the race follows (town, start place, map pin)
         if villes:
