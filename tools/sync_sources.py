@@ -72,6 +72,89 @@ def setf(obj, r, field, val, label):
     changes.append(f"{r['id']}:{label}")
 
 
+def sp_facts(page):
+    """distance, climb and town of an épreuve page (« Distance : 12 km Dénivelé : 556 m … Ville : Salazie »)"""
+    t = plain(page)
+    km = re.search(r"Distance\s*:\s*(\d+(?:[.,]\d+)?)\s*km", t)
+    dp = re.search(r"D[ée]nivel[ée]\s*:\s*(\d+)\s*m\b", t)
+    ville = re.search(r"Ville\s*:\s*(.+?)\s+(?:Heure de d[ée]part|Lieu de d[ée]part|Ajouter)", t)
+    lieu = re.search(r"Lieu de d[ée]part\s*:\s*(.+?)\s+(?:Lieu d.arriv[ée]e|Ajouter|S.inscrire)", t)
+    return {"km": float(km.group(1).replace(",", ".")) if km else None, "dp": int(dp.group(1)) if dp else None,
+            "ville": ville.group(1).strip() if ville else None, "lieu": lieu.group(1).strip()[:80] if lieu else None}
+
+
+def geo_start(lieu, ville):
+    """map position of a start: the start place written by the organiser (IGN geocoding: named places, then
+    addresses), kept only when it lies in the right town of La Réunion with a good score; else the centre of
+    the town. Returns (lat, lon, precise) or None."""
+    import urllib.parse
+    def ask(q, **kw):
+        u = "https://data.geopf.fr/geocodage/search?" + urllib.parse.urlencode({"q": q, "limit": 5, **kw})
+        for f in json.load(net.urlopen(urllib.request.Request(u, headers=UA), timeout=30)).get("features", []):
+            lon, lat = f["geometry"]["coordinates"]
+            city = f["properties"].get("city")
+            city = city if isinstance(city, list) else [city]
+            if -21.42 < lat < -20.85 and 55.2 < lon < 55.85 and any(norm(c or "") == norm(ville) for c in city) and f["properties"].get("score", 0) >= .6:
+                return round(lat, 5), round(lon, 5)
+        return None
+    qs = []
+    if lieu:
+        l2 = re.sub(r"([a-zà-ÿ])([A-Z])", r"\1 \2", lieu)                      # « HellBourg » -> « Hell Bourg »
+        qs = [l2] + [m for m in re.findall(r"(?:\bd[eu]s?\s+|\bd'|\bà\s+)([A-ZÉ][\w' -]+)$", l2)]   # « … de Hell Bourg » -> « Hell Bourg »
+    try:
+        for q in qs:
+            for idx in ("poi", "address"):
+                hit = ask(q, index=idx)
+                if hit:
+                    return hit + (True,)
+        hit = ask(ville, index="address", type="municipality")
+        return hit + (False,) if hit else None
+    except Exception:
+        return None
+
+
+# differences found on the organisers' pages, state/ecarts.json (daily summary). One category per check
+# ("lieu_sportpro", "lieu_utoi", "texte"…): a category is replaced only by a run where its check
+# ran; "epingle" (pins put at the centre of a town) is kept 7 days.
+ECARTS = {}
+import controls as _cc  # noqa: E402
+fmt_n = lambda v: (f"{v:g}").replace(".", ",")
+ALIAS = [("hell bourg", "Salazie"), ("hellbourg", "Salazie"), ("grand ilet", "Salazie"), ("plaine des cafres", "Le Tampon"),
+         ("bourg murat", "Le Tampon"), ("trois mares", "Le Tampon"), ("grand coude", "Saint-Joseph"), ("la saline", "Saint-Paul"),
+         ("saint gilles", "Saint-Paul"), ("le gol", "Saint-Louis"), ("la riviere", "Saint-Louis"), ("makes", "Saint-Louis"),
+         ("plaine des palmistes", "La Plaine-des-Palmistes"), ("etang sale", "L'Étang-Salé"), ("la nouvelle", "La Possession"),
+         ("dos d ane", "La Possession"), ("le maido", "Saint-Paul"), ("tevelave", "Les Avirons"), ("bras panon", "Bras-Panon")]
+
+
+def communes_in(text):
+    """towns of La Réunion named in a text (« St-Pierre », « A LA POSSESSION », « Champ de foire de HellBourg »)"""
+    t = " " + norm(re.sub(r"([a-z])([A-Z])", r"\1 \2", text or "")) + " "
+    t = t.replace(" st ", " saint ").replace(" ste ", " sainte ")
+    found = []
+    for c in sorted(_cc.COMMUNES - {"Trois-Bassins"}):
+        n = norm(c)
+        pats = {n} | ({n.split(" ", 1)[1]} if n.split(" ")[0] in ("la", "le", "les", "l") and n not in ("le port",) else set())
+        if any(f" {x} " in t for x in pats):
+            found.append(c)
+    found += [c for a, c in ALIAS if f" {a} " in t]
+    return list(dict.fromkeys(found))
+
+
+def move_town(r, top, lieu, cat):
+    """the start moved to another town (organiser's data): town, start place and map pin follow"""
+    if not top or norm(top) == norm(r.get("commune", "")) or not can(r, "commune"):
+        return
+    pos = geo_start(lieu, top)
+    if not pos:   # no position found: nothing changed, reported
+        ECARTS.setdefault(cat, {})[r["id"]] = {"site": r.get("commune"), "organisateur": top}
+        return
+    old = r.get("commune")
+    r["commune"], r["lieu"], r["ll"] = top, lieu or top, [pos[0], pos[1]]
+    changes.append(f"{r['id']}:lieu {old} -> {top}")
+    if not pos[2]:
+        ECARTS.setdefault("epingle", {})[r["id"]] = {"commune": top, "at": TODAY}
+
+
 # 1. past races
 keep = []
 for r in data["races"]:
@@ -94,6 +177,7 @@ try:
             break
         page += 1
     run["utoi"] = {"metrics": {"courses": len(items)}}
+    UPLACES = {}   # race id -> start places of its UTOI races (town of the start)
     FOUND["UTOI"] = [(it["slug"], f"{it.get('name', '')} ({(it.get('startAt') or '')[:10]})", f"https://utoi-inscriptions.com/courses/{it['slug']}") for it in items if it.get("slug")]
     for r in data["races"]:
         # link is either the event page (/evenements/<event>) or already the race page (/courses/<race>)
@@ -115,6 +199,8 @@ try:
             continue
         it = cands[0]
         VERIF[r["id"]] = "utoi"
+        if it.get("startPlace"):
+            UPLACES.setdefault(r["id"], []).append(it["startPlace"])
         if it.get("slug"):  # S'inscrire opens this race, not the whole event
             setf(r, r, "inscription", f"https://utoi-inscriptions.com/courses/{it['slug']}", "lien course")
         if it.get("startAt"):
@@ -155,6 +241,8 @@ try:
             if not it:
                 continue
             hit = True
+            if it.get("startPlace"):
+                UPLACES.setdefault(r["id"], []).append(it["startPlace"])
             nm = "épreuve " + (ep.get("nom") or "")
             if it.get("startAt"):
                 st = dt.datetime.fromisoformat(it["startAt"].replace("Z", "+00:00")).astimezone(TZ)
@@ -201,6 +289,15 @@ try:
         full = all(e.get("complet") for e in r["epreuves"])
         if can(r, "complet") and bool(r.get("complet")) != full:
             r["complet"] = full; changes.append(f"{r['id']}:complet={full}")
+    # town of the start (« PLACE FESTIVAL A LA POSSESSION »): the race follows when its UTOI races agree
+    ECARTS.setdefault("lieu_utoi", {})
+    for r in data["races"]:
+        tw = [communes_in(pl) for pl in UPLACES.get(r["id"], [])]
+        tw = [t[0] for t in tw if len(t) == 1]
+        if tw and len(tw) * 2 > len(UPLACES[r["id"]]):
+            top = max(set(tw), key=tw.count)
+            if tw.count(top) * 2 > len(tw):
+                move_town(r, top, next(pl for pl in UPLACES[r["id"]] if communes_in(pl) == [top]).title(), "lieu_utoi")
 except Exception as e:  # source down: skip it this hour
     errors.append(f"utoi ({e.__class__.__name__})")
     run["utoi"] = {"metrics": {}, "error": f"{e.__class__.__name__}: {str(e)[:150]}"}
@@ -339,6 +436,7 @@ if dag_targets:
         if not theirs:
             continue
         lus += 1
+        # (the « city » of a chronometrage event is often the organiser's office, not the start: not used)
         if not can(r, "epreuves"):
             VERIF[r["id"]] = "chronometrage"
             continue
@@ -760,54 +858,9 @@ def sp_price(page):
     return " / ".join(f"{p} {l}".strip() for p, l in rows)
 
 
-def sp_facts(page):
-    """distance, climb and town of an épreuve page (« Distance : 12 km Dénivelé : 556 m … Ville : Salazie »)"""
-    t = plain(page)
-    km = re.search(r"Distance\s*:\s*(\d+(?:[.,]\d+)?)\s*km", t)
-    dp = re.search(r"D[ée]nivel[ée]\s*:\s*(\d+)\s*m\b", t)
-    ville = re.search(r"Ville\s*:\s*(.+?)\s+(?:Heure de d[ée]part|Lieu de d[ée]part|Ajouter)", t)
-    lieu = re.search(r"Lieu de d[ée]part\s*:\s*(.+?)\s+(?:Lieu d.arriv[ée]e|Ajouter|S.inscrire)", t)
-    return {"km": float(km.group(1).replace(",", ".")) if km else None, "dp": int(dp.group(1)) if dp else None,
-            "ville": ville.group(1).strip() if ville else None, "lieu": lieu.group(1).strip()[:80] if lieu else None}
-
-
-def geo_start(lieu, ville):
-    """map position of a start: the start place written by the organiser (IGN geocoding: named places, then
-    addresses), kept only when it lies in the right town of La Réunion with a good score; else the centre of
-    the town. Returns (lat, lon, precise) or None."""
-    import urllib.parse
-    def ask(q, **kw):
-        u = "https://data.geopf.fr/geocodage/search?" + urllib.parse.urlencode({"q": q, "limit": 5, **kw})
-        for f in json.load(net.urlopen(urllib.request.Request(u, headers=UA), timeout=30)).get("features", []):
-            lon, lat = f["geometry"]["coordinates"]
-            city = f["properties"].get("city")
-            city = city if isinstance(city, list) else [city]
-            if -21.42 < lat < -20.85 and 55.2 < lon < 55.85 and any(norm(c or "") == norm(ville) for c in city) and f["properties"].get("score", 0) >= .6:
-                return round(lat, 5), round(lon, 5)
-        return None
-    qs = []
-    if lieu:
-        l2 = re.sub(r"([a-zà-ÿ])([A-Z])", r"\1 \2", lieu)                      # « HellBourg » -> « Hell Bourg »
-        qs = [l2] + [m for m in re.findall(r"(?:\bd[eu]s?\s+|\bd'|\bà\s+)([A-ZÉ][\w' -]+)$", l2)]   # « … de Hell Bourg » -> « Hell Bourg »
-    try:
-        for q in qs:
-            for idx in ("poi", "address"):
-                hit = ask(q, index=idx)
-                if hit:
-                    return hit + (True,)
-        hit = ask(ville, index="address", type="municipality")
-        return hit + (False,) if hit else None
-    except Exception:
-        return None
-
-
-ECARTS = {}   # race id -> differences to look at by hand (town on the organiser's page), state/ecarts.json
-
-
 FULL_PRIX = NOW.hour % 3 == 0 or "--all" in sys.argv   # every 3 hours all prices; each hour the épreuves still without one (new races)
 if True:
     prix_lus, essais, derr = 0, 0, None
-    import controls as _cc
     for r in data["races"]:
         if r.get("hidden") or not can(r, "epreuves"):
             continue
@@ -833,29 +886,74 @@ if True:
             except Exception as e:
                 errors.append(f"sportpro prix {r['id']} ({e.__class__.__name__})")
                 derr = f"{e.__class__.__name__} sur {ep['url']}"
-        # town: the start can move (Maloya Trail: Sainte-Rose -> Hell-Bourg). When most épreuve pages agree on
-        # another town of La Réunion, the race follows: town, start place, and the map pin (geocoded start place,
-        # else the centre of the town). Without a position the change is not made and the summary reports it.
+        # town: the start can move (Maloya Trail: Sainte-Rose -> Hell-Bourg): when most épreuve pages agree on
+        # another town of La Réunion, the race follows (town, start place, map pin)
         if villes:
             top = max(set(villes), key=villes.count)
-            if villes.count(top) * 2 > len(villes) and top in _cc.COMMUNES and norm(top) != norm(r.get("commune", "")) and can(r, "commune"):
+            if villes.count(top) * 2 > len(villes) and top in _cc.COMMUNES:
                 lt = [l for v, l in lieux if v == top and l]
-                lieu = max(set(lt), key=lt.count) if lt else None
-                pos = geo_start(lieu, top)
-                if pos:
-                    r["commune"] = top; r["lieu"] = lieu or top; r["ll"] = [pos[0], pos[1]]
-                    changes.append(f"{r['id']}:lieu {top}")
-                    if not pos[2]:
-                        ECARTS[r["id"]] = {"lieu": {"site": top, "organisateur": top, "epingle": "centre de la commune"}}
-                else:
-                    ECARTS[r["id"]] = {"lieu": {"site": r.get("commune"), "organisateur": top}}
+                move_town(r, top, max(set(lt), key=lt.count) if lt else None, "lieu_sportpro")
     if essais and FULL_PRIX:
-        try:
-            if not os.path.exists("state/ecarts.json") or ECARTS != json.load(open("state/ecarts.json")):
-                json.dump(ECARTS, open("state/ecarts.json", "w"), ensure_ascii=False, indent=1)
-        except Exception:
-            pass
+        ECARTS.setdefault("lieu_sportpro", {})
         run["sportpro_prix"] = {"metrics": {"prix": prix_lus}, **({"error": derr} if not prix_lus and derr else {})}
+
+# 7. Other sources (organisers' sites, HelloAsso, Top Chrono, chronometrage, njuko…): their pages are free text,
+#    so nothing is changed from them. Every 6 hours each race's own pages are read and compared with the sheet:
+#    a distance or a climb of an épreuve that appears nowhere on the page, or a start town not named on the
+#    page while another one is. Reported by the daily summary (« À vérifier sur la page de l'organisateur »).
+#    Sportpro and UTOI races are left out (checked field by field above).
+KMRE = re.compile(r"(?<![\d.,])(\d{1,3}(?:[.,]\d{1,2})?)\s?(?:km|kms|kilom[eè]tres?)\b", re.I)
+DPRE = re.compile(r"(?:(\d[\d  .]{0,5}\d|\d)\s?m(?:[eè]tres?)?\s?(?:de\s)?(?:D\+|d[ée]nivel[ée]\s?(?:positif)?|de d[ée]nivel)|(?:D\+|d[ée]nivel[ée]\s?(?:positif)?)\s?:?\s?(\d[\d  .]{0,5}\d))", re.I)
+if NOW.hour % 6 == 2 or "--all" in sys.argv or "--textes" in sys.argv:
+    ECARTS["texte"] = {}
+    for r in data["races"]:
+        if r.get("hidden") or (r.get("fin") or r.get("date") or "") < TODAY:
+            continue
+        urls = [r.get(k) for k in ("fiche", "inscription", "page")] + [e.get("url") for e in r.get("epreuves", [])]
+        if any("sportpro.re" in (u or "") or "utoi" in (u or "") for u in urls):
+            continue
+        urls = list(dict.fromkeys(u for u in urls if u and re.match(r"https?://[^/]+/.+", u)))   # pages of the race, not a site's home page
+        txt = ""
+        for u in urls[:4]:
+            try:
+                if re.search(r"in\.njuko\.com/", u):
+                    txt += " " + " ".join(t["nom"] for t in ad_njuko(u))
+                else:
+                    txt += " " + plain(fetch(u))
+            except Exception:
+                pass
+        if len(txt) < 200 and not re.search(r"\bkm\b", txt):
+            continue
+        kms = [float(x.replace(",", ".")) for x in KMRE.findall(txt)]
+        dps = [int(re.sub(r"\D", "", a or b)) for a, b in DPRE.findall(txt) if re.sub(r"\D", "", a or b)]
+        msgs = []
+        for e in r.get("epreuves", []):
+            k = float(e["km"]) if e.get("km") else None
+            leg = re.search(r"[x×]\s*(\d+(?:[.,]\d+)?)\s*km", e.get("nom") or "")   # relay « 5 × 3,7 km »: a leg is enough
+            ok_v = [k] + ([float(leg.group(1).replace(",", "."))] if leg else [])
+            if k and kms and not any(abs(v - w) <= max(.3, .05 * w) for v in kms for w in ok_v):
+                msgs.append(f"{e.get('nom')} : {fmt_n(k)} km introuvable (la page cite {', '.join(fmt_n(v) + ' km' for v in sorted(set(kms))[:6])})")
+            if e.get("dp") and dps and not any(abs(v - e["dp"]) <= max(30, .08 * e["dp"]) for v in dps):
+                msgs.append(f"{e.get('nom')} : {e['dp']} m D+ introuvable (la page cite {', '.join(str(v) + ' m' for v in sorted(set(dps))[:6])})")
+        tw = communes_in(re.sub(r"\b974\d\d\s+[A-Za-zÀ-ÿ'’ -]{2,25}", " ", txt))   # postal addresses (organiser's office) left out
+        if tw and r.get("commune") not in tw and not any(norm(r.get("commune", "")) in norm(x) for x in tw):
+            msgs.append(f"ville : la fiche dit {r.get('commune')}, la page cite {', '.join(tw[:4])}")
+        if msgs:
+            ECARTS["texte"][r["id"]] = msgs
+
+# differences: each category written by this run replaces the stored one; pins at a town centre kept 7 days
+try:
+    old_e = json.load(open("state/ecarts.json")) if os.path.exists("state/ecarts.json") else {}
+    old_e = old_e if all(isinstance(v, dict) for v in old_e.values()) else {}
+    new_e = dict(old_e)
+    for cat, v in ECARTS.items():
+        new_e[cat] = v if cat != "epingle" else {**old_e.get("epingle", {}), **v}
+    lim7 = (NOW - dt.timedelta(days=7)).date().isoformat()
+    new_e["epingle"] = {k: v for k, v in new_e.get("epingle", {}).items() if v.get("at", "") >= lim7}
+    if new_e != old_e:
+        json.dump(new_e, open("state/ecarts.json", "w"), ensure_ascii=False, indent=1, sort_keys=True)
+except Exception as e:
+    errors.append(f"écarts ({e.__class__.__name__})")
 
 if changes:
     data["updatedAt"] = NOW.isoformat(timespec="seconds")

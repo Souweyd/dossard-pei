@@ -74,11 +74,20 @@ def problems(now, st):
         if rid in races and not races[rid].get("hidden"):
             out.append(f"Épreuves non reconnues sur {v.get('source')} : {races[rid]['nom']} — {', '.join(v.get('epreuves') or [])}"
                        f" (la plateforme dit : {', '.join(v.get('plateforme') or [])}). Statut d'inscription non vérifié.")
-    for rid, v in load("state/ecarts.json", {}).items():   # start town different on the organiser's page
-        if rid in races and v.get("lieu", {}).get("epingle"):
-            out.append(f"Lieu modifié : {races[rid]['nom']} — départ à {v['lieu']['organisateur']}, épingle placée au centre de la commune (lieu exact non trouvé, à ajuster si besoin)")
-        elif rid in races and v.get("lieu"):
-            out.append(f"Lieu différent : {races[rid]['nom']} — le site dit {v['lieu'].get('site')}, la page de l'organisateur dit {v['lieu'].get('organisateur')} (lieu et épingle à corriger à la main)")
+    ec = load("state/ecarts.json", {})
+    for cat, items in ec.items():   # differences with the organisers' pages (tools/sync_sources.py)
+        if not isinstance(items, dict):
+            continue
+        for rid, v in items.items():
+            if rid not in races or races[rid].get("hidden"):
+                continue
+            nom = races[rid]["nom"]
+            if cat == "epingle":
+                out.append(f"Lieu modifié : {nom} — départ à {v.get('commune')}, épingle placée au centre de la commune (lieu exact non trouvé, à ajuster si besoin)")
+            elif cat.startswith("lieu_"):
+                out.append(f"Lieu différent : {nom} — le site dit {v.get('site')}, la plateforme dit {v.get('organisateur')} (position non trouvée, à corriger à la main)")
+            elif cat == "texte":
+                out.append(f"À vérifier sur la page de l'organisateur : {nom} — " + " ; ".join(v))
     g = load("state/guard.json", {})
     if g.get("at", "") > st.get("sent_at", "") and (g.get("notes") or g.get("restored")):
         out += [f"Garde-fou : {n}" for n in (g.get("notes") or [])[:10]]
