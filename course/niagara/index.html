@@ -1028,6 +1028,10 @@ section.mine h2 { font-family: var(--display); font-weight: 800; letter-spacing:
 .actions .agl:hover { text-decoration: underline }
 /* while Scroll covers the screen, the page behind it is neither laid out nor painted (no images loaded, not reachable with Tab) */
 html.reels-open .wrap { content-visibility: hidden }
+/* touch targets: small text links get a taller tap area without moving anything on screen */
+.dlg .ghostlink, .dlg .agl, .dlg .dlg-report { padding-top: 9px !important; padding-bottom: 9px !important; margin-top: -9px; margin-bottom: -9px }
+.srcs { line-height: 2.2 } .srcs a, .trksrc a { padding: 9px 0; margin: -9px 0 }
+.trksrc { line-height: 2 }
 .ended { background: color-mix(in srgb, var(--fg) 7%, transparent); border-radius: 12px; padding: 10px 14px; font-weight: 600; font-size: .92rem }
 /* readable buttons and badges (WCAG AA): darker turquoise behind white text in light mode, dark text on the bright turquoise in dark mode, deeper red for countdown badges */
 .epins, .cta, .szlink:not(.favlink), .sz-mo.on { background: #00807a !important; color: #fff !important }
