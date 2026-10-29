@@ -422,6 +422,7 @@ const gcount = (path, title, event) => { try { window.goatcounter && window.goat
   const t = setInterval(() => { if (window.goatcounter && window.goatcounter.count) { clearInterval(t); gcount("webapp/" + os, "Ouverture web app", true); } else if (++n > 20) clearInterval(t); }, 500); })();
 let COUNTED = null;
 document.addEventListener("click", e => {
+  const b3 = e.target.closest && e.target.closest("button[data-v3d]"); if (b3) return open3D(b3.dataset.v3d);
   const a = e.target.closest && e.target.closest("a[href], button[data-gpx]"); if (!a) return;
   const id = DETAIL || a.closest("[data-card]")?.dataset.card || "";
   if (a.matches("button[data-gpx]")) return gcount("gpx/" + a.dataset.gpx, "Téléchargement GPX", true);
@@ -553,7 +554,7 @@ function openDetail(id) {
   if (keep) { detailBox.querySelector(".dlg-panel").scrollTop = keep[0]; detailBox.scrollTop = keep[1]; if (keep[2] != null) detailBox.querySelector(`[data-trk][data-i="${keep[2]}"]`)?.focus({ preventScroll: true }); }
   detailBox.querySelector(".dlg-x").focus({ preventScroll: true });
 }
-function detailKey(e) { if (e.key === "Escape" && !document.querySelector(".lightbox, .cform, dialog[open]")) closeDetail(); }   // Escape closes only the top window (contact form, enlarged poster…)
+function detailKey(e) { if (e.key === "Escape" && !document.querySelector(".lightbox, .cform, dialog[open], .v3d")) closeDetail(); }   // Escape closes only the top window (contact form, enlarged poster…)
 // phone sheet: pull it down from the top to close it
 function sheetSwipe(pn) {
   if (!pn || !matchMedia("(max-width: 720px)").matches) return;
@@ -750,7 +751,7 @@ function detailHTML(r) {
   const tabs = all && all.length > 1 ? `<div class="trk-tabs" role="group" aria-label="Parcours">${all.map((t, i) => `<button type="button" class="chip" data-trk="${esc(r.id)}" data-i="${i}" aria-pressed="${i === gi}">${esc(t.nom)} · ${fmt(t.km)} km</button>`).join("")}</div>` : "";
   const gsrc = trkSrc(r.id);
   const srcT = gsrc ? `<div class="trksrc">Tracé : <a href="${esc(gsrc)}" target="_blank" rel="noopener">${esc(srcName(gsrc))}</a></div>` : "";
-  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}<div class="note">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : `${g.nom ? esc(g.nom) + " · " : ""}${g.km ? fmt(g.km) + " km" : ""}${g.dp ? " · " + g.dp + " m D+ (mesuré sur le tracé)" : ""}`}${srcT}</div>${miniMap(g.pts, r)}${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
+  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}<div class="note">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : `${g.nom ? esc(g.nom) + " · " : ""}${g.km ? fmt(g.km) + " km" : ""}${g.dp ? " · " + g.dp + " m D+ (mesuré sur le tracé)" : ""}`}${srcT}</div><div class="mmw">${miniMap(g.pts, r)}${g.partiel ? "" : `<button type="button" class="b3d" data-v3d="${esc(r.id)}" aria-label="Voir le parcours en 3D">3D</button>`}</div>${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
   return `<div class="detail">
     ${r.info ? `<p class="dinfo">${esc(r.info)}${r.paiement ? ` <a href="${esc(r.paiement)}" target="_blank" rel="noopener">Paiement en ligne</a>` : ""}</p>` : ""}
     ${verifLine(r)}
@@ -1685,6 +1686,206 @@ function openReels() {
   $("#v-reels")?.setAttribute("aria-pressed", "true");
 }
 function closeReels() { if (reelsBox) reelsBox.hidden = true; document.documentElement.style.overflow = ""; document.documentElement.classList.remove("reels-open"); if (LIST_STALE) requestAnimationFrame(() => { if (LIST_STALE) render(); }); $("#v-reels")?.setAttribute("aria-pressed", "false"); }
+// ---------- 3D view of a track (button « 3D » on the sheet's mini map) ----------
+// IGN aerial photo draped on the IGN relief (both read live from the Géoplateforme, open data, CORS allowed),
+// the track, names and trails of the mini map, a small runner for the flyover and the elevation profile as
+// reading line. three.js is loaded only when the view is opened.
+let V3D = null;
+const V3_IGN = "https://data.geopf.fr/wms-r?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetMap&STYLES=&CRS=EPSG:4326";
+async function open3D(id) {
+  const r = RACES.find(x => x.id === id), g = curTrack(id);
+  if (!r || !g || !g.pts || V3D) return;
+  gcount("3d/" + id, "Vue 3D", true);
+  const box = document.createElement("div"); box.className = "rmap v3d"; box.setAttribute("role", "dialog"); box.setAttribute("aria-label", "Vue 3D : " + r.nom);
+  box.innerHTML = `<header><b>${esc(r.nom)}<small>Vue 3D${g.nom && (tracksOf(id) || []).length > 1 ? " · " + esc(g.nom) : ""} · photo et relief IGN</small></b><button type="button" aria-label="Fermer">×</button></header>
+    <div class="v3b"><div class="v3load">Chargement du relief…</div><span class="v3hint" hidden>Glisse pour tourner · pince ou molette pour zoomer</span>
+    <div class="v3hud" hidden><div><div class="big"><span data-v="km">0</span><i>km</i></div><div class="row"><b data-v="dp">+0 m</b> · alt. <span data-v="alt">0</span> m</div></div><div class="rest">reste<span data-v="rest">0 km</span></div></div>
+    <div class="v3pl" hidden><button type="button" class="v3play" aria-label="Lancer le survol"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+      <div class="v3pr"><svg viewBox="0 0 600 40" preserveAspectRatio="none" aria-hidden="true"><defs><clipPath id="v3clip"><rect x="0" y="0" width="0" height="40"/></clipPath></defs><polygon class="bg" fill="rgba(255,255,255,.22)"/><polygon class="done" fill="#ff5a1f" opacity=".9" clip-path="url(#v3clip)"/><polyline class="ln" fill="none" stroke="#fff" stroke-width="1.4" opacity=".9" vector-effect="non-scaling-stroke"/><line class="cur" x1="0" x2="0" y1="0" y2="40" stroke="#fff" stroke-width="1.5" vector-effect="non-scaling-stroke"/></svg><span class="pdot"></span><input type="range" min="0" max="1000" value="0" aria-label="Avancée du survol"></div>
+      <div class="km"></div></div></div>`;
+  document.body.appendChild(box);
+  const q = s => box.querySelector(s), body = q(".v3b"), load = q(".v3load");
+  const st = { box, raf: 0, dead: false };
+  V3D = st;
+  const close = () => { if (st.dead) return; st.dead = true; V3D = null; cancelAnimationFrame(st.raf); removeEventListener("keydown", onKey, true); removeEventListener("popstate", onPop);
+    try { st.cleanup && st.cleanup(); } catch (e) {} box.remove(); };
+  const leave = () => { if (history.state && history.state.v3d) history.back(); else close(); };
+  const onKey = e => { if (e.key === "Escape") { e.stopImmediatePropagation(); leave(); } }, onPop = () => { if (!(history.state && history.state.v3d)) close(); };
+  addEventListener("keydown", onKey, true); addEventListener("popstate", onPop);
+  // the Back button closes the 3D view (only where the sheet itself is in the history, else Back would close the sheet too)
+  if (history.state && history.state.dp) try { history.pushState(Object.assign({}, history.state, { v3d: 1 }), ""); } catch (e) {}
+  q("header button").addEventListener("click", leave);
+  // area: a square around the track (margin of 1.2 km at least), in local metres around its centre
+  const R = 6378137, DEG = Math.PI / 180, lats = g.pts.map(p => p[0]), lons = g.pts.map(p => p[1]);
+  const latc = (Math.min(...lats) + Math.max(...lats)) / 2, lonc = (Math.min(...lons) + Math.max(...lons)) / 2, kx = R * DEG * Math.cos(latc * DEG), ky = R * DEG;
+  const loc = (lat, lon) => [(lon - lonc) * kx, (lat - latc) * ky];
+  const xy = g.pts.map(p => loc(p[0], p[1])), dx = Math.max(...xy.map(p => Math.abs(p[0]))), dy = Math.max(...xy.map(p => Math.abs(p[1])));
+  const hw = Math.max(dx, dy) + Math.max(1200, .5 * Math.max(dx, dy)), size = 2 * hw, n = size > 9000 ? 512 : 384;
+  const tex = size > 9000 ? (matchMedia("(pointer: coarse)").matches ? 3072 : 4096) : 2048;
+  const bb = [latc - hw / ky, lonc - hw / kx, latc + hw / ky, lonc + hw / kx].map(v => v.toFixed(6)).join(",");
+  // names and trails of the mini maps (mm tiles, map units → degrees → local metres)
+  const unP = (x, y) => [LAT1 - y / MAP.H * (LAT1 - LAT0), LON0 + x / MAP.W * (LON1 - LON0)];
+  const p0 = P(latc + hw / ky, lonc - hw / kx), p1 = P(latc - hw / ky, lonc + hw / kx);
+  const tiles = Promise.all(mmKeys([p0[0], p0[1], p1[0] - p0[0], p1[1] - p0[1]]).map(k => MMT[k] ? MMT[k] : fetch(`mm/${k}.json`).then(x => x.ok ? x.json() : null).then(t => (t && (MMT[k] = t), t)).catch(() => null)));
+  const la0 = latc - hw / ky, la1 = latc + hw / ky, lo0 = lonc - hw / kx, lo1 = lonc + hw / kx;
+  const loadImg = (w, b4) => new Promise((ok, ko) => {
+    const im = new Image(); im.crossOrigin = "anonymous";
+    const t = setTimeout(() => { im.src = ""; ko(new Error("photo trop longue")); }, 25000);
+    im.onload = () => { clearTimeout(t); im.naturalWidth ? ok(im) : ko(new Error("photo vide")); };
+    im.onerror = () => { clearTimeout(t); ko(new Error("photo " + w + " px")); };
+    im.src = `${V3_IGN}&LAYERS=ORTHOIMAGERY.ORTHOPHOTOS&BBOX=${b4.map(v => v.toFixed(6)).join(",")}&WIDTH=${w}&HEIGHT=${w}&FORMAT=image/jpeg`; });
+  const again = f => f().catch(() => new Promise(r => setTimeout(r, 1200)).then(f));
+  const photoTiles = async w => {
+    const h = w / 2, dLa = (la1 - la0) / 2, dLo = (lo1 - lo0) / 2;
+    const parts = await Promise.all([0, 1, 2, 3].map(k => again(() => loadImg(h, [la1 - (Math.floor(k / 2) + 1) * dLa, lo0 + (k % 2) * dLo, la1 - Math.floor(k / 2) * dLa, lo0 + (k % 2 + 1) * dLo]))));
+    const cv = document.createElement("canvas"); cv.width = cv.height = w; const x = cv.getContext("2d");
+    parts.forEach((im, k) => x.drawImage(im, (k % 2) * h, Math.floor(k / 2) * h, h, h));
+    return cv;
+  };
+  let stage3 = "chargement";
+  const step = (name, pr) => pr.catch(e => { throw new Error(name + " : " + ((e && e.message) || e)); });
+  try {
+    const [THREE, { OrbitControls }, { Line2 }, { LineMaterial }, { LineGeometry }, bil, photo, tl] = await Promise.all([
+      // three.js as self-contained ES modules (jsDelivr « +esm »: no import map needed, older Safari included)
+      ...["", "/examples/jsm/controls/OrbitControls.js", "/examples/jsm/lines/Line2.js", "/examples/jsm/lines/LineMaterial.js", "/examples/jsm/lines/LineGeometry.js"]
+        .map(f => step("module", import(`https://cdn.jsdelivr.net/npm/three@0.160.0${f}/+esm`))),
+      step("relief", again(() => fetch(`${V3_IGN}&LAYERS=ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES&BBOX=${bb}&WIDTH=${n}&HEIGHT=${n}&FORMAT=${encodeURIComponent("image/x-bil;bits=32")}`).then(x => { if (!x.ok) throw new Error("HTTP " + x.status); return x.arrayBuffer(); }))),
+      // photo in 4 pieces (smaller requests answer faster and fail less often), each piece retried once;
+      // then smaller photos when the big one cannot be loaded or held in memory by the phone
+      step("photo", [tex, 2048].filter((v, i, a) => v <= tex && a.indexOf(v) === i).reduce((pr, w) => pr.catch(() => photoTiles(w)), Promise.reject())
+        .catch(() => loadImg(1024, [la0, lo0, la1, lo1]))),
+      tiles]);
+    if (st.dead) return;
+    const grid = new Float32Array(bil); if (grid.length !== n * n) throw 0;
+    let zmin = Infinity; for (let i = 0; i < grid.length; i++) { if (!(grid[i] > -500)) grid[i] = -30; if (grid[i] < zmin) zmin = grid[i]; }
+    const hAt = (x, y) => { const c = (x + hw) / size * (n - 1), w = (hw - y) / size * (n - 1), c0 = Math.max(0, Math.min(n - 2, Math.floor(c))), r0 = Math.max(0, Math.min(n - 2, Math.floor(w))), fc = c - c0, fr = w - r0;
+      return grid[r0 * n + c0] * (1 - fc) * (1 - fr) + grid[r0 * n + c0 + 1] * fc * (1 - fr) + grid[(r0 + 1) * n + c0] * (1 - fc) * fr + grid[(r0 + 1) * n + c0 + 1] * fc * fr; };
+    const S = 100, K = S / size, inA = (x, y) => Math.abs(x) < hw && Math.abs(y) < hw;
+    const V = (x, y, z, lift = 0) => new THREE.Vector3(x * K, Math.max(0, z - zmin) * K + lift, -y * K);
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    stage3 = "affichage 3D (WebGL)";
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); body.prepend(renderer.domElement);
+    const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(40, 1, 0.1, 2000);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.7)); const sun = new THREE.DirectionalLight(0xffffff, 0.9); sun.position.set(-60, 80, -40); scene.add(sun);
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true; controls.maxPolarAngle = Math.PI * 0.47; controls.minDistance = 6; controls.maxDistance = 220; controls.screenSpacePanning = false;
+    // ground: relief grid with the photo, and brown sides
+    const geo = new THREE.PlaneGeometry(S, S, n - 1, n - 1); geo.rotateX(-Math.PI / 2); const pos = geo.attributes.position;
+    for (let i = 0; i < pos.count; i++) pos.setY(i, Math.max(0, grid[i] - zmin) * K);
+    geo.computeVertexNormals();
+    const ptex = new THREE.Texture(photo); ptex.colorSpace = THREE.SRGBColorSpace; ptex.anisotropy = renderer.capabilities.getMaxAnisotropy(); ptex.needsUpdate = true;
+    scene.add(new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ map: ptex, polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 2 })));
+    const side = new THREE.MeshLambertMaterial({ color: 0x7a6c5a, side: THREE.DoubleSide });
+    const rim = idx => { const gg = new THREE.BufferGeometry(), v = []; for (let t = 0; t < n - 1; t++) { const a = idx(t), b = idx(t + 1), A = [pos.getX(a), pos.getY(a), pos.getZ(a)], B = [pos.getX(b), pos.getY(b), pos.getZ(b)];
+        v.push(...A, ...B, B[0], -2, B[2], ...A, B[0], -2, B[2], A[0], -2, A[2]); } gg.setAttribute("position", new THREE.Float32BufferAttribute(v, 3)); gg.computeVertexNormals(); return new THREE.Mesh(gg, side); };
+    scene.add(rim(t => t), rim(t => (n - 1) * n + t), rim(t => t * n), rim(t => t * n + n - 1));
+    // trails (IGN, as on the mini map) draped on the ground
+    const segs = [], seen = new Set();
+    tl.filter(Boolean).forEach(t => (t.t || "").split("M").forEach(s => { if (!s || seen.has(s)) return; seen.add(s);
+      const pts = s.split("L").map(c => { const [a, b] = c.split(",").map(Number), [la, lo] = unP(a, b); return loc(la, lo); });
+      for (let i = 0; i < pts.length - 1; i++) { const [a, b] = [pts[i], pts[i + 1]]; if (inA(...a) && inA(...b)) segs.push(V(a[0], a[1], hAt(...a), .08), V(b[0], b[1], hAt(...b), .08)); } }));
+    if (segs.length) scene.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(segs), new THREE.LineBasicMaterial({ color: 0xfff1c9, transparent: true, opacity: .75 })));
+    // place names
+    const lsc = Math.min(1, .6 + .4 * body.clientWidth / Math.max(1, body.clientHeight)), labs = [];   // names a little smaller on a tall phone screen
+    const label = (text, kind) => {
+      const c = document.createElement("canvas"), x = c.getContext("2d"), f = kind === "place" ? 600 : 500, sz = 44, t = kind === "peak" ? "▲ " + text : kind === "fall" ? "≈ " + text : kind === "col" ? "◇ " + text : text;
+      x.font = `${f} ${sz}px "Instrument Sans", sans-serif`; c.width = Math.ceil(x.measureText(t).width) + 24; c.height = sz + 24;
+      x.font = `${f} ${sz}px "Instrument Sans", sans-serif`; x.textBaseline = "middle"; x.lineJoin = "round"; x.lineWidth = 9; x.strokeStyle = "rgba(15,20,25,.85)"; x.strokeText(t, 12, c.height / 2);
+      x.fillStyle = kind === "place" ? "#ffffff" : "#ffe9b8"; x.fillText(t, 12, c.height / 2);
+      const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace;
+      const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, depthTest: false, sizeAttenuation: false, transparent: true })), h = (kind === "place" ? 0.042 : 0.034) * lsc;
+      s.scale.set(h * c.width / c.height, h, 1); s.center.set(0.5, 0); return s; };
+    const places = [], pseen = new Set(); tl.filter(Boolean).forEach(t => (t.p || []).forEach(p => { if (!pseen.has(p.at(-1))) { pseen.add(p.at(-1)); places.push(p); } }));
+    places.sort((a, b) => (a[4] || 9) - (b[4] || 9) || a.at(-1) - b.at(-1)).filter(p => p[3] !== "view" && (p[4] || 9) <= 3).map(p => { const [la, lo] = unP(p[0], p[1]); return [...loc(la, lo), p[2], p[3]]; })
+      .filter(p => inA(p[0], p[1])).slice(0, 150).forEach(([x, y, nm, k]) => { const s = label(nm, k); s.position.copy(V(x, y, hAt(x, y), .4)); s.visible = false; scene.add(s); labs.push(s); });
+    // names that would overlap on screen are hidden, the most important kept (re-checked as the view moves)
+    const declutter = (w, h) => { const taken = [[0, h - 80, w, h]], v = new THREE.Vector3(); if (!hud.hidden) taken.push([0, 0, w, 96]);   // not under the figures nor the player
+      labs.forEach(s => { v.copy(s.position).project(camera); if (v.z > 1 || Math.abs(v.x) > 1.1 || Math.abs(v.y) > 1.1) { s.visible = false; return; }
+        const cx = (v.x + 1) / 2 * w, by = (1 - v.y) / 2 * h, lw = s.scale.x * h, lh = s.scale.y * h, b = [cx - lw / 2 - 8, by - lh - 4, cx + lw / 2 + 8, by + 4];
+        s.visible = !taken.some(t => b[0] < t[2] && b[2] > t[0] && b[1] < t[3] && b[3] > t[1]); if (s.visible) taken.push(b); }); };
+    let lastDc = 0;
+    // the track, as wide as a road
+    const trk = xy.map(([x, y]) => [x, y, hAt(x, y)]), trackPts = trk.map(([x, y, z]) => V(x, y, z, 3 * K));
+    const cum = [0]; for (let i = 1; i < trk.length; i++) cum.push(cum[i - 1] + Math.hypot(trk[i][0] - trk[i - 1][0], trk[i][1] - trk[i - 1][1]));
+    const curve = new THREE.CatmullRomCurve3(trackPts), lg = new LineGeometry(); lg.setPositions(curve.getSpacedPoints(Math.min(4000, trackPts.length * 4)).flatMap(p => [p.x, p.y, p.z]));
+    const lineMat = new LineMaterial({ color: 0xff5a1f, linewidth: 3, worldUnits: false }), tline = new Line2(lg, lineMat); tline.computeLineDistances(); scene.add(tline);
+    // small runner wearing a bib « 974 » (two frames)
+    const runFrame = f => {
+      const c = document.createElement("canvas"); c.width = 100; c.height = 140; const x = c.getContext("2d"); x.lineCap = x.lineJoin = "round"; x.translate(50, 128);
+      const legs = f ? [[[-2, -46], [-14, -24], [-8, 0]], [[-2, -46], [12, -26], [26, -30]]] : [[[-2, -46], [-18, -30], [-28, -10]], [[-2, -46], [8, -22], [6, 0]]];
+      const arms = f ? [[[2, -80], [-12, -66], [-22, -72]], [[2, -80], [16, -64], [26, -56]]] : [[[2, -80], [16, -70], [24, -78]], [[2, -80], [-10, -62], [-18, -54]]];
+      const path = (pts, w, col) => { x.strokeStyle = col; x.lineWidth = w; x.beginPath(); pts.forEach(([a, b], i) => i ? x.lineTo(a, b) : x.moveTo(a, b)); x.stroke(); };
+      const fig = col => { legs.forEach(l => path(l, col === "#fff" ? 17 : 10, col)); arms.forEach(l => path(l, col === "#fff" ? 14 : 7, col)); path([[2, -82], [-2, -46]], col === "#fff" ? 22 : 15, col);
+        x.fillStyle = col; x.beginPath(); x.arc(5, -98, col === "#fff" ? 14 : 10, 0, 7); x.fill(); };
+      fig("#fff"); fig("#1d2523");
+      x.fillStyle = "#fff"; x.fillRect(-9, -76, 20, 15); x.fillStyle = "#1d4f9c"; x.fillRect(-9, -76, 20, 4); x.fillStyle = "#1d2523"; x.font = "700 9px sans-serif"; x.textAlign = "center"; x.fillText("974", 1, -63);
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; };
+    const RUN = [runFrame(0), runFrame(1)];
+    const runner = new THREE.Sprite(new THREE.SpriteMaterial({ map: RUN[0], depthTest: false, sizeAttenuation: false, transparent: true }));
+    runner.scale.set(0.06, 0.084, 1); runner.center.set(0.5, 0.04); runner.renderOrder = 5; runner.visible = false; runner.position.copy(trackPts[0]); scene.add(runner);
+    const dot = (p, col) => { const cv = document.createElement("canvas"); cv.width = cv.height = 48; const x = cv.getContext("2d");
+      x.fillStyle = "#fff"; x.beginPath(); x.arc(24, 24, 22, 0, 7); x.fill(); x.fillStyle = col; x.beginPath(); x.arc(24, 24, 15, 0, 7); x.fill();
+      const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace;
+      const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, sizeAttenuation: false, transparent: true })); m.scale.set(0.022, 0.022, 1); m.renderOrder = 4; m.position.copy(p); scene.add(m); };
+    dot(trackPts[0], "#1b7f3b"); dot(trackPts.at(-1), "#1d2523");
+    // elevation profile = reading line; climb counted with a 5 m threshold (GPS noise)
+    const zs = trk.map(p => p[2]), zTop = Math.max(...zs), zBot = Math.min(...zs), L = cum.at(-1) || 1, profY = z => 38 - (z - zBot) / Math.max(1, zTop - zBot) * 34;
+    const gain = [0]; { let ref = zs[0], s = 0; for (let i = 1; i < zs.length; i++) { if (zs[i] > ref + 5) { s += zs[i] - ref; ref = zs[i]; } else if (zs[i] < ref - 5) ref = zs[i]; gain.push(s); } }
+    const ppts = zs.map((z, i) => `${(cum[i] / L * 600).toFixed(1)} ${profY(z).toFixed(1)}`).join(" ");
+    q(".v3pr .bg").setAttribute("points", `0 40 ${ppts} 600 40`); q(".v3pr .done").setAttribute("points", `0 40 ${ppts} 600 40`); q(".v3pr .ln").setAttribute("points", ppts);
+    const f1 = v => v.toFixed(1).replace(".", ","), nf = v => Math.round(v).toLocaleString("fr-FR");
+    q(".v3pl .km").innerHTML = `${f1(L / 1000)} km<small>${nf(zTop)} m max</small>`;
+    const clipR = q("#v3clip rect"), curL = q(".v3pr .cur"), pdot = q(".v3pr .pdot"), seek = q(".v3pr input"), playBtn = q(".v3play"), hud = q(".v3hud"), hint = q(".v3hint");
+    const profAt = i => { const x = (cum[i] / L * 600).toFixed(1); clipR.setAttribute("width", x); curL.setAttribute("x1", x); curL.setAttribute("x2", x); pdot.style.left = (x / 6) + "%"; pdot.style.top = (profY(zs[i]) / .4) + "%"; };
+    const hudAt = i => { q('[data-v="km"]').textContent = f1(cum[i] / 1000); q('[data-v="dp"]').textContent = `+${nf(gain[i])} m`; q('[data-v="alt"]').textContent = nf(zs[i]); q('[data-v="rest"]').textContent = `${f1((L - cum[i]) / 1000)} km`; profAt(i); };
+    profAt(0);
+    // views: from above with the whole track, then the flyover behind the runner
+    const homeView = () => { const bx = new THREE.Box3().setFromPoints(trackPts), c = bx.getCenter(new THREE.Vector3()), sz = bx.getSize(new THREE.Vector3());
+      const span = Math.max(sz.x, sz.z / Math.max(.6, camera.aspect)) * 1.25, d = span / (2 * Math.tan(camera.fov * Math.PI / 360)); return { target: c, pos: new THREE.Vector3(c.x, c.y + d * .93, c.z + d * .37) }; };
+    const fit = () => { const w = body.clientWidth, h = body.clientHeight; renderer.setSize(w, h, false); camera.aspect = w / Math.max(1, h); camera.updateProjectionMatrix(); };
+    fit(); let HOME = homeView(); controls.target.copy(HOME.target); camera.position.copy(HOME.pos); controls.update();
+    let fly = null;
+    const setPlay = on => { playBtn.setAttribute("aria-label", on ? "Mettre le survol en pause" : "Lancer le survol"); playBtn.querySelector("path").setAttribute("d", on ? "M7 5h4v14H7zM13 5h4v14h-4z" : "M8 5v14l11-7z"); };
+    const start = t => { if (!fly) { fly = { t: t || 0, phase: "in", k: 0 }; HOME = homeView(); } else if (fly.phase === "out" || fly.phase === "done") { fly.t = t || 0; fly.phase = "in"; fly.k = 0; } else fly.phase = "play";
+      fly.playing = true; runner.visible = true; hud.hidden = false; hint.hidden = true; setPlay(true); };
+    playBtn.addEventListener("click", () => { if (fly && fly.playing) { fly.playing = false; setPlay(false); } else start(fly && fly.phase !== "done" ? fly.t : 0); });
+    seek.addEventListener("input", () => { const t = seek.value / 1000; if (!fly) start(t); fly.t = t; if (fly.phase === "out" || fly.phase === "done") fly.phase = "play"; fly.playing = false; setPlay(false); fly.snap = true; });
+    const follow = (p, a) => { const dir = a.clone().sub(p).setY(0); if (dir.lengthSq() < 1e-8) dir.set(0, 0, -1); dir.normalize(); return p.clone().add(dir.multiplyScalar(-18)).add(new THREE.Vector3(0, 12, 0)); };
+    let lastT = performance.now(), lastW = 0, lastH = 0;
+    const frame = () => {
+      if (st.dead) return;
+      const now = performance.now(), dt = Math.min(.1, (now - lastT) / 1000); lastT = now;
+      const w = body.clientWidth, h = body.clientHeight; if (w !== lastW || h !== lastH) { lastW = w; lastH = h; fit(); }
+      if (fly) {
+        const dur = size > 9000 ? 60 : 40;
+        if (fly.playing && fly.phase === "play") {
+          const ease = Math.min(1, .35 + fly.t / .03 * .65, fly.t > .92 ? Math.max(.25, (1 - fly.t) / .08) : 1);
+          fly.t = Math.min(1, fly.t + (reduced ? 4 : 1) * dt / dur * ease); if (fly.t >= 1) { fly.phase = "out"; fly.k = 0; }
+        }
+        const p = curve.getPointAt(fly.t), a = curve.getPointAt(Math.min(1, fly.t + .02)), b = curve.getPointAt(Math.max(0, fly.t - .02)), ahead = fly.t < 1 ? a : p.clone().add(p.clone().sub(b));
+        runner.position.copy(p); runner.material.map = fly.playing && fly.phase === "play" ? RUN[Math.floor(now / 160) % 2] : RUN[0];
+        const sp = p.clone().project(camera), sa = ahead.clone().project(camera); runner.scale.x = Math.abs(runner.scale.x) * (sa.x < sp.x - 1e-4 ? -1 : 1);
+        if (fly.phase === "in") { fly.k = Math.min(1, fly.k + dt / 1.8); const e = fly.k * fly.k * (3 - 2 * fly.k), f = 1 - Math.pow(1 - (.03 + e * .12), dt * 60);
+          camera.position.lerp(follow(p, a), f); controls.target.lerp(p, f); if (fly.k >= 1) fly.phase = "play";
+        } else if (fly.phase === "out") { fly.k = Math.min(1, fly.k + dt / 2.8); const f = 1 - Math.pow(1 - (.015 + fly.k * .06), dt * 60); camera.position.lerp(HOME.pos, f); controls.target.lerp(HOME.target, f);
+          if (fly.k >= 1) { fly.phase = "done"; fly.playing = false; setPlay(false); runner.visible = false; hud.hidden = true; }
+        } else if (fly.phase === "play" && (fly.playing || fly.snap)) { const fa = 1 - Math.pow(1 - (fly.snap ? .25 : .04), dt * 60), fb = 1 - Math.pow(1 - (fly.snap ? .3 : .08), dt * 60);
+          camera.position.lerp(follow(p, ahead), fa); controls.target.lerp(p, fb); if (fly.snap && camera.position.distanceTo(follow(p, a)) < .5) fly.snap = false; }
+        const i = Math.min(trk.length - 1, Math.round(fly.t * (trk.length - 1))); if (i !== fly.i) { fly.i = i; hudAt(i); }
+        if (document.activeElement !== seek) seek.value = Math.round(fly.t * 1000);
+      }
+      const d = camera.position.distanceTo(controls.target), px = (7 * K) / (2 * d * Math.tan(camera.fov * Math.PI / 360)) * h;
+      lineMat.linewidth = Math.max(2, Math.min(8, px)); lineMat.resolution.set(w, h);
+      controls.update(); if (now - lastDc > 120) { lastDc = now; declutter(w, h); } renderer.render(scene, camera); st.raf = requestAnimationFrame(frame);
+    };
+    st.cleanup = () => { controls.dispose(); scene.traverse(o => { o.geometry && o.geometry.dispose(); if (o.material) { o.material.map && o.material.map.dispose(); o.material.dispose(); } }); renderer.dispose(); renderer.forceContextLoss(); };
+    load.remove(); hint.hidden = false; q(".v3pl").hidden = false; frame();
+  } catch (e) {
+    // the reason in small print, to be able to fix it from a screenshot
+    if (!st.dead) load.innerHTML = `<span>Vue 3D indisponible pour le moment.<small style="display:block;margin-top:6px;font-weight:400;opacity:.7;font-size:.75rem">${esc(((e && e.message) || String(e) || stage3).slice(0, 140))}</small></span>`;
+    try { gcount("3d-erreur/" + id, ((e && e.message) || String(e)).slice(0, 80), true); } catch (x) {}
+  }
+}
 // full-screen map of one race: only its track (or its start point)
 function raceMap(r) {
   const box = document.createElement("div"); box.className = "rmap"; box.setAttribute("role", "dialog"); box.setAttribute("aria-label", "Carte : " + r.nom);
