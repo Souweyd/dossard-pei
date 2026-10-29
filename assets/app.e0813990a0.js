@@ -52,21 +52,23 @@ function merge() {
 // ---------- tracks: inline (admin upload) or lazy file gpx/<id>.json with several courses ----------
 // the file address carries a signature of its tracks, so a changed track is never served from an old cache
 const gpxURL = g => g.file + "?v=" + (g.tracks || []).map(t => `${t.km}-${t.dp}`).join("_");
-const TRK = {}, TSEL = {}, TLOAD = {};
+const TRK = {}, TSEL = {}, TLOAD = {}, TRKV = {};   // TRKV: version of the file each loaded track comes from
 // small winding-trail pictogram used for the "tracé" badge
 const TRK_ICO = `<svg class="trkico" viewBox="0 0 22 12" aria-hidden="true"><path d="M1.5 9.5 C4 9.5 4 3 7 3 S10 9 13 9 S16 2.5 18.5 2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.1 0"/><circle cx="1.8" cy="9.5" r="1.6" fill="currentColor"/><path d="M18 1 l3 1.5 -3 1.5z" fill="currentColor"/></svg>`;
 const hasTrack = id => !!(GPX[id] && (GPX[id].pts || GPX[id].file));
 function tracksOf(id) {
   const g = GPX[id]; if (!g) return null;
   if (g.pts) return [{ nom: g.nom || "", km: g.km, dp: g.dp, pts: g.pts, partiel: g.partiel }];
+  // the data were updated since the track file was read (new track): read again
+  if (TRK[id] && TRKV[id] !== gpxURL(g)) { delete TRK[id]; TLOAD[id] = false; }
   return TRK[id] || null;
 }
 const curTrack = id => { const t = tracksOf(id); return t ? t[Math.min(TSEL[id] || 0, t.length - 1)] : null; };
 function loadTracks(id) {
   const g = GPX[id]; if (!g || g.pts || !g.file || TRK[id] || TLOAD[id]) return;
-  TLOAD[id] = true;
-  fetch(gpxURL(g)).then(r => r.ok ? r.json() : Promise.reject()).then(d => {
-    TRK[id] = d.tracks || []; render();
+  TLOAD[id] = true; const u = gpxURL(g);
+  fetch(u).then(r => r.ok ? r.json() : Promise.reject()).then(d => {
+    TRK[id] = d.tracks || []; TRKV[id] = u; render();
     if (state.sel === id && !DETAIL) { const t = curTrack(id); if (t) zoomTo(boxAround(t.pts.map(p => P(p[0], p[1])), 30, 160)); }
   }).catch(() => { TLOAD[id] = false; });
 }
@@ -313,9 +315,10 @@ let PREV = null, lastPtr = "mouse";
 addEventListener("pointerdown", e => { lastPtr = e.pointerType || "mouse"; }, true);
 function fetchTracks(id) {
   const g = GPX[id]; if (!g) return Promise.resolve(null);
-  if (g.pts || TRK[id]) return Promise.resolve(tracksOf(id));
+  if (g.pts || tracksOf(id)) return Promise.resolve(tracksOf(id));
   if (!g.file) return Promise.resolve(null);
-  return fetch(gpxURL(g)).then(r => r.ok ? r.json() : null).then(d => { if (d && !TRK[id]) TRK[id] = d.tracks || []; return tracksOf(id); }).catch(() => null);
+  const u = gpxURL(g);
+  return fetch(u).then(r => r.ok ? r.json() : null).then(d => { if (d && !TRK[id]) { TRK[id] = d.tracks || []; TRKV[id] = u; } return tracksOf(id); }).catch(() => null);
 }
 function previewRace(id) {
   PREV = id; drawPrev();
@@ -596,8 +599,6 @@ function epChip(e) {
 const host = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return ""; } };
 // the Claude viewer refuses .gpx downloads: the button only shows on the public site
 const IN_CLAUDE = !!(window.claude && window.claude.use);
-// test phase: the « 3D » button is shown only after opening the site with ?3d (kept for the visit)
-const V3D_ON = (() => { try { if (/[?&]3d\b/.test(location.search)) sessionStorage.setItem("dp-3d", "1"); return sessionStorage.getItem("dp-3d") === "1"; } catch (e) { return /[?&]3d\b/.test(location.search); } })();
 const DL_ICO = `<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v8.5M4.5 6.8 8 10.3l3.5-3.5M2.5 11.5v2h11v-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const SRCNAME = { "tracedetrail.fr": "Trace de Trail", "openrunner.com": "OpenRunner", "werun.world": "WeRun", "utoi.re": "UTOI", "chronorun974.re": "Chrono Run 974", "sportpro.re": "Sport PRO", "topchrono.run": "Top Chrono", "gotrail.run": "Gotrail" };
 const srcName = u => { const h = host(u); return SRCNAME[h] || h; };
@@ -753,7 +754,7 @@ function detailHTML(r) {
   const tabs = all && all.length > 1 ? `<div class="trk-tabs" role="group" aria-label="Parcours">${all.map((t, i) => `<button type="button" class="chip" data-trk="${esc(r.id)}" data-i="${i}" aria-pressed="${i === gi}">${esc(t.nom)} · ${fmt(t.km)} km</button>`).join("")}</div>` : "";
   const gsrc = trkSrc(r.id);
   const srcT = gsrc ? `<div class="trksrc">Tracé : <a href="${esc(gsrc)}" target="_blank" rel="noopener">${esc(srcName(gsrc))}</a></div>` : "";
-  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}<div class="note">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : `${g.nom ? esc(g.nom) + " · " : ""}${g.km ? fmt(g.km) + " km" : ""}${g.dp ? " · " + g.dp + " m D+ (mesuré sur le tracé)" : ""}`}${srcT}</div><div class="mmw">${miniMap(g.pts, r)}${g.partiel || !V3D_ON ? "" : `<button type="button" class="b3d" data-v3d="${esc(r.id)}" aria-label="Voir le parcours en 3D">3D</button>`}</div>${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
+  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}<div class="note">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : `${g.nom ? esc(g.nom) + " · " : ""}${g.km ? fmt(g.km) + " km" : ""}${g.dp ? " · " + g.dp + " m D+ (mesuré sur le tracé)" : ""}`}${srcT}</div><div class="mmw">${miniMap(g.pts, r)}${g.partiel ? "" : `<button type="button" class="b3d" data-v3d="${esc(r.id)}" aria-label="Voir le parcours en 3D">3D</button>`}</div>${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
   return `<div class="detail">
     ${r.info ? `<p class="dinfo">${esc(r.info)}${r.paiement ? ` <a href="${esc(r.paiement)}" target="_blank" rel="noopener">Paiement en ligne</a>` : ""}</p>` : ""}
     ${verifLine(r)}
@@ -1729,11 +1730,33 @@ async function open3D(id) {
   const unP = (x, y) => [LAT1 - y / MAP.H * (LAT1 - LAT0), LON0 + x / MAP.W * (LON1 - LON0)];
   const p0 = P(latc + hw / ky, lonc - hw / kx), p1 = P(latc - hw / ky, lonc + hw / kx);
   const tiles = Promise.all(mmKeys([p0[0], p0[1], p1[0] - p0[0], p1[1] - p0[1]]).map(k => MMT[k] ? MMT[k] : fetch(`mm/${k}.json`).then(x => x.ok ? x.json() : null).then(t => (t && (MMT[k] = t), t)).catch(() => null)));
+  const la0 = latc - hw / ky, la1 = latc + hw / ky, lo0 = lonc - hw / kx, lo1 = lonc + hw / kx;
+  const loadImg = (w, b4) => new Promise((ok, ko) => {
+    const im = new Image(); im.crossOrigin = "anonymous";
+    const t = setTimeout(() => { im.src = ""; ko(new Error("photo trop longue")); }, 25000);
+    im.onload = () => { clearTimeout(t); im.naturalWidth ? ok(im) : ko(new Error("photo vide")); };
+    im.onerror = () => { clearTimeout(t); ko(new Error("photo " + w + " px")); };
+    im.src = `${V3_IGN}&LAYERS=ORTHOIMAGERY.ORTHOPHOTOS&BBOX=${b4.map(v => v.toFixed(6)).join(",")}&WIDTH=${w}&HEIGHT=${w}&FORMAT=image/jpeg`; });
+  const again = f => f().catch(() => new Promise(r => setTimeout(r, 1200)).then(f));
+  const photoTiles = async w => {
+    const h = w / 2, dLa = (la1 - la0) / 2, dLo = (lo1 - lo0) / 2;
+    const parts = await Promise.all([0, 1, 2, 3].map(k => again(() => loadImg(h, [la1 - (Math.floor(k / 2) + 1) * dLa, lo0 + (k % 2) * dLo, la1 - Math.floor(k / 2) * dLa, lo0 + (k % 2 + 1) * dLo]))));
+    const cv = document.createElement("canvas"); cv.width = cv.height = w; const x = cv.getContext("2d");
+    parts.forEach((im, k) => x.drawImage(im, (k % 2) * h, Math.floor(k / 2) * h, h, h));
+    return cv;
+  };
+  let stage3 = "chargement";
+  const step = (name, pr) => pr.catch(e => { throw new Error(name + " : " + ((e && e.message) || e)); });
   try {
     const [THREE, { OrbitControls }, { Line2 }, { LineMaterial }, { LineGeometry }, bil, photo, tl] = await Promise.all([
-      import("three"), import("three/addons/controls/OrbitControls.js"), import("three/addons/lines/Line2.js"), import("three/addons/lines/LineMaterial.js"), import("three/addons/lines/LineGeometry.js"),
-      fetch(`${V3_IGN}&LAYERS=ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES&BBOX=${bb}&WIDTH=${n}&HEIGHT=${n}&FORMAT=image/x-bil;bits=32`).then(x => { if (!x.ok) throw 0; return x.arrayBuffer(); }),
-      new Promise((ok, ko) => { const im = new Image(); im.crossOrigin = "anonymous"; im.onload = () => ok(im); im.onerror = ko; im.src = `${V3_IGN}&LAYERS=ORTHOIMAGERY.ORTHOPHOTOS&BBOX=${bb}&WIDTH=${tex}&HEIGHT=${tex}&FORMAT=image/jpeg`; }),
+      // three.js as self-contained ES modules (jsDelivr « +esm »: no import map needed, older Safari included)
+      ...["", "/examples/jsm/controls/OrbitControls.js", "/examples/jsm/lines/Line2.js", "/examples/jsm/lines/LineMaterial.js", "/examples/jsm/lines/LineGeometry.js"]
+        .map(f => step("module", import(`https://cdn.jsdelivr.net/npm/three@0.160.0${f}/+esm`))),
+      step("relief", again(() => fetch(`${V3_IGN}&LAYERS=ELEVATION.ELEVATIONGRIDCOVERAGE.HIGHRES&BBOX=${bb}&WIDTH=${n}&HEIGHT=${n}&FORMAT=${encodeURIComponent("image/x-bil;bits=32")}`).then(x => { if (!x.ok) throw new Error("HTTP " + x.status); return x.arrayBuffer(); }))),
+      // photo in 4 pieces (smaller requests answer faster and fail less often), each piece retried once;
+      // then smaller photos when the big one cannot be loaded or held in memory by the phone
+      step("photo", [tex, 2048].filter((v, i, a) => v <= tex && a.indexOf(v) === i).reduce((pr, w) => pr.catch(() => photoTiles(w)), Promise.reject())
+        .catch(() => loadImg(1024, [la0, lo0, la1, lo1]))),
       tiles]);
     if (st.dead) return;
     const grid = new Float32Array(bil); if (grid.length !== n * n) throw 0;
@@ -1743,6 +1766,7 @@ async function open3D(id) {
     const S = 100, K = S / size, inA = (x, y) => Math.abs(x) < hw && Math.abs(y) < hw;
     const V = (x, y, z, lift = 0) => new THREE.Vector3(x * K, Math.max(0, z - zmin) * K + lift, -y * K);
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    stage3 = "affichage 3D (WebGL)";
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); body.prepend(renderer.domElement);
     const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(40, 1, 0.1, 2000);
     scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.7)); const sun = new THREE.DirectionalLight(0xffffff, 0.9); sun.position.set(-60, 80, -40); scene.add(sun);
@@ -1860,7 +1884,9 @@ async function open3D(id) {
     st.cleanup = () => { controls.dispose(); scene.traverse(o => { o.geometry && o.geometry.dispose(); if (o.material) { o.material.map && o.material.map.dispose(); o.material.dispose(); } }); renderer.dispose(); renderer.forceContextLoss(); };
     load.remove(); hint.hidden = false; q(".v3pl").hidden = false; frame();
   } catch (e) {
-    if (!st.dead) load.textContent = "Vue 3D indisponible pour le moment.";
+    // the reason in small print, to be able to fix it from a screenshot
+    if (!st.dead) load.innerHTML = `<span>Vue 3D indisponible pour le moment.<small style="display:block;margin-top:6px;font-weight:400;opacity:.7;font-size:.75rem">${esc(((e && e.message) || String(e) || stage3).slice(0, 140))}</small></span>`;
+    try { gcount("3d-erreur/" + id, ((e && e.message) || String(e)).slice(0, 80), true); } catch (x) {}
   }
 }
 // full-screen map of one race: only its track (or its start point)
