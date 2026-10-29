@@ -94,7 +94,7 @@ def problems(now, st):
                 out.append(f"Tracé trouvé mais pas publié : {races[rid]['nom']} — " + " ; ".join(v.get("ecarts", [])) + f" — {v.get('src')} (dis à Claude de le publier s'il est bon)")
         for rid, gg in data.get("gpx", {}).items():
             r = races.get(rid)
-            if not r or r.get("hidden") or (r.get("fin") or r.get("date") or "") < today.isoformat():
+            if not r or r.get("hidden") or gg.get("ok") or (r.get("fin") or r.get("date") or "") < today.isoformat():   # ok: checked by hand
                 continue
             for t, e in trackcheck.problems(r, gg.get("tracks", [])):
                 out.append(f"Tracé à vérifier : {r['nom']} — {t.get('nom')} mesure {str(t.get('km')).replace('.', ',')} km, {e.get('nom')} est annoncé à {str(e.get('km')).replace('.', ',')} km — {gg.get('src', '')}")
