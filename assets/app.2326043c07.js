@@ -52,21 +52,23 @@ function merge() {
 // ---------- tracks: inline (admin upload) or lazy file gpx/<id>.json with several courses ----------
 // the file address carries a signature of its tracks, so a changed track is never served from an old cache
 const gpxURL = g => g.file + "?v=" + (g.tracks || []).map(t => `${t.km}-${t.dp}`).join("_");
-const TRK = {}, TSEL = {}, TLOAD = {};
+const TRK = {}, TSEL = {}, TLOAD = {}, TRKV = {};   // TRKV: version of the file each loaded track comes from
 // small winding-trail pictogram used for the "tracé" badge
 const TRK_ICO = `<svg class="trkico" viewBox="0 0 22 12" aria-hidden="true"><path d="M1.5 9.5 C4 9.5 4 3 7 3 S10 9 13 9 S16 2.5 18.5 2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="0.1 0"/><circle cx="1.8" cy="9.5" r="1.6" fill="currentColor"/><path d="M18 1 l3 1.5 -3 1.5z" fill="currentColor"/></svg>`;
 const hasTrack = id => !!(GPX[id] && (GPX[id].pts || GPX[id].file));
 function tracksOf(id) {
   const g = GPX[id]; if (!g) return null;
   if (g.pts) return [{ nom: g.nom || "", km: g.km, dp: g.dp, pts: g.pts, partiel: g.partiel }];
+  // the data were updated since the track file was read (new track): read again
+  if (TRK[id] && TRKV[id] !== gpxURL(g)) { delete TRK[id]; TLOAD[id] = false; }
   return TRK[id] || null;
 }
 const curTrack = id => { const t = tracksOf(id); return t ? t[Math.min(TSEL[id] || 0, t.length - 1)] : null; };
 function loadTracks(id) {
   const g = GPX[id]; if (!g || g.pts || !g.file || TRK[id] || TLOAD[id]) return;
-  TLOAD[id] = true;
-  fetch(gpxURL(g)).then(r => r.ok ? r.json() : Promise.reject()).then(d => {
-    TRK[id] = d.tracks || []; render();
+  TLOAD[id] = true; const u = gpxURL(g);
+  fetch(u).then(r => r.ok ? r.json() : Promise.reject()).then(d => {
+    TRK[id] = d.tracks || []; TRKV[id] = u; render();
     if (state.sel === id && !DETAIL) { const t = curTrack(id); if (t) zoomTo(boxAround(t.pts.map(p => P(p[0], p[1])), 30, 160)); }
   }).catch(() => { TLOAD[id] = false; });
 }
@@ -313,9 +315,10 @@ let PREV = null, lastPtr = "mouse";
 addEventListener("pointerdown", e => { lastPtr = e.pointerType || "mouse"; }, true);
 function fetchTracks(id) {
   const g = GPX[id]; if (!g) return Promise.resolve(null);
-  if (g.pts || TRK[id]) return Promise.resolve(tracksOf(id));
+  if (g.pts || tracksOf(id)) return Promise.resolve(tracksOf(id));
   if (!g.file) return Promise.resolve(null);
-  return fetch(gpxURL(g)).then(r => r.ok ? r.json() : null).then(d => { if (d && !TRK[id]) TRK[id] = d.tracks || []; return tracksOf(id); }).catch(() => null);
+  const u = gpxURL(g);
+  return fetch(u).then(r => r.ok ? r.json() : null).then(d => { if (d && !TRK[id]) { TRK[id] = d.tracks || []; TRKV[id] = u; } return tracksOf(id); }).catch(() => null);
 }
 function previewRace(id) {
   PREV = id; drawPrev();
@@ -738,6 +741,18 @@ function epCards(r) {
       ${place ? `<p class="epc-n">${epSvg("pin")}Départ : ${place}</p>` : ""}${e.note ? `<p class="epc-n">${esc(e.note)}</p>` : ""}
     </article>`; }).join("");
 }
+// the épreuve a track belongs to: same name, else the closest distance (± max(1,5 km, 15 %)); its figures are the
+// ones written in the sheet, so the track line, the tabs and the 3D view say the same thing
+function epOfTrack(r, t) {
+  if (!t || !t.km) return null;
+  const eps = (r.epreuves || []).filter(e => e.km && Math.abs(e.km - t.km) <= Math.max(1.5, .15 * e.km));
+  return eps.find(e => e.nom === t.nom) || eps.sort((a, b) => Math.abs(a.km - t.km) - Math.abs(b.km - t.km))[0] || null;
+}
+function trkFig(r, g) {
+  const e = epOfTrack(r, g);
+  if (e) return `${esc(g.nom || e.nom)} · ${fmt(e.km)} km${e.dp ? " · " + e.dp + " m D+" : g.dp ? " · " + g.dp + " m D+ (mesuré sur le tracé)" : ""}`;
+  return `${g.nom ? esc(g.nom) + " · " : ""}${g.km ? fmt(g.km) + " km" : ""}${g.dp ? " · " + g.dp + " m D+" : ""}${g.km || g.dp ? " (mesuré sur le tracé)" : ""}`;
+}
 function detailHTML(r) {
   const hasSt = (r.epreuves || []).some(e => e.url || "complet" in e);
   const md = multiDay(r), startOf = e => (md && e.date ? epDay(e) + (e.h ? " · " : "") : "") + (e.h || "");
@@ -748,10 +763,10 @@ function detailHTML(r) {
   const traces = (r.traces || []).map(t => `<a href="${esc(t.url)}" target="_blank" rel="noopener">Tracé · ${esc(t.nom)}</a>`).join("");
   const all = tracksOf(r.id), g = curTrack(r.id), gi = Math.min(TSEL[r.id] || 0, (all || [1]).length - 1);
   if (hasTrack(r.id) && !all) loadTracks(r.id);
-  const tabs = all && all.length > 1 ? `<div class="trk-tabs" role="group" aria-label="Parcours">${all.map((t, i) => `<button type="button" class="chip" data-trk="${esc(r.id)}" data-i="${i}" aria-pressed="${i === gi}">${esc(t.nom)} · ${fmt(t.km)} km</button>`).join("")}</div>` : "";
+  const tabs = all && all.length > 1 ? `<div class="trk-tabs" role="group" aria-label="Parcours">${all.map((t, i) => `<button type="button" class="chip" data-trk="${esc(r.id)}" data-i="${i}" aria-pressed="${i === gi}">${esc(t.nom)} · ${fmt((epOfTrack(r, t) || t).km)} km</button>`).join("")}</div>` : "";
   const gsrc = trkSrc(r.id);
   const srcT = gsrc ? `<div class="trksrc">Tracé : <a href="${esc(gsrc)}" target="_blank" rel="noopener">${esc(srcName(gsrc))}</a></div>` : "";
-  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}<div class="note">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : `${g.nom ? esc(g.nom) + " · " : ""}${g.km ? fmt(g.km) + " km" : ""}${g.dp ? " · " + g.dp + " m D+ (mesuré sur le tracé)" : ""}`}${srcT}</div><div class="mmw">${miniMap(g.pts, r)}${g.partiel ? "" : `<button type="button" class="b3d" data-v3d="${esc(r.id)}" aria-label="Voir le parcours en 3D">3D</button>`}</div>${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
+  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}<div class="note">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : `${trkFig(r, g)}`}${srcT}</div><div class="mmw">${miniMap(g.pts, r)}${g.partiel ? "" : `<button type="button" class="b3d" data-v3d="${esc(r.id)}" aria-label="Voir le parcours en 3D">3D</button>`}</div>${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
   return `<div class="detail">
     ${r.info ? `<p class="dinfo">${esc(r.info)}${r.paiement ? ` <a href="${esc(r.paiement)}" target="_blank" rel="noopener">Paiement en ligne</a>` : ""}</p>` : ""}
     ${verifLine(r)}
@@ -1829,8 +1844,16 @@ async function open3D(id) {
       const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, sizeAttenuation: false, transparent: true })); m.scale.set(0.022, 0.022, 1); m.renderOrder = 4; m.position.copy(p); scene.add(m); };
     dot(trackPts[0], "#1b7f3b"); dot(trackPts.at(-1), "#1d2523");
     // elevation profile = reading line; climb counted with a 5 m threshold (GPS noise)
+    // distance brought back to the one measured on the full track (fewer points are kept for the site)
+    // figures of the sheet: the épreuve this track is (same name, else the closest distance within 15 %) gives
+    // the distance and climb shown during the flyover, so the 3D says the same as the sheet; else the track's own
+    const ep = epOfTrack(r, g), KMT = ep ? ep.km : g.km, DPT = ep && ep.dp ? ep.dp : g.dp;
+    if (KMT && cum.at(-1) > 0) { const f = KMT * 1000 / cum.at(-1); for (let i = 0; i < cum.length; i++) cum[i] *= f; }
     const zs = trk.map(p => p[2]), zTop = Math.max(...zs), zBot = Math.min(...zs), L = cum.at(-1) || 1, profY = z => 38 - (z - zBot) / Math.max(1, zTop - zBot) * 34;
     const gain = [0]; { let ref = zs[0], s = 0; for (let i = 1; i < zs.length; i++) { if (zs[i] > ref + 5) { s += zs[i] - ref; ref = zs[i]; } else if (zs[i] < ref - 5) ref = zs[i]; gain.push(s); } }
+    // the track kept for the site has fewer points than the original file: distance and climb are brought back to
+    // the values measured on the full track (the ones written on the sheet)
+    if (DPT && gain.at(-1) > 0) { const f = DPT / gain.at(-1); for (let i = 0; i < gain.length; i++) gain[i] *= f; }
     const ppts = zs.map((z, i) => `${(cum[i] / L * 600).toFixed(1)} ${profY(z).toFixed(1)}`).join(" ");
     q(".v3pr .bg").setAttribute("points", `0 40 ${ppts} 600 40`); q(".v3pr .done").setAttribute("points", `0 40 ${ppts} 600 40`); q(".v3pr .ln").setAttribute("points", ppts);
     const f1 = v => v.toFixed(1).replace(".", ","), nf = v => Math.round(v).toLocaleString("fr-FR");

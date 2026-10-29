@@ -11,7 +11,8 @@ Checked:
   - « Infos manquantes »: races of the next 90 days with a missing price, start time, distance, climb,
     registration link, poster / track (30 days) or a registration state no platform confirms;
   - corrections made by the data guard (state/guard.json) since the last summary;
-  - races whose épreuves were not all recognised on their registration page (state/partiels.json).
+  - races whose épreuves were not all recognised on their registration page (state/partiels.json);
+  - tracks whose length does not fit the announced distances (held back, or already on the site).
 State: state/digest.json {"sent": date, "seen": {url: first failure}}. Never fails the workflow.
 """
 import datetime as dt
@@ -83,6 +84,22 @@ def problems(now, st):
                 out.append(f"Lieu différent : {nom} — le site dit {v.get('site')}, la plateforme dit {v.get('organisateur')} (position non trouvée, à corriger à la main)")
             elif cat == "texte":
                 out.append(f"À vérifier sur la page de l'organisateur : {nom} — " + " ; ".join(v))
+    # tracks: found but held back because their length does not fit the announced distances, or already on the
+    # site and no longer fitting (the organiser changed a distance, or the track is not the right one)
+    try:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import trackcheck
+        for rid, v in load("state/tracks_pending.json", {}).items():
+            if rid in races and not races[rid].get("hidden"):
+                out.append(f"Tracé trouvé mais pas publié : {races[rid]['nom']} — " + " ; ".join(v.get("ecarts", [])) + f" — {v.get('src')} (dis à Claude de le publier s'il est bon)")
+        for rid, gg in data.get("gpx", {}).items():
+            r = races.get(rid)
+            if not r or r.get("hidden") or (r.get("fin") or r.get("date") or "") < today.isoformat():
+                continue
+            for t, e in trackcheck.problems(r, gg.get("tracks", [])):
+                out.append(f"Tracé à vérifier : {r['nom']} — {t.get('nom')} mesure {str(t.get('km')).replace('.', ',')} km, {e.get('nom')} est annoncé à {str(e.get('km')).replace('.', ',')} km — {gg.get('src', '')}")
+    except Exception as e:
+        out.append(f"Contrôle des tracés non fait ({e.__class__.__name__})")
     g = load("state/guard.json", {})
     if g.get("at", "") > st.get("sent_at", "") and (g.get("notes") or g.get("restored")):
         out += [f"Garde-fou : {n}" for n in (g.get("notes") or [])[:10]]

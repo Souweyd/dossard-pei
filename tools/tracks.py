@@ -12,7 +12,8 @@ inscription and the épreuves' links) are searched for a public track:
 Points outside La Réunion are dropped; each track gets its measured km / D+ and the name of the
 épreuve of the closest distance; at most 600 points per track. Writes gpx/<id>.json
 {"src", "tracks": [{nom, km, dp, pts}]} (longest first) and data.json gpx[<id>].
-A race is tried at most once every 24 h (state/tracks.json). Never fails the workflow.
+A race is tried at most once every 24 h (state/tracks.json). A track whose length does not fit the announced
+distances (tools/trackcheck.py) is kept aside in state/tracks_pending.json instead. Never fails the workflow.
 """
 import datetime as dt
 import json
@@ -22,6 +23,7 @@ import sys
 import urllib.request
 
 import net  # one honest User-Agent, polite delay, size and time limits on every request
+import trackcheck  # does a track fit the announced distances?
 
 UA = {"User-Agent": "Mozilla/5.0 (DossardPei sync; +https://dossardpei.re)", "Accept-Language": "fr-FR,fr;q=0.9"}
 TZ = dt.timezone(dt.timedelta(hours=4))
@@ -124,6 +126,11 @@ def main(now):
     except Exception:
         manual = set()
     gpx = data.setdefault("gpx", {})
+    try:
+        pending = json.load(open("state/tracks_pending.json"))
+    except Exception:
+        pending = {}
+    pending = {k: v for k, v in pending.items() if v.get("at", "") > (now - dt.timedelta(days=30)).isoformat()}
     added = []
     for r in data["races"]:
         rid = r["id"]
@@ -170,6 +177,16 @@ def main(now):
         if not tracks:
             continue
         tracks.sort(key=lambda t: -t["km"])
+        # a track that does not fit the distances announced by the organiser is not published: it waits to be
+        # checked by hand (morning summary « Tracés à vérifier »; state/tracks_pending.json)
+        bad = trackcheck.problems(r, tracks)
+        if bad:
+            pending[rid] = {"at": now.isoformat(timespec="minutes"), "src": tracks[0]["src"],
+                            "tracks": [{k: t[k] for k in ("nom", "km", "dp")} for t in tracks],
+                            "ecarts": [f"{t['nom']} : {t['km']:g} km mesurés, {e.get('nom')} annoncé à {e.get('km')} km" for t, e in bad]}
+            print(f"tracé {rid} : en attente de vérification ({'; '.join(pending[rid]['ecarts'])})")
+            continue
+        pending.pop(rid, None)
         src = tracks[0]["src"]
         json.dump({"src": src, "tracks": [{k: t[k] for k in ("nom", "km", "dp", "pts")} for t in tracks]},
                   open(f"gpx/{rid}.json", "w"), ensure_ascii=False, separators=(",", ":"))
@@ -178,6 +195,7 @@ def main(now):
         added.append(f"{r['nom']} ({len(tracks)})")
     tried = {k: v for k, v in tried.items() if v > (now - dt.timedelta(days=7)).isoformat()}
     json.dump(tried, open("state/tracks.json", "w"), ensure_ascii=False, indent=0, sort_keys=True)
+    json.dump(pending, open("state/tracks_pending.json", "w"), ensure_ascii=False, indent=1, sort_keys=True)
     if added:
         json.dump(data, open("data.json", "w"), ensure_ascii=False, separators=(",", ":"))
     print(f"tracés ajoutés : {', '.join(added) if added else 'aucun'}")
