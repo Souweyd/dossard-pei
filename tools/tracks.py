@@ -113,6 +113,26 @@ def thin(pts, n=600):
     return [pts[round(i * k)] for i in range(n)]
 
 
+def srckey(u):
+    """one key per track source, whatever the form of its link (embed / route-details / iframe / trace)"""
+    m = TDT.search(u or "")
+    if m:
+        return "tdt:" + m.group(2)
+    m = ORN.search(u or "") or re.search(r"openrunner\.com/route-details/([0-9a-zA-Z]+)", u or "")
+    if m:
+        return "orn:" + m.group(1)[:24]
+    m = WRN.search(u or "")
+    return "wr:" + m.group(0).rstrip("/").split("//", 1)[-1] if m else ""
+
+
+def same_route(a, b):
+    """the same tracks, give or take the measure (± 0.3 km and ± 10 % of climb for each)"""
+    if len(a) != len(b):
+        return False
+    a, b = sorted(a, key=lambda t: t["km"]), sorted(b, key=lambda t: t["km"])
+    return all(abs(x["km"] - y["km"]) <= .3 and abs(x["dp"] - y["dp"]) <= max(20, .1 * max(x["dp"], y["dp"])) for x, y in zip(a, b))
+
+
 def main(now):
     data = json.load(open("data.json"))
     today = now.date().isoformat()
@@ -132,13 +152,20 @@ def main(now):
         pending = {}
     pending = {k: v for k, v in pending.items() if v.get("at", "") > (now - dt.timedelta(days=30)).isoformat()}
     added = []
+    # once a day the tracks already on the site are read again from the organisers' pages: a track changed
+    # there (new link, or the same link with another route) replaces ours, after the same distance check.
+    # Tracks set by hand (gpx[id]["manuel"]) are left alone.
+    recheck = now.hour == 5 or "--recheck" in sys.argv
     for r in data["races"]:
         rid = r["id"]
-        if r.get("hidden") or (r.get("fin") or r["date"]) < today or rid in gpx or rid in manual or r.get("manual"):
+        if r.get("hidden") or (r.get("fin") or r["date"]) < today or rid in manual or r.get("manual"):
             continue
-        if tried.get(rid, "") > (now - dt.timedelta(hours=24)).isoformat():
+        if rid in gpx and (not recheck or gpx[rid].get("manuel")):
             continue
-        tried[rid] = now.isoformat(timespec="minutes")
+        if rid not in gpx and tried.get(rid, "") > (now - dt.timedelta(hours=24)).isoformat():
+            continue
+        if rid not in gpx:
+            tried[rid] = now.isoformat(timespec="minutes")
         pages = list(dict.fromkeys(u for u in [r.get("fiche"), r.get("page"), r.get("inscription")] + [e.get("url") for e in r.get("epreuves", [])] if u))
         found = []
         for u in pages[:6]:
@@ -177,13 +204,27 @@ def main(now):
         if not tracks:
             continue
         tracks.sort(key=lambda t: -t["km"])
+        old = gpx.get(rid)
+        if old:
+            # the same link still on the page: only its own route counts (another track linked elsewhere is not a change);
+            # fewer tracks than before from the same link is a reading limit, not a change
+            same = [t for t in tracks if srckey(t["src"]) == srckey(old.get("src", ""))]
+            if same:
+                if len(same) < len(old.get("tracks", [])) or same_route(old.get("tracks", []), same):
+                    continue
+                tracks = same
+            elif any(srckey(old.get("src", "")) in srckey(u) or srckey(u) in srckey(old.get("src", "")) for u in pages if srckey(u)):
+                continue
+            if same_route(old.get("tracks", []), tracks):
+                continue   # same route as on the site (small differences in the measure are ignored)
         # a track that does not fit the distances announced by the organiser is not published: it waits to be
         # checked by hand (morning summary « Tracés à vérifier »; state/tracks_pending.json)
         bad = trackcheck.problems(r, tracks)
         if bad:
             pending[rid] = {"at": now.isoformat(timespec="minutes"), "src": tracks[0]["src"],
                             "tracks": [{k: t[k] for k in ("nom", "km", "dp")} for t in tracks],
-                            "ecarts": [f"{t['nom']} : {t['km']:g} km mesurés, {e.get('nom')} annoncé à {e.get('km')} km" for t, e in bad]}
+                            "ecarts": [f"{t['nom']} : {t['km']:g} km mesurés, {e.get('nom')} annoncé à {e.get('km')} km" for t, e in bad]
+                            + (["remplacerait le tracé actuel"] if old else [])}
             print(f"tracé {rid} : en attente de vérification ({'; '.join(pending[rid]['ecarts'])})")
             continue
         pending.pop(rid, None)
@@ -192,7 +233,7 @@ def main(now):
                   open(f"gpx/{rid}.json", "w"), ensure_ascii=False, separators=(",", ":"))
         gpx[rid] = {"file": f"gpx/{rid}.json", "src": src, "tracks": [{k: t[k] for k in ("nom", "km", "dp")} for t in tracks]}
         tried.pop(rid, None)
-        added.append(f"{r['nom']} ({len(tracks)})")
+        added.append(f"{r['nom']} ({len(tracks)}{', remplacé' if old else ''})")
     tried = {k: v for k, v in tried.items() if v > (now - dt.timedelta(days=7)).isoformat()}
     json.dump(tried, open("state/tracks.json", "w"), ensure_ascii=False, indent=0, sort_keys=True)
     json.dump(pending, open("state/tracks_pending.json", "w"), ensure_ascii=False, indent=1, sort_keys=True)
