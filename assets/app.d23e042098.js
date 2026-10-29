@@ -754,7 +754,7 @@ function detailHTML(r) {
   const tabs = all && all.length > 1 ? `<div class="trk-tabs" role="group" aria-label="Parcours">${all.map((t, i) => `<button type="button" class="chip" data-trk="${esc(r.id)}" data-i="${i}" aria-pressed="${i === gi}">${esc(t.nom)} · ${fmt(t.km)} km</button>`).join("")}</div>` : "";
   const gsrc = trkSrc(r.id);
   const srcT = gsrc ? `<div class="trksrc">Tracé : <a href="${esc(gsrc)}" target="_blank" rel="noopener">${esc(srcName(gsrc))}</a></div>` : "";
-  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}<div class="note">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : `${g.nom ? esc(g.nom) + " · " : ""}${g.km ? fmt(g.km) + " km" : ""}${g.dp ? " · " + g.dp + " m D+ (mesuré sur le tracé)" : ""}`}${srcT}</div><div class="mmw">${miniMap(g.pts, r)}${g.partiel ? "" : `<button type="button" class="b3d" data-v3d="${esc(r.id)}" aria-label="Voir le parcours en 3D">3D</button>`}</div>${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
+  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}<div class="note">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : `${g.nom ? esc(g.nom) + " · " : ""}${g.km ? fmt(g.km) + " km" : ""}${g.dp ? " · " + g.dp + " m D+" : ""}${g.km || g.dp ? " (mesurés sur le tracé)" : ""}`}${srcT}</div><div class="mmw">${miniMap(g.pts, r)}${g.partiel ? "" : `<button type="button" class="b3d" data-v3d="${esc(r.id)}" aria-label="Voir le parcours en 3D">3D</button>`}</div>${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
   return `<div class="detail">
     ${r.info ? `<p class="dinfo">${esc(r.info)}${r.paiement ? ` <a href="${esc(r.paiement)}" target="_blank" rel="noopener">Paiement en ligne</a>` : ""}</p>` : ""}
     ${verifLine(r)}
@@ -1832,8 +1832,15 @@ async function open3D(id) {
       const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, sizeAttenuation: false, transparent: true })); m.scale.set(0.022, 0.022, 1); m.renderOrder = 4; m.position.copy(p); scene.add(m); };
     dot(trackPts[0], "#1b7f3b"); dot(trackPts.at(-1), "#1d2523");
     // elevation profile = reading line; climb counted with a 5 m threshold (GPS noise)
+    // distance brought back to the one measured on the full track (fewer points are kept for the site)
+    // distance and climb of the flyover: measured on the full track, as written under the map
+    const KMT = g.km, DPT = g.dp;   // the track's own figures (the same as written under the map)
+    if (KMT && cum.at(-1) > 0) { const f = KMT * 1000 / cum.at(-1); for (let i = 0; i < cum.length; i++) cum[i] *= f; }
     const zs = trk.map(p => p[2]), zTop = Math.max(...zs), zBot = Math.min(...zs), L = cum.at(-1) || 1, profY = z => 38 - (z - zBot) / Math.max(1, zTop - zBot) * 34;
     const gain = [0]; { let ref = zs[0], s = 0; for (let i = 1; i < zs.length; i++) { if (zs[i] > ref + 5) { s += zs[i] - ref; ref = zs[i]; } else if (zs[i] < ref - 5) ref = zs[i]; gain.push(s); } }
+    // the track kept for the site has fewer points than the original file: distance and climb are brought back to
+    // the values measured on the full track (the ones written on the sheet)
+    if (DPT && gain.at(-1) > 0) { const f = DPT / gain.at(-1); for (let i = 0; i < gain.length; i++) gain[i] *= f; }
     const ppts = zs.map((z, i) => `${(cum[i] / L * 600).toFixed(1)} ${profY(z).toFixed(1)}`).join(" ");
     q(".v3pr .bg").setAttribute("points", `0 40 ${ppts} 600 40`); q(".v3pr .done").setAttribute("points", `0 40 ${ppts} 600 40`); q(".v3pr .ln").setAttribute("points", ppts);
     const f1 = v => v.toFixed(1).replace(".", ","), nf = v => Math.round(v).toLocaleString("fr-FR");
