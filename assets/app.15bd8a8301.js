@@ -123,7 +123,9 @@ function buildMonths() {
   ms.forEach(m => opt("#f-mois", m, cap(MOIS[+m.slice(5) - 1]) + (dup(m.slice(5)) ? " " + m.slice(0, 4) : "")));
   if (state.mois && !ms.includes(state.mois)) state.mois = "";
   box.value = state.mois;
+  const mm = $("#map-mois"); if (mm) { mm.querySelectorAll("option:not([value=''])").forEach(o => o.remove()); ms.forEach(m => opt("#map-mois", m, cap(MOIS[+m.slice(5) - 1]) + (dup(m.slice(5)) ? " " + m.slice(0, 4) : ""))); mm.value = state.mois; }
 }
+$("#map-mois")?.addEventListener("change", e => { state.mois = e.target.value; $("#f-mois").value = state.mois; render(); drawPins(mapRaces()); });
 [["#f-commune", "commune"], ["#f-disc", "disc"], ["#f-mois", "mois"], ["#f-dist", "dist"], ["#f-dp", "dp"], ["#f-ffa", "ffa"], ["#f-ouvert", "ouvert"]].forEach(([sel, k]) => $(sel).addEventListener("change", e => {
   state[k] = e.target.value;
   if (k === "disc" || k === "ouvert") saveprefs();
@@ -137,8 +139,9 @@ $("#f-reset").addEventListener("click", () => { Object.assign(state, { wk: "", n
 ["liste", "calendrier", "carte"].forEach(v => $("#v-" + v).addEventListener("click", () => setView(v)));
 function setView(v) {
   if (v !== "carte") state.rview = v;
-  $("#main").dataset.view = v; ["liste", "calendrier", "carte"].forEach(k => $("#v-" + k).setAttribute("aria-pressed", k === v));
+  $("#main").dataset.view = v; document.body.dataset.view = v; ["liste", "calendrier", "carte"].forEach(k => $("#v-" + k).setAttribute("aria-pressed", k === v));
   try { syncFab(); } catch (e) {}
+  try { syncTabs(); } catch (e) {}
   if (v !== "carte") render(); else drawPins(mapRaces());
 }
 
@@ -741,18 +744,6 @@ function epCards(r) {
       ${place ? `<p class="epc-n">${epSvg("pin")}Départ : ${place}</p>` : ""}${e.note ? `<p class="epc-n">${esc(e.note)}</p>` : ""}
     </article>`; }).join("");
 }
-// the épreuve a track belongs to: same name, else the closest distance (± max(1,5 km, 15 %)); its figures are the
-// ones written in the sheet, so the track line, the tabs and the 3D view say the same thing
-function epOfTrack(r, t) {
-  if (!t || !t.km) return null;
-  const eps = (r.epreuves || []).filter(e => e.km && Math.abs(e.km - t.km) <= Math.max(1.5, .15 * e.km));
-  return eps.find(e => e.nom === t.nom) || eps.sort((a, b) => Math.abs(a.km - t.km) - Math.abs(b.km - t.km))[0] || null;
-}
-function trkFig(r, g) {
-  const e = epOfTrack(r, g);
-  if (e) return `${esc(g.nom || e.nom)} · ${fmt(e.km)} km${e.dp ? " · " + e.dp + " m D+" : g.dp ? " · " + g.dp + " m D+ (mesuré sur le tracé)" : ""}`;
-  return `${g.nom ? esc(g.nom) + " · " : ""}${g.km ? fmt(g.km) + " km" : ""}${g.dp ? " · " + g.dp + " m D+" : ""}${g.km || g.dp ? " (mesuré sur le tracé)" : ""}`;
-}
 function detailHTML(r) {
   const hasSt = (r.epreuves || []).some(e => e.url || "complet" in e);
   const md = multiDay(r), startOf = e => (md && e.date ? epDay(e) + (e.h ? " · " : "") : "") + (e.h || "");
@@ -763,10 +754,10 @@ function detailHTML(r) {
   const traces = (r.traces || []).map(t => `<a href="${esc(t.url)}" target="_blank" rel="noopener">Tracé · ${esc(t.nom)}</a>`).join("");
   const all = tracksOf(r.id), g = curTrack(r.id), gi = Math.min(TSEL[r.id] || 0, (all || [1]).length - 1);
   if (hasTrack(r.id) && !all) loadTracks(r.id);
-  const tabs = all && all.length > 1 ? `<div class="trk-tabs" role="group" aria-label="Parcours">${all.map((t, i) => `<button type="button" class="chip" data-trk="${esc(r.id)}" data-i="${i}" aria-pressed="${i === gi}">${esc(t.nom)} · ${fmt((epOfTrack(r, t) || t).km)} km</button>`).join("")}</div>` : "";
+  const tabs = all && all.length > 1 ? `<div class="trk-tabs" role="group" aria-label="Parcours">${all.map((t, i) => `<button type="button" class="chip" data-trk="${esc(r.id)}" data-i="${i}" aria-pressed="${i === gi}">${esc(t.nom)} · ${fmt(t.km)} km</button>`).join("")}</div>` : "";
   const gsrc = trkSrc(r.id);
   const srcT = gsrc ? `<div class="trksrc">Tracé : <a href="${esc(gsrc)}" target="_blank" rel="noopener">${esc(srcName(gsrc))}</a></div>` : "";
-  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}<div class="note">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : `${trkFig(r, g)}`}${srcT}</div><div class="mmw">${miniMap(g.pts, r)}${g.partiel ? "" : `<button type="button" class="b3d" data-v3d="${esc(r.id)}" aria-label="Voir le parcours en 3D">3D</button>`}</div>${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
+  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}<div class="note">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : `${g.nom ? esc(g.nom) + " · " : ""}${g.km ? fmt(g.km) + " km" : ""}${g.dp ? " · " + g.dp + " m D+" : ""}${g.km || g.dp ? " (mesurés sur le tracé)" : ""}`}${srcT}</div><div class="mmw">${miniMap(g.pts, r)}${g.partiel ? "" : `<button type="button" class="b3d" data-v3d="${esc(r.id)}" aria-label="Voir le parcours en 3D">3D</button>`}</div>${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
   return `<div class="detail">
     ${r.info ? `<p class="dinfo">${esc(r.info)}${r.paiement ? ` <a href="${esc(r.paiement)}" target="_blank" rel="noopener">Paiement en ligne</a>` : ""}</p>` : ""}
     ${verifLine(r)}
@@ -787,7 +778,7 @@ function profSVG(r) {
 }
 function render() {
   try { favLinkSync(); } catch (e) {}
-  $("#f-commune").value = state.commune; $("#f-disc").value = state.disc; typeof syncD === "function" && syncD(); $("#f-mois").value = state.mois; $("#f-dist").value = state.dist; $("#f-ouvert").value = state.ouvert;
+  $("#f-commune").value = state.commune; $("#f-disc").value = state.disc; typeof syncD === "function" && syncD(); $("#f-mois").value = state.mois; $("#map-mois") && ($("#map-mois").value = state.mois); $("#f-dist").value = state.dist; $("#f-ouvert").value = state.ouvert;
   $("#f-dp").value = state.dp; $("#f-ffa").value = state.ffa; $("#f-fav").value = state.fav ? "1" : "";
   $("#f-fav").options[1].textContent = "Mes favoris" + (FAVS.size ? ` (${FAVS.size})` : "");
   const rs = filtered();
@@ -853,26 +844,56 @@ function renderLegend(rs) {
 // ---------- calendar (month grid) ----------
 const DCOL = { trail: "--c-trail", route: "--c-route", marche: "--c-marche", cross: "--c-cross", multisport: "--c-tri", relais: "--c-relais", jeunes: "--c-jeunes", autre: "--c-marche" };
 const ymd = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+// a race as a row (calendar day, agenda): poster, name, date · town · distances, registration state
+function calRow(r, withDate) {
+  const kms = [...new Set((r.epreuves || []).filter(e => e.km).map(e => e.km))].sort((a, b) => b - a).slice(0, 3), st = regState(r, true), img = r.poster_xs || r.poster;
+  return `<button type="button" class="crow" style="--dc:var(${DCOL[r.disc] || DCOL.autre})" data-ev="${esc(r.id)}">${img ? `<img src="${esc(img)}" alt="" loading="lazy">` : `<span class="cart art-${r.disc || "autre"}"></span>`}<span class="ci"><b>${esc(r.nom)}</b><small>${withDate ? rangeTxt(r, { weekday: "short", day: "numeric", month: "short" }) + " · " : ""}${esc(r.commune)}${kms.length ? " · " + kms.map(k => fmt(k) + " km").join(" / ") : ""}</small></span><span class="cst ${st[1]}">${st[0]}</span></button>`;
+}
+function renderAgenda(rs) {
+  const t = todayISO(), list = rs.filter(r => !r.approx && (r.fin || r.date) >= t).sort(byDate);
+  const we = weekendRange("we"), nwe = list.filter(r => inWeekend(r, "we")).length;
+  let out = "", wk = null, day = null;
+  for (const r of list) {
+    const d = dt(r.date < t ? t : r.date), mon = new Date(d.getFullYear(), d.getMonth(), d.getDate() - (d.getDay() + 6) % 7), sun = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + 6), k = ymd(mon);
+    if (k !== wk) { wk = k; day = null; out += `<div class="wk">${ymd(mon) <= t && ymd(sun) >= t ? "Cette semaine" : "Semaine du " + mon.getDate() + (mon.getMonth() !== sun.getMonth() ? " " + MOIS[mon.getMonth()] : "") + " au " + sun.getDate() + " " + MOIS[sun.getMonth()]}</div>`; }
+    const dk = ymd(d); if (dk !== day) { day = dk; out += `<div class="dh${d.getDay() % 6 === 0 ? " we" : ""}"><b>${d.getDate()}</b>${d.toLocaleDateString("fr-FR", { weekday: "long" })}${dk === t ? " · aujourd'hui" : ""}</div>`; }
+    out += calRow(r);
+  }
+  return `<div class="agenda">${nwe ? `<div class="wkb">Ce week-end · <b>${dt(we[0]).getDate()}–${dt(we[1]).getDate()} ${MOIS[dt(we[1]).getMonth()]}</b> · ${nwe} course${nwe > 1 ? "s" : ""}</div>` : ""}${out || `<p class="note">Aucune course pour ce choix.</p>`}</div>`;
+}
 function renderCal(rs) {
+  if (state.mois) { const keep = state.mois; state.mois = ""; rs = filtered(); state.mois = keep; }   // the grid shows every month (a month is chosen with the chips)
   const months = [...new Set(rs.map(r => r.date.slice(0, 7)))].sort();
   if (!state.cal) state.cal = state.mois || months[0] || todayISO().slice(0, 7);
   const [Y, M] = state.cal.split("-").map(Number);
   const first = new Date(Y, M - 1, 1), start = new Date(Y, M - 1, 1 - ((first.getDay() + 6) % 7));
   const byDay = {}; rs.forEach(r => { if (!r.approx) epDays(r).forEach(k => (byDay[k] = byDay[k] || []).push(r)); });
   const tbc = rs.filter(r => r.approx && r.date.startsWith(state.cal));
+  // a day of the month is always open under the grid: the next day with races (or the first one of the month)
+  if (!state.day || !state.day.startsWith(state.cal) || !byDay[state.day]) { const ds = Object.keys(byDay).filter(k => k.startsWith(state.cal)).sort(); state.day = ds.find(k => k >= todayISO()) || ds[0] || null; }
   const t = todayISO(); let cells = "";
   for (let i = 0; i < 42; i++) {
     const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i), k = ymd(d), list = byDay[k] || [];
     if (i === 35 && d.getMonth() !== M - 1) break;
     const evs = list.slice(0, 3).map(r => `<button type="button" class="ev${r.id === state.sel ? " on" : ""}" style="--dc:var(${DCOL[r.disc]})" data-ev="${esc(r.id)}" title="${esc(r.nom)} · ${esc(r.commune)}">${esc(r.nom)}</button>`).join("");
-    cells += `<div class="day${d.getMonth() !== M - 1 ? " out" : ""}${k === t ? " today" : ""}${k === state.day ? " pick" : ""}${list.length ? " has" : ""}" data-cell="${k}">
+    cells += `<div class="day${d.getMonth() !== M - 1 ? " out" : ""}${d.getDay() % 6 === 0 ? " we" : ""}${k === t ? " today" : ""}${k === state.day ? " pick" : ""}${list.length ? " has" : ""}" data-cell="${k}">${list.length ? `<span class="dk">${list.length}</span>` : ""}
       <button type="button" class="dnum" data-day="${k}" aria-label="${d.getDate()} ${MOIS[d.getMonth()]} : ${list.length} course${list.length > 1 ? "s" : ""}">${d.getDate()}</button>
       ${evs}${list.length > 3 ? `<button type="button" class="evmore" data-day="${k}">+ ${list.length - 3} autre${list.length > 4 ? "s" : ""}</button>` : ""}
       <div class="dots">${list.map(r => `<i style="--dc:var(${DCOL[r.disc]})"></i>`).join("")}</div></div>`;
   }
-  const dayList = state.day && byDay[state.day] ? `<div class="daylist"><h3>${dt(state.day).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}</h3>${byDay[state.day].map(r => `<button type="button" class="ev${r.id === state.sel ? " on" : ""}" style="--dc:var(${DCOL[r.disc]});white-space:normal;font-size:.9rem;padding:6px 8px" data-ev="${esc(r.id)}"><b>${esc(r.nom)}</b> · ${esc(r.commune)}${r.main.km ? " · " + fmt(r.main.km) + " km" : ""}${r.main.dp ? " · " + r.main.dp + " D+" : ""}</button>`).join("")}</div>` : "";
+  const dayList = state.day && byDay[state.day] ? `<div class="daylist"><h3>${dt(state.day).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })} <small class="note">· ${byDay[state.day].length} course${byDay[state.day].length > 1 ? "s" : ""}</small></h3><div class="crows">${byDay[state.day].map(r => calRow(r)).join("")}</div></div>` : "";
   const used = [...new Set(rs.map(r => r.disc))];
-  $("#list").innerHTML = `<div class="cal">
+  const allMs = [...new Set(RACES.filter(r => !r.hidden && (r.fin || r.date) >= todayISO()).map(r => r.date.slice(0, 7)))].sort();
+  const mchips = ag => `<div class="calms" role="group" aria-label="Choisir un mois">${ag ? `<button type="button" data-cmo="" aria-pressed="${!state.agm}">Tous</button>` : ""}${allMs.map(m => `<button type="button" data-cmo="${m}" aria-pressed="${ag ? state.agm === m : state.cal === m}">${["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."][+m.slice(5) - 1]}${m.slice(0, 4) !== todayISO().slice(0, 4) ? " " + m.slice(2, 4) : ""}</button>`).join("")}</div>`;
+  const bindMs = ag => $("#list").querySelectorAll("[data-cmo]").forEach(b => b.addEventListener("click", () => { if (ag) state.agm = b.dataset.cmo; else { state.cal = b.dataset.cmo; state.day = null; } render(); }));
+  const tabs = `<div class="caltabs" role="group" aria-label="Présentation du calendrier"><button type="button" data-cm="mois" aria-pressed="${state.calMode !== "agenda"}">Mois</button><button type="button" data-cm="agenda" aria-pressed="${state.calMode === "agenda"}">Agenda</button></div>`;
+  const bindTabs = () => $("#list").querySelectorAll("[data-cm]").forEach(b => b.addEventListener("click", () => { state.calMode = b.dataset.cm; render(); }));
+  if (state.calMode === "agenda") {
+    $("#list").innerHTML = `<div class="cal">${tabs}${mchips(true)}${renderAgenda(state.agm ? rs.filter(r => r.date.startsWith(state.agm)) : rs)}</div>`;
+    bindTabs(); bindMs(true); { const c = $("#list").querySelector('.calms [aria-pressed="true"]'), w = c?.parentNode; if (c && w) w.scrollLeft = c.offsetLeft - w.clientWidth / 2 + c.offsetWidth / 2; } $("#list").querySelectorAll("[data-ev]").forEach(b => b.addEventListener("click", () => openRace(b.dataset.ev)));
+    return;
+  }
+  $("#list").innerHTML = `<div class="cal">${tabs}${mchips(false)}
     <div class="calhead"><h2>${MOIS[M - 1]} ${Y}</h2><div class="calnav">
       <button type="button" class="toolbtn" id="c-prev" aria-label="Mois précédent">‹</button>
       <button type="button" class="toolbtn" id="c-today">Aujourd'hui</button>
@@ -882,6 +903,7 @@ function renderCal(rs) {
     ${dayList}
     ${tbc.length ? `<div class="tbclist"><h3>Date à confirmer ce mois-ci · ${tbc.length}</h3><div class="evs">${tbc.map(r => `<button type="button" class="ev${r.id === state.sel ? " on" : ""}" style="--dc:var(${DCOL[r.disc]})" data-ev="${esc(r.id)}" title="${esc(r.nom)} · ${esc(r.commune)}">${esc(r.nom)}</button>`).join("")}</div></div>` : ""}
   </div>`;
+  bindTabs(); bindMs(false); { const c = $("#list").querySelector('.calms [aria-pressed="true"]'), w = c?.parentNode; if (c && w) w.scrollLeft = c.offsetLeft - w.clientWidth / 2 + c.offsetWidth / 2; }
   const shift = n => { const d = new Date(Y, M - 1 + n, 1); state.cal = ymd(d).slice(0, 7); state.day = null; render(); };
   $("#c-prev").addEventListener("click", () => shift(-1));
   $("#c-next").addEventListener("click", () => shift(1));
@@ -890,7 +912,8 @@ function renderCal(rs) {
   // the whole day cell is clickable (race names inside still open their race)
   $("#list").querySelectorAll("[data-cell]").forEach(c => c.addEventListener("click", e => {
     if (e.target.closest("[data-ev]")) return;
-    const k = c.dataset.cell; state.day = state.day === k ? null : k;
+    const k = c.dataset.cell; state.day = k;
+    if (!k.startsWith(state.cal)) state.cal = k.slice(0, 7);   // a day of the previous / next month: go to that month, day open
     if (state.sel) { const s = RACES.find(x => x.id === state.sel); if (!s || s.date !== state.day) state.sel = null; }
     render();
     if (state.day) requestAnimationFrame(() => $(".daylist")?.scrollIntoView({ block: "nearest", behavior: reduced() ? "auto" : "smooth" }));
@@ -1052,13 +1075,8 @@ let lastW = 0;
 new ResizeObserver(es => { const w = Math.round(es[0].contentRect.width); if (w !== lastW) { lastW = w; if (w) drawPins(mapRaces()); } }).observe(svg);   // map width kept here: no layout read on each redraw, nothing drawn while the map is hidden
 let vb = [0, 0, MAP.W, MAP.H];
 // the map follows what the calendar shows: the picked day, otherwise the displayed month
-function mapRaces() {
-  const rs = filtered();
-  if (state.rview !== "calendrier") return rs;
-  if (state.day) return rs.filter(r => onDay(r, state.day));
-  if (state.cal) return rs.filter(r => r.date.slice(0, 7) <= state.cal && (r.fin || r.date).slice(0, 7) >= state.cal);
-  return rs;
-}
+// the map shows every race kept by the filters (no automatic month: a month is chosen on the map if wanted)
+function mapRaces() { return filtered(); }
 function drawPins(rs) {
   if (!lastW) return;   // map hidden (Scroll, list view on phones…): drawn when it shows (ResizeObserver)
   gPins.innerHTML = ""; gTrace.innerHTML = "";
@@ -1616,6 +1634,20 @@ function shareRace(r) {
 const SOC = [["ig", "Instagram", "https://www.instagram.com/dossardpei.re/"], ["tt", "TikTok", "https://www.tiktok.com/@dossardpei.re"], ["fb", "Facebook", "https://www.facebook.com/profile.php?id=61594634632311"]];
 const SOC_ICO = {"ig": "<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"5\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><circle cx=\"12\" cy=\"12\" r=\"4.2\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><circle cx=\"17.3\" cy=\"6.7\" r=\"1.3\" fill=\"currentColor\"/>", "tt": "<path fill=\"currentColor\" d=\"M16.6 3c.3 2.2 1.6 3.6 3.9 3.8v3a7 7 0 0 1-3.9-1.2v6.1A5.7 5.7 0 1 1 10.9 9v3.1a2.7 2.7 0 1 0 2.7 2.7V3z\"/>", "fb": "<path fill=\"currentColor\" d=\"M13.5 21v-7.6h2.6l.4-3h-3V8.5c0-.9.3-1.5 1.5-1.5h1.6V4.3a21 21 0 0 0-2.3-.1c-2.3 0-3.9 1.4-3.9 4v2.2H7.8v3h2.6V21z\"/>"};
 const socLinks = (cls, label) => SOC.map(([k, n, u]) => `<a class="${cls} soc-${k}" href="${u}" target="_blank" rel="noopener" aria-label="Dossard Péi sur ${n}"><svg viewBox="0 0 24 24" aria-hidden="true">${SOC_ICO[k]}</svg>${label ? `<span>${n}</span>` : ""}</a>`).join("");
+// registration state in words, for the Scroll cards and the calendar rows: [label, kind] (kind: ok | hot | full | soon)
+function regState(r, short) {
+  const eps = r.epreuves || [];
+  if (r.complet || (eps.length && eps.every(e => e.complet))) return ["Complet", "full"];
+  const lim = r.limite, t = todayISO();
+  if (r.clos || (eps.length && eps.every(e => e.complet || e.clos)) || (lim && lim < t)) return ["Clos", "full"];
+  if (notYet(r)) return [short ? "Bientôt" : "Ouverture " + ouvTxt(r.ouverture), "soon"];
+  if (r.avenir) return ["À venir", "soon"];
+  if (r.approx) return ["Date à confirmer", "soon"];
+  if (lim) { const n = daysTo(lim), d = dt(lim);
+    if (n <= 6) return [n === 0 ? "Clôture aujourd'hui" : n === 1 ? "Clôture demain" : "Clôture J-" + n, "hot"];
+    return ["Clôture " + d.getDate() + " " + ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."][d.getMonth()], "ok"]; }
+  return [short ? "Ouvert" : "Inscriptions ouvertes", "ok"];
+}
 function openReels() {
   if (!reelsBox) {
     reelsBox = document.createElement("div"); reelsBox.className = "reels"; reelsBox.setAttribute("role", "region"); reelsBox.setAttribute("aria-label", "Scroll : les courses à venir, une par écran");
@@ -1625,31 +1657,38 @@ function openReels() {
   const night = [...document.querySelectorAll(".herobg svg")].map(s => s.outerHTML).join("");
   const rs = filtered().sort(byDate);
   const slide = r => {
-    const d = dt(r.date), n = daysTo(r.date), k = r.disc || "autre";
-    const kms = [...new Set((r.epreuves || []).filter(e => e.km).map(e => e.km))].sort((a, b) => b - a).slice(0, 3);
+    const k = r.disc || "autre", st = regState(r);
     const img = r.poster_lg || r.poster, flip = [...r.id].reduce((a, c) => a + c.charCodeAt(0), 0) % 2;
-    return `<section class="rs" data-id="${esc(r.id)}">
-      ${img ? `<div class="bgb" data-bg="${esc(img)}"></div><img class="pimg" data-src="${esc(img)}" alt="Affiche : ${esc(r.nom)}" decoding="async">` : `<div class="rart art-${k}${flip ? " flip" : ""}"></div>`}
+    const eps = (r.epreuves || []).slice(0, 3), more = (r.epreuves || []).length - eps.length;
+    const pill = e => `<span style="--dc:var(${DCOL[e.type] || DCOL[k]})"><i></i>${esc(e.nom)}${e.km && !String(e.nom).includes(String(e.km).replace(".", ",")) && !String(e.nom).includes(String(e.km)) ? " · " + fmt(e.km) + " km" : ""}${e.dp ? " · " + e.dp + " m D+" : ""}</span>`;
+    const pf = (window.__PROF || {})[r.id];
+    let spk = "";
+    if (pf && pf.length > 2) { const lo = Math.min(...pf), hi = Math.max(...pf), sp = Math.max(hi - lo, 300), n = pf.length - 1;
+      const pts = pf.map((v, i) => `${(i * 300 / n).toFixed(1)},${(33 - (v - lo) / sp * 28).toFixed(1)}`).join(" ");
+      spk = `<svg class="rspk" viewBox="0 0 300 36" preserveAspectRatio="none" aria-hidden="true"><polygon points="0,36 ${pts} 300,36" fill="rgba(255,255,255,.18)"/><polyline points="${pts}" fill="none" stroke="#fff" stroke-width="2" vector-effect="non-scaling-stroke"/></svg><div class="rspkl"><span>${lo} m</span><span>${hi} m</span></div>`; }
+    return `<section class="rs rs2" data-id="${esc(r.id)}">
+      ${img ? `<div class="bgb" data-bg="${esc(img)}"></div>` : `<div class="bgb art-${k}" style="background:var(--art) center / cover"></div>`}
+      <div class="rcard">${img ? `<img class="pimg" data-src="${esc(img)}" alt="Affiche : ${esc(r.nom)}" decoding="async">` : `<div class="rart art-${k}${flip ? " flip" : ""}"></div>`}<span class="rst ${st[1]}">${st[0]}</span></div>
       <div class="shdt"></div><div class="shd"></div>
-      <div class="rinfo"><span class="rj">${n === 0 ? "Aujourd'hui" : n === 1 ? "Demain" : "J-" + n}</span><h2>${esc(r.nom)}</h2>
-        <div class="rm">${rangeTxt(r, { weekday: "short", day: "numeric", month: "short" })} · ${esc(r.commune)}</div>
-        <div class="rchips"><span>${DISC[k]}</span>${kms.map(x => `<span>${fmt(x)} km</span>`).join("")}</div></div>
+      <div class="rinfo"><div class="rm">${rangeTxt(r, { weekday: "short", day: "numeric", month: "short" })} · ${esc(r.commune)}</div><h2>${esc(r.nom)}</h2>
+        <div class="rpills">${eps.map(pill).join("")}${more > 0 ? `<span>+ ${more} format${more > 1 ? "s" : ""}</span>` : ""}</div>${spk}</div>
       <div class="racts">
         <button type="button" data-ra="fav" class="${FAVS.has(r.id) ? "on" : ""}" aria-pressed="${FAVS.has(r.id)}"><span class="ric"><svg viewBox="0 0 24 24">${R_ICO.fav}</svg></span>Favori</button>
         <button type="button" data-ra="share"><span class="ric"><svg viewBox="0 0 24 24">${R_ICO.share}</svg></span>Partager</button>
         <button type="button" data-ra="map"><span class="ric"><svg viewBox="0 0 24 24">${R_ICO.map}</svg></span>Carte</button>
-        ${r.approx ? "" : `<button type="button" data-ra="cal"><span class="ric"><svg viewBox="0 0 24 24">${R_ICO.cal}</svg></span>Agenda</button>`}</div>
-      <div class="rmore"><button type="button" class="rv" data-ra="more">Voir plus</button>${r.inscription && canReg(r) ? `<a class="ri" href="${esc(r.inscription)}" target="_blank" rel="noopener">${ctaTxt(r)}</a>` : ""}</div>
+        ${hasTrack(r.id) ? `<button type="button" data-ra="3d"><span class="ric t3">3D</span>Survol</button>` : ""}</div>
+      <div class="rmore"><button type="button" class="rv" data-ra="more">Voir la fiche</button>${st[1] === "full" ? `<span class="rfull">${st[0]}</span>` : r.inscription && canReg(r) ? `<a class="ri" href="${esc(r.inscription)}" target="_blank" rel="noopener">${ctaTxt(r)}</a>` : ""}</div>
     </section>`;
   };
   reelsBox.innerHTML = `<div class="rtop"><button type="button" class="rlogob" aria-label="Revenir en haut">${logo.replace(/class="[^"]*"/, 'class="rlogo"').replace(/ role="img" aria-label="[^"]*"/, ' aria-hidden="true"')}</button>
-    <nav class="rmodes" aria-label="Affichage"><button type="button" class="on mi-scroll" aria-pressed="true">Scroll</button><button type="button" class="mi-liste" data-rmode="liste">Liste</button><button type="button" class="mi-cal" data-rmode="calendrier">Calendrier</button></nav></div>
+    <nav class="rmodes" aria-label="Affichage"><button type="button" class="on mi-scroll" aria-pressed="true">Scroll</button><button type="button" class="mi-liste" data-rmode="liste">Liste</button><button type="button" class="mi-cal" data-rmode="calendrier">Calendrier</button></nav>
+    <div class="rqk" role="group" aria-label="Filtres rapides"><button type="button" data-qk="all" class="${!state.wk && !state.disc && !state.near && !state.fav ? "on" : ""}">Tout</button><button type="button" data-q="we">Ce week-end</button><button type="button" data-q="trail">Trail</button><button type="button" data-q="route">Route</button><button type="button" data-q="multisport">Multisport</button><button type="button" data-q="jeunes">Jeunes</button></div></div>
     <div class="rfeed">
       <section class="rs rintro rhome"><div class="rbg" aria-hidden="true">${night}</div><div class="rin"><div class="rhead">${logo}<h1>Dossard Péi</h1></div><p class="rtag">Trouv out prochin dosar !</p>
         <button type="button" class="rsearch" aria-label="Rechercher une course"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Course, commune…</button>
         <div class="qchips" role="group" aria-label="Raccourcis"><button type="button" data-q="we">📅 Ce week-end <b class="q-we"></b></button><button type="button" data-q="next">Le week-end prochain</button><button type="button" data-q="near">📍 Près de moi</button><button type="button" data-q="trail" style="--dc:var(--c-trail)"><i class="qdot"></i>Trail</button><button type="button" data-q="route" style="--dc:var(--c-route)"><i class="qdot"></i>Route</button><button type="button" data-q="marche" style="--dc:var(--c-marche)"><i class="qdot"></i>Rando</button><button type="button" data-q="multisport" style="--dc:var(--c-tri)"><i class="qdot"></i>Multisport</button></div>
         <p class="hstats"></p><br><button type="button" class="qsaison szlink">🗓️ Calendrier 2027 <span aria-hidden="true">›</span></button><button type="button" class="favlink szlink" hidden>⭐ Mes courses <b class="favn"></b></button>
-        <button type="button" class="rmapc" aria-label="Voir la carte des courses"><span>🗺️ Voir la carte de l'île</span></button><div class="rsoc2" role="group" aria-label="Dossard Péi sur les réseaux">${(() => { try { return socLinks("socb", false); } catch (e) { return ""; } })()}</div></div>
+<div class="rsoc2" role="group" aria-label="Dossard Péi sur les réseaux">${(() => { try { return socLinks("socb", false); } catch (e) { return ""; } })()}</div></div>
         <div class="rhint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14l6-6 6 6"/></svg>${rs.length ? `Glisse pour voir ${rs.length > 1 ? "les " + rs.length + " courses" : "la course"}${state.fav ? (rs.length > 1 ? " de tes favoris" : " de tes favoris") : state.wk === "we" ? " de ce week-end" : state.wk === "next" ? " du week-end prochain" : state.near ? " près de toi" : ""}` : "Aucune course pour ce choix"}</div></section>
       ${rs.map(slide).join("")}
       <section class="rs rintro rend"><div class="rbg" aria-hidden="true" data-night="1"></div><div class="rin">${logo}<h1>Tu as tout vu !</h1><p>Suis Dossard Péi pour ne rater<br>aucun nouveau dossard.</p><div class="rsoc">${socLinks("rsb", true)}</div><button type="button" class="rtop0">↑ Revenir au début</button></div></section></div>`;
@@ -1658,7 +1697,11 @@ function openReels() {
     fl.addEventListener("click", e => { e.stopPropagation(); state.fav = !state.fav; if (state.fav) gcount("raccourci/mes-courses", "Mes courses (Scroll)", true);   // like the other shortcuts: the feed is filtered and slides to the first race
       render(); openReels(); if (state.fav && filtered().length) setTimeout(() => reelsBox.querySelector(".rfeed").scrollTo({ top: reelsBox.querySelector(".rfeed").clientHeight, behavior: reduced() ? "auto" : "smooth" }), 250); }); } }
   reelsBox.querySelector(".rsearch").addEventListener("click", () => { gcount("raccourci/recherche", "Recherche (Scroll)", true); reelsBox.querySelector("[data-rmode=liste]").click(); setTimeout(() => { scrollTo({ top: 0 }); $("#f-q").focus(); }, 120); });
-  reelsBox.querySelector(".rmapc").addEventListener("click", () => { gcount("raccourci/carte", "Aperçu carte (Scroll)", true); mapFromReels = true; closeReels(); rMode("liste"); setView("carte"); syncFab(); setTimeout(() => setMapFull(true), 60); });
+  reelsBox.querySelector(".rmapc")?.addEventListener("click", () => { gcount("raccourci/carte", "Aperçu carte (Scroll)", true); mapFromReels = true; closeReels(); rMode("liste"); setView("carte"); syncFab(); setTimeout(() => setMapFull(true), 60); });
+  // quick filters at the top of the feed: the feed is rebuilt and goes to its first race
+  const toFirst = () => { if (filtered().length) setTimeout(() => reelsBox.querySelector(".rfeed").scrollTo({ top: reelsBox.querySelector(".rfeed").clientHeight, behavior: "auto" }), 60); };
+  reelsBox.querySelectorAll(".rtop [data-q]").forEach(b => b.addEventListener("click", () => quick(b.dataset.q, () => { openReels(); toFirst(); })));
+  reelsBox.querySelector(".rtop [data-qk=all]")?.addEventListener("click", () => { state.wk = ""; state.disc = ""; state.near = null; state.fav = false; $("#f-disc") && ($("#f-disc").value = ""); typeof syncD === "function" && syncD(); saveprefs && saveprefs(); render(); openReels(); toFirst(); });
   reelsBox.querySelectorAll(".rhome [data-q]").forEach(b => b.addEventListener("click", () => quick(b.dataset.q, () => { openReels();
     if (filtered().length) setTimeout(() => reelsBox.querySelector(".rfeed").scrollTo({ top: reelsBox.querySelector(".rfeed").clientHeight, behavior: reduced() ? "auto" : "smooth" }), 250); })));
   { const feed = reelsBox.querySelector(".rfeed"), hl = reelsBox.querySelector(".rhome .rhead svg"), hd = reelsBox.querySelector(".rhome .rhead"), rl = reelsBox.querySelector(".rtop .rlogo");
@@ -1679,7 +1722,11 @@ function openReels() {
   reelsBox.querySelector(".rlogob")?.addEventListener("click", () => reelsBox.querySelector(".rfeed").scrollTo({ top: 0, behavior: reduced() ? "auto" : "smooth" }));
   reelsBox.querySelector(".rtop0")?.addEventListener("click", () => reelsBox.querySelector(".rfeed").scrollTo({ top: 0, behavior: "smooth" }));
   // posters are loaded only when their slide comes near (one screen ahead): the feed no longer downloads every poster at once
-  { const feed = reelsBox.querySelector(".rfeed"); let load = s => { s.querySelectorAll("[data-bg]").forEach(e => { e.style.backgroundImage = `url('${e.dataset.bg}')`; e.removeAttribute("data-bg"); }); s.querySelectorAll("img[data-src]").forEach(e => { e.src = e.dataset.src; e.removeAttribute("data-src"); }); };
+  { const feed = reelsBox.querySelector(".rfeed"); let load = s => { s.querySelectorAll("[data-bg]").forEach(e => { e.style.backgroundImage = `url('${e.dataset.bg}')`; e.removeAttribute("data-bg"); }); s.querySelectorAll("img[data-src]").forEach(e => {
+      // the card takes the shape of its poster (the whole poster, no empty band), within the space left
+      const c = e.closest(".rcard"); if (c) e.addEventListener("load", () => { const H = c.clientHeight, W = parseFloat(getComputedStyle(c).maxWidth) || c.parentNode.clientWidth - 132, k = e.naturalWidth / e.naturalHeight;
+        if (!k || !H) return; const w = Math.min(W, H * k); c.style.width = w + "px"; c.style.height = w / k + "px"; c.style.transform = `translate(-50%, ${Math.max(0, (H - w / k) / 2)}px)`; }, { once: true });
+      e.src = e.dataset.src; e.removeAttribute("data-src"); }); };
     const sl = [...reelsBox.querySelectorAll(".rs[data-id]"), reelsBox.querySelector(".rend")].filter(Boolean);
     const end = reelsBox.querySelector(".rend [data-night]"); const load0 = load; load = s => { load0(s); if (end && s.contains(end) && !end.innerHTML) { end.innerHTML = night; end.querySelectorAll("svg").forEach(v => v.setAttribute("preserveAspectRatio", "xMidYMax slice")); } };
     if ("IntersectionObserver" in window && feed) { const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) { load(x.target); io.unobserve(x.target); } }), { root: feed, rootMargin: "150% 0px" }); sl.forEach(s => io.observe(s)); }
@@ -1693,14 +1740,16 @@ function openReels() {
       if (a === "fav") { toggleFav(r.id); const on = FAVS.has(r.id); b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); }
       if (a === "share") shareRace(r);
       if (a === "map") raceMap(r);
+      if (a === "3d") fetchTracks(r.id).then(() => open3D(r.id));
       if (a === "cal") window.open(gcalURL(r), "_blank", "noopener");
       if (a === "more") openDetail(r.id);
     }));
   });
   reelsBox.hidden = false; document.documentElement.style.overflow = "hidden"; document.documentElement.classList.add("reels-open"); reelsBox.querySelector(".rfeed").scrollTop = 0;
   $("#v-reels")?.setAttribute("aria-pressed", "true");
+  try { syncTabs(); } catch (e) {}
 }
-function closeReels() { if (reelsBox) reelsBox.hidden = true; document.documentElement.style.overflow = ""; document.documentElement.classList.remove("reels-open"); if (LIST_STALE) requestAnimationFrame(() => { if (LIST_STALE) render(); }); $("#v-reels")?.setAttribute("aria-pressed", "false"); }
+function closeReels() { if (reelsBox) reelsBox.hidden = true; document.documentElement.style.overflow = ""; document.documentElement.classList.remove("reels-open"); if (LIST_STALE) requestAnimationFrame(() => { if (LIST_STALE) render(); }); $("#v-reels")?.setAttribute("aria-pressed", "false"); try { syncTabs(); } catch (e) {} }
 // ---------- 3D view of a track (button « 3D » on the sheet's mini map) ----------
 // IGN aerial photo draped on the IGN relief (both read live from the Géoplateforme, open data, CORS allowed),
 // the track, names and trails of the mini map, a small runner for the flyover and the elevation profile as
@@ -1845,9 +1894,8 @@ async function open3D(id) {
     dot(trackPts[0], "#1b7f3b"); dot(trackPts.at(-1), "#1d2523");
     // elevation profile = reading line; climb counted with a 5 m threshold (GPS noise)
     // distance brought back to the one measured on the full track (fewer points are kept for the site)
-    // figures of the sheet: the épreuve this track is (same name, else the closest distance within 15 %) gives
-    // the distance and climb shown during the flyover, so the 3D says the same as the sheet; else the track's own
-    const ep = epOfTrack(r, g), KMT = ep ? ep.km : g.km, DPT = ep && ep.dp ? ep.dp : g.dp;
+    // distance and climb of the flyover: measured on the full track, as written under the map
+    const KMT = g.km, DPT = g.dp;   // the track's own figures (the same as written under the map)
     if (KMT && cum.at(-1) > 0) { const f = KMT * 1000 / cum.at(-1); for (let i = 0; i < cum.length; i++) cum[i] *= f; }
     const zs = trk.map(p => p[2]), zTop = Math.max(...zs), zBot = Math.min(...zs), L = cum.at(-1) || 1, profY = z => 38 - (z - zBot) / Math.max(1, zTop - zBot) * 34;
     const gain = [0]; { let ref = zs[0], s = 0; for (let i = 1; i < zs.length; i++) { if (zs[i] > ref + 5) { s += zs[i] - ref; ref = zs[i]; } else if (zs[i] < ref - 5) ref = zs[i]; gain.push(s); } }
@@ -1939,10 +1987,81 @@ function setMapFull(on) {
   $("#map-fullx").hidden = !on; drawPins(mapRaces());
   if (on) addEventListener("keydown", mapFullKey); else removeEventListener("keydown", mapFullKey);
   if (!on && mapFromReels) { mapFromReels = false; setView("liste"); rMode("reels"); openReels(); }
+  if (!on && TABMAP) { TABMAP = false; const v = state.rview || "liste"; rMode(v); setView(v); }
+  try { syncTabs(); } catch (e) {}
 }
 function mapFullKey(e) { if (e.key === "Escape" && !document.querySelector(".dlg, .lightbox")) setMapFull(false); }
 $("#map-full").addEventListener("click", () => setMapFull(true));
 $("#map-fullx").addEventListener("click", () => setMapFull(false));
+// ---------- navigation bar of the views (phones): always at the same place, the 4 ways to see the races ----------
+var TABMAP = false;   // the map was opened from the bar: closing it goes back to the view before
+function syncTabs() {
+  const tb = $("#tabbar"); if (!tb) return;
+  const cur = document.documentElement.classList.contains("reels-open") ? "reels" : document.body.classList.contains("mapfull") || $("#main").dataset.view === "carte" ? "carte" : state.rview || "liste";
+  tb.querySelectorAll("[data-tab]").forEach(b => { if (b.dataset.tab === cur) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
+  const on = tb.querySelector('[aria-current="page"]'), pc = $("#tbpill .tbcur"); if (on && pc) pc.innerHTML = (on.querySelector("svg")?.outerHTML || "") + '<span class="tbl">' + on.textContent.trim() + "</span>";
+}
+// GoatCounter: one event each time someone picks a mode (pill on phones, switch on wide screens)
+const MODEN = { reels: "scroll", liste: "liste", calendrier: "calendrier", carte: "carte" };
+document.addEventListener("click", e => {
+  const b = e.target.closest(".tabbar [data-tab], .switch button[id^='v-']"); if (!b) return;
+  const v = b.dataset.tab || b.id.slice(2), m = MODEN[v]; if (!m) return;
+  gcount("mode/" + m, "Mode " + m.charAt(0).toUpperCase() + m.slice(1), true);
+}, true);
+// arrival mode (Scroll by default on phones), and whether the visitor goes past the Scroll home to the race posters
+setTimeout(() => { try { const m = MODEN[curTab()]; if (m) gcount("arrivee/" + m, "Arrivée en mode " + m, true); } catch (e) {} }, 1500);
+{ let seen = false; document.addEventListener("scroll", e => {
+  if (seen || !document.documentElement.classList.contains("reels-open")) return;
+  const el = e.target; if (el && el.scrollTop > innerHeight * .6) { seen = true; gcount("scroll/affiches", "Scroll : passe l'accueil", true); }
+}, { capture: true, passive: true }); }
+function tbMenu(open) {
+  const tb = $("#tabbar"), pl = $("#tbpill"), dm = $("#tbdim"); if (!tb || !pl) return;
+  if (open === undefined) open = !tb.classList.contains("open");
+  tb.classList.toggle("open", open); dm && dm.classList.toggle("on", open); pl.setAttribute("aria-expanded", open ? "true" : "false");
+  if (open) { $(".tbhint")?.remove(); tb.querySelector('[aria-current="page"]')?.focus({ preventScroll: true }); }
+}
+// each mode keeps its scroll position during the visit; back to the top when the filters changed meanwhile
+const TABPOS = {};
+function tabKey() { return [state.wk, state.near ? 1 : 0, state.q, state.commune, state.mois, state.dist, state.dp, state.ffa, state.fav, state.disc, state.ouvert, state.calMode || "", state.agm || ""].join("|"); }
+function curTab() { return document.documentElement.classList.contains("reels-open") ? "reels" : document.body.classList.contains("mapfull") || $("#main").dataset.view === "carte" ? "carte" : state.rview || "liste"; }
+function goTab(v) {
+  const reelsOn = document.documentElement.classList.contains("reels-open"), from = curTab();
+  if (v === from) { if (v === "liste" || v === "calendrier") scrollTo({ top: 0, behavior: "smooth" }); return syncTabs(); }
+  if (from === "liste" || from === "calendrier") TABPOS[from] = { y: scrollY, k: tabKey() };
+  if (v === "reels") { if (document.body.classList.contains("mapfull")) { TABMAP = false; setMapFull(false); } rMode("reels"); openReels(); return syncTabs(); }
+  if (reelsOn) closeReels();
+  if (v === "carte") { rMode("carte"); mapFromReels = false; setView("carte"); TABMAP = true; setMapFull(true); return syncTabs(); }
+  if (document.body.classList.contains("mapfull")) { TABMAP = false; setMapFull(false); }
+  rMode(v); setView(v); syncTabs();
+  const sp = TABPOS[v], y = sp && sp.k === tabKey() ? sp.y : 0;
+  scrollTo({ top: y, behavior: "auto" }); if (y) requestAnimationFrame(() => requestAnimationFrame(() => scrollTo({ top: y, behavior: "auto" })));
+}
+(() => {
+  const tb = $("#tabbar"); if (!tb) return;
+  const pl = $("#tbpill"), dm = $("#tbdim");
+  document.body.append(dm, tb, pl);   // out of the page container (hidden while Scroll is open)
+  pl.addEventListener("click", () => tbMenu()); dm.addEventListener("click", () => tbMenu(false));
+  // while scrolling down, the pill shrinks to its icon; its name comes back on scrolling up or when scrolling stops
+  { const last = new WeakMap(); let tmo;
+    document.addEventListener("scroll", e => {
+      const el = e.target === document ? document.scrollingElement : e.target; if (!el || el.scrollTop === undefined) return;
+      const y = el.scrollTop, py = last.has(el) ? last.get(el) : y; last.set(el, y);
+      if (tb.classList.contains("open")) return;
+      if (y > py + 2 && y > 40) pl.classList.add("mini"); else if (y < py - 2) pl.classList.remove("mini");
+      clearTimeout(tmo); tmo = setTimeout(() => pl.classList.remove("mini"), 700);
+    }, { capture: true, passive: true }); }
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && tb.classList.contains("open")) tbMenu(false); });
+  if (typeof REELS_ON !== "undefined" && REELS_ON) tb.querySelector('[data-tab="reels"]').hidden = false;
+  tb.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => { $(".tbhint")?.remove(); tbMenu(false); goTab(b.dataset.tab); }));
+  syncTabs();
+  // first visit on a phone: a small bubble says there are several ways to see the races (once)
+  try {
+    if (matchMedia("(max-width: 760px)").matches && !localStorage.getItem("dp-tbhint")) {
+      localStorage.setItem("dp-tbhint", "1");
+      setTimeout(() => { const h = document.createElement("div"); h.className = "tbhint"; h.textContent = "4 façons de voir les courses"; document.body.appendChild(h); setTimeout(() => h.remove(), 5000); }, 1200);
+    }
+  } catch (e) {}
+})();
 // legal notice
 function openMentions() { const d = $("#ml"); if (!d.open) { try { d.showModal(); } catch (e) { d.setAttribute("open", ""); } } }
 $("#ml-open").addEventListener("click", e => { e.preventDefault(); openMentions(); });
@@ -1953,7 +2072,9 @@ addEventListener("hashchange", () => { if (location.hash === "#mentions") openMe
 openHash(); addEventListener("hashchange", openHash);
 contactHash(); addEventListener("hashchange", contactHash);
 BOOTP.push(fetch("verif.json", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(v => { if (v && v.races) { VERIF_ST = v; if (!BOOTING) { render(); if (DETAIL) openDetail(DETAIL); } } }).catch(() => {}));
-BOOTP.push(fetch("profiles.json").then(r => r.ok ? r.json() : null).then(j => { if (j) { window.__PROF = j; if (!BOOTING) render(); } }).catch(() => {}));
+BOOTP.push(fetch("profiles.json").then(r => r.ok ? r.json() : null).then(j => { if (j) { window.__PROF = j; if (!BOOTING) render();
+  // the Scroll cards show the profile: rebuilt once, at the same race, if Scroll is already open
+  if (document.documentElement.classList.contains("reels-open") && typeof reelsBox !== "undefined" && reelsBox) { const f = reelsBox.querySelector(".rfeed"), y = f ? f.scrollTop : 0; openReels(); const g = reelsBox.querySelector(".rfeed"); if (g) g.scrollTop = y; } } }).catch(() => {}));
 BOOTP.push(fetch("data.json", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(d => {
   if (d && d.races && (!BASE.updatedAt || (d.checkedAt || d.updatedAt) >= (BASE.checkedAt || BASE.updatedAt) || d.updatedAt >= BASE.updatedAt)) { BASE = d; merge(); buildMonths(); if (!BOOTING) { render(); renderAdmin(); openHash(); } }
 }).catch(() => {}));
