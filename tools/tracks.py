@@ -31,6 +31,7 @@ TZ = dt.timezone(dt.timedelta(hours=4))
 TDT = re.compile(r"tracedetrail\.fr/(?:[a-z]{2}/)?(iframe|trace)/(\d+)")
 ORN = re.compile(r"openrunner\.com/(?:route-embed/|embed/|embed\.html\?code=)([0-9a-zA-Z]+)")
 NOSRC = re.compile(r"werun\.world", re.I)   # sources whose tracks must never be taken
+WRP = re.compile(r"https?://(?:www\.)?werun\.world/course/[a-z0-9-]+/?")   # a WeRun race page (link only)
 
 
 def get(u, ref=None):
@@ -136,8 +137,13 @@ def main(now):
     # WeRun asked for its tracks to be withdrawn (2026-10-30): any track from it, however it came back
     # (hand edit, another tool), is dropped at once with its file
     purged = [rid for rid, g in gpx.items() if NOSRC.search(json.dumps(g))]
+    byid = {r["id"]: r for r in data["races"]}
     for rid in purged:
-        gpx.pop(rid)
+        g = gpx.pop(rid)
+        m = WRP.search(g.get("src", "") if isinstance(g, dict) else "")
+        r = byid.get(rid)
+        if m and r and not any(NOSRC.search(x.get("url", "")) for x in r.get("traces", [])):
+            r["traces"] = r.get("traces", []) + [{"nom": "voir en ligne", "url": m.group(0)}]   # the track goes, the link stays
     for f in os.listdir("gpx") if os.path.isdir("gpx") else []:
         try:
             if NOSRC.search(json.load(open(f"gpx/{f}")).get("src", "")):
@@ -152,7 +158,7 @@ def main(now):
     except Exception:
         pending = {}
     pending = {k: v for k, v in pending.items() if v.get("at", "") > (now - dt.timedelta(days=30)).isoformat()}
-    added = []
+    added, linked = [], []
     # once a day the tracks already on the site are read again from the organisers' pages: a track changed
     # there (new link, or the same link with another route) replaces ours, after the same distance check.
     # Tracks set by hand (gpx[id]["manuel"]) are left alone.
@@ -169,6 +175,7 @@ def main(now):
             tried[rid] = now.isoformat(timespec="minutes")
         pages = list(dict.fromkeys(u for u in [r.get("fiche"), r.get("page"), r.get("inscription")] + [e.get("url") for e in r.get("epreuves", [])] if u))
         found = []
+        wr_links = [u for u in pages if WRP.match(u)]   # a WeRun page is never read: at most it is linked to
         for u in [u for u in pages if not NOSRC.search(u)][:6]:
             try:
                 h = get(u)
@@ -179,6 +186,7 @@ def main(now):
                     found += tracedetrail(kind, n)
                 except Exception as e:
                     print(f"tracé {rid} tracedetrail {n} : {e.__class__.__name__}")
+            wr_links += WRP.findall(h)
             for c in dict.fromkeys(ORN.findall(h)):
                 try:
                     found += openrunner(c, u)
@@ -198,6 +206,11 @@ def main(now):
             nom = best["nom"] if best and abs(float(best["km"]) - km) <= max(2, 0.15 * km) else (t["nom"] or f"{km:g} km")
             tracks.append({"nom": nom, "km": km, "dp": dp, "pts": thin(pts), "src": t["src"]})
         if not tracks:
+            # no public track from the organisers: a WeRun page of the race is only linked to
+            # ("Tracé · voir en ligne"); the site then shows the approximate start, never a track or a file
+            if rid not in gpx and wr_links and not any(NOSRC.search(x.get("url", "")) for x in r.get("traces", [])):
+                r["traces"] = r.get("traces", []) + [{"nom": "voir en ligne", "url": wr_links[0]}]
+                linked.append(r["nom"])
             continue
         tracks.sort(key=lambda t: -t["km"])
         old = gpx.get(rid)
@@ -228,14 +241,20 @@ def main(now):
         json.dump({"src": src, "tracks": [{k: t[k] for k in ("nom", "km", "dp", "pts")} for t in tracks]},
                   open(f"gpx/{rid}.json", "w"), ensure_ascii=False, separators=(",", ":"))
         gpx[rid] = {"file": f"gpx/{rid}.json", "src": src, "tracks": [{k: t[k] for k in ("nom", "km", "dp")} for t in tracks]}
+        if any(NOSRC.search(x.get("url", "")) for x in r.get("traces", [])):   # the organisers' own track replaces the WeRun link
+            r["traces"] = [x for x in r["traces"] if not NOSRC.search(x.get("url", ""))]
+            if not r["traces"]:
+                r.pop("traces")
         tried.pop(rid, None)
         added.append(f"{r['nom']} ({len(tracks)}{', remplacé' if old else ''})")
     tried = {k: v for k, v in tried.items() if v > (now - dt.timedelta(days=7)).isoformat()}
     json.dump(tried, open("state/tracks.json", "w"), ensure_ascii=False, indent=0, sort_keys=True)
     json.dump(pending, open("state/tracks_pending.json", "w"), ensure_ascii=False, indent=1, sort_keys=True)
-    if added or purged:
+    if added or purged or linked:
         json.dump(data, open("data.json", "w"), ensure_ascii=False, separators=(",", ":"))
     print(f"tracés ajoutés : {', '.join(added) if added else 'aucun'}")
+    if linked:
+        print(f"liens « voir en ligne » vers WeRun ajoutés : {', '.join(linked)}")
 
 
 if __name__ == "__main__":
