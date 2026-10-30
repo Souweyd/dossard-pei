@@ -37,7 +37,8 @@
   },
   "kalla-nescafe-2026-11": {
    "fields": [
-    "epreuves"
+    "epreuves",
+    "traces"
    ],
    "hidden": false
   },
@@ -56,19 +57,69 @@
   },
   "marmailles-masters-trail-2026-12": {
    "fields": [
-    "epreuves"
+    "epreuves",
+    "traces"
    ],
    "hidden": false
   },
   "relais-trail-vieux-saint-paul-2026-12": {
    "fields": [
-    "epreuves"
+    "epreuves",
+    "traces"
    ],
    "hidden": false
   },
   "tour-ile-pedestre-utoi-2026-10": {
    "fields": [
     "info"
+   ],
+   "hidden": false
+  },
+  "trail-urbain-saint-pierre-2026-11": {
+   "fields": [
+    "traces"
+   ],
+   "hidden": false
+  },
+  "dimitile": {
+   "fields": [
+    "traces"
+   ],
+   "hidden": false
+  },
+  "foulees-nocturnes-saint-louis-2026-12": {
+   "fields": [
+    "traces"
+   ],
+   "hidden": false
+  },
+  "odyssea-reunion-2026-11": {
+   "fields": [
+    "traces"
+   ],
+   "hidden": false
+  },
+  "championnat-trail-trans-volcano-2027-01": {
+   "fields": [
+    "traces"
+   ],
+   "hidden": false
+  },
+  "foulees-de-la-liberte-2026-12": {
+   "fields": [
+    "traces"
+   ],
+   "hidden": false
+  },
+  "trail-urbain-sainte-marie-2026-12": {
+   "fields": [
+    "traces"
+   ],
+   "hidden": false
+  },
+  "foulees-verval-2026-12": {
+   "fields": [
+    "traces"
    ],
    "hidden": false
   }
