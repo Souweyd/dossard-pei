@@ -18,6 +18,7 @@ distances (tools/trackcheck.py) is kept aside in state/tracks_pending.json inste
 import datetime as dt
 import json
 import math
+import os
 import re
 import sys
 import urllib.request
@@ -132,6 +133,20 @@ def main(now):
     except Exception:
         manual = set()
     gpx = data.setdefault("gpx", {})
+    # WeRun asked for its tracks to be withdrawn (2026-10-30): any track from it, however it came back
+    # (hand edit, another tool), is dropped at once with its file
+    purged = [rid for rid, g in gpx.items() if NOSRC.search(json.dumps(g))]
+    for rid in purged:
+        gpx.pop(rid)
+    for f in os.listdir("gpx") if os.path.isdir("gpx") else []:
+        try:
+            if NOSRC.search(json.load(open(f"gpx/{f}")).get("src", "")):
+                os.remove(f"gpx/{f}")
+                purged.append(f)
+        except Exception:
+            pass
+    if purged:
+        print(f"tracés WeRun retirés : {', '.join(purged)}")
     try:
         pending = json.load(open("state/tracks_pending.json"))
     except Exception:
@@ -218,7 +233,7 @@ def main(now):
     tried = {k: v for k, v in tried.items() if v > (now - dt.timedelta(days=7)).isoformat()}
     json.dump(tried, open("state/tracks.json", "w"), ensure_ascii=False, indent=0, sort_keys=True)
     json.dump(pending, open("state/tracks_pending.json", "w"), ensure_ascii=False, indent=1, sort_keys=True)
-    if added:
+    if added or purged:
         json.dump(data, open("data.json", "w"), ensure_ascii=False, separators=(",", ":"))
     print(f"tracés ajoutés : {', '.join(added) if added else 'aucun'}")
 
