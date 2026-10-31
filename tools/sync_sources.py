@@ -21,6 +21,7 @@ import os
 import re
 import sys
 import unicodedata
+import urllib.parse
 import urllib.request
 
 sys.dont_write_bytecode = True  # no tools/__pycache__ in the repo
@@ -583,16 +584,21 @@ def ad_supabase_counter(u):
     "N inscrits sur Q" by calling the public function etat_public with the site's publishable key
     (public by design, written in the page). Same reading as a visitor; anything unexpected -> []"""
     page = fetch(u)
+    if "supabase.co" not in page:   # the address and key sit in the site's script files, not in the page itself
+        for src in re.findall(r'<script[^>]+src="([^"]+)"', page)[:6]:
+            try: page += fetch(urllib.parse.urljoin(u, src))
+            except Exception: pass
     base = next((b for b in re.findall(r"https://[a-z0-9]{12,}\.supabase\.co", page)), None)
     key = (re.findall(r"sb_publishable_[A-Za-z0-9_-]+", page) or re.findall(r"eyJ[\w-]+\.[\w-]+\.[\w-]+", page) or [None])[0]
     if not base or not key:
-        return []
+        print(f"  compteur d'inscriptions introuvable sur {u}"); return []
     req = urllib.request.Request(f"{base}/rest/v1/rpc/etat_public", data=b"{}", method="POST",
                                  headers={"apikey": key, "Authorization": f"Bearer {key}", "Content-Type": "application/json", **UA})
     d = json.load(net.urlopen(req, timeout=30))
     d = d[0] if isinstance(d, list) and d else d
     if not isinstance(d, dict) or not isinstance(d.get("quota"), int) or not isinstance(d.get("inscrits"), int):
-        return []
+        print(f"  réponse inattendue du compteur d'inscriptions : {str(d)[:120]}"); return []
+    print(f"  {u} : {d['inscrits']} inscrits sur {d['quota']}")
     return [{"nom": "", "km": None, "etat": "complet" if d["inscrits"] >= d["quota"] > 0 else "ouvert"}]
 
 
