@@ -1,0 +1,1 @@
+["Trail Boucle Pic Adam", "2027-08-07", "Saint-Denis", [{"nom": "Trail 25 km", "km": 25, "dp": 1100, "type": "trail"}, {"nom": "Randonnée 8 km", "km": 8, "type": "marche"}, {"nom": "Marmail Trail", "type": "jeunes"}], "posters/boucle-pic-adam-2027-08.webp", "posters/boucle-pic-adam-2027-08_lg.webp", "art1"]
