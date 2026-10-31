@@ -1,8 +1,19 @@
 {
- "at": "2026-10-31T10:02+04:00",
+ "at": "2026-10-31T14:02+04:00",
  "since": "2026-10-31T09:20+04:00",
- "rien": true,
- "sources": [],
+ "rien": false,
+ "sources": [
+  {
+   "id": "gotrail",
+   "url": "https://gotrail.run/calendrier-trails/reunion",
+   "changed": "2026-10-31T14:02+04:00"
+  },
+  {
+   "id": "runninglife",
+   "url": "https://running.life/calendrier-course-a-pied/reunion",
+   "changed": "2026-10-31T14:02+04:00"
+  }
+ ],
  "avenir": [],
  "illisibles": [
   {
