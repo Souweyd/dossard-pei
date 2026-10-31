@@ -32,8 +32,8 @@
   "at": "2026-10-27T15:40+00:00"
  },
  "https://gotrail.run/calendrier-trails/reunion": {
-  "h": "1d2c7f73db3ddf73",
-  "at": "2026-10-30T05:25+00:00"
+  "h": "39fe857d14a83825",
+  "at": "2026-10-31T15:21+00:00"
  },
  "https://running.life/calendrier-course-a-pied/reunion": {
   "h": "2e7d98c33045b958f7ca59273e8124234564e4d57b4d9dee82b21c2d50cb41b5",
@@ -70,5 +70,9 @@
  "https://www.canneenfleur.org/leuoxygenetrail": {
   "h": "ddcab348d6cb2675fc55df3deb393b604a75cd64c0b434d71e5c070ba1cdc6c0",
   "at": "2026-10-27T10:02+00:00"
+ },
+ "https://fr.milesrepublic.com/run/la-reunion": {
+  "h": "7389b3fc59caa2c0",
+  "at": "2026-10-31T15:22+00:00"
  }
 }
