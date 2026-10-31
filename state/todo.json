@@ -1,14 +1,8 @@
 {
- "at": "2026-10-31T18:08+04:00",
- "since": "2026-10-31T14:21+04:00",
- "rien": false,
- "sources": [
-  {
-   "id": "gotrail",
-   "url": "https://gotrail.run/calendrier-trails/reunion",
-   "changed": "2026-10-31T18:08+04:00"
-  }
- ],
+ "at": "2026-10-31T20:02+04:00",
+ "since": "2026-10-31T19:21+04:00",
+ "rien": true,
+ "sources": [],
  "avenir": [],
  "illisibles": [
   {
