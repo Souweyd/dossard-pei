@@ -507,19 +507,17 @@
 "id": "trail-grand-bassin-2027-06"
 },
 {
+"nom": "Ultra Marathon des Cirques",
+"nature": "Trail",
+"club": "Ilop Sport",
+"date": "2027-06-19",
+"id": "ultra-marathon-cirques-2027-06"
+},
+{
 "nom": "Trail Urbain Écocité",
 "nature": "Route",
 "club": "Asso.Rando Riviere des Galets",
 "date": "2027-06-20"
-},
-{
-"nom": "Ultra Marathon des Cirques",
-"nature": "Trail",
-"club": "Ilop Sport",
-"date": "2027-06-20",
-"nd": true,
-"info": "date à préciser",
-"id": "ultra-marathon-cirques-2027-06"
 },
 {
 "nom": "XVI'Eclair",

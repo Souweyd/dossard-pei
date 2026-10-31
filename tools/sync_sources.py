@@ -1012,6 +1012,30 @@ except Exception as e:
 if changes:
     data["updatedAt"] = NOW.isoformat(timespec="seconds")
     json.dump(data, open("data.json", "w"), ensure_ascii=False, separators=(",", ":"))
+# provisional calendar of next season: an event linked to one of our races takes the race's date once it is
+# confirmed (the race page wins over the Ligue's provisional date), and loses its « date à préciser » mark
+try:
+    for sz in [f for f in sorted(os.listdir(".")) if re.fullmatch(r"saison\d{4}\.json", f)]:
+        cal = json.load(open(sz)); moved = []
+        byid = {r["id"]: r for r in data["races"] if not r.get("hidden") and not r.get("approx") and r.get("date")}
+        for ev in cal.get("evenements", []):
+            r = byid.get(ev.get("id"))
+            if not r or not r["date"].startswith(str(cal.get("saison", ""))):
+                continue
+            new = {"date": r["date"], "fin": r.get("fin")}
+            if ev.get("date") != new["date"] or ev.get("fin") != new["fin"] or ev.get("nd"):
+                ev["date"] = new["date"]
+                if new["fin"]: ev["fin"] = new["fin"]
+                else: ev.pop("fin", None)
+                ev.pop("nd", None)
+                if re.search(r"date (à|a) (préciser|confirmer)", ev.get("info", ""), re.I): ev.pop("info", None)
+                moved.append(f"{ev.get('nom')} → {new['date']}")
+        if moved:
+            cal["evenements"].sort(key=lambda e: e["date"])
+            open(sz, "w", encoding="utf-8").write(json.dumps(cal, ensure_ascii=False, indent=0) + "\n")
+            print(f"{sz} : dates confirmées par l'organisateur : {', '.join(moved)}")
+except Exception as e:
+    errors.append(f"calendrier de saison ({e.__class__.__name__})")
 # health of each source: state/health.json (rewritten only when its content changes) + this run's counts
 try:   # races whose épreuves were not all recognised (daily summary)
     old_p = json.load(open("state/partiels.json")) if os.path.exists("state/partiels.json") else None
