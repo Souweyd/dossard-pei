@@ -120,6 +120,24 @@
     "traces"
    ],
    "hidden": false
+  },
+  "boucle-pic-adam-2027-08": {
+   "fields": [
+    "affiche",
+    "commune",
+    "date",
+    "epreuves",
+    "info",
+    "lieu",
+    "ll",
+    "nom",
+    "org",
+    "page",
+    "poster",
+    "poster_lg",
+    "poster_xs"
+   ],
+   "hidden": false
   }
  },
  "manual": [
