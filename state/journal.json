@@ -289,5 +289,19 @@
 "id": "boucle-pic-adam-2027-08",
 "nom": "Trail Boucle Pic Adam",
 "date": "2027-08-07"
+},
+{
+"at": "2026-11-01T18:00+04:00",
+"t": "complet",
+"id": "curcuma",
+"nom": "Les Montées Curcuma",
+"date": "2026-11-07"
+},
+{
+"at": "2026-11-01T18:00+04:00",
+"t": "complet",
+"id": "villele",
+"nom": "Trail de Villèle",
+"date": "2026-11-29"
 }
 ]
