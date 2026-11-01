@@ -303,5 +303,12 @@
 "id": "villele",
 "nom": "Trail de Villèle",
 "date": "2026-11-29"
+},
+{
+"at": "2026-11-01T23:00+04:00",
+"t": "complet",
+"id": "trail-urbain-sainte-marie-2026-12",
+"nom": "Trail Urbain de Sainte-Marie",
+"date": "2026-12-12"
 }
 ]
