@@ -310,5 +310,12 @@
 "id": "trail-urbain-sainte-marie-2026-12",
 "nom": "Trail Urbain de Sainte-Marie",
 "date": "2026-12-12"
+},
+{
+"at": "2026-11-02T00:00+04:00",
+"t": "clos",
+"id": "curcuma",
+"nom": "Les Montées Curcuma",
+"date": "2026-11-07"
 }
 ]
