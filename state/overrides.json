@@ -138,6 +138,16 @@
     "poster_xs"
    ],
    "hidden": false
+  },
+  "artichauts": {
+   "fields": [
+    "complet",
+    "epreuves",
+    "info",
+    "inscription",
+    "limite"
+   ],
+   "hidden": false
   }
  },
  "manual": [
