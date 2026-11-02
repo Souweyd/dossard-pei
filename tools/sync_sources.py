@@ -788,11 +788,12 @@ try:
             if "/courses/epreuves/" in (r.get("inscription") or "") and can(r, "inscription"):
                 r["inscription"] = r["page"]
                 changes.append(f"{r['id']}:inscription événement")
-            if len(res) == len(r["epreuves"]) and can(r, "complet"):
-                full = all(t["complet"] for t in res.values())
-                if bool(r.get("complet")) != full:
-                    r["complet"] = full
-                    changes.append(f"{r['id']}:complet={full}")
+        # the race is full only when every épreuve is (also with a single épreuve: a freed place reopens it)
+        if res and len(res) == len(r.get("epreuves", [])) and can(r, "complet"):
+            full = all(r["epreuves"][i].get("complet") for i in res)
+            if bool(r.get("complet")) != full:
+                r["complet"] = full
+                changes.append(f"{r['id']}:complet={full}")
     run["sportpro"] = {"metrics": {"evenements": len(ag), "epreuves": sum(len(v) for v in ag.values()),
                                    "associees": associees}}
 except Exception as e:
