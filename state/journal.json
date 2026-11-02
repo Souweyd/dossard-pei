@@ -317,5 +317,19 @@
 "id": "curcuma",
 "nom": "Les Montées Curcuma",
 "date": "2026-11-07"
+},
+{
+"at": "2026-11-02T12:34+04:00",
+"t": "réouvert",
+"id": "artichauts",
+"nom": "Course des Artichauts",
+"date": "2026-11-15"
+},
+{
+"at": "2026-11-02T12:34+04:00",
+"t": "réouvert",
+"id": "villele",
+"nom": "Trail de Villèle",
+"date": "2026-11-29"
 }
 ]
