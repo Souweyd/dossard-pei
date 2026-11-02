@@ -539,7 +539,7 @@ function openDetail(id) {
         <h2>${esc(r.nom)}</h2>
         <div class="where"><span class="disc">${DISC[r.disc]}</span><span>${esc(r.commune)}${r.lieu && r.lieu !== r.commune ? " · " + esc(r.lieu) : ""}</span>${hasTrack(r.id) ? `<span class="gpxtag" title="Tracé disponible" aria-label="Tracé disponible" role="img">${TRK_ICO}</span>` : ""}</div>
         <div class="dlg-state">${stateBadge(r)}${wxChip(r)}${favBtn(r)}${r.manual ? "" : `<button type="button" class="shr" data-share="${esc(r.id)}" aria-label="Partager cette course" title="Partager"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Partager</button>`}</div>
-        <div class="eps">${(r.epreuves || []).map(epChip).join("")}</div>
+        ${epSum(r)}
       </div>
     </div>
     ${(r.fin || r.date) < todayISO() ? `<div class="ended">🏁 Cette course est terminée. Les prochaines sont sur l'accueil.</div>` : ""}
@@ -587,6 +587,7 @@ function bindCards(root) {
   bindReg(root);
   root.querySelectorAll("[data-share]").forEach(b => b.addEventListener("click", () => share(b.dataset.share)));
   root.querySelectorAll("[data-gpx]").forEach(b => b.addEventListener("click", () => downloadGPX(b.dataset.gpx)));
+  root.querySelectorAll(".trkseg.many").forEach(w => { const c = w.querySelector('[aria-pressed="true"]'); if (c && c.offsetLeft + c.offsetWidth > w.clientWidth) w.scrollLeft = c.offsetLeft - 8; });
   root.querySelectorAll("[data-trk]").forEach(b => b.addEventListener("click", () => {
     const id = b.dataset.trk; TSEL[id] = +b.dataset.i; render();
     const t = curTrack(id); if (t && state.sel === id && !DETAIL) zoomTo(boxAround(t.pts.map(p => P(p[0], p[1])), 30, 160));
@@ -594,6 +595,20 @@ function bindCards(root) {
 }
 
 // ---------- list ----------
+// race sheet: one summary line instead of a chip per épreuve (the détail is just below); a tap scrolls to it
+function epSum(r) {
+  const eps = r.epreuves || []; if (!eps.length) return "";
+  const n2 = v => String(Math.round(Number(v))).replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f");
+  const kms = eps.filter(e => e.km).map(e => +e.km), dps = eps.filter(e => e.dp).map(e => +e.dp);
+  let t;
+  if (eps.length === 1) { const e = eps[0]; t = e.km ? `<b>${fmt(e.km)} km</b>${e.dp ? ` · ${n2(e.dp)} m D+` : ""}` : esc(e.nom); }
+  else {
+    const lo = Math.min(...kms), hi = Math.max(...kms);
+    t = `<b>${eps.length} formats</b>${kms.length ? ` · ${lo === hi ? fmt(hi) : fmt(lo) + " à " + fmt(hi)} km` : ""}${dps.length ? ` · jusqu'à ${n2(Math.max(...dps))} m D+` : ""}`;
+  }
+  return `<button type="button" class="epsum" aria-label="Voir le détail des épreuves">${t}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>`;
+}
+document.addEventListener("click", e => { const b = e.target.closest(".epsum"); if (!b) return; const t = b.closest(".dlg, .dlg-panel")?.querySelector(".epcs"); t && t.scrollIntoView({ block: "start", behavior: reduced() ? "auto" : "smooth" }); });
 function epChip(e) {
   if (!e.km && e.type === "jeunes") return "";
   const lab = e.km ? `<b>${fmt(e.km)}</b> km${e.dp ? ` · ${e.dp} D+` : ""}` : esc(e.nom);
@@ -754,10 +769,14 @@ function detailHTML(r) {
   const traces = (r.traces || []).map(t => `<a href="${esc(t.url)}" target="_blank" rel="noopener">Tracé · ${esc(t.nom)}</a>`).join("");
   const all = tracksOf(r.id), g = curTrack(r.id), gi = Math.min(TSEL[r.id] || 0, (all || [1]).length - 1);
   if (hasTrack(r.id) && !all) loadTracks(r.id);
-  const tabs = all && all.length > 1 ? `<div class="trk-tabs" role="group" aria-label="Parcours">${all.map((t, i) => `<button type="button" class="chip" data-trk="${esc(r.id)}" data-i="${i}" aria-pressed="${i === gi}">${esc(t.nom)} · ${fmt(t.km)} km</button>`).join("")}</div>` : "";
+  const tabs = all && all.length > 1 ? `<div class="trkseg${all.length > 3 ? " many" : ""}" role="group" aria-label="Parcours">${all.map((t, i) => `<button type="button" data-trk="${esc(r.id)}" data-i="${i}" aria-pressed="${i === gi}"><span>${esc(t.nom)}</span><small>${t.km ? fmt(t.km) + " km" : "&nbsp;"}</small></button>`).join("")}</div>` : "";
   const gsrc = trkSrc(r.id);
-  const srcT = gsrc ? `<div class="trksrc">Tracé : <a href="${esc(gsrc)}" target="_blank" rel="noopener">${esc(srcName(gsrc))}</a></div>` : "";
-  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}<div class="note">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : `${g.nom ? esc(g.nom) + " · " : ""}${g.km ? fmt(g.km) + " km" : ""}${g.dp ? " · " + g.dp + " m D+" : ""}${g.km || g.dp ? " (mesurés sur le tracé)" : ""}`}${srcT}</div><div class="mmw">${miniMap(g.pts, r)}${g.partiel ? "" : `<button type="button" class="b3d" data-v3d="${esc(r.id)}" aria-label="Voir le parcours en 3D">3D</button>`}</div>${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
+  const srcT = gsrc ? ` · source <a href="${esc(gsrc)}" target="_blank" rel="noopener">${esc(srcName(gsrc))}</a>` : "";
+  const n2 = v => String(Math.round(Number(v))).replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f");
+  const hiE = g && g.pts && !g.partiel ? Math.round(Math.max(...trackStats(g.pts).prof.map(p => p[1]))) : null;
+  const ST = (ico, v, lab) => `<div><svg viewBox="0 0 24 24" aria-hidden="true">${ico}</svg><b>${v}</b><small>${lab}</small></div>`;
+  const stats = g && g.pts && !g.partiel && (g.km || g.dp) ? `<div class="trkst">${g.km ? ST('<path d="M4 12h16M7 8l-4 4 4 4M17 8l4 4-4 4"/>', fmt(g.km) + " km", "Distance") : ""}${g.dp ? ST('<path d="M3 19l6-9 4 5 3-4 5 8z"/>', n2(g.dp) + " m", "D+") : ""}${hiE > 0 ? ST('<path d="M6 21V4M6 4l11 4-11 4"/>', n2(hiE) + " m", "Alt. max") : ""}</div>` : "";
+  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}${stats}<div class="note trkcap">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : g.km || g.dp ? "Mesuré sur le tracé" : "Tracé"}${srcT}</div><div class="mmw">${miniMap(g.pts, r)}${g.partiel ? "" : `<button type="button" class="b3d" data-v3d="${esc(r.id)}" aria-label="Voir le parcours en 3D">3D</button>`}</div>${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
   return `<div class="detail">
     ${r.info ? `<p class="dinfo">${esc(r.info)}${r.paiement ? ` <a href="${esc(r.paiement)}" target="_blank" rel="noopener">Paiement en ligne</a>` : ""}</p>` : ""}
     ${verifLine(r)}
@@ -2001,6 +2020,19 @@ function syncTabs() {
   tb.querySelectorAll("[data-tab]").forEach(b => { if (b.dataset.tab === cur) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
   const on = tb.querySelector('[aria-current="page"]'), pc = $("#tbpill .tbcur"); if (on && pc) pc.innerHTML = (on.querySelector("svg")?.outerHTML || "") + '<span class="tbl">' + on.textContent.trim() + "</span>";
 }
+// GoatCounter: one event each time someone picks a mode (pill on phones, switch on wide screens)
+const MODEN = { reels: "scroll", liste: "liste", calendrier: "calendrier", carte: "carte" };
+document.addEventListener("click", e => {
+  const b = e.target.closest(".tabbar [data-tab], .switch button[id^='v-']"); if (!b) return;
+  const v = b.dataset.tab || b.id.slice(2), m = MODEN[v]; if (!m) return;
+  gcount("mode/" + m, "Mode " + m.charAt(0).toUpperCase() + m.slice(1), true);
+}, true);
+// arrival mode (Scroll by default on phones), and whether the visitor goes past the Scroll home to the race posters
+setTimeout(() => { try { const m = MODEN[curTab()]; if (m) gcount("arrivee/" + m, "Arrivée en mode " + m, true); } catch (e) {} }, 1500);
+{ let seen = false; document.addEventListener("scroll", e => {
+  if (seen || !document.documentElement.classList.contains("reels-open")) return;
+  const el = e.target; if (el && el.scrollTop > innerHeight * .6) { seen = true; gcount("scroll/affiches", "Scroll : passe l'accueil", true); }
+}, { capture: true, passive: true }); }
 function tbMenu(open) {
   const tb = $("#tabbar"), pl = $("#tbpill"), dm = $("#tbdim"); if (!tb || !pl) return;
   if (open === undefined) open = !tb.classList.contains("open");
@@ -2015,9 +2047,16 @@ function goTab(v) {
   const reelsOn = document.documentElement.classList.contains("reels-open"), from = curTab();
   if (v === from) { if (v === "liste" || v === "calendrier") scrollTo({ top: 0, behavior: "smooth" }); return syncTabs(); }
   if (from === "liste" || from === "calendrier") TABPOS[from] = { y: scrollY, k: tabKey() };
-  if (v === "reels") { if (document.body.classList.contains("mapfull")) { TABMAP = false; setMapFull(false); } rMode("reels"); openReels(); return syncTabs(); }
+  if (from === "reels") { const f = reelsBox && reelsBox.querySelector(".rfeed"); if (f) { const h = f.clientHeight || innerHeight, i = Math.round(f.scrollTop / h), sl = f.children[i]; TABPOS.reels = { id: sl && sl.dataset.id, y: f.scrollTop, k: tabKey() }; } }
+  if (v === "reels") {
+    if (document.body.classList.contains("mapfull")) { TABMAP = false; setMapFull(false); } rMode("reels"); openReels();
+    // back on the poster where the visitor stopped (same filters only)
+    const sp = TABPOS.reels, f = reelsBox && reelsBox.querySelector(".rfeed");
+    if (sp && f && sp.k === tabKey()) { const go = () => { const t = sp.id ? f.querySelector('.rs[data-id="' + CSS.escape(sp.id) + '"]') : null; f.style.scrollBehavior = "auto"; f.scrollTop = t ? t.offsetTop : sp.y; f.style.scrollBehavior = ""; }; go(); requestAnimationFrame(go); }
+    return syncTabs();
+  }
   if (reelsOn) closeReels();
-  if (v === "carte") { gcount("onglet/carte", "Onglet Carte", true); rMode("carte"); mapFromReels = false; setView("carte"); TABMAP = true; setMapFull(true); return syncTabs(); }
+  if (v === "carte") { rMode("carte"); mapFromReels = false; setView("carte"); TABMAP = true; setMapFull(true); return syncTabs(); }
   if (document.body.classList.contains("mapfull")) { TABMAP = false; setMapFull(false); }
   rMode(v); setView(v); syncTabs();
   const sp = TABPOS[v], y = sp && sp.k === tabKey() ? sp.y : 0;
