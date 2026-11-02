@@ -331,5 +331,12 @@
 "id": "villele",
 "nom": "Trail de Villèle",
 "date": "2026-11-29"
+},
+{
+"at": "2026-11-02T14:29+04:00",
+"t": "ajout",
+"id": "cross-du-vetyver-2026-11",
+"nom": "Cross du Vétyver",
+"date": "2026-11-22"
 }
 ]

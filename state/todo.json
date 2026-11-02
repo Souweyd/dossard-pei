@@ -1,14 +1,8 @@
 {
- "at": "2026-11-02T13:02+04:00",
- "since": "2026-11-02T09:21+04:00",
- "rien": false,
- "sources": [
-  {
-   "id": "chronometrage",
-   "url": "https://chronometrage.com/",
-   "changed": "2026-11-02T13:02+04:00"
-  }
- ],
+ "at": "2026-11-02T14:37+04:00",
+ "since": "2026-11-02T14:21+04:00",
+ "rien": true,
+ "sources": [],
  "avenir": [],
  "illisibles": [
   {
