@@ -539,7 +539,7 @@ function openDetail(id) {
         <h2>${esc(r.nom)}</h2>
         <div class="where"><span class="disc">${DISC[r.disc]}</span><span>${esc(r.commune)}${r.lieu && r.lieu !== r.commune ? " · " + esc(r.lieu) : ""}</span>${hasTrack(r.id) ? `<span class="gpxtag" title="Tracé disponible" aria-label="Tracé disponible" role="img">${TRK_ICO}</span>` : ""}</div>
         <div class="dlg-state">${stateBadge(r)}${wxChip(r)}${favBtn(r)}${r.manual ? "" : `<button type="button" class="shr" data-share="${esc(r.id)}" aria-label="Partager cette course" title="Partager"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M5 13v7h14v-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Partager</button>`}</div>
-        <div class="eps">${(r.epreuves || []).map(epChip).join("")}</div>
+        ${epSum(r)}
       </div>
     </div>
     ${(r.fin || r.date) < todayISO() ? `<div class="ended">🏁 Cette course est terminée. Les prochaines sont sur l'accueil.</div>` : ""}
@@ -587,6 +587,7 @@ function bindCards(root) {
   bindReg(root);
   root.querySelectorAll("[data-share]").forEach(b => b.addEventListener("click", () => share(b.dataset.share)));
   root.querySelectorAll("[data-gpx]").forEach(b => b.addEventListener("click", () => downloadGPX(b.dataset.gpx)));
+  root.querySelectorAll(".trkseg.many").forEach(w => { const c = w.querySelector('[aria-pressed="true"]'); if (c && c.offsetLeft + c.offsetWidth > w.clientWidth) w.scrollLeft = c.offsetLeft - 8; });
   root.querySelectorAll("[data-trk]").forEach(b => b.addEventListener("click", () => {
     const id = b.dataset.trk; TSEL[id] = +b.dataset.i; render();
     const t = curTrack(id); if (t && state.sel === id && !DETAIL) zoomTo(boxAround(t.pts.map(p => P(p[0], p[1])), 30, 160));
@@ -594,6 +595,20 @@ function bindCards(root) {
 }
 
 // ---------- list ----------
+// race sheet: one summary line instead of a chip per épreuve (the détail is just below); a tap scrolls to it
+function epSum(r) {
+  const eps = r.epreuves || []; if (!eps.length) return "";
+  const n2 = v => String(Math.round(Number(v))).replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f");
+  const kms = eps.filter(e => e.km).map(e => +e.km), dps = eps.filter(e => e.dp).map(e => +e.dp);
+  let t;
+  if (eps.length === 1) { const e = eps[0]; t = e.km ? `<b>${fmt(e.km)} km</b>${e.dp ? ` · ${n2(e.dp)} m D+` : ""}` : esc(e.nom); }
+  else {
+    const lo = Math.min(...kms), hi = Math.max(...kms);
+    t = `<b>${eps.length} formats</b>${kms.length ? ` · ${lo === hi ? fmt(hi) : fmt(lo) + " à " + fmt(hi)} km` : ""}${dps.length ? ` · jusqu'à ${n2(Math.max(...dps))} m D+` : ""}`;
+  }
+  return `<button type="button" class="epsum" aria-label="Voir le détail des épreuves">${t}<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>`;
+}
+document.addEventListener("click", e => { const b = e.target.closest(".epsum"); if (!b) return; const t = b.closest(".dlg, .dlg-panel")?.querySelector(".epcs"); t && t.scrollIntoView({ block: "start", behavior: reduced() ? "auto" : "smooth" }); });
 function epChip(e) {
   if (!e.km && e.type === "jeunes") return "";
   const lab = e.km ? `<b>${fmt(e.km)}</b> km${e.dp ? ` · ${e.dp} D+` : ""}` : esc(e.nom);
@@ -754,10 +769,14 @@ function detailHTML(r) {
   const traces = (r.traces || []).map(t => `<a href="${esc(t.url)}" target="_blank" rel="noopener">Tracé · ${esc(t.nom)}</a>`).join("");
   const all = tracksOf(r.id), g = curTrack(r.id), gi = Math.min(TSEL[r.id] || 0, (all || [1]).length - 1);
   if (hasTrack(r.id) && !all) loadTracks(r.id);
-  const tabs = all && all.length > 1 ? `<div class="trk-tabs" role="group" aria-label="Parcours">${all.map((t, i) => `<button type="button" class="chip" data-trk="${esc(r.id)}" data-i="${i}" aria-pressed="${i === gi}">${esc(t.nom)} · ${fmt(t.km)} km</button>`).join("")}</div>` : "";
+  const tabs = all && all.length > 1 ? `<div class="trkseg${all.length > 3 ? " many" : ""}" role="group" aria-label="Parcours">${all.map((t, i) => `<button type="button" data-trk="${esc(r.id)}" data-i="${i}" aria-pressed="${i === gi}"><span>${esc(t.nom)}</span><small>${t.km ? fmt(t.km) + " km" : "&nbsp;"}</small></button>`).join("")}</div>` : "";
   const gsrc = trkSrc(r.id);
-  const srcT = gsrc ? `<div class="trksrc">Tracé : <a href="${esc(gsrc)}" target="_blank" rel="noopener">${esc(srcName(gsrc))}</a></div>` : "";
-  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}<div class="note">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : `${g.nom ? esc(g.nom) + " · " : ""}${g.km ? fmt(g.km) + " km" : ""}${g.dp ? " · " + g.dp + " m D+" : ""}${g.km || g.dp ? " (mesurés sur le tracé)" : ""}`}${srcT}</div><div class="mmw">${miniMap(g.pts, r)}${g.partiel ? "" : `<button type="button" class="b3d" data-v3d="${esc(r.id)}" aria-label="Voir le parcours en 3D">3D</button>`}</div>${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
+  const srcT = gsrc ? ` · source <a href="${esc(gsrc)}" target="_blank" rel="noopener">${esc(srcName(gsrc))}</a>` : "";
+  const n2 = v => String(Math.round(Number(v))).replace(/\B(?=(\d{3})+(?!\d))/g, "\u202f");
+  const hiE = g && g.pts && !g.partiel ? Math.round(Math.max(...trackStats(g.pts).prof.map(p => p[1]))) : null;
+  const ST = (ico, v, lab) => `<div><svg viewBox="0 0 24 24" aria-hidden="true">${ico}</svg><b>${v}</b><small>${lab}</small></div>`;
+  const stats = g && g.pts && !g.partiel && (g.km || g.dp) ? `<div class="trkst">${g.km ? ST('<path d="M4 12h16M7 8l-4 4 4 4M17 8l4 4-4 4"/>', fmt(g.km) + " km", "Distance") : ""}${g.dp ? ST('<path d="M3 19l6-9 4 5 3-4 5 8z"/>', n2(g.dp) + " m", "D+") : ""}${hiE > 0 ? ST('<path d="M6 21V4M6 4l11 4-11 4"/>', n2(hiE) + " m", "Alt. max") : ""}</div>` : "";
+  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}${stats}<div class="note trkcap">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : g.km || g.dp ? "Mesuré sur le tracé" : "Tracé"}${srcT}</div><div class="mmw">${miniMap(g.pts, r)}${g.partiel ? "" : `<button type="button" class="b3d" data-v3d="${esc(r.id)}" aria-label="Voir le parcours en 3D">3D</button>`}</div>${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
   return `<div class="detail">
     ${r.info ? `<p class="dinfo">${esc(r.info)}${r.paiement ? ` <a href="${esc(r.paiement)}" target="_blank" rel="noopener">Paiement en ligne</a>` : ""}</p>` : ""}
     ${verifLine(r)}
@@ -1920,6 +1939,41 @@ async function open3D(id) {
     const start = t => { if (!fly) { fly = { t: t || 0, phase: "in", k: 0 }; HOME = homeView(); } else if (fly.phase === "out" || fly.phase === "done") { fly.t = t || 0; fly.phase = "in"; fly.k = 0; } else fly.phase = "play";
       fly.playing = true; runner.visible = true; hud.hidden = false; hint.hidden = true; setPlay(true); };
     playBtn.addEventListener("click", () => { if (fly && fly.playing) { fly.playing = false; setPlay(false); } else start(fly && fly.phase !== "done" ? fly.t : 0); });
+    // touch: map-like gestures. One finger moves the map; two fingers pinch to zoom, twist to turn and
+    // slide up / down together to tilt. The mouse keeps OrbitControls (drag to turn, wheel to zoom).
+    { const el = renderer.domElement, host = el.parentNode, T = new Map(), up = new THREE.Vector3(0, 1, 0);
+      const sph = new THREE.Spherical(), off = new THREE.Vector3(), R = new THREE.Vector3(), Fw = new THREE.Vector3();
+      let last = null;
+      const pause = () => { if (!fly) return; if (fly.phase === "in") fly.phase = "play"; fly.snap = false; if (fly.playing) { fly.playing = false; setPlay(false); } };
+      controls.addEventListener("start", pause);
+      const pair = () => { const [a, b] = [...T.values()]; return { d: Math.hypot(b.x - a.x, b.y - a.y), ang: Math.atan2(b.y - a.y, b.x - a.x), x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; };
+      const snap = () => T.size >= 2 ? { two: pair() } : T.size === 1 ? { one: { ...[...T.values()][0] } } : null;
+      const read = () => { off.copy(camera.position).sub(controls.target); sph.setFromVector3(off); };
+      const put = () => { sph.makeSafe(); camera.position.copy(controls.target).add(off.setFromSpherical(sph)); camera.lookAt(controls.target); };
+      const own = e => e.pointerType === "touch" && (e.target === el || T.has(e.pointerId));
+      host.addEventListener("pointerdown", e => { if (!own(e)) return; e.stopPropagation(); e.preventDefault(); hint.hidden = true; pause();
+        T.set(e.pointerId, { x: e.clientX, y: e.clientY }); try { el.setPointerCapture(e.pointerId); } catch (_) {} last = snap(); }, true);
+      host.addEventListener("pointermove", e => { if (!own(e)) return; e.stopPropagation(); e.preventDefault();
+        T.set(e.pointerId, { x: e.clientX, y: e.clientY }); const now = snap(); if (!now || !last || !!now.two !== !!last.two) { last = now; return; }
+        read(); const h = el.clientHeight || 1;
+        if (now.one) {   // drag the ground under the finger
+          const wpp = 2 * sph.radius * Math.tan(camera.fov * Math.PI / 360) / h, dx = now.one.x - last.one.x, dy = now.one.y - last.one.y;
+          R.setFromMatrixColumn(camera.matrix, 0).setY(0).normalize(); Fw.crossVectors(up, R).normalize();
+          const tilt = Math.min(3, 1 / Math.max(.33, Math.cos(sph.phi)));
+          const mv = R.multiplyScalar(-dx * wpp).add(Fw.multiplyScalar(dy * wpp * tilt));
+          const t = controls.target.clone().add(mv); t.x = Math.max(-S / 2, Math.min(S / 2, t.x)); t.z = Math.max(-S / 2, Math.min(S / 2, t.z));
+          mv.subVectors(t, controls.target); controls.target.add(mv); camera.position.add(mv);
+        } else {         // pinch, twist, tilt
+          const a = now.two, b = last.two;
+          if (b.d > 0 && a.d > 0) sph.radius = Math.max(controls.minDistance, Math.min(controls.maxDistance, sph.radius * b.d / a.d));
+          let da = a.ang - b.ang; if (da > Math.PI) da -= 2 * Math.PI; if (da < -Math.PI) da += 2 * Math.PI; sph.theta += da;
+          if (Math.abs(a.d - b.d) < 6) sph.phi = Math.max(.08, Math.min(controls.maxPolarAngle, sph.phi - (a.y - b.y) * .006));
+          put();
+        }
+        last = now; }, true);
+      const end = e => { if (!own(e)) return; e.stopPropagation(); T.delete(e.pointerId); last = snap(); };
+      host.addEventListener("pointerup", end, true); host.addEventListener("pointercancel", end, true);
+      if (matchMedia("(pointer: coarse)").matches) hint.textContent = "1 doigt pour déplacer · 2 doigts pour zoomer, tourner et incliner"; }
     seek.addEventListener("input", () => { const t = seek.value / 1000; if (!fly) start(t); fly.t = t; if (fly.phase === "out" || fly.phase === "done") fly.phase = "play"; fly.playing = false; setPlay(false); fly.snap = true; });
     const follow = (p, a) => { const dir = a.clone().sub(p).setY(0); if (dir.lengthSq() < 1e-8) dir.set(0, 0, -1); dir.normalize(); return p.clone().add(dir.multiplyScalar(-18)).add(new THREE.Vector3(0, 12, 0)); };
     let lastT = performance.now(), lastW = 0, lastH = 0;
@@ -2028,7 +2082,14 @@ function goTab(v) {
   const reelsOn = document.documentElement.classList.contains("reels-open"), from = curTab();
   if (v === from) { if (v === "liste" || v === "calendrier") scrollTo({ top: 0, behavior: "smooth" }); return syncTabs(); }
   if (from === "liste" || from === "calendrier") TABPOS[from] = { y: scrollY, k: tabKey() };
-  if (v === "reels") { if (document.body.classList.contains("mapfull")) { TABMAP = false; setMapFull(false); } rMode("reels"); openReels(); return syncTabs(); }
+  if (from === "reels") { const f = reelsBox && reelsBox.querySelector(".rfeed"); if (f) { const h = f.clientHeight || innerHeight, i = Math.round(f.scrollTop / h), sl = f.children[i]; TABPOS.reels = { id: sl && sl.dataset.id, y: f.scrollTop, k: tabKey() }; } }
+  if (v === "reels") {
+    if (document.body.classList.contains("mapfull")) { TABMAP = false; setMapFull(false); } rMode("reels"); openReels();
+    // back on the poster where the visitor stopped (same filters only)
+    const sp = TABPOS.reels, f = reelsBox && reelsBox.querySelector(".rfeed");
+    if (sp && f && sp.k === tabKey()) { const go = () => { const t = sp.id ? f.querySelector('.rs[data-id="' + CSS.escape(sp.id) + '"]') : null; f.style.scrollBehavior = "auto"; f.scrollTop = t ? t.offsetTop : sp.y; f.style.scrollBehavior = ""; }; go(); requestAnimationFrame(go); }
+    return syncTabs();
+  }
   if (reelsOn) closeReels();
   if (v === "carte") { rMode("carte"); mapFromReels = false; setView("carte"); TABMAP = true; setMapFull(true); return syncTabs(); }
   if (document.body.classList.contains("mapfull")) { TABMAP = false; setMapFull(false); }
