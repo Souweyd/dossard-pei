@@ -1,5 +1,5 @@
 {
- "at": "2026-11-02T10:02+04:00",
+ "at": "2026-11-02T12:08+04:00",
  "since": "2026-11-02T09:21+04:00",
  "rien": true,
  "sources": [],
@@ -9,6 +9,11 @@
    "id": "saint-benoit",
    "url": "https://www.saint-benoit.re/evenements/",
    "erreur": "HTTPError 404"
+  },
+  {
+   "id": "chronometrage",
+   "url": "https://chronometrage.com/",
+   "erreur": "HTTPError 502"
   },
   {
    "id": "milesrepublic",
