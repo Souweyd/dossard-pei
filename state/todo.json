@@ -1,8 +1,13 @@
 {
- "at": "2026-11-03T21:08+04:00",
+ "at": "2026-11-03T22:03+04:00",
  "since": "2026-11-03T19:20+04:00",
  "rien": false,
  "sources": [
+  {
+   "id": "gotrail",
+   "url": "https://gotrail.run/calendrier-trails/reunion",
+   "changed": "2026-11-03T22:03+04:00"
+  },
   {
    "id": "runninglife",
    "url": "https://running.life/calendrier-course-a-pied/reunion",
