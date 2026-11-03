@@ -148,6 +148,23 @@
     "limite"
    ],
    "hidden": false
+  },
+  "relais-marrons-2026-12": {
+   "fields": [
+    "affiche",
+    "commune",
+    "date",
+    "epreuves",
+    "info",
+    "lieu",
+    "ll",
+    "nom",
+    "org",
+    "poster",
+    "poster_lg",
+    "poster_xs"
+   ],
+   "hidden": false
   }
  },
  "manual": [
