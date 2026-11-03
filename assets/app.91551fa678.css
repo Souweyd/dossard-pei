@@ -612,7 +612,7 @@ header.top .topr { position: absolute; top: 50%; right: max(16px, calc((100vw - 
 .hero2 .hsub { max-width: none; text-wrap: balance } @media (min-width: 760px) { .hero2 .hsub .nw { white-space: nowrap } }
 
 /* ---------- illustrated landscape behind the header (day: Hauts trail, night: sunset over the cirques) ---------- */
-html { overflow-x: clip }
+html { overflow-x: hidden }
 .hero2 { position: relative; isolation: isolate; padding-top: clamp(28px, 4vw, 56px); padding-bottom: clamp(110px, 11vw, 170px) }
 .herobg { position: absolute; z-index: -1; top: -40px; bottom: -30px; left: 50%; width: 100vw; transform: translateX(-50%); overflow: hidden; pointer-events: none; background: linear-gradient(var(--k1), var(--k2)) }
 /* sky of the header by the time of day in La Réunion (charte des posts) : lagon (sunrise → 9 h), jour,
@@ -816,6 +816,12 @@ html { overflow-x: clip }
 .trkst svg { grid-row: 1 / 3; width: 18px; height: 18px; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
 .trkst b { font-size: 1rem; white-space: nowrap } .trkst small { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap }
 .trkcap { font-size: .8rem } .trkcap a { color: var(--fg) }
+/* sheets and dialogs never move sideways (iOS lets a clipped overflow bounce horizontally) */
+html { overflow-x: hidden } body { overflow-x: clip }   /* Safari does not apply « clip » on the root to the page: hidden is needed there */
+/* Safari (iOS) still lets the page and the sheets slide sideways a little: only vertical panning and
+   pinch-zoom there; the rows that scroll sideways on purpose are scroll boxes and keep their own swipe */
+@media (pointer: coarse) { body, .dlg-panel { touch-action: pan-y pinch-zoom } }
+.dlg-panel { overscroll-behavior-x: none } .dlg-panel > * { min-width: 0; max-width: 100% }
 /* ===== Scroll home: centred, spread over the whole screen ===== */
 .rs.rintro.rhome { justify-content: center; align-items: center; padding: calc(env(safe-area-inset-top) + 56px) 20px calc(150px + env(safe-area-inset-bottom)) }
 .rintro.rhome .rin { text-align: center; display: flex; flex-direction: column; align-items: center; gap: clamp(12px, 2.4vh, 22px) }
@@ -1104,7 +1110,7 @@ section.mine h2 { font-family: var(--display); font-weight: 800; letter-spacing:
 .sz-src { margin: 18px 0 0; font-size: .76rem; color: var(--muted) }
 @media (max-width: 640px) {
   .sz-hd { padding-top: 18px }
-  .sz-bar { margin: 0 -14px; padding: 8px 14px 8px } .sz-ft, .sz-mos { margin: 0 -14px; padding: 0 14px }
+  .sz-bar, .sz-panel .sz-bar { margin: 0 -14px; padding: 8px 14px 8px } .sz-ft, .sz-mos, .sz-panel .sz-ft, .sz-panel .sz-mos { margin: 0 -14px; padding: 0 14px }
   .sz-day { grid-template-columns: 46px minmax(0, 1fr); gap: 10px }
   .sz-r { flex-wrap: wrap; row-gap: 6px } .sz-ok { margin-left: 0 }
   .sz-r .sz-n { flex-basis: 100% }
