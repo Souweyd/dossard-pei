@@ -352,5 +352,12 @@
 "id": "trail-anglais-2027-02",
 "nom": "Trail des Anglais",
 "date": "2027-02-28"
+},
+{
+"at": "2026-11-03T17:55+04:00",
+"t": "ajout",
+"id": "relais-marrons-2026-12",
+"nom": "Le Relais des Marrons",
+"date": "2026-12-20"
 }
 ]
