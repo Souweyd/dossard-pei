@@ -658,7 +658,7 @@ function sourcesHTML(r) {
   if (r.page && r.page !== r.inscription) add("Organisateur :", r.page);
   if (r.affiche) add("Affiche :", r.affiche, host(r.affiche));
   if (GPX[r.id] && (GPX[r.id].src || GPX[r.id].source)) add("Tracé :", GPX[r.id].src || GPX[r.id].source);
-  return `<div class="srcs"><b>Sources</b> ${items.join(" · ")} · Carte : IGN (relief, sentiers), ESA WorldCover, © OpenStreetMap${wxOf(r).length ? " · Météo : MET Norway" : ""}</div>`;
+  return `<div class="srcs"><b>Sources</b> ${items.join(" · ")} · Carte : IGN (relief, sentiers, photo aérienne de l'océan), ESA WorldCover, © OpenStreetMap${wxOf(r).length ? " · Météo : MET Norway" : ""}</div>`;
 }
 // status of one épreuve (only when the source gives it épreuve by épreuve, e.g. the Sportpro agenda)
 function epState(e, r) {
@@ -711,23 +711,17 @@ const wxKind = s => /thunder/.test(s || "") ? "storm" : /rain|sleet|snow/.test(s
 function wxChip(r) { const x = wxOf(r)[0]; if (!x) return "";
   return `<button type="button" class="wxchip k-${wxKind(x.start.sym)}" data-wxgo title="Voir la météo de la course">${wxSvg(wxKind(x.start.sym))}${x.start.t}°<span class="vh"> au départ, ${esc(wxTxt(x.start.sym))}</span></button>`; }
 document.addEventListener("click", e => { if (!e.target.closest || !e.target.closest("[data-wxgo]")) return; const w = document.querySelector(".dlg .wx"); if (w) w.scrollIntoView({ behavior: "smooth", block: "center" }); });
-function wxHTML(r) {
+function wxHTML(r) {   // compact: one line per race day (sky, temperature at the start, range, rain, wind), under the map
   const xs = wxOf(r); if (!xs.length) return "";
   const md = xs.length > 1 || multiDay(r);
-  const tile = (ic, val, lab) => `<div class="wxc">${wxSvg(ic)}<b>${val}</b><span>${lab}</span></div>`;
-  const parts = xs.map(x => { const w = x.window, d = dt(x.date), k = wxKind(x.start.sym);
+  const rows = xs.map(x => { const w = x.window, d = dt(x.date), k = wxKind(x.start.sym);
     const rain = w.rain >= 1 ? `${w.rain >= 10 ? Math.round(w.rain) : w.rain.toLocaleString("fr-FR")} mm` : "0 mm";
-    const tiles = [tile("temp", w.tmin === w.tmax ? `${w.tmin}°` : `${w.tmin}–${w.tmax}°`, w.hours >= 1.5 ? `Pendant la course (≈ ${Math.round(w.hours)} h)` : "Pendant la course"),
-      tile("drop", rain, "Pluie prévue"), tile("wind", `${w.w} km/h`, "Vent max")];
-    if (x.top) tiles.push(tile("peak", `${x.top.t}°`, `Au sommet (${x.top.alt.toLocaleString("fr-FR")} m)`));
-    return `<div class="wxd">
-      <div class="wxtop"><span class="wxbig k-${k}">${wxSvg(k)}</span><div><b class="wxt">${x.start.t}°</b><span class="wxs">${esc(wxTxt(x.start.sym))}${x.h ? ` · départ ${esc(x.h)}` : ""}</span></div>
-      ${md ? `<span class="wxday">${esc(d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" }))}</span>` : ""}</div>
-      <div class="wxg">${tiles.join("")}</div>
-      ${x.veille ? `<p class="wxv">${wxSvg("wet")}Pluie la veille (≈ ${x.veille} mm) : terrain probablement glissant</p>` : ""}</div>`; }).join("");
+    const bits = [`${wxSvg("temp")}${w.tmin === w.tmax ? `${w.tmin}°` : `${w.tmin}–${w.tmax}°`}`, `${wxSvg("drop")}${rain}`, `${wxSvg("wind")}${w.w} km/h`];
+    if (x.top) bits.push(`${wxSvg("peak")}${x.top.t}° au sommet`);
+    return `<div class="wxl"><span class="wxi k-${k}">${wxSvg(k)}</span><div class="wxm"><b>${x.start.t}° · ${esc(wxTxt(x.start.sym))}</b><small>${md ? esc(d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric" })) + " · " : ""}${x.h ? "départ " + esc(x.h) : "au départ"}</small></div><div class="wxb">${bits.map(b => `<span>${b}</span>`).join("")}</div></div>
+      ${x.veille ? `<p class="wxv">${wxSvg("wet")}Pluie la veille (≈ ${x.veille} mm) : terrain probablement glissant</p>` : ""}`; }).join("");
   const j = xs[0].j;
-  return `<section class="wx k-${wxKind(xs[0].start.sym)}"><div class="wxh"><h4>Météo de la course</h4><span class="wxtag${j >= 3 ? "" : " sure"}">${j >= 3 ? "Tendance" : "Prévision"}</span></div>${parts}
-    <p class="wxsrc">Prévisions susceptibles d'évoluer.</p></section>`;
+  return `<section class="wx wxc2 k-${wxKind(xs[0].start.sym)}"><div class="wxh"><h4>Météo</h4><span class="wxtag${j >= 3 ? "" : " sure"}">${j >= 3 ? "Tendance" : "Prévision"}</span><span class="wxsrc2">peut évoluer</span></div>${rows}</section>`;
 }
 // start-up: the four data files (weather, verification, profiles, fresh data.json) are applied as they come,
 // but the page is redrawn ONCE when they are all in (or after 1.5 s), instead of once per file
@@ -760,6 +754,25 @@ function epCards(r) {
       ${place ? `<p class="epc-n">${epSvg("pin")}Départ : ${place}</p>` : ""}${e.note ? `<p class="epc-n">${esc(e.note)}</p>` : ""}
     </article>`; }).join("");
 }
+// « Aller au départ »: Plans on iPhone / iPad, Google Maps elsewhere; an approximate point says so
+function goDep(r, pt) {   // pt: first point of the track (the real start); else the race's point, said approximate
+  const ll = pt ? [pt[0], pt[1]] : r.ll; if (!ll) return "";
+  const [la, lo] = ll.map(v => Number(v).toFixed(5));
+  const named = r.lieu && r.lieu !== r.commune;
+  const lab = pt || named ? "Aller au départ" : "Itinéraire vers " + esc(r.commune);
+  const sub = pt ? (named ? esc(r.lieu) + " · départ du tracé" : "Départ du tracé") : named ? esc(r.lieu) + " · position approximative" : "Lieu exact à confirmer";
+  const apple = /iP(hone|ad|od)|Macintosh/.test(navigator.userAgent);
+  const apps = [["Google Maps", `https://www.google.com/maps/dir/?api=1&destination=${la},${lo}`], ["Waze", `https://waze.com/ul?ll=${la},${lo}&navigate=yes`]];
+  if (apple) apps.unshift(["Plans (Apple)", `https://maps.apple.com/?daddr=${la},${lo}&dirflg=d`]);
+  return `<div class="godep"><button type="button" class="godep-b" aria-haspopup="true" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8z"/></svg>${lab}</button>
+    <div class="godep-m" hidden>${apps.map(([n, u]) => `<a href="${u}" target="_blank" rel="noopener">${n}</a>`).join("")}</div><span>${sub}</span></div>`;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest(".godep-b");
+  document.querySelectorAll(".godep-m:not([hidden])").forEach(m => { if (!b || m.previousElementSibling !== b) { m.hidden = true; m.previousElementSibling.setAttribute("aria-expanded", "false"); } });
+  if (b) { const m = b.nextElementSibling; m.hidden = !m.hidden; b.setAttribute("aria-expanded", m.hidden ? "false" : "true"); }
+  if (e.target.closest && e.target.closest(".godep-m a")) { const m = e.target.closest(".godep-m"); setTimeout(() => { m.hidden = true; }, 50); gcount("itineraire/" + e.target.textContent.split(" ")[0].toLowerCase(), "Itinéraire", true); }
+});
 function detailHTML(r) {
   const hasSt = (r.epreuves || []).some(e => e.url || "complet" in e);
   const md = multiDay(r), startOf = e => (md && e.date ? epDay(e) + (e.h ? " · " : "") : "") + (e.h || "");
@@ -777,13 +790,13 @@ function detailHTML(r) {
   const hiE = g && g.pts && !g.partiel ? Math.round(Math.max(...trackStats(g.pts).prof.map(p => p[1]))) : null;
   const ST = (ico, v, lab) => `<div><svg viewBox="0 0 24 24" aria-hidden="true">${ico}</svg><b>${v}</b><small>${lab}</small></div>`;
   const stats = g && g.pts && !g.partiel && (g.km || g.dp) ? `<div class="trkst">${g.km ? ST('<path d="M4 12h16M7 8l-4 4 4 4M17 8l4 4-4 4"/>', fmt(g.km) + " km", "Distance") : ""}${g.dp ? ST('<path d="M3 19l6-9 4 5 3-4 5 8z"/>', n2(g.dp) + " m", "D+") : ""}${hiE > 0 ? ST('<path d="M6 21V4M6 4l11 4-11 4"/>', n2(hiE) + " m", "Alt. max") : ""}</div>` : "";
-  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}${stats}<div class="note trkcap">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : g.km || g.dp ? "Mesuré sur le tracé" : "Tracé"}${srcT}</div><div class="mmw">${miniMap(g.pts, r)}${g.partiel ? "" : `<button type="button" class="b3d" data-v3d="${esc(r.id)}" aria-label="Voir le parcours en 3D">3D</button>`}</div>${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
+  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}${stats}<div class="note trkcap">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : g.km || g.dp ? "Mesuré sur le tracé" : "Tracé"}${srcT}</div><div class="mmw">${miniMap(g.pts, r)}${g.partiel ? "" : `<button type="button" class="b3d" data-v3d="${esc(r.id)}" aria-label="Voir le parcours en 3D">3D</button>`}</div>${profileSVG(g.pts)}<div class="trkfoot">${goDep(r, g.partiel ? null : g.pts[0])}${g.partiel || IN_CLAUDE ? "" : `<button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button>`}</div></div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}<div class="trkfoot">${goDep(r)}</div></div>` : "");
   return `<div class="detail">
     ${r.info ? `<p class="dinfo">${esc(r.info)}${r.paiement ? ` <a href="${esc(r.paiement)}" target="_blank" rel="noopener">Paiement en ligne</a>` : ""}</p>` : ""}
     ${verifLine(r)}
-    <div class="epcs">${epCards(r)}</div>
-    ${wxHTML(r)}
+    <div class="epcs${(r.epreuves || []).length === 1 ? " one" : ""}">${epCards(r)}</div>
     ${prof}
+    ${wxHTML(r)}
     ${r.approx ? `<p class="note" style="margin:0">Date à confirmer : le mois est repris de l'édition précédente. Vérifiez sur la fiche avant de vous organiser.</p>` : ""}
     <div class="links">${r.org ? `<span class="note">Organisateur : ${esc(r.org)}</span>` : ""}${traces}${r.page && r.page !== r.inscription && r.page !== ficheOf(r) ? `<a href="${esc(r.page)}" target="_blank" rel="noopener">Site de la course</a>` : ""}<a href="#contact-${esc(r.id)}" data-contact="${esc(r.id)}" class="dlg-report">Signaler une erreur</a></div>
     ${sourcesHTML(r)}
@@ -969,6 +982,8 @@ const svg = $("#map");
 svg.setAttribute("viewBox", `0 0 ${MAP.W} ${MAP.H}`);
 const el = (tag, attrs, parent) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); (parent || svg).appendChild(n); return n; };
 // relief texture served as a separate file: half resolution on small screens to save data
+// the ocean around the island: IGN orthophoto (the land part of that picture is hidden under the relief)
+const oceanImg = el("image", { href: "ocean_sm.webp", x: 0, y: 0, width: MAP.W, height: MAP.H, preserveAspectRatio: "none" });
 const reliefImg = el("image", { href: "relief_sm.webp", x: 0, y: 0, width: MAP.W, height: MAP.H, preserveAspectRatio: "none" });
 // sharper relief tiles (4x and 8x), loaded only for the visible area when zooming in
 const TILES = new Set(["t2_0_0", "t2_0_1", "t2_0_2", "t2_0_3", "t2_1_0", "t2_1_1", "t2_1_2", "t2_1_3", "t2_2_0", "t2_2_1", "t2_2_2", "t2_2_3", "t2_3_0", "t2_3_1", "t2_3_2", "t2_3_3", "t3_0_1", "t3_0_2", "t3_0_3", "t3_0_4", "t3_0_5", "t3_1_0", "t3_1_1", "t3_1_2", "t3_1_3", "t3_1_4", "t3_1_5", "t3_1_6", "t3_2_0", "t3_2_1", "t3_2_2", "t3_2_3", "t3_2_4", "t3_2_5", "t3_2_6", "t3_3_0", "t3_3_1", "t3_3_2", "t3_3_3", "t3_3_4", "t3_3_5", "t3_3_6", "t3_3_7", "t3_4_0", "t3_4_1", "t3_4_2", "t3_4_3", "t3_4_4", "t3_4_5", "t3_4_6", "t3_4_7", "t3_5_0", "t3_5_1", "t3_5_2", "t3_5_3", "t3_5_4", "t3_5_5", "t3_5_6", "t3_5_7", "t3_6_1", "t3_6_2", "t3_6_3", "t3_6_4", "t3_6_5", "t3_6_6", "t3_6_7", "t3_7_3", "t3_7_4", "t3_7_5", "t3_7_6", "t3_7_7"]);
@@ -989,6 +1004,7 @@ let reliefHi = false;
 function reliefHD() { // full-resolution texture only once it is useful (wide screen or zoomed in)
   if (reliefHi) return; reliefHi = true;
   const im = new Image(); im.onload = () => reliefImg.setAttribute("href", "relief.webp"); im.src = "relief.webp";
+  const io = new Image(); io.onload = () => oceanImg.setAttribute("href", "ocean.webp"); io.src = "ocean.webp";
 }
 if (innerWidth >= 900 && (devicePixelRatio || 1) >= 1.5) addEventListener("load", reliefHD);
 const gMinor = el("g", { visibility: "hidden" });
@@ -1258,7 +1274,8 @@ function miniMap(pts, r, aspect) {
     <g class="mm-cur" style="display:none"><circle r="${sw * 17}" fill="#1d4f9c" opacity=".28"/><circle r="${sw * 8}" fill="#1d4f9c" stroke="#fff" stroke-width="${sw * 3.5}"/></g>`
     : `<circle cx="${start[0]}" cy="${start[1]}" r="${sw * 9}" fill="var(--hot)" stroke="#fff" stroke-width="${sw * 3}"/>`;
   return `<svg class="minimap" viewBox="${bx.map(v => v.toFixed(1)).join(" ")}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${xy ? "Carte du parcours" : "Lieu de départ"}">
-    <rect x="${bx[0]}" y="${bx[1]}" width="${bx[2]}" height="${bx[3]}" fill="var(--sea)"/>
+    <rect x="${bx[0]}" y="${bx[1]}" width="${bx[2]}" height="${bx[3]}" fill="#073a59"/>
+    <image href="${bx[2] < MAP.W * .3 ? "ocean.webp" : "ocean_sm.webp"}" x="0" y="0" width="${MAP.W}" height="${MAP.H}" preserveAspectRatio="none"/>
     <image href="relief_sm.webp" x="0" y="0" width="${MAP.W}" height="${MAP.H}" preserveAspectRatio="none"/>
     ${tilesIn(bx[2] < MAP.W * .3 ? 3 : 2, bx).map(([nm, x, y, w, h]) => `<image href="tiles/${nm}.webp" x="${x}" y="${y}" width="${w + .3}" height="${h + .3}" preserveAspectRatio="none"/>`).join("")}
     <use href="#mm-cont"/><use href="#mm-trails"/>${route}${labs}</svg>
