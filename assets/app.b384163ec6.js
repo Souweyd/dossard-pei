@@ -746,7 +746,8 @@ function epCards(r) {
   return (r.epreuves || []).map(e => {
     const type = e.cat || ((DISC[e.type] || "") + (e.type === "trail" && ffaOf(e) ? " " + ffaOf(e) : ""));
     const place = (e.commune && e.commune !== r.commune) || (e.lieu && e.lieu !== r.lieu) ? `${esc(e.commune || r.commune)}${e.lieu ? " · " + esc(e.lieu) : ""}` : "";
-    const prix = e.prix ? (e.prix.split(" / ").every(x => x.includes("€")) ? e.prix.split(" / ") : [e.prix]) : [];
+    const pv = e.prix == null || e.prix === "" ? "" : typeof e.prix === "number" ? e.prix + " €" : String(e.prix);
+    const prix = pv ? (pv.split(" / ").every(x => x.includes("€")) ? pv.split(" / ") : [pv]) : [];
     // always the same four figures, in the same place; an unknown one shows « – »
     const stat = (k, vals, lab) => `<span class="eps-s${vals.length ? "" : " none"}">${epSvg(k)}<span>${(vals.length ? vals : ["–"]).map(v => `<b>${v}</b>`).join("")}<small>${lab}</small></span></span>`;
     const when = [md && e.date ? epDay(e) : "", e.h || ""].filter(Boolean).join(" · ");
@@ -765,7 +766,7 @@ function detailHTML(r) {
   const placeOf = e => (e.commune && e.commune !== r.commune) || (e.lieu && e.lieu !== r.lieu) ? `<div class="note">Départ : ${esc(e.commune || r.commune)}${e.lieu ? " · " + esc(e.lieu) : ""}</div>` : "";
   const rows = (r.epreuves || []).map(e => `<tr><td>${esc(e.nom)}${placeOf(e)}${e.note ? `<div class="note">${esc(e.note)}</div>` : ""}</td>
     <td class="n${e.km ? "" : " z"}">${e.km ? fmt(e.km) + " km" : "–"}</td><td class="n dp${e.dp ? "" : " z"}">${e.dp ? e.dp + " m" : "–"}</td>
-    <td>${esc(e.cat || ((DISC[e.type] || "–") + (e.type === "trail" && ffaOf(e) ? " " + ffaOf(e) : "")))}</td><td class="n${e.h || (md && e.date) ? "" : " z"}">${esc(startOf(e) || "–")}</td><td class="${e.prix ? "" : "z"}">${e.prix ? esc(e.prix) : "–"}</td>${hasSt ? `<td class="est">${epState(e, r)}</td>` : ""}<td class="mmeta"><span class="mty">${esc(e.cat || ((DISC[e.type] || "") + (e.type === "trail" && ffaOf(e) ? " " + ffaOf(e) : "")))}</span><span class="mg"><span>${e.km ? fmt(e.km) + " km" : "–"}</span><span>${e.dp ? e.dp + " m" : "–"}</span><span class="mst">${md && e.date ? `<span>${esc(epDay(e))}</span>` : ""}<span>${esc(e.h || (md && e.date ? "" : "–"))}</span></span><span class="mpx">${e.prix ? (e.prix.split(" / ").every(x => x.includes("€")) ? e.prix.split(" / ") : [e.prix]).map(x => `<span>${esc(x)}</span>`).join("") : "–"}</span></span></td></tr>`).join("");
+    <td>${esc(e.cat || ((DISC[e.type] || "–") + (e.type === "trail" && ffaOf(e) ? " " + ffaOf(e) : "")))}</td><td class="n${e.h || (md && e.date) ? "" : " z"}">${esc(startOf(e) || "–")}</td><td class="${e.prix ? "" : "z"}">${e.prix ? esc(e.prix) : "–"}</td>${hasSt ? `<td class="est">${epState(e, r)}</td>` : ""}<td class="mmeta"><span class="mty">${esc(e.cat || ((DISC[e.type] || "") + (e.type === "trail" && ffaOf(e) ? " " + ffaOf(e) : "")))}</span><span class="mg"><span>${e.km ? fmt(e.km) + " km" : "–"}</span><span>${e.dp ? e.dp + " m" : "–"}</span><span class="mst">${md && e.date ? `<span>${esc(epDay(e))}</span>` : ""}<span>${esc(e.h || (md && e.date ? "" : "–"))}</span></span><span class="mpx">${e.prix ? (String(e.prix).split(" / ").every(x => x.includes("€")) ? String(e.prix).split(" / ") : [typeof e.prix === "number" ? e.prix + " €" : String(e.prix)]).map(x => `<span>${esc(x)}</span>`).join("") : "–"}</span></span></td></tr>`).join("");
   const traces = (r.traces || []).map(t => `<a href="${esc(t.url)}" target="_blank" rel="noopener">Tracé · ${esc(t.nom)}</a>`).join("");
   const all = tracksOf(r.id), g = curTrack(r.id), gi = Math.min(TSEL[r.id] || 0, (all || [1]).length - 1);
   if (hasTrack(r.id) && !all) loadTracks(r.id);
@@ -1939,6 +1940,41 @@ async function open3D(id) {
     const start = t => { if (!fly) { fly = { t: t || 0, phase: "in", k: 0 }; HOME = homeView(); } else if (fly.phase === "out" || fly.phase === "done") { fly.t = t || 0; fly.phase = "in"; fly.k = 0; } else fly.phase = "play";
       fly.playing = true; runner.visible = true; hud.hidden = false; hint.hidden = true; setPlay(true); };
     playBtn.addEventListener("click", () => { if (fly && fly.playing) { fly.playing = false; setPlay(false); } else start(fly && fly.phase !== "done" ? fly.t : 0); });
+    // touch: map-like gestures. One finger moves the map; two fingers pinch to zoom, twist to turn and
+    // slide up / down together to tilt. The mouse keeps OrbitControls (drag to turn, wheel to zoom).
+    { const el = renderer.domElement, host = el.parentNode, T = new Map(), up = new THREE.Vector3(0, 1, 0);
+      const sph = new THREE.Spherical(), off = new THREE.Vector3(), R = new THREE.Vector3(), Fw = new THREE.Vector3();
+      let last = null;
+      const pause = () => { if (!fly) return; if (fly.phase === "in") fly.phase = "play"; fly.snap = false; if (fly.playing) { fly.playing = false; setPlay(false); } };
+      controls.addEventListener("start", pause);
+      const pair = () => { const [a, b] = [...T.values()]; return { d: Math.hypot(b.x - a.x, b.y - a.y), ang: Math.atan2(b.y - a.y, b.x - a.x), x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; };
+      const snap = () => T.size >= 2 ? { two: pair() } : T.size === 1 ? { one: { ...[...T.values()][0] } } : null;
+      const read = () => { off.copy(camera.position).sub(controls.target); sph.setFromVector3(off); };
+      const put = () => { sph.makeSafe(); camera.position.copy(controls.target).add(off.setFromSpherical(sph)); camera.lookAt(controls.target); };
+      const own = e => e.pointerType === "touch" && (e.target === el || T.has(e.pointerId));
+      host.addEventListener("pointerdown", e => { if (!own(e)) return; e.stopPropagation(); e.preventDefault(); hint.hidden = true; pause();
+        T.set(e.pointerId, { x: e.clientX, y: e.clientY }); try { el.setPointerCapture(e.pointerId); } catch (_) {} last = snap(); }, true);
+      host.addEventListener("pointermove", e => { if (!own(e)) return; e.stopPropagation(); e.preventDefault();
+        T.set(e.pointerId, { x: e.clientX, y: e.clientY }); const now = snap(); if (!now || !last || !!now.two !== !!last.two) { last = now; return; }
+        read(); const h = el.clientHeight || 1;
+        if (now.one) {   // drag the ground under the finger
+          const wpp = 2 * sph.radius * Math.tan(camera.fov * Math.PI / 360) / h, dx = now.one.x - last.one.x, dy = now.one.y - last.one.y;
+          R.setFromMatrixColumn(camera.matrix, 0).setY(0).normalize(); Fw.crossVectors(up, R).normalize();
+          const tilt = Math.min(3, 1 / Math.max(.33, Math.cos(sph.phi)));
+          const mv = R.multiplyScalar(-dx * wpp).add(Fw.multiplyScalar(dy * wpp * tilt));
+          const t = controls.target.clone().add(mv); t.x = Math.max(-S / 2, Math.min(S / 2, t.x)); t.z = Math.max(-S / 2, Math.min(S / 2, t.z));
+          mv.subVectors(t, controls.target); controls.target.add(mv); camera.position.add(mv);
+        } else {         // pinch, twist, tilt
+          const a = now.two, b = last.two;
+          if (b.d > 0 && a.d > 0) sph.radius = Math.max(controls.minDistance, Math.min(controls.maxDistance, sph.radius * b.d / a.d));
+          let da = a.ang - b.ang; if (da > Math.PI) da -= 2 * Math.PI; if (da < -Math.PI) da += 2 * Math.PI; sph.theta += da;
+          if (Math.abs(a.d - b.d) < 6) sph.phi = Math.max(.08, Math.min(controls.maxPolarAngle, sph.phi - (a.y - b.y) * .006));
+          put();
+        }
+        last = now; }, true);
+      const end = e => { if (!own(e)) return; e.stopPropagation(); T.delete(e.pointerId); last = snap(); };
+      host.addEventListener("pointerup", end, true); host.addEventListener("pointercancel", end, true);
+      if (matchMedia("(pointer: coarse)").matches) hint.textContent = "1 doigt pour déplacer · 2 doigts pour zoomer, tourner et incliner"; }
     seek.addEventListener("input", () => { const t = seek.value / 1000; if (!fly) start(t); fly.t = t; if (fly.phase === "out" || fly.phase === "done") fly.phase = "play"; fly.playing = false; setPlay(false); fly.snap = true; });
     const follow = (p, a) => { const dir = a.clone().sub(p).setY(0); if (dir.lengthSq() < 1e-8) dir.set(0, 0, -1); dir.normalize(); return p.clone().add(dir.multiplyScalar(-18)).add(new THREE.Vector3(0, 12, 0)); };
     let lastT = performance.now(), lastW = 0, lastH = 0;

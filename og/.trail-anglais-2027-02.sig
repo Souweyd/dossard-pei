@@ -1,1 +1,1 @@
-["Trail des Anglais", "2027-02-28", "Le Port", [{"nom": "Trail des Anglais", "km": 30, "dp": 1270, "h": "05h30", "prix": 36, "type": "trail", "note": "Du Port à Saint-Denis (stade de la Redoute) par le Chemin des Anglais. Départ à la frontale, bâtons interdits."}], null, null, "art1"]
+["Trail des Anglais", "2027-02-28", "Le Port", [{"nom": "Trail des Anglais", "km": 30, "dp": 1270, "h": "05h30", "prix": "36 €", "type": "trail", "note": "Du Port à Saint-Denis (stade de la Redoute) par le Chemin des Anglais. Départ à la frontale, bâtons interdits."}], null, null, "art1"]
