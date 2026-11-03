@@ -338,5 +338,19 @@
 "id": "cross-du-vetyver-2026-11",
 "nom": "Cross du Vétyver",
 "date": "2026-11-22"
+},
+{
+"at": "2026-11-03T14:29+04:00",
+"t": "réouvert",
+"id": "route-lait",
+"nom": "La Route du Lait",
+"date": "2026-11-07"
+},
+{
+"at": "2026-11-03T14:29+04:00",
+"t": "ajout",
+"id": "trail-anglais-2027-02",
+"nom": "Trail des Anglais",
+"date": "2027-02-28"
 }
 ]
