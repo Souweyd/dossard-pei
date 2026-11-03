@@ -711,23 +711,17 @@ const wxKind = s => /thunder/.test(s || "") ? "storm" : /rain|sleet|snow/.test(s
 function wxChip(r) { const x = wxOf(r)[0]; if (!x) return "";
   return `<button type="button" class="wxchip k-${wxKind(x.start.sym)}" data-wxgo title="Voir la météo de la course">${wxSvg(wxKind(x.start.sym))}${x.start.t}°<span class="vh"> au départ, ${esc(wxTxt(x.start.sym))}</span></button>`; }
 document.addEventListener("click", e => { if (!e.target.closest || !e.target.closest("[data-wxgo]")) return; const w = document.querySelector(".dlg .wx"); if (w) w.scrollIntoView({ behavior: "smooth", block: "center" }); });
-function wxHTML(r) {
+function wxHTML(r) {   // compact: one line per race day (sky, temperature at the start, range, rain, wind), under the map
   const xs = wxOf(r); if (!xs.length) return "";
   const md = xs.length > 1 || multiDay(r);
-  const tile = (ic, val, lab) => `<div class="wxc">${wxSvg(ic)}<b>${val}</b><span>${lab}</span></div>`;
-  const parts = xs.map(x => { const w = x.window, d = dt(x.date), k = wxKind(x.start.sym);
+  const rows = xs.map(x => { const w = x.window, d = dt(x.date), k = wxKind(x.start.sym);
     const rain = w.rain >= 1 ? `${w.rain >= 10 ? Math.round(w.rain) : w.rain.toLocaleString("fr-FR")} mm` : "0 mm";
-    const tiles = [tile("temp", w.tmin === w.tmax ? `${w.tmin}°` : `${w.tmin}–${w.tmax}°`, w.hours >= 1.5 ? `Pendant la course (≈ ${Math.round(w.hours)} h)` : "Pendant la course"),
-      tile("drop", rain, "Pluie prévue"), tile("wind", `${w.w} km/h`, "Vent max")];
-    if (x.top) tiles.push(tile("peak", `${x.top.t}°`, `Au sommet (${x.top.alt.toLocaleString("fr-FR")} m)`));
-    return `<div class="wxd">
-      <div class="wxtop"><span class="wxbig k-${k}">${wxSvg(k)}</span><div><b class="wxt">${x.start.t}°</b><span class="wxs">${esc(wxTxt(x.start.sym))}${x.h ? ` · départ ${esc(x.h)}` : ""}</span></div>
-      ${md ? `<span class="wxday">${esc(d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" }))}</span>` : ""}</div>
-      <div class="wxg">${tiles.join("")}</div>
-      ${x.veille ? `<p class="wxv">${wxSvg("wet")}Pluie la veille (≈ ${x.veille} mm) : terrain probablement glissant</p>` : ""}</div>`; }).join("");
+    const bits = [`${wxSvg("temp")}${w.tmin === w.tmax ? `${w.tmin}°` : `${w.tmin}–${w.tmax}°`}`, `${wxSvg("drop")}${rain}`, `${wxSvg("wind")}${w.w} km/h`];
+    if (x.top) bits.push(`${wxSvg("peak")}${x.top.t}° au sommet`);
+    return `<div class="wxl"><span class="wxi k-${k}">${wxSvg(k)}</span><div class="wxm"><b>${x.start.t}° · ${esc(wxTxt(x.start.sym))}</b><small>${md ? esc(d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric" })) + " · " : ""}${x.h ? "départ " + esc(x.h) : "au départ"}</small></div><div class="wxb">${bits.map(b => `<span>${b}</span>`).join("")}</div></div>
+      ${x.veille ? `<p class="wxv">${wxSvg("wet")}Pluie la veille (≈ ${x.veille} mm) : terrain probablement glissant</p>` : ""}`; }).join("");
   const j = xs[0].j;
-  return `<section class="wx k-${wxKind(xs[0].start.sym)}"><div class="wxh"><h4>Météo de la course</h4><span class="wxtag${j >= 3 ? "" : " sure"}">${j >= 3 ? "Tendance" : "Prévision"}</span></div>${parts}
-    <p class="wxsrc">Prévisions susceptibles d'évoluer.</p></section>`;
+  return `<section class="wx wxc2 k-${wxKind(xs[0].start.sym)}"><div class="wxh"><h4>Météo</h4><span class="wxtag${j >= 3 ? "" : " sure"}">${j >= 3 ? "Tendance" : "Prévision"}</span><span class="wxsrc2">peut évoluer</span></div>${rows}</section>`;
 }
 // start-up: the four data files (weather, verification, profiles, fresh data.json) are applied as they come,
 // but the page is redrawn ONCE when they are all in (or after 1.5 s), instead of once per file
@@ -746,7 +740,8 @@ function epCards(r) {
   return (r.epreuves || []).map(e => {
     const type = e.cat || ((DISC[e.type] || "") + (e.type === "trail" && ffaOf(e) ? " " + ffaOf(e) : ""));
     const place = (e.commune && e.commune !== r.commune) || (e.lieu && e.lieu !== r.lieu) ? `${esc(e.commune || r.commune)}${e.lieu ? " · " + esc(e.lieu) : ""}` : "";
-    const prix = e.prix ? (e.prix.split(" / ").every(x => x.includes("€")) ? e.prix.split(" / ") : [e.prix]) : [];
+    const pv = e.prix == null || e.prix === "" ? "" : typeof e.prix === "number" ? e.prix + " €" : String(e.prix);
+    const prix = pv ? (pv.split(" / ").every(x => x.includes("€")) ? pv.split(" / ") : [pv]) : [];
     // always the same four figures, in the same place; an unknown one shows « – »
     const stat = (k, vals, lab) => `<span class="eps-s${vals.length ? "" : " none"}">${epSvg(k)}<span>${(vals.length ? vals : ["–"]).map(v => `<b>${v}</b>`).join("")}<small>${lab}</small></span></span>`;
     const when = [md && e.date ? epDay(e) : "", e.h || ""].filter(Boolean).join(" · ");
@@ -759,13 +754,23 @@ function epCards(r) {
       ${place ? `<p class="epc-n">${epSvg("pin")}Départ : ${place}</p>` : ""}${e.note ? `<p class="epc-n">${esc(e.note)}</p>` : ""}
     </article>`; }).join("");
 }
+// « Aller au départ »: Plans on iPhone / iPad, Google Maps elsewhere; an approximate point says so
+function goDep(r, pt) {   // pt: first point of the track (the real start); else the race's point, said approximate
+  const ll = pt ? [pt[0], pt[1]] : r.ll; if (!ll) return "";
+  const [la, lo] = ll, ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const url = ios ? `https://maps.apple.com/?daddr=${la},${lo}&dirflg=d` : `https://www.google.com/maps/dir/?api=1&destination=${la},${lo}`;
+  const named = r.lieu && r.lieu !== r.commune;
+  const lab = pt || named ? "Aller au départ" : "Itinéraire vers " + esc(r.commune);
+  const sub = pt ? (named ? esc(r.lieu) + " · départ du tracé" : "Départ du tracé") : named ? esc(r.lieu) + " · position approximative" : "Lieu exact à confirmer";
+  return `<div class="godep"><a href="${url}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 21 3l-8 18-2-8z"/></svg>${lab}</a><span>${sub}</span></div>`;
+}
 function detailHTML(r) {
   const hasSt = (r.epreuves || []).some(e => e.url || "complet" in e);
   const md = multiDay(r), startOf = e => (md && e.date ? epDay(e) + (e.h ? " · " : "") : "") + (e.h || "");
   const placeOf = e => (e.commune && e.commune !== r.commune) || (e.lieu && e.lieu !== r.lieu) ? `<div class="note">Départ : ${esc(e.commune || r.commune)}${e.lieu ? " · " + esc(e.lieu) : ""}</div>` : "";
   const rows = (r.epreuves || []).map(e => `<tr><td>${esc(e.nom)}${placeOf(e)}${e.note ? `<div class="note">${esc(e.note)}</div>` : ""}</td>
     <td class="n${e.km ? "" : " z"}">${e.km ? fmt(e.km) + " km" : "–"}</td><td class="n dp${e.dp ? "" : " z"}">${e.dp ? e.dp + " m" : "–"}</td>
-    <td>${esc(e.cat || ((DISC[e.type] || "–") + (e.type === "trail" && ffaOf(e) ? " " + ffaOf(e) : "")))}</td><td class="n${e.h || (md && e.date) ? "" : " z"}">${esc(startOf(e) || "–")}</td><td class="${e.prix ? "" : "z"}">${e.prix ? esc(e.prix) : "–"}</td>${hasSt ? `<td class="est">${epState(e, r)}</td>` : ""}<td class="mmeta"><span class="mty">${esc(e.cat || ((DISC[e.type] || "") + (e.type === "trail" && ffaOf(e) ? " " + ffaOf(e) : "")))}</span><span class="mg"><span>${e.km ? fmt(e.km) + " km" : "–"}</span><span>${e.dp ? e.dp + " m" : "–"}</span><span class="mst">${md && e.date ? `<span>${esc(epDay(e))}</span>` : ""}<span>${esc(e.h || (md && e.date ? "" : "–"))}</span></span><span class="mpx">${e.prix ? (e.prix.split(" / ").every(x => x.includes("€")) ? e.prix.split(" / ") : [e.prix]).map(x => `<span>${esc(x)}</span>`).join("") : "–"}</span></span></td></tr>`).join("");
+    <td>${esc(e.cat || ((DISC[e.type] || "–") + (e.type === "trail" && ffaOf(e) ? " " + ffaOf(e) : "")))}</td><td class="n${e.h || (md && e.date) ? "" : " z"}">${esc(startOf(e) || "–")}</td><td class="${e.prix ? "" : "z"}">${e.prix ? esc(e.prix) : "–"}</td>${hasSt ? `<td class="est">${epState(e, r)}</td>` : ""}<td class="mmeta"><span class="mty">${esc(e.cat || ((DISC[e.type] || "") + (e.type === "trail" && ffaOf(e) ? " " + ffaOf(e) : "")))}</span><span class="mg"><span>${e.km ? fmt(e.km) + " km" : "–"}</span><span>${e.dp ? e.dp + " m" : "–"}</span><span class="mst">${md && e.date ? `<span>${esc(epDay(e))}</span>` : ""}<span>${esc(e.h || (md && e.date ? "" : "–"))}</span></span><span class="mpx">${e.prix ? (String(e.prix).split(" / ").every(x => x.includes("€")) ? String(e.prix).split(" / ") : [typeof e.prix === "number" ? e.prix + " €" : String(e.prix)]).map(x => `<span>${esc(x)}</span>`).join("") : "–"}</span></span></td></tr>`).join("");
   const traces = (r.traces || []).map(t => `<a href="${esc(t.url)}" target="_blank" rel="noopener">Tracé · ${esc(t.nom)}</a>`).join("");
   const all = tracksOf(r.id), g = curTrack(r.id), gi = Math.min(TSEL[r.id] || 0, (all || [1]).length - 1);
   if (hasTrack(r.id) && !all) loadTracks(r.id);
@@ -776,13 +781,13 @@ function detailHTML(r) {
   const hiE = g && g.pts && !g.partiel ? Math.round(Math.max(...trackStats(g.pts).prof.map(p => p[1]))) : null;
   const ST = (ico, v, lab) => `<div><svg viewBox="0 0 24 24" aria-hidden="true">${ico}</svg><b>${v}</b><small>${lab}</small></div>`;
   const stats = g && g.pts && !g.partiel && (g.km || g.dp) ? `<div class="trkst">${g.km ? ST('<path d="M4 12h16M7 8l-4 4 4 4M17 8l4 4-4 4"/>', fmt(g.km) + " km", "Distance") : ""}${g.dp ? ST('<path d="M3 19l6-9 4 5 3-4 5 8z"/>', n2(g.dp) + " m", "D+") : ""}${hiE > 0 ? ST('<path d="M6 21V4M6 4l11 4-11 4"/>', n2(hiE) + " m", "Alt. max") : ""}</div>` : "";
-  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}${stats}<div class="note trkcap">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : g.km || g.dp ? "Mesuré sur le tracé" : "Tracé"}${srcT}</div><div class="mmw">${miniMap(g.pts, r)}${g.partiel ? "" : `<button type="button" class="b3d" data-v3d="${esc(r.id)}" aria-label="Voir le parcours en 3D">3D</button>`}</div>${profileSVG(g.pts)}${g.partiel || IN_CLAUDE ? "" : `<div class="trkfoot"><button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button></div>`}</div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}</div>` : "");
+  const prof = g && g.pts ? `<div class="trk"><h4>Parcours</h4>${tabs}${stats}<div class="note trkcap">${g.partiel ? "Aperçu du début du parcours (fichier source lu en partie)" : g.km || g.dp ? "Mesuré sur le tracé" : "Tracé"}${srcT}</div><div class="mmw">${miniMap(g.pts, r)}${g.partiel ? "" : `<button type="button" class="b3d" data-v3d="${esc(r.id)}" aria-label="Voir le parcours en 3D">3D</button>`}</div>${profileSVG(g.pts)}<div class="trkfoot">${goDep(r, g.partiel ? null : g.pts[0])}${g.partiel || IN_CLAUDE ? "" : `<button type="button" class="gpxdl" data-gpx="${esc(r.id)}" title="Télécharger le fichier GPX de ce parcours" aria-label="Télécharger le GPX">${DL_ICO}GPX</button>`}</div></div>` : hasTrack(r.id) ? `<div class="trk trk-wait" aria-busy="true"><h4>Parcours</h4><div class="note">Chargement du tracé…</div><div class="minimap mm-ph"></div><div class="prof-ph"></div></div>` : (r.ll ? `<div class="trk"><h4>Lieu de départ</h4>${miniMap(null, r)}<div class="trkfoot">${goDep(r)}</div></div>` : "");
   return `<div class="detail">
     ${r.info ? `<p class="dinfo">${esc(r.info)}${r.paiement ? ` <a href="${esc(r.paiement)}" target="_blank" rel="noopener">Paiement en ligne</a>` : ""}</p>` : ""}
     ${verifLine(r)}
-    <div class="epcs">${epCards(r)}</div>
-    ${wxHTML(r)}
+    <div class="epcs${(r.epreuves || []).length === 1 ? " one" : ""}">${epCards(r)}</div>
     ${prof}
+    ${wxHTML(r)}
     ${r.approx ? `<p class="note" style="margin:0">Date à confirmer : le mois est repris de l'édition précédente. Vérifiez sur la fiche avant de vous organiser.</p>` : ""}
     <div class="links">${r.org ? `<span class="note">Organisateur : ${esc(r.org)}</span>` : ""}${traces}${r.page && r.page !== r.inscription && r.page !== ficheOf(r) ? `<a href="${esc(r.page)}" target="_blank" rel="noopener">Site de la course</a>` : ""}<a href="#contact-${esc(r.id)}" data-contact="${esc(r.id)}" class="dlg-report">Signaler une erreur</a></div>
     ${sourcesHTML(r)}
