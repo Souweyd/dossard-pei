@@ -1010,6 +1010,11 @@ try:
 except Exception as e:
     errors.append(f"écarts ({e.__class__.__name__})")
 
+# a price is always text (« 36 € », « 20 € / équipe »): a bare number written by hand or by an update becomes « N € »
+for r in data["races"]:
+    for e in r.get("epreuves", []):
+        if isinstance(e.get("prix"), (int, float)) and not isinstance(e.get("prix"), bool):
+            e["prix"] = f"{e['prix']:g} €"; changes.append(f"{r['id']}:{e.get('nom', '')}:prix en texte")
 if changes:
     data["updatedAt"] = NOW.isoformat(timespec="seconds")
     json.dump(data, open("data.json", "w"), ensure_ascii=False, separators=(",", ":"))
