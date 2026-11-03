@@ -798,6 +798,30 @@ html { overflow-x: clip }
 .tbhint::after { content: ""; position: absolute; left: 50%; bottom: -6px; margin-left: -6px; border: 6px solid transparent; border-bottom: 0; border-top-color: #fff }
 @keyframes tbUp { from { opacity: 0; transform: translate(-50%, 8px) } } @keyframes tbFade { from { opacity: 0 } }
 @keyframes tbIn { from { opacity: 0; transform: translate(-50%, 6px) } }
+.epsum { all: unset; box-sizing: border-box; cursor: pointer; display: block; text-align: left; margin-top: 10px; font-size: .95rem; color: var(--muted); line-height: 1.3; -webkit-tap-highlight-color: transparent }
+.epsum b { color: var(--fg); font-weight: 700 } .epsum:hover { color: var(--fg) } .epsum:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px }
+.epsum svg { width: 16px; height: 16px; vertical-align: -3px; margin-left: 4px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round }
+.epcs { scroll-margin-top: 70px }
+/* race sheet: track picker (segmented) and the track's figures */
+.trkseg { display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: color-mix(in srgb, var(--fg) 7%, var(--surface)) }
+.trkseg button { all: unset; box-sizing: border-box; cursor: pointer; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 8px 8px 7px; border-radius: 11px; text-align: center; -webkit-tap-highlight-color: transparent }
+.trkseg button span { font-weight: 700; font-size: .9rem; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.trkseg button small { font-size: .78rem; color: var(--muted) }
+.trkseg button[aria-pressed="true"] { background: var(--surface); box-shadow: 0 1px 4px rgba(0,0,0,.14) } .trkseg button[aria-pressed="true"] small { color: var(--accent); font-weight: 600 }
+.trkseg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px }
+.trkseg.many { overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity } .trkseg.many::-webkit-scrollbar { display: none }
+.trkseg.many button { flex: 0 0 auto; padding: 8px 14px 7px; scroll-snap-align: start }
+.trkst { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px }
+.trkst div { display: grid; grid-template-columns: 20px minmax(0, 1fr); column-gap: 6px; align-items: center; padding: 10px 10px 9px; border-radius: 12px; background: color-mix(in srgb, var(--fg) 5%, var(--surface)) }
+.trkst svg { grid-row: 1 / 3; width: 18px; height: 18px; fill: none; stroke: var(--accent); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round }
+.trkst b { font-size: 1rem; white-space: nowrap } .trkst small { font-size: .7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; white-space: nowrap }
+.trkcap { font-size: .8rem } .trkcap a { color: var(--fg) }
+/* sheets and dialogs never move sideways (iOS lets a clipped overflow bounce horizontally) */
+html, body { overflow-x: clip }
+/* Safari (iOS) still lets the page and the sheets slide sideways a little: only vertical panning and
+   pinch-zoom there; the rows that scroll sideways on purpose are scroll boxes and keep their own swipe */
+@media (pointer: coarse) { body, .dlg-panel { touch-action: pan-y pinch-zoom } }
+.dlg-panel { overscroll-behavior-x: none } .dlg-panel > * { min-width: 0; max-width: 100% }
 /* ===== Scroll home: centred, spread over the whole screen ===== */
 .rs.rintro.rhome { justify-content: center; align-items: center; padding: calc(env(safe-area-inset-top) + 56px) 20px calc(150px + env(safe-area-inset-bottom)) }
 .rintro.rhome .rin { text-align: center; display: flex; flex-direction: column; align-items: center; gap: clamp(12px, 2.4vh, 22px) }
@@ -1086,7 +1110,7 @@ section.mine h2 { font-family: var(--display); font-weight: 800; letter-spacing:
 .sz-src { margin: 18px 0 0; font-size: .76rem; color: var(--muted) }
 @media (max-width: 640px) {
   .sz-hd { padding-top: 18px }
-  .sz-bar { margin: 0 -14px; padding: 8px 14px 8px } .sz-ft, .sz-mos { margin: 0 -14px; padding: 0 14px }
+  .sz-bar, .sz-panel .sz-bar { margin: 0 -14px; padding: 8px 14px 8px } .sz-ft, .sz-mos, .sz-panel .sz-ft, .sz-panel .sz-mos { margin: 0 -14px; padding: 0 14px }
   .sz-day { grid-template-columns: 46px minmax(0, 1fr); gap: 10px }
   .sz-r { flex-wrap: wrap; row-gap: 6px } .sz-ok { margin-left: 0 }
   .sz-r .sz-n { flex-basis: 100% }
