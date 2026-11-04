@@ -848,6 +848,12 @@ html { overflow-x: hidden } body { overflow-x: clip }   /* Safari does not apply
 /* bottom of the sheet (organiser, report, sources): smaller, it is reference text */
 .dlg .links { font-size: .8rem; gap: 4px 14px } .dlg .links .note { font-size: .8rem }
 .dlg .srcs { font-size: .7rem; line-height: 1.8 } .dlg .srcs a, .dlg .trksrc a { padding: 6px 0; margin: -6px 0 }
+/* the ocean photo around the island: the map frames take its deep blue */
+.mapbox { background: #073a59 } .mm-ph { background: linear-gradient(110deg, #0b4466 30%, #165778 50%, #0b4466 70%); background-size: 250% 100% }
+/* header landscape on phones: soft edges so it blends into the page if Safari leaves a margin */
+@media (max-width: 760px) { .herobg {
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%), linear-gradient(180deg, transparent 20px, #000 120px, #000 100%);
+  -webkit-mask-composite: source-in; mask-image: linear-gradient(90deg, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%), linear-gradient(180deg, transparent 20px, #000 120px, #000 100%); mask-composite: intersect } }
 /* ===== Scroll home: centred, spread over the whole screen ===== */
 .rs.rintro.rhome { justify-content: center; align-items: center; padding: calc(env(safe-area-inset-top) + 56px) 20px calc(150px + env(safe-area-inset-bottom)) }
 .rintro.rhome .rin { text-align: center; display: flex; flex-direction: column; align-items: center; gap: clamp(12px, 2.4vh, 22px) }
@@ -1270,3 +1276,28 @@ header.top .brand { opacity: 1 } header.top .brand .logo { opacity: 0 } header.t
 
 .szrow { justify-self: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px } .szrow .szlink { margin: 8px 0 0 !important }
 @media (max-width: 520px) { .szrow .szlink { font-size: .86rem; padding: 7px 12px } }
+
+/* ===== Retouches de l'accueil ===== */
+/* icons drawn with one line, in the colour of their text (no emoji in the chrome) */
+.ico, .rintro .rin svg.ico { width: 1.15em !important; height: 1.15em !important; flex: none; margin-right: .4em; vertical-align: -.2em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round }
+/* the sky reaches the edges of the window: the browser's default body margin cut it (phones keep their fade) */
+@media (min-width: 761px) { body { margin: 0; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); padding-top: 22px; padding-bottom: 48px } }
+/* next-start cards: same lines at the same height, status at the bottom */
+.scard { grid-template-rows: auto auto auto 1fr; align-content: start }
+.sname { min-height: 2.5em }
+.sst { display: flex; flex-wrap: wrap; align-items: center; align-self: end; gap: 4px 8px; margin-top: 6px }
+.sst .state { margin: 0 }
+.swx.wxchip { margin: 0; padding: 0; background: none; box-shadow: none; color: var(--muted); font-size: .8rem; font-weight: 500; font-variant-numeric: tabular-nums }
+@media (min-width: 1100px) { .soon-row { padding-bottom: 22px } }   /* keeps the height of the « Dernière ligne droite » column */
+/* the J-n leaves the top of the poster, where the race's name and date are */
+.swhen { top: auto; bottom: 8px; font-weight: 600 }
+.sph, .simg:has(.sclose) .sph { bottom: 40px }
+/* last call: red only when it is urgent */
+.lc { font-weight: 600; font-variant-numeric: tabular-nums }
+.lc.far { background: none !important; color: var(--muted) !important; box-shadow: inset 0 0 0 1px var(--line) }
+/* fewer weights: size and colour carry the hierarchy */
+.soon h2, .lastc h2, section.mine h2, .list > .month { font-weight: 700; letter-spacing: -.02em }
+.tagl { font-weight: 600; letter-spacing: -.01em }
+.szlink, .state, .lname, .sclose { font-weight: 600 }
+.ldate b { font-weight: 700; letter-spacing: -.02em }
+.lep b { font-weight: 600; letter-spacing: -.01em }

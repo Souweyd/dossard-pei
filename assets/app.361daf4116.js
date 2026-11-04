@@ -212,7 +212,7 @@ const byDate = (a, b) => sortKey(a).localeCompare(sortKey(b)) || a.nom.localeCom
 const ARTIFACT_URL = "https://claude.ai/artifact/4t8BeKe6bFhvK7sG5KcAxD";
 function toast(txt) { const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = txt; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
 function toggleFav(id) { const on = !FAVS.has(id); on ? FAVS.add(id) : (FAVS.delete(id), REG.delete(id)); const first = on && !FAVHINT; if (first) FAVHINT = true; saveprefs(); render();
-  toast(on ? (first ? "Ajoutée à Mes courses : retrouve tes favoris avec ⭐ Mes courses sur l'accueil" : "Ajoutée à Mes courses") : "Retirée de Mes courses"); }
+  toast(on ? (first ? "Ajoutée à Mes courses : retrouve tes favoris avec Mes courses sur l'accueil" : "Ajoutée à Mes courses") : "Retirée de Mes courses"); }
 function toggleReg(id) { const on = !REG.has(id); on ? (REG.add(id), FAVS.add(id)) : REG.delete(id); FAVHINT = true; saveprefs(); render(); if (DETAIL === id) { const b = document.querySelector(".dlg [data-reg]"); if (b) b.outerHTML = regBtn(RACES.find(x => x.id === id)); bindReg(document.querySelector(".dlg") || document); } toast(on ? "Noté : tu es inscrit ✓" : "Inscription retirée"); }
 const regBtn = r => "";
 function bindReg(root) { root.querySelectorAll("[data-reg]").forEach(b => { if (b.dataset.bound) return; b.dataset.bound = 1; b.addEventListener("click", e => { e.stopPropagation(); toggleReg(b.dataset.reg); }); }); }
@@ -355,7 +355,7 @@ function scardHTML(r, mode) {
   const meta = mode === "dl" ? d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: d.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined }) + " · " + esc(r.commune) : esc(r.commune) + (r.main && r.main.km ? " · " + fmt(r.main.km) + " km" : "");
   return `<button type="button" class="scard" data-card="${esc(r.id)}" style="--dc:var(${DCOL[r.disc]})" aria-haspopup="dialog">
       <span class="simg${artCls(r)}"><span class="sph">${esc(r.nom)}</span>${r.poster ? `<img src="${esc(thumbOf(r))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}<span class="swhen${mode === "dl" ? " hot" : ""}" title="${esc(d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }))}">${when}</span>${flag}</span>
-      <span class="sname">${esc(r.nom)}</span><span class="smeta">${meta}${mode === "dl" ? "" : wxBadge(r)}</span>${mode === "dl" ? "" : `<span class="sst">${stateBadge(r)}</span>`}</button>`;
+      <span class="sname">${esc(r.nom)}</span><span class="smeta">${meta}</span>${mode === "dl" ? "" : `<span class="sst">${stateBadge(r)}${wxBadge(r)}</span>`}</button>`;
 }
 // « ⭐ Mes courses (n) » on the Scroll home: shown as soon as one race to come is in the favourites
 function favLinkSync() { const t = todayISO(), n = RACES.filter(r => FAVS.has(r.id) && !r.hidden && (r.fin || r.date) >= t).length;
@@ -399,7 +399,7 @@ function renderSoon() {
   $("#dlsec").hidden = !dl.length;
   requestAnimationFrame(dlFade);
   $("#dl").innerHTML = dl.map(({ r, c }) => { const nl = daysTo(c.l), d = dt(r.date), part = c.tot > 1 && c.n < c.tot ? ` · ${c.n} format${c.n > 1 ? "s" : ""} sur ${c.tot}` : "";
-    return `<button type="button" class="lrow2" data-card="${esc(r.id)}" style="--dc:var(${DCOL[r.disc]})"><span class="lt${artCls(r)}">${r.poster ? `<img src="${esc(xsOf(r))}" alt="" loading="lazy" onerror="this.remove()">` : ""}</span><span class="lx"><b>${esc(r.nom)}</b><small>${d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: d.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined })} · ${esc(r.commune)}${part}</small></span><span class="lc">${nl <= 0 ? "Auj." : nl === 1 ? "Demain" : "J-" + nl}</span></button>`; }).join("");
+    return `<button type="button" class="lrow2" data-card="${esc(r.id)}" style="--dc:var(${DCOL[r.disc]})"><span class="lt${artCls(r)}">${r.poster ? `<img src="${esc(xsOf(r))}" alt="" loading="lazy" onerror="this.remove()">` : ""}</span><span class="lx"><b>${esc(r.nom)}</b><small>${d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: d.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined })} · ${esc(r.commune)}${part}</small></span><span class="lc${nl > 2 ? " far" : ""}">${nl <= 0 ? "Auj." : nl === 1 ? "Demain" : "J-" + nl}</span></button>`; }).join("");
   [$("#soon"), $("#dl")].forEach(row => row.querySelectorAll("[data-card]").forEach(b => b.addEventListener("click", () => openRace(b.dataset.card))));
 }
 // ---------- race detail (dialog) ----------
@@ -658,7 +658,7 @@ function sourcesHTML(r) {
   if (r.page && r.page !== r.inscription) add("Organisateur :", r.page);
   if (r.affiche) add("Affiche :", r.affiche, host(r.affiche));
   if (GPX[r.id] && (GPX[r.id].src || GPX[r.id].source)) add("Tracé :", GPX[r.id].src || GPX[r.id].source);
-  return `<div class="srcs"><b>Sources</b> ${items.join(" · ")} · Carte : IGN (relief, sentiers), ESA WorldCover, © OpenStreetMap${wxOf(r).length ? " · Météo : MET Norway" : ""}</div>`;
+  return `<div class="srcs"><b>Sources</b> ${items.join(" · ")} · Carte : IGN (relief, sentiers, photo aérienne de l'océan), ESA WorldCover, © OpenStreetMap${wxOf(r).length ? " · Météo : MET Norway" : ""}</div>`;
 }
 // status of one épreuve (only when the source gives it épreuve by épreuve, e.g. the Sportpro agenda)
 function epState(e, r) {
@@ -982,6 +982,8 @@ const svg = $("#map");
 svg.setAttribute("viewBox", `0 0 ${MAP.W} ${MAP.H}`);
 const el = (tag, attrs, parent) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); (parent || svg).appendChild(n); return n; };
 // relief texture served as a separate file: half resolution on small screens to save data
+// the ocean around the island: IGN orthophoto (the land part of that picture is hidden under the relief)
+const oceanImg = el("image", { href: "ocean_sm.webp", x: 0, y: 0, width: MAP.W, height: MAP.H, preserveAspectRatio: "none" });
 const reliefImg = el("image", { href: "relief_sm.webp", x: 0, y: 0, width: MAP.W, height: MAP.H, preserveAspectRatio: "none" });
 // sharper relief tiles (4x and 8x), loaded only for the visible area when zooming in
 const TILES = new Set(["t2_0_0", "t2_0_1", "t2_0_2", "t2_0_3", "t2_1_0", "t2_1_1", "t2_1_2", "t2_1_3", "t2_2_0", "t2_2_1", "t2_2_2", "t2_2_3", "t2_3_0", "t2_3_1", "t2_3_2", "t2_3_3", "t3_0_1", "t3_0_2", "t3_0_3", "t3_0_4", "t3_0_5", "t3_1_0", "t3_1_1", "t3_1_2", "t3_1_3", "t3_1_4", "t3_1_5", "t3_1_6", "t3_2_0", "t3_2_1", "t3_2_2", "t3_2_3", "t3_2_4", "t3_2_5", "t3_2_6", "t3_3_0", "t3_3_1", "t3_3_2", "t3_3_3", "t3_3_4", "t3_3_5", "t3_3_6", "t3_3_7", "t3_4_0", "t3_4_1", "t3_4_2", "t3_4_3", "t3_4_4", "t3_4_5", "t3_4_6", "t3_4_7", "t3_5_0", "t3_5_1", "t3_5_2", "t3_5_3", "t3_5_4", "t3_5_5", "t3_5_6", "t3_5_7", "t3_6_1", "t3_6_2", "t3_6_3", "t3_6_4", "t3_6_5", "t3_6_6", "t3_6_7", "t3_7_3", "t3_7_4", "t3_7_5", "t3_7_6", "t3_7_7"]);
@@ -1002,6 +1004,7 @@ let reliefHi = false;
 function reliefHD() { // full-resolution texture only once it is useful (wide screen or zoomed in)
   if (reliefHi) return; reliefHi = true;
   const im = new Image(); im.onload = () => reliefImg.setAttribute("href", "relief.webp"); im.src = "relief.webp";
+  const io = new Image(); io.onload = () => oceanImg.setAttribute("href", "ocean.webp"); io.src = "ocean.webp";
 }
 if (innerWidth >= 900 && (devicePixelRatio || 1) >= 1.5) addEventListener("load", reliefHD);
 const gMinor = el("g", { visibility: "hidden" });
@@ -1271,7 +1274,8 @@ function miniMap(pts, r, aspect) {
     <g class="mm-cur" style="display:none"><circle r="${sw * 17}" fill="#1d4f9c" opacity=".28"/><circle r="${sw * 8}" fill="#1d4f9c" stroke="#fff" stroke-width="${sw * 3.5}"/></g>`
     : `<circle cx="${start[0]}" cy="${start[1]}" r="${sw * 9}" fill="var(--hot)" stroke="#fff" stroke-width="${sw * 3}"/>`;
   return `<svg class="minimap" viewBox="${bx.map(v => v.toFixed(1)).join(" ")}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="${xy ? "Carte du parcours" : "Lieu de départ"}">
-    <rect x="${bx[0]}" y="${bx[1]}" width="${bx[2]}" height="${bx[3]}" fill="var(--sea)"/>
+    <rect x="${bx[0]}" y="${bx[1]}" width="${bx[2]}" height="${bx[3]}" fill="#073a59"/>
+    <image href="${bx[2] < MAP.W * .3 ? "ocean.webp" : "ocean_sm.webp"}" x="0" y="0" width="${MAP.W}" height="${MAP.H}" preserveAspectRatio="none"/>
     <image href="relief_sm.webp" x="0" y="0" width="${MAP.W}" height="${MAP.H}" preserveAspectRatio="none"/>
     ${tilesIn(bx[2] < MAP.W * .3 ? 3 : 2, bx).map(([nm, x, y, w, h]) => `<image href="tiles/${nm}.webp" x="${x}" y="${y}" width="${w + .3}" height="${h + .3}" preserveAspectRatio="none"/>`).join("")}
     <use href="#mm-cont"/><use href="#mm-trails"/>${route}${labs}</svg>
@@ -1719,8 +1723,8 @@ function openReels() {
     <div class="rfeed">
       <section class="rs rintro rhome"><div class="rbg" aria-hidden="true">${night}</div><div class="rin"><div class="rhead">${logo}<h1>Dossard Péi</h1></div><p class="rtag">Trouv out prochin dosar !</p>
         <button type="button" class="rsearch" aria-label="Rechercher une course"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Course, commune…</button>
-        <div class="qchips" role="group" aria-label="Raccourcis"><button type="button" data-q="we">📅 Ce week-end <b class="q-we"></b></button><button type="button" data-q="next">Le week-end prochain</button><button type="button" data-q="near">📍 Près de moi</button><button type="button" data-q="trail" style="--dc:var(--c-trail)"><i class="qdot"></i>Trail</button><button type="button" data-q="route" style="--dc:var(--c-route)"><i class="qdot"></i>Route</button><button type="button" data-q="marche" style="--dc:var(--c-marche)"><i class="qdot"></i>Rando</button><button type="button" data-q="multisport" style="--dc:var(--c-tri)"><i class="qdot"></i>Multisport</button></div>
-        <p class="hstats"></p><br><button type="button" class="qsaison szlink">🗓️ Calendrier 2027 <span aria-hidden="true">›</span></button><button type="button" class="favlink szlink" hidden>⭐ Mes courses <b class="favn"></b></button>
+        <div class="qchips" role="group" aria-label="Raccourcis"><button type="button" data-q="we"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Ce week-end <b class="q-we"></b></button><button type="button" data-q="next">Le week-end prochain</button><button type="button" data-q="near"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.800 12 21 12 21Z"/><circle cx="12" cy="9.500" r="2.500"/></svg>Près de moi</button><button type="button" data-q="trail" style="--dc:var(--c-trail)"><i class="qdot"></i>Trail</button><button type="button" data-q="route" style="--dc:var(--c-route)"><i class="qdot"></i>Route</button><button type="button" data-q="marche" style="--dc:var(--c-marche)"><i class="qdot"></i>Rando</button><button type="button" data-q="multisport" style="--dc:var(--c-tri)"><i class="qdot"></i>Multisport</button></div>
+        <p class="hstats"></p><br><button type="button" class="qsaison szlink"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendrier 2027 <span aria-hidden="true">›</span></button><button type="button" class="favlink szlink" hidden><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.500 2.600 5.400 5.900.8-4.300 4.100 1 5.900-5.200-2.800-5.200 2.800 1-5.900-4.300-4.100 5.900-.8Z"/></svg>Mes courses <b class="favn"></b></button>
 <div class="rsoc2" role="group" aria-label="Dossard Péi sur les réseaux">${(() => { try { return socLinks("socb", false); } catch (e) { return ""; } })()}</div></div>
         <div class="rhint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14l6-6 6 6"/></svg>${rs.length ? `Glisse pour voir ${rs.length > 1 ? "les " + rs.length + " courses" : "la course"}${state.fav ? (rs.length > 1 ? " de tes favoris" : " de tes favoris") : state.wk === "we" ? " de ce week-end" : state.wk === "next" ? " du week-end prochain" : state.near ? " près de toi" : ""}` : "Aucune course pour ce choix"}</div></section>
       ${rs.map(slide).join("")}
@@ -2133,7 +2137,7 @@ function goTab(v) {
   try {
     if (matchMedia("(max-width: 760px)").matches && !localStorage.getItem("dp-tbhint")) {
       localStorage.setItem("dp-tbhint", "1");
-      setTimeout(() => { const h = document.createElement("div"); h.className = "tbhint"; h.textContent = "4 façons de voir les courses"; document.body.appendChild(h); setTimeout(() => h.remove(), 5000); }, 1200);
+      setTimeout(() => { const h = document.createElement("div"); h.className = "tbhint"; h.textContent = "4 façons de voir les courses"; document.body.appendChild(h); const bye = () => h.remove(); setTimeout(bye, 3000); ["scroll", "pointerdown"].forEach(t => addEventListener(t, bye, { once: true, passive: true })); }, 1200);
     }
   } catch (e) {}
 })();
