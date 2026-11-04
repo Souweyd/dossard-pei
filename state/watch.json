@@ -20,11 +20,9 @@
 "h": "8e633ccdc2a48943c4c2169a509823b3616e5d428a2b6b40e2973e18c1ba13d4"
 },
 "https://gotrail.run/calendrier-trails/reunion": {
-"at": "2026-11-04T16:24+04:00",
-"changed": "2026-11-04T16:24+04:00",
-"h": "e9b91bb9080f7cbfaaf7e269803a3fb905029b99853e412af9fbb5ba97faaa68",
-"pending": "8e053fa89e248bfb7af01cb4e62aee8b5036d5344a39ce23786e0631a022bfa2",
-"since": "2026-11-04T21:06+04:00"
+"at": "2026-11-04T22:03+04:00",
+"changed": "2026-11-04T22:03+04:00",
+"h": "8e053fa89e248bfb7af01cb4e62aee8b5036d5344a39ce23786e0631a022bfa2"
 },
 "https://ilop.re/ilop-sport/outdoor/": {
 "at": "2026-11-03T13:02+04:00",
@@ -37,11 +35,9 @@
 "h": "16554cc068a8ed92bcaf3b437c0b81a13a4bce85dfc1c4a76e7cbe5dede396e3"
 },
 "https://running.life/calendrier-course-a-pied/reunion": {
-"at": "2026-11-03T21:08+04:00",
-"changed": "2026-11-03T21:08+04:00",
-"h": "65eb232887a15c50e592ccb6dbdb72e76d6e754e5131a15cf2ca13a7430968b3",
-"pending": "5daee0f6b0242e0da2d57860bd74b1cec3e1518d96cc2c2d11c9e7d94f3175a3",
-"since": "2026-11-04T21:06+04:00"
+"at": "2026-11-04T22:03+04:00",
+"changed": "2026-11-04T22:03+04:00",
+"h": "5daee0f6b0242e0da2d57860bd74b1cec3e1518d96cc2c2d11c9e7d94f3175a3"
 },
 "https://sportinnovation.fr/Evenements/Inscriptions/9096/PRESENTIEL": {
 "at": "2026-10-27T19:08+04:00",
@@ -87,7 +83,7 @@
 "at": "2026-11-04T16:15+04:00",
 "changed": "2026-11-04T14:20:00+04:00",
 "h": "b8a91ffb590abb875ccf763be60b434bf87028d15c5f50d9f63379ea1ac880eb",
-"pending": "30e783f6accd2c0e870dd9d2236b6b53ab504285a4bf1422f33a791fb064dd78",
+"pending": "fe6da417621b714d163fdf02d21168dbe43461e6ec5ce453ba777c368b26f793",
 "since": "2026-11-04T18:06+04:00"
 },
 "https://www.huge-event.fr": {
