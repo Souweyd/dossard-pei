@@ -1,31 +1,9 @@
 {
- "at": "2026-11-04T00:07+04:00",
- "since": "2026-11-03T19:20+04:00",
- "rien": false,
- "sources": [
-  {
-   "id": "gotrail",
-   "url": "https://gotrail.run/calendrier-trails/reunion",
-   "changed": "2026-11-03T22:03+04:00"
-  },
-  {
-   "id": "runninglife",
-   "url": "https://running.life/calendrier-course-a-pied/reunion",
-   "changed": "2026-11-03T21:08+04:00"
-  },
-  {
-   "id": "canneenfleur",
-   "url": "https://www.canneenfleur.org/leuoxygenetrail",
-   "changed": "2026-11-04T00:07+04:00"
-  }
- ],
- "avenir": [
-  {
-   "id": "leu-oxygene-trail-2027-07",
-   "url": "https://www.canneenfleur.org/leuoxygenetrail",
-   "changed": "2026-11-04T00:07+04:00"
-  }
- ],
+ "at": "2026-11-04T10:02+04:00",
+ "since": "2026-11-04T09:21+04:00",
+ "rien": true,
+ "sources": [],
+ "avenir": [],
  "illisibles": [
   {
    "id": "saint-benoit",
