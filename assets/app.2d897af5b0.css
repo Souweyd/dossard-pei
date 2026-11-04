@@ -1287,7 +1287,7 @@ header.top .brand { opacity: 1 } header.top .brand .logo { opacity: 0 } header.t
 .sname { min-height: 2.5em }
 .sst { display: flex; flex-wrap: wrap; align-items: center; align-self: end; gap: 4px 8px; margin-top: 6px }
 .sst .state { margin: 0 }
-.swx.wxchip { margin: 0; padding: 0; background: none; box-shadow: none; color: var(--muted); font-size: .8rem; font-weight: 500; font-variant-numeric: tabular-nums }
+.swx.wxchip { margin: 0; padding: 3px 8px 3px 6px; border-radius: 7px; box-shadow: none; font-size: .74rem; font-weight: 600; font-variant-numeric: tabular-nums }
 @media (min-width: 1100px) { .soon-row { padding-bottom: 22px } }   /* keeps the height of the « Dernière ligne droite » column */
 /* the J-n leaves the top of the poster, where the race's name and date are */
 .swhen { top: auto; bottom: 8px; font-weight: 600 }
