@@ -1280,8 +1280,9 @@ header.top .brand { opacity: 1 } header.top .brand .logo { opacity: 0 } header.t
 /* ===== Retouches de l'accueil ===== */
 /* icons drawn with one line, in the colour of their text (no emoji in the chrome) */
 .ico, .rintro .rin svg.ico { width: 1.15em !important; height: 1.15em !important; flex: none; margin-right: .4em; vertical-align: -.2em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round }
-/* the sky reaches the edges of the window: the browser's default body margin cut it (phones keep their fade) */
-@media (min-width: 761px) { body { margin: 0; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); padding-top: 22px; padding-bottom: 48px } }
+/* the sky reaches the edges of the window: the browser's default body margin cut it, the phone fade is no longer needed */
+body { margin: 0; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); padding-top: 22px; padding-bottom: 48px }
+@media (max-width: 760px) { body { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) } .herobg { -webkit-mask-image: none; mask-image: none } }
 /* next-start cards: same lines at the same height, status at the bottom */
 .scard { grid-template-rows: auto auto auto 1fr; align-content: start }
 .sname { min-height: 2.5em }
