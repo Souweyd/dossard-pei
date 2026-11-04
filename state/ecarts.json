@@ -3,8 +3,17 @@
  "lieu_sportpro": {},
  "lieu_utoi": {},
  "texte": {
+  "reunion-tri-tour-2027-09": [
+   "Triathlon XS : 11,9 km introuvable (la page cite 0 km, 1,6 km, 2,5 km, 3 km, 4 km, 4,2 km)"
+  ],
   "trail-anglais-2027-02": [
    "ville : la fiche dit Le Port, la page cite Saint-Paul"
+  ],
+  "triathlon-colosse-2027-04": [
+   "Triathlon M : 51,5 km introuvable (la page cite 1 km, 1,7 km, 2,5 km, 3,4 km, 5 km, 10 km)",
+   "Duathlon M : 55 km introuvable (la page cite 1 km, 1,7 km, 2,5 km, 3,4 km, 5 km, 10 km)",
+   "Triathlon XS : 12,9 km introuvable (la page cite 1 km, 1,7 km, 2,5 km, 3,4 km, 5 km, 10 km)",
+   "Pupilles (10-11 ans) : 4,5 km introuvable (la page cite 1 km, 1,7 km, 2,5 km, 3,4 km, 5 km, 10 km)"
   ]
  }
 }

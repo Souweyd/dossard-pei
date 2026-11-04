@@ -1,21 +1,9 @@
 {
- "at": "2026-11-04T13:02+04:00",
- "since": "2026-11-04T09:21+04:00",
- "rien": false,
- "sources": [
-  {
-   "id": "bancouliers",
-   "url": "https://case-des-bancouliers.webnode.fr/",
-   "changed": "2026-11-04T13:02+04:00"
-  }
- ],
- "avenir": [
-  {
-   "id": "boucle-pic-adam-2027-08",
-   "url": "https://case-des-bancouliers.webnode.fr/",
-   "changed": "2026-11-04T13:02+04:00"
-  }
- ],
+ "at": "2026-11-04T14:32+04:00",
+ "since": "2026-11-04T14:20:00+04:00",
+ "rien": true,
+ "sources": [],
+ "avenir": [],
  "illisibles": [
   {
    "id": "saint-benoit",
