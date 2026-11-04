@@ -165,6 +165,21 @@
     "poster_xs"
    ],
    "hidden": false
+  },
+  "grand-raid-2027-10": {
+   "fields": [
+    "commune",
+    "date",
+    "epreuves",
+    "fin",
+    "info",
+    "lieu",
+    "ll",
+    "nom",
+    "org",
+    "page"
+   ],
+   "hidden": false
   }
  },
  "manual": [
