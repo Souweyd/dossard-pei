@@ -1,5 +1,5 @@
 {
- "at": "2026-11-04T22:03+04:00",
+ "at": "2026-11-05T02:03+04:00",
  "since": "2026-11-04T19:20:40+04:00",
  "rien": false,
  "sources": [
@@ -12,6 +12,11 @@
    "id": "runninglife",
    "url": "https://running.life/calendrier-course-a-pied/reunion",
    "changed": "2026-11-04T22:03+04:00"
+  },
+  {
+   "id": "grandraid",
+   "url": "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/",
+   "changed": "2026-11-05T02:03+04:00"
   }
  ],
  "avenir": [],
