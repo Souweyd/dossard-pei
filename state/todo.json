@@ -1,5 +1,5 @@
 {
- "at": "2026-11-04T16:24+04:00",
+ "at": "2026-11-04T19:03+04:00",
  "since": "2026-11-04T14:20:00+04:00",
  "rien": false,
  "sources": [
@@ -20,6 +20,11 @@
    "id": "milesrepublic",
    "url": "https://fr.milesrepublic.com/run/la-reunion",
    "erreur": "HTTPError 429"
+  },
+  {
+   "id": "runninglife",
+   "url": "https://running.life/calendrier-course-a-pied/reunion",
+   "erreur": "HTTPError 522"
   }
  ]
 }
