@@ -605,12 +605,12 @@ const POOLS = {
 };
 const SUBJECTS = n => [["Le dossard " + n, "le dossard " + n], ["Sam", "Sam"], ["Le " + n, "le " + n], ["Notre Sam", "notre Sam"]];
 function nextIn(s, key) { s.pools = s.pools || {}; const i = s.pools[key] = (s.pools[key] || 0); s.pools[key]++; const p = s.runner.id === 'nadia' && NADIA_POOLS[key] || POOLS[key]; return p[i % p.length]; }
-function subject(s) { s.sp = (s.sp || 0) + 1; const l = s.runner.id === 'nadia' ? [['Le dossard ' + s.bib, 'le dossard ' + s.bib], ['Hanna', 'Hanna'], ['Notre Hanna', 'notre Hanna'], ['Hanna', 'Hanna']] : SUBJECTS(s.bib); return l[(s.sp - 1) % 4]; }
+function subject(s) { s.sp = (s.sp || 0) + 1; const l = s.runner.id === 'nadia' ? [['Le dossard ' + s.bib, 'le dossard ' + s.bib], ['Ana', 'Ana'], ['Notre Ana', 'notre Ana'], ['Ana', 'Ana']] : SUBJECTS(s.bib); return l[(s.sp - 1) % 4]; }
 let CUSTOM = null;
 function nomIn(t) {
   if (!CUSTOM || !t) return t;
   const v = /^[aeiouyàâäéèêëîïôöûüAEIOUYÀÂÉÈÊÎÔÛ]/.test(CUSTOM);
-  t = t.replace(/\b(Sam|Hanna)\b/g, CUSTOM);
+  t = t.replace(/\b([Dd])'Ana\b/g, '$1e Ana').replace(/\b([Qq])u'Ana\b/g, '$1ue Ana').replace(/\b(Sam|Ana)\b/g, CUSTOM);
   if (v) { const n = CUSTOM.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); t = t.replace(new RegExp('\\b([Dd])e ' + n, 'g'), "$1'" + CUSTOM).replace(new RegExp('\\b([Qq])ue ' + n, 'g'), "$1u'" + CUSTOM); }
   return t;
 }
@@ -1257,8 +1257,8 @@ const CRISIS = {
     ] }
 };
 
-/* ---------- Hanna : ses pensées et les annonces du speaker (mêmes effets de base que Sam) ---------- */
-const NADIA_RUNNER = { id: 'nadia', name: 'Hanna', drain: { e: 1, h: 1, j: 1, m: 1.18 } };
+/* ---------- Ana : ses pensées et les annonces du speaker (mêmes effets de base que Sam) ---------- */
+const NADIA_RUNNER = { id: 'nadia', name: 'Ana', drain: { e: 1, h: 1, j: 1, m: 1.18 } };
 const NADIA_POOLS = {
   gel: ["{S} prend son gel à la minute prévue. Elle a mis une alarme, on l'a entendue.", "Deuxième gel pour {s}, pile à l'heure. Elle a même regardé sa montre avant de l'ouvrir.", "{S} coche quelque chose sur son bras, puis prend un gel. Je ne pose pas de question.", "Encore un gel pour {s}. Le tableau de marche l'a dit, le tableau de marche a raison."],
   chute: ["Oh ! {S} est par terre. Elle se relève tout de suite, et la première chose qu'elle regarde, c'est sa montre.", "Et {s} part à la faute ! Une racine qui n'était pas dans le fichier. Elle la note, je crois.", "Encore une chute pour {s} ? Elle se relève en vérifiant ses trois montres. Elles vont bien.", "{S} vient de tomber une fois de plus. Elle dit que ça lui coûte onze secondes au kilomètre."]
@@ -1279,7 +1279,7 @@ const NADIA_TEXT = {
     montee: { q: "Montée à 20 %. Fréquence cardiaque déjà en zone 4. D'après le plan, je marche. D'après mes jambes, je pourrais courir.", r: ["Mais qu'est-ce qu'elle fait, {s} ? Elle double tout le monde en sortant de son plan ! Ses montres n'y croient pas.", "{S} marche, mains sur les cuisses, exactement comme sur sa fiche. Elle a même une fiche.", "{S} trottine, l'œil sur le cardio. Elle se parle à voix basse, on dirait des chiffres."] },
     sommet: { q: "Point haut. On voit toute la mer. Il y a un photographe. J'ai 40 secondes d'avance sur mon plan.", r: ["{S} s'arrête regarder la mer. Elle a mis un minuteur, mais elle regarde.", "{S} pose pour la photo, et elle vérifie son allure pendant la photo. On le verra sur la photo.", "{S} ne lève pas les yeux de sa montre. La mer est toujours là, pour ceux que ça intéresse."] },
     descente: { q: s => "Descente technique." + (s.w.id === 'pluie' ? " Avec la pluie, mes temps de référence ne valent plus rien." : " J'ai regardé la vidéo du parcours, mais pas ces cailloux-là."), r: ["Attention en bas, {s} lâche tout ! C'est la première fois de la journée qu'elle ne regarde pas sa montre.", "{S} descend de côté, en comptant ses appuis. Elle a l'air de faire une addition.", "{S} suit une coureuse qui a l'air de savoir. Elle prend des notes mentales, à mon avis."] },
-    ravito2: { q: "« Allé Hanna, lé pa loin ! » Il reste 1,5 km exactement. Mais c'est gentil.", r: ["Deux verres d'eau pour {s}, pas une goutte sur le t-shirt. Ça, c'est de la méthode.", "Gâteau patate pour {s}. Ce n'est pas prévu, et elle l'assume. On avance.", "Belle claque entre {s} et notre bénévole. Il dit qu'elle lui a donné son allure en passant."] },
+    ravito2: { q: "« Allé Ana, lé pa loin ! » Il reste 1,5 km exactement. Mais c'est gentil.", r: ["Deux verres d'eau pour {s}, pas une goutte sur le t-shirt. Ça, c'est de la méthode.", "Gâteau patate pour {s}. Ce n'est pas prévu, et elle l'assume. On avance.", "Belle claque entre {s} et notre bénévole. Il dit qu'elle lui a donné son allure en passant."] },
     didier: { r: ["Oh le sprint de {s} ! Il y a une histoire de famille là-dessous, et sûrement un tableau de points.", "{S} ne s'affole pas. Elle sait exactement à quel mètre elle va attaquer.", null] },
     arche: { q: "Je vois l'arche. Il reste 150 mètres. Le plan ne dit rien pour ce moment-là.", r: ["{S} finit à fond et arrête ses trois montres en même temps. Quelle classe.", "Regardez-moi ça, {s} arrive en dansant le séga ! Ce n'était dans aucun fichier !", "{S} lève les bras, puis elle regarde son temps. Dans cet ordre, c'est déjà un progrès."] }
   },
@@ -1306,7 +1306,7 @@ const NADIA_TEXT = {
     ongle: { q: "Mon orteil tape au fond à chaque pas. Une taille au-dessus, j'avais dit non. J'ai dit non dans le tableur.", r: ["{S} descend sur les talons. Ses genoux n'ont pas été consultés.", "{S} serre ses lacets à fond, et elle note le réglage.", "{S} a le regard perdu. Elle pense à autre chose, ce qui ne lui arrive jamais."] },
     chien: { q: "Un chien sur le sentier. Il ne figure pas sur la trace GPX.", r: ["{S} parle au chien, qui la suit sur 400 mètres. Il tient très bien l'allure.", "Sprint imprévu de {s}, avec un chien derrière elle. Son cardio ne comprend pas.", "{S} attend quelqu'un pour passer. Le chien a l'air de savoir qu'elle chronomètre."] },
     pipi: { q: "Envie pressante. J'avais prévu un arrêt au km suivant. Mon corps ne suit pas le fichier.", r: ["{S} disparaît derrière un goyavier, et elle en ressort en 48 secondes. Record personnel.", "{S} a une drôle de foulée depuis tout à l'heure. Elle ne dira rien.", f => f.m > 0 ? "{S} regarde droit devant elle, très concentrée. Personne n'a rien vu." : "{S} a essayé une technique lue sur un forum. Le forum a menti."] },
-    tel: { q: "Maman appelle. Elle sait que je cours. C'est dans le planning que je lui ai envoyé.", r: ["{S} décroche en courant. « Oui maman, 6:14 au kilomètre. » Sa mère ne sait pas ce que ça veut dire.", "Le téléphone de {s} sonne encore. Réponds à ta mère, Hanna.", "{S} s'arrête pour parler à sa maman. C'est très bien, et ce n'est pas prévu."] },
+    tel: { q: "Maman appelle. Elle sait que je cours. C'est dans le planning que je lui ai envoyé.", r: ["{S} décroche en courant. « Oui maman, 6:14 au kilomètre. » Sa mère ne sait pas ce que ça veut dire.", "Le téléphone de {s} sonne encore. Réponds à ta mère, Ana.", "{S} s'arrête pour parler à sa maman. C'est très bien, et ce n'est pas prévu."] },
     lacet: { q: "Lacet gauche défait. Double nœud pourtant vérifié hier. Je ne comprends pas.", r: ["{S} se baisse et refait son nœud, celui qu'elle a appris sur une vidéo.", "{S} range son lacet dans sa chaussette. Elle n'est pas fière d'elle.", "Un bénévole refait le lacet de {s}. Elle regarde comment il s'y prend."] },
     blesse: { q: "Un coureur au sol, la cheville en l'air. Il dit que ça va. Ça ne va pas, et j'ai un plan pour ça aussi.", r: ["{S} reste avec le coureur blessé jusqu'à l'arrivée du serre-file. Elle avait une couverture, et un protocole. Bravo à elle.", "{S} laisse de l'eau au coureur et donne sa position au mètre près. Le serre-file arrive.", "{S} continue, et elle prévient au prochain point. Elle a l'air moins sûre d'elle, pour une fois."] },
     averse: { q: "Il pleut. L'appli donnait 10 %. L'appli m'a menti.", r: ["{S} lève la tête sous la pluie, bouche ouverte. Ce n'est pas du tout son genre, et ça lui va bien.", "{S} ralentit sous l'averse. Elle recalcule.", "{S} accélère sous la pluie. Sa montre lui dit de ne pas le faire."] },
@@ -1505,7 +1505,7 @@ function sceneQ(s, sc) {
   if (s.runner.id === 'nadia') { const e = nadiaEntry(s, sc); if (e && e.q) q = typeof e.q === 'function' ? e.q(s) : e.q; else if (sc.pre && NADIA_PREP[sc.id]) { const p = NADIA_PREP[sc.id]; q = typeof p === 'function' ? p(s) : p; } }
   return q;
 }
-function statsHanna(t, wins) {
+function statsAna(t, wins) {
   const n = t.renfo + t.longue + t.manger;
   return [['Glucides par heure', [60, 70, 80, 90, 100, 110][Math.min(5, t.manger)] + ' g'], ['Allure cible', '6:12 au km'], ['Volume par semaine', [35, 45, 55, 70, 85, 100][Math.min(5, t.longue)] + ' km'], ['Montres', wins < 2 ? 3 : wins < 4 ? 2 : wins < 6 ? 1 : 0], ['Plans B', 7 - Math.min(5, t.renfo + t.longue + t.manger)], ['Fichiers ouverts', 14 - wins * 2], ['Lâcher-prise', Math.min(9, wins + (t.renfo + t.longue + t.manger)) + '/10']];
 }
@@ -2210,7 +2210,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
         ${limb('M151 122 150 148')}${limb('M49 122 50 148')}${mirror(flag)}${mirror(sleeveL)}
         <path d="M88 86V70H112V86Z" fill="${SK}" stroke="${INK}" stroke-width="2.5"/>${ears}
         <path d="M75 46C72 18 94 14 106 16 122 14 130 30 125 46 125 66 112 76 100 76 88 76 75 66 75 46Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><path d="M75 50Q100 57 125 50" fill="none" stroke="#3a4a52" stroke-width="3"/>${NAD ? `<path d="M90 44C88 70 92 92 100 108 108 92 112 70 110 44Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><rect x="92" y="40" width="16" height="7" rx="3" fill="#c62828"/>` : ''}${CAPT === 2 ? `<path d="M62 42Q100 54 138 42Q100 30 62 42Z" fill="#e7d9a8" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M76 42C76 8 124 8 124 42Q100 48 76 42Z" fill="#f0e5bd" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>` : CAP ? `<path d="M73 44C70 8 130 8 127 44Q100 52 73 44Z" fill="${CAPT === 3 ? '#ff5a36' : '#1d4f9c'}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>` : ''}</g>`;
-    return `<svg viewBox="0 0 200 270" role="img" aria-label="${esc2(CUSTOM && !o.perso ? CUSTOM : NAD ? 'Hanna' : 'Sam')} debout, bras croisés, l'air sûr ${NAD ? "d'elle" : 'de lui'}, ${NAD ? 't-shirt blanc Dossard Péi, drapeau de La Réunion sur la manche droite' : 'débardeur blanc Dossard Péi'}">
+    return `<svg viewBox="0 0 200 270" role="img" aria-label="${esc2(CUSTOM && !o.perso ? CUSTOM : NAD ? 'Ana' : 'Sam')} debout, bras croisés, l'air sûr ${NAD ? "d'elle" : 'de lui'}, ${NAD ? 't-shirt blanc Dossard Péi, drapeau de La Réunion sur la manche droite' : 'débardeur blanc Dossard Péi'}">
       <defs><clipPath id="manche"><polygon points="${sleeve}"/></clipPath></defs>
       <path d="M0 225 Q50 205 100 219 T200 212V270H0Z" fill="#8db48a"/>
       <ellipse cx="100" cy="252" rx="52" ry="7" fill="#1d2523" opacity=".28"/>
@@ -2280,12 +2280,12 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     svg.addEventListener('pointerleave', () => { g.style.display = 'none'; });
   }
   const TOUT = location.hash === '#tout';
-  const ficheNow = () => CAREER.perso === 'nadia' ? statsHanna(CAREER.train, CAREER.wins.length) : statsFor(CAREER.train, CAREER.wins.length);
+  const ficheNow = () => CAREER.perso === 'nadia' ? statsAna(CAREER.train, CAREER.wins.length) : statsFor(CAREER.train, CAREER.wins.length);
   const nadia = () => CAREER.perso === 'nadia';
   const maxRaces = () => 6;
   const isOpen = fid => { const i = ORDER.indexOf(fid); if (i >= maxRaces()) return false; return TOUT || i <= CAREER.wins.length; };
   const needsTraining = () => !TOUT && CAREER.wins.length < maxRaces() && CAREER.train.renfo + CAREER.train.longue + CAREER.train.manger < CAREER.wins.length;
-  function currentRunner(fid) { return Object.assign(runnerFor(TOUT ? balancedTrain(ORDER.indexOf(fid)) : CAREER.train, CAREER.perso), { mem: CAREER.mem, name: CAREER.name || (CAREER.perso === 'nadia' ? 'Hanna' : 'Sam') }); }
+  function currentRunner(fid) { return Object.assign(runnerFor(TOUT ? balancedTrain(ORDER.indexOf(fid)) : CAREER.train, CAREER.perso), { mem: CAREER.mem, name: CAREER.name || (CAREER.perso === 'nadia' ? 'Ana' : 'Sam') }); }
   const TRAINS = {
     renfo: { l: "Je fais du renfo", d: "Les jambes tiendront plus longtemps", sp: ["Sam a fait une chaise contre un mur. Quarante secondes. Il en parle encore.", "Squats devant la télé pour Sam. Le chat a quitté la pièce.", "Sam monte les escaliers au lieu de l'ascenseur. Ses voisins s'inquiètent.", "Fentes dans la cuisine. Sam connaît maintenant le carrelage de très près.", "Séance de renfo terminée. Sam a des cuisses, on les voit depuis la route."] },
     longue: { l: "Je fais une sortie longue", d: "Il se fatiguera moins vite", sp: ["Sortie de 15 km pour Sam. Il a appelé un taxi au km 13, mais il ne l'a pas pris.", "Dimanche matin, 30 km. Sam a raté le cari de sa mère, et elle le lui a dit.", "Il part avant le jour, maintenant. Personne ne lui a demandé.", "Sam a couru la moitié de la journée. Il a appelé ça une petite sortie.", "Sortie de 110 km pour Sam. Il a oublié de rentrer pour manger."] },
@@ -2295,7 +2295,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     clearInterval(turnTimer); wrap.classList.remove('play'); hud.hidden = true; hud.innerHTML = '';
     const f = FORMATS.d25; drawDecor(f, false); setMood(moodNow()); decor.classList.add('home');
     const next = FORMATS[ORDER[CAREER.wins.length]];
-    const SPN = { renfo: ["Hanna a ajouté un onglet renfo. Elle l'a aussi fait, ce renfo.", "Gainage chronométré pour Hanna. Elle a battu son record de 4 secondes, et elle le sait.", "Hanna fait des fentes dans le couloir, et elle les compte à voix haute. Les voisins connaissent le total.", "Séance de côtes pour Hanna. Elle a mesuré la côte elle-même, au mètre près.", "Hanna a des mollets de statue, maintenant. Elle les a pris en photo pour son suivi."], longue: ["Sortie longue de Hanna, à l'allure prévue, à la seconde près. Elle a eu un peu peur.", "Hanna est sortie sans sa montre. Elle a fait demi-tour au bout de 200 mètres.", "Elle a fait 50 km avec une seule montre. Elle dit que c'était pour voir.", "Hanna court la nuit, pour s'entraîner à ne pas dormir. Son chat la juge.", "110 km, et elle s'est perdue, sans se fâcher. On ne la reconnaît plus."], manger: ["Hanna a pesé son riz. Le riz n'a rien dit.", "Elle a testé une nouvelle barre, et elle l'a évaluée sur cinq critères.", "Hanna sait manger en courant. Il lui reste à savoir quoi, et ça fait trois onglets.", "Elle a goûté un cary sans le peser. C'est une étape.", "Hanna a digéré un cary complet en montée. Elle l'a ajouté à ses records."] };
+    const SPN = { renfo: ["Ana a ajouté un onglet renfo. Elle l'a aussi fait, ce renfo.", "Gainage chronométré pour Ana. Elle a battu son record de 4 secondes, et elle le sait.", "Ana fait des fentes dans le couloir, et elle les compte à voix haute. Les voisins connaissent le total.", "Séance de côtes pour Ana. Elle a mesuré la côte elle-même, au mètre près.", "Ana a des mollets de statue, maintenant. Elle les a pris en photo pour son suivi."], longue: ["Sortie longue d'Ana, à l'allure prévue, à la seconde près. Elle a eu un peu peur.", "Ana est sortie sans sa montre. Elle a fait demi-tour au bout de 200 mètres.", "Elle a fait 50 km avec une seule montre. Elle dit que c'était pour voir.", "Ana court la nuit, pour s'entraîner à ne pas dormir. Son chat la juge.", "110 km, et elle s'est perdue, sans se fâcher. On ne la reconnaît plus."], manger: ["Ana a pesé son riz. Le riz n'a rien dit.", "Elle a testé une nouvelle barre, et elle l'a évaluée sur cinq critères.", "Ana sait manger en courant. Il lui reste à savoir quoi, et ça fait trois onglets.", "Elle a goûté un cary sans le peser. C'est une étape.", "Ana a digéré un cary complet en montée. Elle l'a ajouté à ses records."] };
     panel.innerHTML = `<div class="col col-a"><p class="pense">Prochain dossard : ${next.short}. ${nadia() ? "J'ai déjà le plan. Il manque juste une séance." : "Bon. Il paraît qu'il faut que je m'entraîne."}</p></div>
       <div class="keys col-b">${TRAIN_KEYS.map(k => `<button class="key trainb" data-k="${k}"><span>${esc(TRAINS[k].l)}</span><small>${esc(TRAINS[k].d)}</small></button>`).join('')}</div>`;
     panel.querySelectorAll('.trainb').forEach(b => b.onclick = () => {
@@ -2332,18 +2332,18 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
   }
   function murHTML() {
     if (!CAREER.wins.length) return '';
-    return `<div class="sect"><h3 class="sec">${esc(nomIn(nadia() ? 'Les dossards de Hanna' : 'Les dossards de Sam'))}</h3><div class="mur">${ORDER.filter(f => CAREER.wins.includes(f)).map((f, i) => { const b = CAREER.bibs[f] || {}; return `<div class="minib" style="--r:${[-3, 2, -1, 3, -2, 1][i]}deg"><i></i><b>${b.bib || ''}</b><small>${FORMATS[f].short}</small><span>${b.temps || ''}</span></div>`; }).join('')}</div></div>`;
+    return `<div class="sect"><h3 class="sec">${esc(nomIn(nadia() ? 'Les dossards d'Ana' : 'Les dossards de Sam'))}</h3><div class="mur">${ORDER.filter(f => CAREER.wins.includes(f)).map((f, i) => { const b = CAREER.bibs[f] || {}; return `<div class="minib" style="--r:${[-3, 2, -1, 3, -2, 1][i]}deg"><i></i><b>${b.bib || ''}</b><small>${FORMATS[f].short}</small><span>${b.temps || ''}</span></div>`; }).join('')}</div></div>`;
   }
   function chooseScreen() {
     wrap.classList.remove('play'); decor.classList.add('home');
     const ov = document.createElement('div'); ov.className = 'homeov'; ov.innerHTML = '<h1>Une histoire<br>de dossard</h1>'; decor.appendChild(ov);
     panel.innerHTML = `<div class="col col-a">${defiHTML()}<h2 class="quel">Qui part sur la ligne ?</h2>
       <div class="pick"><button class="pcard" data-p="jeremi"><div class="stage">${persoSVG({ solo: true, perso: 'jeremi' }).replace(/manche/g, 'mancheA')}</div><b>Sam</b><span>Deux footings depuis janvier, et une confiance de 11/10.</span></button>
-      <button class="pcard" data-p="nadia"><div class="stage">${persoSVG({ solo: true, perso: 'nadia' }).replace(/manche/g, 'mancheB')}</div><b>Hanna</b><span>Quatorze onglets de tableur, et 0/10 en lâcher-prise.</span></button></div>
+      <button class="pcard" data-p="nadia"><div class="stage">${persoSVG({ solo: true, perso: 'nadia' }).replace(/manche/g, 'mancheB')}</div><b>Ana</b><span>Quatorze onglets de tableur, et 0/10 en lâcher-prise.</span></button></div>
       </div><div class="col col-b"><div class="pickname" id="pnw" hidden><label for="pickname">Son prénom</label><input id="pickname" type="text" maxlength="12" autocomplete="off" autocapitalize="words"><p class="fine">Laisse vide pour garder le prénom proposé.</p></div>
       <button class="cta" id="pickgo" disabled>Choisis ton coureur</button></div>`;
     let cur = null;
-    const dflt = () => cur === 'nadia' ? 'Hanna' : 'Sam';
+    const dflt = () => cur === 'nadia' ? 'Ana' : 'Sam';
     const clean = t => { t = t.replace(/[^\p{L}\p{M} '’-]/gu, '').replace(/\s+/g, ' ').trim(); return t ? t[0].toLocaleUpperCase('fr-FR') + t.slice(1) : ''; };
     const label = () => { $('pickgo').textContent = 'Commencer avec ' + (clean($('pickname').value) || dflt()); };
     panel.querySelectorAll('.pcard').forEach(b => b.onclick = () => { cur = b.dataset.p; panel.querySelectorAll('.pcard').forEach(x => x.classList.toggle('on', x === b)); $('pnw').hidden = false; $('pickname').placeholder = dflt(); $('pickgo').disabled = false; label(); });
@@ -2362,12 +2362,12 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     ov.innerHTML = `<h1>Une histoire<br>de dossard</h1><button type="button" class="stage homefig" id="perso" aria-label="Personnaliser le coureur">${persoSVG()}<span class="crayon" aria-hidden="true"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M4 20l1-5L16 4l4 4L9 19z" fill="#ffd400" stroke="#1d2523" stroke-width="2.2" stroke-linejoin="round"/></svg></span></button>`;
     decor.appendChild(ov);
     const got = Object.keys(memoryTitles).length, total = Object.keys(TITLES).length;
-    panel.innerHTML = `<div class="col col-a"><p class="pense">${esc(nomIn(nadia() ? "Hanna a tout prévu. Presque." : "Sam a pris un dossard. Il n'aurait pas dû."))}</p>
+    panel.innerHTML = `<div class="col col-a"><p class="pense">${esc(nomIn(nadia() ? "Ana a tout prévu. Presque." : "Sam a pris un dossard. Il n'aurait pas dû."))}</p>
       <p class="line3">${nadia() ? 'Elle, elle' : 'Lui, il'} te dira : « ${esc(nadia() ? NADIA_BIOS[Math.min(6, CAREER.wins.length)] : BIOS[Math.min(6, CAREER.wins.length)])} »</p>
       <div class="fiche"><dl class="rpg">${ficheNow().map(x => `<div><dt>${esc(x[0])}</dt><dd>${esc(x[1])}</dd></div>`).join('')}</dl></div>
       ${CAREER.run ? `<button class="cta" id="gorun">Reprendre le ${FORMATS[CAREER.run.fid].short} au km ${fmtKm(CAREER.run.km)}</button>` : ''}
       ${murHTML()}
-      ${needsTraining() ? `<button class="cta" id="gotrain">${esc(nomIn("Finir l'entraînement de " + (nadia() ? 'Hanna' : 'Sam')))}</button>` : ''}</div><div class="col col-b">${defiHTML()}<h2 class="quel">${CAREER.wins.length ? 'Le prochain dossard' : 'Le premier dossard'}</h2>
+      ${needsTraining() ? `<button class="cta" id="gotrain">${esc(nomIn("Finir l'entraînement de " + (nadia() ? 'Ana' : 'Sam')))}</button>` : ''}</div><div class="col col-b">${defiHTML()}<h2 class="quel">${CAREER.wins.length ? 'Le prochain dossard' : 'Le premier dossard'}</h2>
       <div class="courses">${ORDER.map(fid => { const c = FORMATS[fid], open = isOpen(fid), done = CAREER.wins.includes(fid); return `<button class="course${open ? '' : ' verrou'}" data-f="${c.id}" ${open && !needsTraining() ? '' : 'disabled'}><b>${c.dist} km</b><span><strong>${esc(c.name)}</strong><span class="cl">${c.dp.toLocaleString('fr-FR')} m de D+</span><span class="cl">${open ? `Départ à ${fmtClock(c.start)}` : `Ouvre après le ${FORMATS[ORDER[ORDER.indexOf(fid) - 1]].short}`}</span></span>${done ? '<i class="fini">Terminée</i>' : ''}</button>`; }).join('')}</div>
       </div><div class="col homefoot">${got ? `<p class="fine">${got} titre${got > 1 ? 's' : ''} sur ${total}.</p>` : ''}
       <p class="fine">Un jeu Dossard Péi. Courses et personnages imaginaires.</p>
