@@ -2332,7 +2332,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
   }
   function murHTML() {
     if (!CAREER.wins.length) return '';
-    return `<div class="sect"><h3 class="sec">${esc(nomIn(nadia() ? 'Les dossards d'Ana' : 'Les dossards de Sam'))}</h3><div class="mur">${ORDER.filter(f => CAREER.wins.includes(f)).map((f, i) => { const b = CAREER.bibs[f] || {}; return `<div class="minib" style="--r:${[-3, 2, -1, 3, -2, 1][i]}deg"><i></i><b>${b.bib || ''}</b><small>${FORMATS[f].short}</small><span>${b.temps || ''}</span></div>`; }).join('')}</div></div>`;
+    return `<div class="sect"><h3 class="sec">${esc(nomIn(nadia() ? "Les dossards d'Ana" : 'Les dossards de Sam'))}</h3><div class="mur">${ORDER.filter(f => CAREER.wins.includes(f)).map((f, i) => { const b = CAREER.bibs[f] || {}; return `<div class="minib" style="--r:${[-3, 2, -1, 3, -2, 1][i]}deg"><i></i><b>${b.bib || ''}</b><small>${FORMATS[f].short}</small><span>${b.temps || ''}</span></div>`; }).join('')}</div></div>`;
   }
   function chooseScreen() {
     wrap.classList.remove('play'); decor.classList.add('home');
