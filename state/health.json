@@ -7,8 +7,10 @@
   }
  },
  "plateformes": {
-  "echecs": 0,
-  "etat": "ok",
+  "depuis": "2026-11-06T02:01+04:00",
+  "echecs": 1,
+  "erreur": "pages effondré (< 50% des 17 habituels)",
+  "etat": "ko",
   "ref": {
    "pages": 17
   }
@@ -17,8 +19,8 @@
   "echecs": 0,
   "etat": "ok",
   "ref": {
-   "associees": 60,
-   "epreuves": 62,
+   "associees": 35,
+   "epreuves": 44,
    "evenements": 28
   }
  },
@@ -37,8 +39,10 @@
   }
  },
  "topchrono": {
-  "echecs": 0,
-  "etat": "ok",
+  "depuis": "2026-11-06T02:01+04:00",
+  "echecs": 1,
+  "erreur": "HTTPError: HTTP Error 403: Forbidden",
+  "etat": "ko",
   "ref": {
    "pages": 115
   }
