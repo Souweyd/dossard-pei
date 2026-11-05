@@ -2257,7 +2257,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
       <div class="pick"><button class="pcard" data-p="jeremi"><div class="stage">${persoSVG({ solo: true, perso: 'jeremi' }).replace(/manche/g, 'mancheA')}</div><b>Sam</b><span>Deux footings depuis janvier, et une confiance de 11/10.</span></button>
       <button class="pcard" data-p="nadia"><div class="stage">${persoSVG({ solo: true, perso: 'nadia' }).replace(/manche/g, 'mancheB')}</div><b>Hanna</b><span>Quatorze onglets de tableur, et 0/10 en lâcher-prise.</span></button></div>
       </div><div class="col col-b"><div class="pickname" id="pnw" hidden><label for="pickname">Son prénom</label><input id="pickname" type="text" maxlength="12" autocomplete="off" autocapitalize="words"><p class="fine">Laisse vide pour garder le prénom proposé.</p></div>
-      <p class="fine" id="pickn">Choix définitif, prénom compris, sauf si tu remets le jeu à zéro.</p><button class="cta" id="pickgo" disabled>Choisis ton coureur</button></div>`;
+      <button class="cta" id="pickgo" disabled>Choisis ton coureur</button></div>`;
     let cur = null;
     const dflt = () => cur === 'nadia' ? 'Hanna' : 'Sam';
     const clean = t => { t = t.replace(/[^\p{L}\p{M} '’-]/gu, '').replace(/\s+/g, ' ').trim(); return t ? t[0].toLocaleUpperCase('fr-FR') + t.slice(1) : ''; };
