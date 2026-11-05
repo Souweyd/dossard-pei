@@ -14,8 +14,9 @@
   }
  },
  "sportpro": {
+  "alerte": 20,
   "depuis": "2026-11-05T21:01+04:00",
-  "echecs": 2,
+  "echecs": 3,
   "erreur": "evenements effondré (< 50% des 28 habituels)",
   "etat": "ko",
   "ref": {
