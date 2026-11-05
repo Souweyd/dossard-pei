@@ -439,9 +439,9 @@ fieldset legend { font: 800 1.45rem/1.05 var(--display); padding: 0 } .pq { font
 .fichex { font-size: .95rem; gap: 6px } .fichex div:not(.chg) { color: var(--muted) } .fichex dd em { font-style: normal; font-weight: 800; color: #0c7a5c; margin-right: 4px } .fichex dd s { font-weight: 500; color: var(--muted); margin-right: 4px } .fichex .chg dd { color: var(--fg) }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .fichex dd em { color: #6fd8b4 } } :root[data-theme="dark"] .fichex dd em { color: #6fd8b4 }
 .backb { position: absolute; z-index: 5; top: calc(10px + env(safe-area-inset-top, 0px)); left: max(12px, env(safe-area-inset-left, 0px)); width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: #fff; color: #1d2523; box-shadow: 0 2px 8px rgba(0,0,0,.25); cursor: pointer }
-.backb:hover { background: #ffd400 } .backb:focus-visible { outline: 3px solid #1d2523; outline-offset: 2px }
+.backb:active { background: #ffd400 } @media (hover: hover) { .backb:hover { background: #ffd400 } } .backb:focus-visible { outline: 3px solid #1d2523; outline-offset: 2px }
 .pauseb { position: absolute; z-index: 5; top: calc(10px + env(safe-area-inset-top, 0px)); left: calc(50% + 40px); width: 40px; height: 40px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: #fff; color: #1d2523; box-shadow: 0 2px 8px rgba(0,0,0,.25); cursor: pointer }
-.pauseb:hover { background: #ffd400 } .pauseb:focus-visible { outline: 3px solid #1d2523; outline-offset: 2px }
+.pauseb:active { background: #ffd400 } @media (hover: hover) { .pauseb:hover { background: #ffd400 } } .pauseb:focus-visible { outline: 3px solid #1d2523; outline-offset: 2px }
 .pausebox { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 16px; background: rgba(20,26,25,.55) }
 .pausecard { width: min(100%, 380px); display: grid; gap: 12px; background: var(--bg); color: var(--fg); border-radius: 16px; padding: 20px }
 
@@ -488,6 +488,25 @@ fieldset legend { font: 800 1.45rem/1.05 var(--display); padding: 0 } .pq { font
 .didico { display: inline-block; width: 15px; height: 21px; margin-right: 5px; vertical-align: -5px } .didico svg { display: block; width: 100%; height: 100%; overflow: visible }
 .razbtn { width: 100%; font: 600 1rem/1.2 var(--body); color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 13px 15px; cursor: pointer } .razbtn:hover { border-color: var(--red); color: var(--red) }
 @media (min-width: 1000px) { .razw { width: auto; margin-top: 0; margin-left: auto } .razbtn { width: auto } }
+
+/* Personnalisation du coureur */
+#decor { overflow: clip }
+button.homefig { padding: 0; background: none; border: 0; cursor: pointer; display: block }
+.crayon { position: absolute; right: 2px; top: 34%; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: #fff; box-shadow: 0 2px 7px rgba(0,0,0,.28) }
+.lookcard { gap: 10px; max-height: calc(100dvh - 32px); overflow: auto }
+.lkstage { position: relative; background: linear-gradient(#bfe0f4, #eaf4f8); border-radius: 14px; padding: 8px 0 }
+.lkfig { width: min(66%, calc((100dvh - 210px) * .74)); margin: 0 auto }
+.lkfig svg { display: block; width: 100%; height: auto } .lkfig > svg > path:first-of-type { display: none }
+.lkar { position: absolute; transform: translateY(-50%); width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: #fff; color: #1d2523; box-shadow: 0 2px 7px rgba(0,0,0,.25); cursor: pointer }
+.lkar.g { left: 6px } .lkar.d { right: 6px } .lkar:active { background: #ffd400 } @media (hover: hover) { .lkar:hover { background: #ffd400 } } .lkar:focus-visible { outline: 3px solid #1d2523; outline-offset: 1px }
+.lkturn { justify-self: center; background: none; border: 0; color: var(--fg); font: 600 .9rem var(--body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 3px 8px }
+
+/* Défi, objets, vraie course */
+.defib { display: grid; gap: 2px; background: var(--surface); border: 2px solid var(--sun); border-radius: 12px; padding: 11px 14px }
+.defib small, .vraieb small { font: 700 .72rem/1.2 var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted) }
+.defib b { font: 800 1.3rem/1.12 var(--display) } .defib p { margin: 0; color: var(--muted); font-size: .95rem }
+.vraieb { display: grid; gap: 2px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 14px; color: var(--fg); text-decoration: none }
+.vraieb b { font: 800 1.3rem/1.12 var(--display) } .vraieb span { color: var(--muted); font-size: .95rem }
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -1444,6 +1463,26 @@ Object.assign(NADIA_TEXT.common, {
   brasPlan: { q: "Police 6 et sueur : mauvais choix. Il reste un 3, le mot « manger » et une flèche. Je ne me souviens pas de la flèche.", r: ["{S} suit une flèche sur son bras. Elle n'a rien d'autre, et ça la soulage.", "{S} obéit à son bras. Elle a demandé une assiette, sans la peser.", "{S} court sans plan, pour la première fois de sa vie. Elle a pris de l'avance. Elle ne le dira à personne."] },
   brasMere: { q: "Un bénévole lit mon bras. « C'est ta maman ? On l'appelle ? » Il n'y a pas de ligne pour ça.", r: ["Un bénévole passe le téléphone à {s}. Elle dit à sa mère combien elle a mangé, au gramme près.", "{S} dit que ça va, et elle donne ses chiffres. Le bénévole ne la croit pas.", "{S} fait diversion et repart avec une assiette. Elle la pèsera plus tard."] }
 });
+const RARE_CHANCE = .12;
+EVENTS.push(
+  { id: 'mariage', rare: 1, title: 'Le mariage', q: "Le sentier passe au milieu d'un mariage. Tout le monde est en blanc. Moi, j'ai du sel jusque dans les oreilles.", ch: () => [
+    ch("Je pose sur la photo", { r: "Le dossard {d} vient de poser sur la photo de mariage, entre la mariée et une tante. Personne n'ose rien dire.", m: 18, t: 1.5, photo: 1 }),
+    ch("Je prends une part de gâteau", { r: "Le dossard {d} repart avec du gâteau de mariage. Il a félicité les mariés, il ne sait pas lesquels.", e: 18, m: 8, t: 1, eat: 1 }),
+    ch("Je traverse en m'excusant", { r: "Le dossard {d} traverse un mariage en disant pardon. Trente fois. Il l'a même dit au curé.", t: .3, m: 4 }) ] },
+  { id: 'premier', rare: 1, title: 'Le premier de la course', q: "Le premier de la course arrive en sens inverse. Il s'est trompé. Il me demande le chemin. À moi.", ch: () => [
+    ch("Je lui montre le bon chemin", { r: "Le dossard {d} vient de renseigner le premier de la course. Il le racontera à ses petits-enfants.", m: 16, t: .4 }),
+    ch("Je lui montre une direction", { r: "Le dossard {d} a indiqué une direction au premier. Une direction. On n'a plus de nouvelles du premier.", m: 10, t: -.5 }),
+    ch("Je lui demande un selfie", { r: "Selfie entre le dossard {d} et le premier de la course, perdus tous les deux.", m: 12, t: 1, photo: 1 }) ] },
+  { id: 'tele', rare: 1, title: 'La télé', q: "Une caméra de télé. On me tend un micro. « Alors, ça va ? » J'ai oublié comment on parle.", ch: () => [
+    ch("Je salue ma mère", { r: "Le dossard {d} passe à la télé et il salue sa mère. Elle a déjà appelé la chaîne.", m: 14, t: .8, msg: ['Maman', "Tu aurais pu mettre un t-shirt propre"] }),
+    ch("Je parle de dépassement de soi", { r: "« Le dépassement de soi », dit le dossard {d} à la télé. Puis il se demande où il est.", m: 6, t: 1 }),
+    ch("Je me sauve en courant", { r: "Le dossard {d} s'enfuit devant la caméra. C'est le plus beau sprint de sa journée.", t: -.4, j: -4, m: 3 }) ] }
+);
+Object.assign(NADIA_TEXT.common, {
+  mariage: { q: "Le sentier passe au milieu d'un mariage. Ce n'est dans aucun de mes fichiers. Ils ont l'air d'avoir un meilleur plan que moi.", r: ["{S} pose sur la photo de mariage. Elle a demandé combien de temps ça prendrait.", "{S} repart avec du gâteau de mariage. Elle ne l'a pas pesé, et elle a demandé la recette.", "{S} traverse le mariage en s'excusant, sur la ligne droite la plus courte."] },
+  premier: { q: "Le premier de la course arrive en sens inverse. Il me demande le chemin. J'ai le tracé, et trois versions de secours.", r: ["{S} donne le chemin au premier, avec le dénivelé restant. Il a l'air d'avoir peur.", "{S} indique une direction au premier. Une seule. C'est la première fois qu'elle improvise.", "Selfie de {s} avec le premier de la course. Elle a noté l'heure et le kilomètre."] },
+  tele: { q: "Une caméra de télé. « Alors, ça va ? » J'avais préparé une réponse pour le km 40. On est au mauvais kilomètre.", r: ["{S} salue sa mère à la télé. Elle lui a envoyé l'heure de passage avant.", "« Le dépassement de soi », dit {s} à la télé, en regardant sa montre.", "{S} s'enfuit devant la caméra. Elle dit que l'interview n'était pas au programme."] }
+});
 function nadiaEntry(s, sc) {
   const id = sc.crisis || sc.delayedId || sc.id, T = NADIA_TEXT[s.f.id] || {};
   return T[id === 'nuit' && s.flags.lampe_ok ? 'nuit_ok' : id] || NADIA_TEXT.common[id] || null;
@@ -1665,7 +1704,8 @@ function newGame(fid, runner = RUNNER) {
   s.goal = goal.id === 'chrono' ? { id: 'chrono', label: 'Passer sous ' + fmtT(f.target), txt: "J'ai dit ce chrono à toute la famille. Je sais plus pourquoi." } : goal;
   s.didierT = f.didier + (rnd() * 12 - 6) * (f.dist > 20 ? 2 : 1);
   const main = SCENES[fid].filter(x => !(SKIP[fid] || []).includes(x.id)); const rv = retrouveScene(fid); if (rv) main.push(rv);
-  const evs = shuffle(EVENTS.filter(e => !e.if || e.if(s))).slice(0, EVENT_COUNT[fid]);
+  const evs = shuffle(EVENTS.filter(e => !e.rare && (!e.if || e.if(s)))).slice(0, EVENT_COUNT[fid]);
+  if (rnd() < RARE_CHANCE) evs.push(pick(EVENTS.filter(e => e.rare)));
   evs.forEach(e => {
     let km, tries = 0;
     do { km = f.dist * (.12 + rnd() * .78); tries++; } while (tries < 30 && main.some(x => Math.abs(x.km - km) < f.dist * .025));
@@ -1829,7 +1869,7 @@ function loadTitles() { try { memoryTitles = JSON.parse(localStorage.getItem('ti
 function saveTitle(k) { memoryTitles[k] = 1; try { localStorage.setItem('tilamp-titres', JSON.stringify(memoryTitles)); } catch (e) {} }
 
 /* ---------- Carrière du joueur (dans le navigateur) ---------- */
-const NEW_CAREER = () => ({ perso: null, wins: [], train: { renfo: 0, longue: 0, manger: 0 }, name: null, bibs: {}, abandons: 0, mem: {}, run: null, son: true });
+const NEW_CAREER = () => ({ perso: null, wins: [], train: { renfo: 0, longue: 0, manger: 0 }, name: null, look: { top: 0, short: 0, cap: 0 }, bibs: {}, abandons: 0, mem: {}, run: null, son: true });
 let CAREER = NEW_CAREER();
 function loadCareer() { try { const c = JSON.parse(localStorage.getItem('lepaloin-carriere')); if (c && c.wins && c.train) { CAREER = Object.assign(NEW_CAREER(), c); if (!('perso' in c)) CAREER.perso = c.wins.length ? 'jeremi' : null; CUSTOM = CAREER.name || null; } } catch (e) {} }
 function freezeRun(s) {
@@ -2101,19 +2141,46 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     <g class="eq eq-frontale2"><path d="M77 37Q100 30 123 37" fill="none" stroke="#8d8678" stroke-width="5"/><rect x="92" y="28" width="16" height="11" rx="2" fill="#857e70" stroke="#1d2523" stroke-width="1.5"/><circle cx="100" cy="33.5" r="3.5" fill="#c9c2a8"/></g>
     <g class="eq eq-tel"><rect x="117" y="122" width="15" height="27" rx="3" fill="#1d2523" stroke="#fff" stroke-width="1.5"/></g>`;
   const esc2 = t => String(t).replace(/[&<>"]/g, '');
+  const LOOK = {
+    top: [{ n: 'Blanc', c: '#fff' }, { n: 'Bleu marine', c: '#1d4f9c' }, { n: 'Jaune', c: '#ffd400' }],
+    short: [{ n: 'Vert', c: '#0d6b67' }, { n: 'Bleu marine', c: '#1d4f9c' }, { n: 'Noir', c: '#20262a' }]
+  };
+  function openLook() {
+    CAREER.look = Object.assign({ top: 0, short: 0, cap: 0 }, CAREER.look);
+    let dos = false;
+    const box = document.createElement('div'); box.className = 'pausebox lookbox'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-label', 'Personnaliser le coureur');
+    const HEADS = [0, 1].concat(CAREER.wins.includes('d10') ? [2] : [], CAREER.wins.includes('u230') ? [3] : []);
+    const ROWS = [['cap', 'la tête', HEADS.length, 17], ['top', 'le haut', 3, 45], ['short', 'le short', 3, 69]];
+    const fl = (k, t, d, y) => `<button type="button" class="lkar ${d < 0 ? 'g' : 'd'}" data-k="${k}" data-d="${d}" style="top:${y}%" aria-label="${d < 0 ? 'Précédent' : 'Suivant'} pour ${t}"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="${d < 0 ? 'M15 5 8 12l7 7' : 'M9 5l7 7-7 7'}" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`;
+    const render = () => {
+      box.innerHTML = `<div class="pausecard lookcard"><div class="lkstage"><div class="lkfig">${persoSVG({ solo: true, dos }).replace(/manche/g, 'mancheL').replace(/face-av/g, 'face-avL').replace(/face-ar/g, 'face-arL')}</div>
+        ${ROWS.map(r => fl(r[0], r[1], -1, r[3]) + fl(r[0], r[1], 1, r[3])).join('')}</div>
+        <button type="button" class="lkturn" id="lkTurn">${dos ? 'Voir de face' : 'Voir le dos'}</button>
+        <button class="cta" id="lkOk" type="button">Validé</button></div>`;
+      box.querySelectorAll('.lkar').forEach(b => b.onclick = () => { const r = ROWS.find(x => x[0] === b.dataset.k), n = r[2], k = r[0], d = b.dataset.d; if (k === 'cap') { const i = Math.max(0, HEADS.indexOf(CAREER.look.cap)); CAREER.look.cap = HEADS[(i + +d + n) % n]; } else CAREER.look[k] = (CAREER.look[k] + +d + n) % n; render(); const nb = box.querySelector(`.lkar[data-k="${k}"][data-d="${d}"]`); if (nb) nb.focus({ preventScroll: true }); });
+      $('lkTurn').onclick = () => { dos = !dos; render(); };
+      $('lkOk').onclick = close;
+    };
+    const close = () => { saveCareer(); box.remove(); document.removeEventListener('keydown', onKey); home(); };
+    const onKey = e => { if (e.key === 'Escape') close(); };
+    box.addEventListener('click', e => { if (e.target === box) close(); });
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(box); render(); $('lkOk').focus({ preventScroll: true });
+  }
   function persoSVG(o = {}) {
     const NAD = CAREER.perso === 'nadia' || o.perso === 'nadia' ? o.perso !== 'jeremi' : false, LVL = o.perso ? 0 : CAREER.wins.length;
+    const LK = (!o.perso && CAREER.look) || { top: 0, short: 0, cap: 0 }, TOP = LOOK.top[LK.top].c, SHORT = LOOK.short[LK.short].c, CAP = !!LK.cap, CAPT = LK.cap || 0;
     const INK = '#1d2523', SK = NAD ? '#a8704a' : '#b98158', HAIR = NAD ? '#17100c' : '#20160f', SEAM = '#cfd6d3';
     const limb = d => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${SK}" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>`;
     const leg = (x, c) => `<g class="${o.race ? c : ''}"><path d="M${x} 196V232" stroke="${INK}" stroke-width="24" stroke-linecap="round"/><path d="M${x} 196V232" stroke="${SK}" stroke-width="18" stroke-linecap="round"/><rect x="${x - 10}" y="${!NAD && LVL >= 3 ? 208 : 226}" width="20" height="${!NAD && LVL >= 3 ? 30 : 12}" rx="3" fill="${!NAD && LVL >= 3 ? '#0d6b67' : '#fff'}" stroke="${INK}" stroke-width="2.5"/><rect class="shoe" x="${x - 15}" y="236" width="30" height="14" rx="6" fill="#ffd400" stroke="${INK}" stroke-width="3"/></g>`;
     const sleeve = '66,88 42,106 52,132 72,116';
     // Manche droite du coureur : drapeau de La Réunion, cinq rayons depuis le sommet du volcan
     const flag = !NAD ? '' : `<g clip-path="url(#manche)"><rect x="36" y="82" width="50" height="54" fill="#1d4f9c"/><path d="M60 114 36 86h8zM60 114 49 84h6zM60 114 57 82h6zM60 114 66 84h6zM60 114 77 86h8z" fill="#ffd400"/><path d="M60 112 40 136h40z" fill="#e3242b"/></g><polygon points="${sleeve}" fill="none" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`;
-    const sleeveL = !NAD ? '' : `<polygon points="134,88 158,106 148,132 128,116" fill="#fff" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`;
+    const sleeveL = !NAD ? '' : `<polygon points="134,88 158,106 148,132 128,116" fill="${TOP}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`;
     const mirror = inner => `<g transform="translate(200 0) scale(-1 1)">${inner}</g>`;
-    const shorts = `<path d="M63 166H137L142 202H105L100 190 95 202H58Z" fill="#0d6b67" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`;
+    const shorts = `<path d="M63 166H137L142 202H105L100 190 95 202H58Z" fill="${SHORT}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`;
     const shoulders = NAD ? '' : limb('M64 98 49 122') + limb('M136 98 151 122');
-    const tee = !NAD ? `${shoulders}<path d="${LVL < 2 ? 'M76 87H87Q100 104 113 87H124L133 112 145 165Q100 190 55 165L67 112Z' : LVL < 4 ? 'M76 87H87Q100 104 113 87H124L131 112 139 172Q100 182 61 172L69 112Z' : 'M78 87H88Q100 102 112 87H122L128 112 134 172Q100 180 66 172L72 112Z'}" fill="#fff" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M72 122 68 170M128 122 132 170" stroke="${SEAM}" stroke-width="2.5" fill="none"/>` : `<path d="M66 88Q100 78 134 88L138 172Q100 181 62 172Z" fill="#fff" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M72 120 68 170M128 120 132 170" stroke="${SEAM}" stroke-width="2.5" fill="none"/>`;
+    const tee = !NAD ? `${shoulders}<path d="${LVL < 2 ? 'M76 87H87Q100 104 113 87H124L133 112 145 165Q100 190 55 165L67 112Z' : LVL < 4 ? 'M76 87H87Q100 104 113 87H124L131 112 139 172Q100 182 61 172L69 112Z' : 'M78 87H88Q100 102 112 87H122L128 112 134 172Q100 180 66 172L72 112Z'}" fill="${TOP}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M72 122 68 170M128 122 132 170" stroke="${TOP === '#fff' ? SEAM : 'rgba(0,0,0,.18)'}" stroke-width="2.5" fill="none"/>` : `<path d="M66 88Q100 78 134 88L138 172Q100 181 62 172Z" fill="${TOP}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M72 120 68 170M128 120 132 170" stroke="${SEAM}" stroke-width="2.5" fill="none"/>`;
     const ears = `<circle cx="75" cy="52" r="5.5" fill="${SK}" stroke="${INK}" stroke-width="2.5"/><circle cx="125" cy="52" r="5.5" fill="${SK}" stroke="${INK}" stroke-width="2.5"/>`;
     const front = `<g id="face-av">${tee}
         <path d="M88 84Q100 95 112 84V70H88Z" fill="${SK}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>
@@ -2122,12 +2189,13 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
         ${NAD ? `<path d="M124 30C148 34 150 62 138 84 132 74 130 54 120 44Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>` : ''}
         ${NAD && !o.race && LVL < 6 ? `<rect x="104" y="136" width="9" height="11" rx="2" fill="#1d2523"/>${LVL < 4 ? '<rect x="92" y="137" width="8" height="10" rx="2" fill="#0d6b67"/>' : ''}${LVL < 2 ? '<rect x="134" y="134" width="8" height="10" rx="2" fill="#ffd400" stroke="#1d2523"/>' : ''}` : ''}
         ${NAD && LVL >= 5 ? `<path d="M84 26Q72 34 76 50M116 24Q130 28 128 42" fill="none" stroke="${HAIR}" stroke-width="2.5" stroke-linecap="round"/>` : ''}
-        ${!NAD && LVL >= 4 ? '<path d="M76 34Q100 25 124 34" fill="none" stroke="#c62828" stroke-width="6"/>' : ''}
+        ${!NAD && LVL >= 4 && !CAP ? '<path d="M76 34Q100 25 124 34" fill="none" stroke="#c62828" stroke-width="6"/>' : ''}
         ${o.race ? `<g class="armB">${limb('M151 122 154 150 142 164')}<circle cx="141" cy="167" r="7.5" fill="${SK}" stroke="${INK}" stroke-width="2.5"/>${sleeveL}</g><g class="armA">${limb('M49 122 46 150 58 164')}<circle cx="59" cy="167" r="7.5" fill="${SK}" stroke="${INK}" stroke-width="2.5"/>${flag}</g>` : ''}
         ${ears}
         <path d="M76 44C76 20 124 20 124 44V54C124 72 112 80 100 80 88 80 76 72 76 54Z" fill="${SK}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
         ${NAD ? `<path d="M76 46C70 14 94 12 104 14 124 12 132 30 124 48 122 40 118 32 112 29 102 34 88 32 82 32 78 36 77 40 76 46Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>` : `<path d="M78 58C80 72 90 79 100 79 110 79 120 72 122 58 118 66 110 62 100 62 90 62 82 66 78 58Z" fill="${HAIR}" opacity=".3"/>
         <path d="M74 46C70 18 94 14 106 16 122 14 130 30 126 46 123 38 120 34 116 32 106 36 90 36 82 32 78 36 76 40 74 46Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>`}
+        ${CAPT === 2 ? `<path d="M62 44Q100 30 138 44Q142 50 134 48Q100 40 66 48Q58 50 62 44Z" fill="#e7d9a8" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M76 40C76 8 124 8 124 40Q100 34 76 40Z" fill="#f0e5bd" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M76 34Q100 28 124 34" fill="none" stroke="#c62828" stroke-width="3"/>` : CAP ? `<path d="M73 42C70 8 130 8 127 42Q100 34 73 42Z" fill="${CAPT === 3 ? '#ff5a36' : '#1d4f9c'}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M71 42Q100 32 129 42Q133 49 125 47Q100 40 75 47Q67 49 71 42Z" fill="${CAPT === 3 ? '#1d2523' : '#163e7c'}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><circle cx="100" cy="25" r="5.5" fill="#ffd400" stroke="${INK}" stroke-width="2"/>` : ''}
         <g class="blink"><ellipse cx="90" cy="50" rx="5" ry="3.2" fill="#fff" stroke="${INK}" stroke-width="1.8"/><ellipse cx="110" cy="50" rx="5" ry="3.2" fill="#fff" stroke="${INK}" stroke-width="1.8"/><circle cx="91" cy="50" r="2.3" fill="${INK}"/><circle cx="111" cy="50" r="2.3" fill="${INK}"/></g>
         <path d="M79 48 74 50M121 48 126 50" stroke="${INK}" stroke-width="2.5" stroke-linecap="round"/><path d="M79 46Q100 41 121 46L120 54Q111 61 103 54 100 51 97 54 89 61 80 54Z" fill="#15252e" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/><path d="M83 48Q90 45 97 46M104 46Q110 45 116 47" fill="none" stroke="${NAD ? '#ffb347' : '#5fd0d6'}" stroke-width="2.4" stroke-linecap="round"/>
         <path d="M100 56 98 60H102" fill="none" stroke="${INK}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2137,15 +2205,15 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
         <g class="fm m-aie"><path d="M84 37 95 42M105 42 116 37" stroke="${HAIR}" stroke-width="3.5" stroke-linecap="round"/><path d="M90 69 94 66 98 70 102 66 106 70 110 67" fill="none" stroke="${INK}" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/></g>
         <g class="fm m-yes"><path d="M84 39 95 37M105 37 116 39" stroke="${HAIR}" stroke-width="3.5" stroke-linecap="round"/><path d="M88 65Q100 76 112 65" fill="none" stroke="${INK}" stroke-width="2.8" stroke-linecap="round"/></g></g>`;
     const back = `<g id="face-ar" hidden>${tee}
-        <text x="100" y="163" text-anchor="middle" font-family="Saira Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="12.5" fill="#000">dossardpei.re</text>
+        <text x="100" y="163" text-anchor="middle" font-family="Saira Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="12.5" fill="${TOP === '#1d4f9c' ? '#fff' : '#000'}">dossardpei.re</text>
         ${limb('M151 122 150 148')}${limb('M49 122 50 148')}${mirror(flag)}${mirror(sleeveL)}
         <path d="M88 86V70H112V86Z" fill="${SK}" stroke="${INK}" stroke-width="2.5"/>${ears}
-        <path d="M75 46C72 18 94 14 106 16 122 14 130 30 125 46 125 66 112 76 100 76 88 76 75 66 75 46Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><path d="M75 50Q100 57 125 50" fill="none" stroke="#3a4a52" stroke-width="3"/>${NAD ? `<path d="M90 44C88 70 92 92 100 108 108 92 112 70 110 44Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><rect x="92" y="40" width="16" height="7" rx="3" fill="#c62828"/>` : ''}</g>`;
+        <path d="M75 46C72 18 94 14 106 16 122 14 130 30 125 46 125 66 112 76 100 76 88 76 75 66 75 46Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><path d="M75 50Q100 57 125 50" fill="none" stroke="#3a4a52" stroke-width="3"/>${NAD ? `<path d="M90 44C88 70 92 92 100 108 108 92 112 70 110 44Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><rect x="92" y="40" width="16" height="7" rx="3" fill="#c62828"/>` : ''}${CAPT === 2 ? `<path d="M62 42Q100 54 138 42Q100 30 62 42Z" fill="#e7d9a8" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M76 42C76 8 124 8 124 42Q100 48 76 42Z" fill="#f0e5bd" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>` : CAP ? `<path d="M73 44C70 8 130 8 127 44Q100 52 73 44Z" fill="${CAPT === 3 ? '#ff5a36' : '#1d4f9c'}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>` : ''}</g>`;
     return `<svg viewBox="0 0 200 270" role="img" aria-label="${esc2(CUSTOM && !o.perso ? CUSTOM : NAD ? 'Hanna' : 'Sam')} debout, bras croisés, l'air sûr ${NAD ? "d'elle" : 'de lui'}, ${NAD ? 't-shirt blanc Dossard Péi, drapeau de La Réunion sur la manche droite' : 'débardeur blanc Dossard Péi'}">
       <defs><clipPath id="manche"><polygon points="${sleeve}"/></clipPath></defs>
       <path d="M0 225 Q50 205 100 219 T200 212V270H0Z" fill="#8db48a"/>
       <ellipse cx="100" cy="252" rx="52" ry="7" fill="#1d2523" opacity=".28"/>
-      <g class="flip" ${o.solo ? '' : 'id="flip"'}><g class="bob">${leg(80, 'legA')}${leg(120, 'legB')}${shorts}${BEHIND}${front}${OVER}${o.solo ? '' : back}</g></g></svg>`;
+      <g class="flip" ${o.solo ? '' : 'id="flip"'}><g class="bob">${leg(80, 'legA')}${leg(120, 'legB')}${shorts}${BEHIND}${o.dos ? back.replace('id="face-ar" hidden', '') : front}${OVER}${o.solo ? '' : back}</g></g></svg>`;
   }
   function heroHTML() {
     return `<div class="hero"><div class="stage" id="perso">${persoSVG()}<button class="fold" id="turn" type="button">Voir le dos</button></div>
@@ -2240,6 +2308,34 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     });
     window.scrollTo({ top: 0 });
   }
+  function defiFin(s, o) {
+    const d = CAREER.defi; if (!d || d.fid !== s.f.id) return '';
+    const dt = Math.abs(Math.round(s.t) - d.t);
+    const gagne = o.finished && Math.round(s.t) < d.t;
+    const t = !o.finished ? `${d.n} attend toujours. Son ${fmtT(d.t)} tient.` : gagne ? `Défi gagné : tu bats ${d.n} de ${fmtT(dt)}.` : Math.round(s.t) === d.t ? `Même temps que ${d.n}, à la minute près. Une revanche ?` : `${d.n} garde ${fmtT(dt)} d'avance. Défi perdu.`;
+    if (gagne) { CAREER.defi = null; saveCareer(); }
+    return `<div class="defib fin"><small>Défi</small><b>${esc(t)}</b></div>`;
+  }
+  const OBJETS = { d10: "le bob de la dame du 10 km", u230: "la casquette Ultra Machine" };
+  function objetGagne(s, o) {
+    if (!o.finished || !OBJETS[s.f.id]) return '';
+    CAREER.objets = CAREER.objets || {}; if (CAREER.objets[s.f.id]) return '';
+    CAREER.objets[s.f.id] = 1; saveCareer();
+    return `<div class="defib fin"><small>Objet gagné</small><b>${esc(OBJETS[s.f.id])}</b><p>Touche ton coureur à l'accueil pour le mettre.</p></div>`;
+  }
+  async function vraieCourse(f) {
+    try {
+      const r = await fetch('/data.json', { cache: 'no-store' }); if (!r.ok) return;
+      const d = await r.json(), L = Array.isArray(d.races) ? d.races : Object.values(d.races || {});
+      const auj = new Date(Date.now() + 144e5).toISOString().slice(0, 10);
+      const ok = e => e && typeof e.km === 'number' && !e.complet && !['marche', 'relais', 'jeunes', 'multisport'].includes(e.type) && e.km >= f.dist * .75 && e.km <= f.dist * 1.25;
+      const c = L.filter(x => !x.hidden && !x.complet && x.date >= auj && (x.epreuves || []).some(ok)).sort((a, b) => a.date < b.date ? -1 : 1)[0];
+      const el = $('vraie'); if (!c || !el) return;
+      const dd = new Date(c.date + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+      el.innerHTML = `<a class="vraieb" href="https://dossardpei.re/#c-${encodeURIComponent(c.id)}" target="_blank" rel="noopener"><small>Pour de vrai, sans cary</small><b>${esc(c.nom)}</b><span>${esc(dd)}${c.commune ? (/^Le /.test(c.commune) ? ' au ' + esc(c.commune.slice(3)) : ' à ' + esc(c.commune)) : ''}</span></a>`;
+      el.hidden = false;
+    } catch (e) {}
+  }
   function finHTML() {
     const total = ORDER.reduce((a, f) => a + ((CAREER.bibs[f] || {}).t || 0), 0);
     return `<div class="findos"><h3 class="sec">${nadia() ? 'De 14 onglets à 230 km' : 'De 2 footings à 230 km'}</h3>
@@ -2253,7 +2349,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
   function chooseScreen() {
     wrap.classList.remove('play'); decor.classList.add('home');
     const ov = document.createElement('div'); ov.className = 'homeov'; ov.innerHTML = '<h1>Une histoire<br>de dossard</h1>'; decor.appendChild(ov);
-    panel.innerHTML = `<div class="col col-a"><h2 class="quel">Qui part sur la ligne ?</h2>
+    panel.innerHTML = `<div class="col col-a">${defiHTML()}<h2 class="quel">Qui part sur la ligne ?</h2>
       <div class="pick"><button class="pcard" data-p="jeremi"><div class="stage">${persoSVG({ solo: true, perso: 'jeremi' }).replace(/manche/g, 'mancheA')}</div><b>Sam</b><span>Deux footings depuis janvier, et une confiance de 11/10.</span></button>
       <button class="pcard" data-p="nadia"><div class="stage">${persoSVG({ solo: true, perso: 'nadia' }).replace(/manche/g, 'mancheB')}</div><b>Hanna</b><span>Quatorze onglets de tableur, et 0/10 en lâcher-prise.</span></button></div>
       </div><div class="col col-b"><div class="pickname" id="pnw" hidden><label for="pickname">Son prénom</label><input id="pickname" type="text" maxlength="12" autocomplete="off" autocapitalize="words"><p class="fine">Laisse vide pour garder le prénom proposé.</p></div>
@@ -2275,7 +2371,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     if (!CAREER.perso) return chooseScreen();
     decor.classList.add('home');
     const ov = document.createElement('div'); ov.className = 'homeov';
-    ov.innerHTML = `<h1>Une histoire<br>de dossard</h1><div class="stage homefig" id="perso">${persoSVG()}</div>`;
+    ov.innerHTML = `<h1>Une histoire<br>de dossard</h1><button type="button" class="stage homefig" id="perso" aria-label="Personnaliser le coureur">${persoSVG()}<span class="crayon" aria-hidden="true"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M4 20l1-5L16 4l4 4L9 19z" fill="#ffd400" stroke="#1d2523" stroke-width="2.2" stroke-linejoin="round"/></svg></span></button>`;
     decor.appendChild(ov);
     const got = Object.keys(memoryTitles).length, total = Object.keys(TITLES).length;
     panel.innerHTML = `<div class="col col-a"><p class="pense">${esc(nomIn(nadia() ? "Hanna a tout prévu. Presque." : "Sam a pris un dossard. Il n'aurait pas dû."))}</p>
@@ -2283,7 +2379,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
       <div class="fiche"><dl class="rpg">${ficheNow().map(x => `<div><dt>${esc(x[0])}</dt><dd>${esc(x[1])}</dd></div>`).join('')}</dl></div>
       ${CAREER.run ? `<button class="cta" id="gorun">Reprendre le ${FORMATS[CAREER.run.fid].short} au km ${fmtKm(CAREER.run.km)}</button>` : ''}
       ${murHTML()}
-      ${needsTraining() ? `<button class="cta" id="gotrain">${esc(nomIn("Finir l'entraînement de " + (nadia() ? 'Hanna' : 'Sam')))}</button>` : ''}</div><div class="col col-b"><h2 class="quel">${CAREER.wins.length ? 'Le prochain dossard' : 'Le premier dossard'}</h2>
+      ${needsTraining() ? `<button class="cta" id="gotrain">${esc(nomIn("Finir l'entraînement de " + (nadia() ? 'Hanna' : 'Sam')))}</button>` : ''}</div><div class="col col-b">${defiHTML()}<h2 class="quel">${CAREER.wins.length ? 'Le prochain dossard' : 'Le premier dossard'}</h2>
       <div class="courses">${ORDER.map(fid => { const c = FORMATS[fid], open = isOpen(fid), done = CAREER.wins.includes(fid); return `<button class="course${open ? '' : ' verrou'}" data-f="${c.id}" ${open && !needsTraining() ? '' : 'disabled'}><b>${c.dist} km</b><span><strong>${esc(c.name)}</strong><span class="cl">${c.dp.toLocaleString('fr-FR')} m de D+</span><span class="cl">${open ? `Départ à ${fmtClock(c.start)}` : `Ouvre après le ${FORMATS[ORDER[ORDER.indexOf(fid) - 1]].short}`}</span></span>${done ? '<i class="fini">Terminée</i>' : ''}</button>`; }).join('')}</div>
       </div><div class="col homefoot">${got ? `<p class="fine">${got} titre${got > 1 ? 's' : ''} sur ${total}.</p>` : ''}
       <p class="fine">Un jeu Dossard Péi. Courses et personnages imaginaires.</p>
@@ -2299,6 +2395,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     if ($('gorun')) $('gorun').onclick = () => { S = thawRun(CAREER.run, currentRunner(CAREER.run.fid)); hud.innerHTML = ''; drawDecor(S.f, true); updateDecor(S); step(); };
     $('sonb').onclick = () => { CAREER.son = !CAREER.son; saveCareer(); $('sonb').textContent = CAREER.son ? 'Son : activé' : 'Son : coupé'; };
     initTurn();
+    clearInterval(turnTimer); $('perso').onclick = openLook; decor.removeAttribute('aria-hidden');
   }
   function brief(fid) {
     wrap.classList.remove('play');
@@ -2332,6 +2429,20 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     window.scrollTo({ top: 0 });
   }
   const wrap = $('wrap');
+  const DEFI_URL = 'https://dossardpei.re/jeu/';
+  function lireDefi() {
+    try {
+      const m = /^([a-z0-9]+)\.(\d{1,5})\.(.{1,40})$/u.exec(new URLSearchParams(location.search).get('d') || '');
+      if (!m || !ORDER.includes(m[1]) || +m[2] < 1) return;
+      const n = m[3].replace(/[^\p{L}\p{M} '’-]/gu, '').trim().slice(0, 12); if (!n) return;
+      CAREER.defi = { fid: m[1], t: +m[2], n }; saveCareer();
+      history.replaceState(null, '', location.pathname);
+    } catch (e) {}
+  }
+  function defiHTML() {
+    const d = CAREER.defi; if (!d) return '';
+    return `<div class="defib"><small>Défi</small><b>${esc(d.n)} : ${esc(fmtT(d.t))} sur le ${FORMATS[d.fid].short}</b><p>${CAREER.perso ? (isOpen(d.fid) ? 'Tu fais mieux ?' : `Tu dois d'abord ouvrir ce ${FORMATS[d.fid].short}.`) : 'Choisis ton coureur et fais mieux.'}</p></div>`;
+  }
   let atResult = false;
   const pauseB = document.createElement('button');
   pauseB.className = 'pauseb'; pauseB.type = 'button'; pauseB.hidden = true; pauseB.setAttribute('aria-label', 'Mettre la course en pause');
@@ -2446,19 +2557,27 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
       <div class="goalrow"><div class="stage ${eqClass(s)} ${o.finished ? 'reac-yes' : 'mood-crit'}">${persoSVG({ solo: true })}</div><div class="endsay"><p class="pense">${allDone ? (nadia() ? "Les six. Tous finis. Le tableur est content. Pu jamais." : 'Les six. Je les ai tous faits. Pu jamais.') : o.finished ? 'Pu jamais.' : "L'an prochain, je reviens."}</p><p class="goalt">${goalLine.includes(' : ') ? `<small>${esc(goalLine.split(' : ')[0])}</small>${esc(goalLine.split(' : ').slice(1).join(' : '))}` : esc(goalLine)}</p></div></div>
       ${!o.finished && worstTxt ? `<div class="micro"><small>Au micro</small><p>${esc(worstTxt)}</p></div>` : ''}
       ${o.finished ? telHTML(['Didier', DIDIER_FIN[Math.min(5, Math.max(0, CAREER.wins.length - 1))]], s.f.start + s.t) : ''}
+      ${defiFin(s, o)}${objetGagne(s, o)}
       ${allDone ? finHTML() : ''}
+      <div id="vraie" hidden></div>
       </div><div class="col col-b"><div class="sect"><h3 class="sec">À partager</h3><img class="storyimg" id="story" alt="${esc(share)}" width="1080" height="1920">
       <p class="fine" id="saveHint">Appuie longuement sur l'image pour l'enregistrer.</p>
       <p class="sharebox" id="shareT">${esc(share)}</p>
       <div class="actions"><button class="ghost" id="save" hidden>Enregistrer l'image</button><button class="ghost" id="copy">Copier le texte</button></div></div>
       <div class="actions">${mustTrain ? `<button class="cta wide" id="gotrain">Aller m'entraîner</button>` : `<button class="cta" id="again">${o.finished ? 'Rejouer' : 'Recommencer'}</button><button class="ghost" id="gohome">Accueil</button>`}
-      <a class="ghost wide" href="https://dossardpei.re/?ref=jeu" target="_blank" rel="noopener">Voir les prochaines courses</a></div>
+       ${o.finished ? '<button class="ghost wide" id="defier" type="button">Défier un ami</button>' : ''}<a class="ghost wide" href="https://dossardpei.re/?ref=jeu" target="_blank" rel="noopener">Voir les prochaines courses</a></div>
       <div class="sect"><h3 class="sec">Titres : ${got} sur ${titles.length}</h3>
       <div class="titles">${titles.map(k => memoryTitles[k] ? `<span class="got">${esc(titleOf({ runner: { id: CAREER.perso } }, k)[0])}</span>` : `<span class="no">???</span>`).join('')}</div></div>
       <p class="fine">Prototype. Courses, personnages et situations sont imaginaires.</p></div>`;
     if ($('gotrain')) $('gotrain').onclick = trainScreen;
     if ($('again')) $('again').onclick = () => brief(s.f.id);
     if ($('gohome')) $('gohome').onclick = home;
+    vraieCourse(s.f);
+    if ($('defier')) $('defier').onclick = async () => {
+      const b = $('defier'), url = `${DEFI_URL}?d=${s.f.id}.${Math.round(s.t)}.${encodeURIComponent(s.runner.name)}`, txt = `${s.runner.name} a fait ${fmtT(s.t)} sur le ${s.f.short}. Tu fais mieux ?`;
+      try { if (navigator.share) { await navigator.share({ title: 'Une histoire de dossard', text: txt, url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+      try { await navigator.clipboard.writeText(`${txt} ${url}`); b.textContent = 'Lien copié, envoie-le'; } catch (e) { b.outerHTML = `<p class="sharebox">${esc(txt)} ${esc(url)}</p>`; }
+    };
     $('copy').onclick = () => {
       const b = $('copy'); const done = () => { b.textContent = 'Texte copié'; };
       const sel = () => { const r = document.createRange(); r.selectNodeContents($('shareT')); const w = getSelection(); w.removeAllRanges(); w.addRange(r); b.textContent = 'Texte sélectionné, copie-le'; };
@@ -2531,6 +2650,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
       catch (e) { if (e && e.code !== 'declined') { btn.hidden = true; $('saveHint').hidden = false; } }
     }, 'image/png');
   }
+  lireDefi();
   home();
 }
 </script>
