@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="theme-color" content="#1d4f9c">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<script data-goatcounter="https://dossardpei.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -2298,7 +2299,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     panel.innerHTML = `<div class="col col-a"><p class="pense">Prochain dossard : ${next.short}. ${nadia() ? "J'ai déjà le plan. Il manque juste une séance." : "Bon. Il paraît qu'il faut que je m'entraîne."}</p></div>
       <div class="keys col-b">${TRAIN_KEYS.map(k => `<button class="key trainb" data-k="${k}"><span>${esc(TRAINS[k].l)}</span><small>${esc(TRAINS[k].d)}</small></button>`).join('')}</div>`;
     panel.querySelectorAll('.trainb').forEach(b => b.onclick = () => {
-      const k = b.dataset.k, i = CAREER.train[k], avant = ficheNow(); CAREER.train[k]++; saveCareer();
+      compte('entrainement/' + CAREER.wins.length); const k = b.dataset.k, i = CAREER.train[k], avant = ficheNow(); CAREER.train[k]++; saveCareer();
       const num = v => { const m = String(v).replace(/[\s\u00a0\u202f]/g, '').match(/-?\d+(?:,\d+)?/); return m ? parseFloat(m[0].replace(',', '.')) : null; };
       const delta = (a, b) => { if (String(a) === String(b)) return ''; const x = num(a), y = num(b); if (x === null || y === null || !/^\d/.test(String(a)) || !/^\d/.test(String(b))) return `<s>${esc(a)}</s> `; const d = Math.round((y - x) * 10) / 10; if (!d) return ''; return `<em>${d > 0 ? '+' : '−'}${String(Math.abs(d)).replace('.', ',')}</em> `; };
       panel.innerHTML = `<div class="micro rise"><small>Au micro</small><p>${esc(nomIn(nadia() ? SPN[k][Math.min(4, i)] : TRAINS[k].sp[Math.min(4, i)]))}</p></div>
@@ -2347,7 +2348,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     const label = () => { $('pickgo').textContent = 'Commencer avec ' + (clean($('pickname').value) || dflt()); };
     panel.querySelectorAll('.pcard').forEach(b => b.onclick = () => { cur = b.dataset.p; panel.querySelectorAll('.pcard').forEach(x => x.classList.toggle('on', x === b)); $('pnw').hidden = false; $('pickname').placeholder = dflt(); $('pickgo').disabled = false; label(); });
     $('pickname').addEventListener('input', label);
-    $('pickgo').onclick = () => { const n = clean($('pickname').value); CAREER.perso = cur; CAREER.name = n && n !== dflt() ? n : null; CUSTOM = CAREER.name; saveCareer(); home(); };
+    $('pickgo').onclick = () => { compte('choix/' + cur); const n = clean($('pickname').value); CAREER.perso = cur; CAREER.name = n && n !== dflt() ? n : null; CUSTOM = CAREER.name; saveCareer(); home(); };
   }
   function home() {
     pauseB.hidden = true;
@@ -2410,6 +2411,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     sync();
     form.addEventListener('submit', e => {
       e.preventDefault(); if (missing()) return;
+      compte('depart/' + S.f.id);
       applyPrep(S, groups.map(g => ({ title: g.p.title, choice: g.opts[+form.querySelector(`input[name="${g.p.id}"]:checked`).value] })));
       step();
     });
@@ -2430,6 +2432,8 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     const d = CAREER.defi; if (!d) return '';
     return `<div class="defib"><small>Défi</small><b>${esc(d.n)} : ${esc(fmtT(d.t))} sur le ${FORMATS[d.fid].short}</b><p>${CAREER.perso ? (isOpen(d.fid) ? 'Tu fais mieux ?' : `Tu dois d'abord ouvrir ce ${FORMATS[d.fid].short}.`) : 'Choisis ton coureur et fais mieux.'}</p></div>`;
   }
+  /* Mesure anonyme sur dossardpei.re : aucun prénom ni identifiant, seulement l'étape atteinte */
+  function compte(ev) { try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: 'jeu/' + ev, title: 'Jeu : ' + ev, event: true }); } catch (e) {} }
   let atResult = false;
   const pauseB = document.createElement('button');
   pauseB.className = 'pauseb'; pauseB.type = 'button'; pauseB.hidden = true; pauseB.setAttribute('aria-label', 'Mettre la course en pause');
@@ -2520,6 +2524,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     if (!TOUT) {
       if (s.flags.rougail) CAREER.mem.rougail = true; if (s.flags.attaque) CAREER.mem.attaque = true;
       if (!o.finished) CAREER.abandons++;
+      compte((o.finished ? 'fini/' : 'abandon/') + s.f.id);
       if (o.finished) { const old = CAREER.bibs[s.f.id]; if (!old || s.t < old.t) CAREER.bibs[s.f.id] = { bib: s.bib, t: s.t, temps: fmtT(s.t) }; if (!CAREER.wins.includes(s.f.id)) CAREER.wins.push(s.f.id); }
     }
     saveCareer();
