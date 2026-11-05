@@ -10,15 +10,12 @@
   "echecs": 0,
   "etat": "ok",
   "ref": {
-   "pages": 12
+   "pages": 17
   }
  },
  "sportpro": {
-  "alerte": 20,
-  "depuis": "2026-11-05T21:01+04:00",
-  "echecs": 3,
-  "erreur": "evenements effondré (< 50% des 28 habituels)",
-  "etat": "ko",
+  "echecs": 0,
+  "etat": "ok",
   "ref": {
    "associees": 60,
    "epreuves": 62,
@@ -26,12 +23,10 @@
   }
  },
  "sportpro_pages": {
-  "depuis": "2026-11-05T21:01+04:00",
-  "echecs": 1,
-  "erreur": "pages effondré (< 50% des 26 habituels)",
-  "etat": "ko",
+  "echecs": 0,
+  "etat": "ok",
   "ref": {
-   "pages": 26
+   "pages": 17
   }
  },
  "sportpro_prix": {
