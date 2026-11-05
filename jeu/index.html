@@ -2303,8 +2303,8 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
       const delta = (a, b) => { if (String(a) === String(b)) return ''; const x = num(a), y = num(b); if (x === null || y === null || !/^\d/.test(String(a)) || !/^\d/.test(String(b))) return `<s>${esc(a)}</s> `; const d = Math.round((y - x) * 10) / 10; if (!d) return ''; return `<em>${d > 0 ? '+' : '−'}${String(Math.abs(d)).replace('.', ',')}</em> `; };
       panel.innerHTML = `<div class="micro rise"><small>Au micro</small><p>${esc(nomIn(nadia() ? SPN[k][Math.min(4, i)] : TRAINS[k].sp[Math.min(4, i)]))}</p></div>
         <dl class="rpg fichex">${ficheNow().map((x, r) => { const dl = delta(avant[r][1], x[1]); return `<div${dl ? ' class="chg"' : ''}><dt>${esc(x[0])}</dt><dd>${dl}${esc(x[1])}</dd></div>`; }).join('')}</dl>
-        <button class="cta" id="gonext">Prendre le dossard du ${next.short}</button><button class="ghost" id="gohome">Retour à l'accueil</button>`;
-      $('gonext').onclick = () => brief(next.id); $('gohome').onclick = home;
+        <button class="cta" id="gohome">Retour à l'accueil</button>`;
+      $('gohome').onclick = () => { home(); window.scrollTo({ top: 0 }); };
     });
     window.scrollTo({ top: 0 });
   }
@@ -2565,7 +2565,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
       <p class="sharebox" id="shareT">${esc(share)}</p>
       <div class="actions"><button class="ghost" id="save" hidden>Enregistrer l'image</button><button class="ghost" id="copy">Copier le texte</button></div></div>
       <div class="actions">${mustTrain ? `<button class="cta wide" id="gotrain">Aller m'entraîner</button>` : `<button class="cta" id="again">${o.finished ? 'Rejouer' : 'Recommencer'}</button><button class="ghost" id="gohome">Accueil</button>`}
-       ${o.finished ? '<button class="ghost wide" id="defier" type="button">Défier un ami</button>' : ''}<a class="ghost wide" href="https://dossardpei.re/?ref=jeu" target="_blank" rel="noopener">Voir les prochaines courses</a></div>
+      </div>
       <div class="sect"><h3 class="sec">Titres : ${got} sur ${titles.length}</h3>
       <div class="titles">${titles.map(k => memoryTitles[k] ? `<span class="got">${esc(titleOf({ runner: { id: CAREER.perso } }, k)[0])}</span>` : `<span class="no">???</span>`).join('')}</div></div>
       <p class="fine">Prototype. Courses, personnages et situations sont imaginaires.</p></div>`;
@@ -2573,11 +2573,6 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     if ($('again')) $('again').onclick = () => brief(s.f.id);
     if ($('gohome')) $('gohome').onclick = home;
     vraieCourse(s.f);
-    if ($('defier')) $('defier').onclick = async () => {
-      const b = $('defier'), url = `${DEFI_URL}?d=${s.f.id}.${Math.round(s.t)}.${encodeURIComponent(s.runner.name)}`, txt = `${s.runner.name} a fait ${fmtT(s.t)} sur le ${s.f.short}. Tu fais mieux ?`;
-      try { if (navigator.share) { await navigator.share({ title: 'Une histoire de dossard', text: txt, url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
-      try { await navigator.clipboard.writeText(`${txt} ${url}`); b.textContent = 'Lien copié, envoie-le'; } catch (e) { b.outerHTML = `<p class="sharebox">${esc(txt)} ${esc(url)}</p>`; }
-    };
     $('copy').onclick = () => {
       const b = $('copy'); const done = () => { b.textContent = 'Texte copié'; };
       const sel = () => { const r = document.createRange(); r.selectNodeContents($('shareT')); const w = getSelection(); w.removeAllRanges(); w.addRange(r); b.textContent = 'Texte sélectionné, copie-le'; };
@@ -2650,7 +2645,6 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
       catch (e) { if (e && e.code !== 'declined') { btn.hidden = true; $('saveHint').hidden = false; } }
     }, 'image/png');
   }
-  lireDefi();
   home();
 }
 </script>
