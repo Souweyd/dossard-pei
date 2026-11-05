@@ -88,7 +88,8 @@ def statut(data, verif_src, today, fetch=get):
         if len(t) < 400:                     # page built in JavaScript: nothing readable
             out[r["id"]] = "nv"
             continue
-        hit = CLOSED.search(t) or (FULL.search(t) and "inscri" in t.lower() and not re.search(r"(?i)s'inscrire|je m'inscris|inscrivez-vous", t))
+        full = FULL.search(t)   # a match object (its position gives the quoted context), not a boolean
+        hit = CLOSED.search(t) or (full if full and "inscri" in t.lower() and not re.search(r"(?i)s'inscrire|je m'inscris|inscrivez-vous", t) else None)
         if hit and shown_open(r, today):
             out[r["id"]] = "alerte"
             ctx = t[max(0, hit.start() - 60):hit.end() + 60].strip()
