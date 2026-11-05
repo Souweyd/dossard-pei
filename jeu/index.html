@@ -2323,19 +2323,6 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     CAREER.objets[s.f.id] = 1; saveCareer();
     return `<div class="defib fin"><small>Objet gagné</small><b>${esc(OBJETS[s.f.id])}</b><p>Touche ton coureur à l'accueil pour le mettre.</p></div>`;
   }
-  async function vraieCourse(f) {
-    try {
-      const r = await fetch('/data.json', { cache: 'no-store' }); if (!r.ok) return;
-      const d = await r.json(), L = Array.isArray(d.races) ? d.races : Object.values(d.races || {});
-      const auj = new Date(Date.now() + 144e5).toISOString().slice(0, 10);
-      const ok = e => e && typeof e.km === 'number' && !e.complet && !['marche', 'relais', 'jeunes', 'multisport'].includes(e.type) && e.km >= f.dist * .75 && e.km <= f.dist * 1.25;
-      const c = L.filter(x => !x.hidden && !x.complet && x.date >= auj && (x.epreuves || []).some(ok)).sort((a, b) => a.date < b.date ? -1 : 1)[0];
-      const el = $('vraie'); if (!c || !el) return;
-      const dd = new Date(c.date + 'T12:00:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-      el.innerHTML = `<a class="vraieb" href="https://dossardpei.re/#c-${encodeURIComponent(c.id)}" target="_blank" rel="noopener"><small>Pour de vrai, sans cary</small><b>${esc(c.nom)}</b><span>${esc(dd)}${c.commune ? (/^Le /.test(c.commune) ? ' au ' + esc(c.commune.slice(3)) : ' à ' + esc(c.commune)) : ''}</span></a>`;
-      el.hidden = false;
-    } catch (e) {}
-  }
   function finHTML() {
     const total = ORDER.reduce((a, f) => a + ((CAREER.bibs[f] || {}).t || 0), 0);
     return `<div class="findos"><h3 class="sec">${nadia() ? 'De 14 onglets à 230 km' : 'De 2 footings à 230 km'}</h3>
@@ -2559,7 +2546,6 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
       ${o.finished ? telHTML(['Didier', DIDIER_FIN[Math.min(5, Math.max(0, CAREER.wins.length - 1))]], s.f.start + s.t) : ''}
       ${defiFin(s, o)}${objetGagne(s, o)}
       ${allDone ? finHTML() : ''}
-      <div id="vraie" hidden></div>
       </div><div class="col col-b"><div class="sect"><h3 class="sec">À partager</h3><img class="storyimg" id="story" alt="${esc(share)}" width="1080" height="1920">
       <p class="fine" id="saveHint">Appuie longuement sur l'image pour l'enregistrer.</p>
       <p class="sharebox" id="shareT">${esc(share)}</p>
@@ -2572,7 +2558,6 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     if ($('gotrain')) $('gotrain').onclick = trainScreen;
     if ($('again')) $('again').onclick = () => brief(s.f.id);
     if ($('gohome')) $('gohome').onclick = home;
-    vraieCourse(s.f);
     $('copy').onclick = () => {
       const b = $('copy'); const done = () => { b.textContent = 'Texte copié'; };
       const sel = () => { const r = document.createRange(); r.selectNodeContents($('shareT')); const w = getSelection(); w.removeAllRanges(); w.addRange(r); b.textContent = 'Texte sélectionné, copie-le'; };
