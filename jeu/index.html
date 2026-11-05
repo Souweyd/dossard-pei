@@ -481,9 +481,10 @@ fieldset legend { font: 800 1.45rem/1.05 var(--display); padding: 0 } .pq { font
 /* Didier : le coureur de la vue 3D du site */
 #didier { z-index: 4; width: 34px; height: 48px; margin: -44px 0 0 -17px; display: block; background: none; border: 0; border-radius: 0; font-size: 0 }
 #didier svg { display: block; width: 100%; height: 100%; overflow: visible }
-#didier .fa { animation: dA .5s steps(1) infinite } #didier .fb { animation: dB .5s steps(1) infinite }
+#didier .fb { display: none }
+#decor:has(#raceOv) #didier .fa { animation: dA .5s steps(1) infinite } #decor:has(#raceOv) #didier .fb { display: inline; animation: dB .5s steps(1) infinite }
 @keyframes dA { 0% { opacity: 1 } 50% { opacity: 0 } } @keyframes dB { 0% { opacity: 0 } 50% { opacity: 1 } }
-@media (prefers-reduced-motion: reduce) { #didier .fa { animation: none } #didier .fb { display: none } }
+@media (prefers-reduced-motion: reduce) { #decor:has(#raceOv) #didier .fa { animation: none } #decor:has(#raceOv) #didier .fb { display: none } }
 .didico { display: inline-block; width: 15px; height: 21px; margin-right: 5px; vertical-align: -5px } .didico svg { display: block; width: 100%; height: 100%; overflow: visible }
 </style>
 
@@ -2285,7 +2286,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
       </div><div class="col homefoot">${got ? `<p class="fine">${got} titre${got > 1 ? 's' : ''} sur ${total}.</p>` : ''}
       <p class="fine">Un jeu Dossard Péi. Courses et personnages imaginaires.</p>
       <button class="fold sonb" id="sonb" type="button">${CAREER.son ? 'Son : activé' : 'Son : coupé'}</button>
-      ${CAREER.wins.length || Object.keys(memoryTitles).length ? `<div class="razw" id="raz"><button class="fold" id="razb" type="button">Remettre le jeu à zéro</button></div>` : ''}</div>`;
+      <div class="razw" id="raz"><button class="fold" id="razb" type="button">Remettre le jeu à zéro</button></div></div>`;
     if ($('razb')) $('razb').onclick = () => {
       $('raz').innerHTML = `<p>Tout effacer : courses finies, entraînement et titres ?</p><div class="actions"><button class="ghost" id="razno" type="button">Non, garder</button><button class="cta razyes" id="razyes" type="button">Oui, tout effacer</button></div>`;
       $('razno').onclick = home;
