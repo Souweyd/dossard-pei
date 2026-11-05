@@ -23,7 +23,7 @@
 "at": "2026-11-05T03:06+04:00",
 "changed": "2026-11-05T03:06+04:00",
 "h": "3df86185fdb969fa445ab634aadd75913f3339330236b4a91fdb12c1131068bf",
-"pending": "8e053fa89e248bfb7af01cb4e62aee8b5036d5344a39ce23786e0631a022bfa2",
+"pending": "e758f73015e822cc2e17a73accba9a26ab5ccdc3dcfb2f12ccd204bb7a38ccfe",
 "since": "2026-11-05T13:02+04:00"
 },
 "https://ilop.re/ilop-sport/outdoor/": {
@@ -84,7 +84,9 @@
 "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/": {
 "at": "2026-11-05T12:06+04:00",
 "changed": "2026-11-05T12:06+04:00",
-"h": "8e39dce8d22e3254d6eb240057ab97313264e9a1b5a5e49732627a9e6a8e55f2"
+"h": "8e39dce8d22e3254d6eb240057ab97313264e9a1b5a5e49732627a9e6a8e55f2",
+"pending": "b8a91ffb590abb875ccf763be60b434bf87028d15c5f50d9f63379ea1ac880eb",
+"since": "2026-11-05T14:03+04:00"
 },
 "https://www.huge-event.fr": {
 "at": "2026-11-01T17:02+04:00",
