@@ -366,5 +366,12 @@
 "id": "christmas-run",
 "nom": "Christmas Run",
 "date": "2026-12-12"
+},
+{
+"at": "2026-11-06T19:23+04:00",
+"t": "ouverture",
+"id": "relais-marrons-2026-12",
+"nom": "Le Relais des Marrons",
+"date": "2026-12-20"
 }
 ]
