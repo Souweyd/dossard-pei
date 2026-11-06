@@ -10,12 +10,12 @@
   "echecs": 0,
   "etat": "ok",
   "ref": {
-   "pages": 12
+   "pages": 16
   }
  },
  "sportpro": {
   "depuis": "2026-11-06T05:01+04:00",
-  "echecs": 1,
+  "echecs": 2,
   "erreur": "evenements effondré (< 50% des 28 habituels)",
   "etat": "ko",
   "ref": {
