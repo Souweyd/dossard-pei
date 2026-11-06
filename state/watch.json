@@ -22,7 +22,9 @@
 "https://gotrail.run/calendrier-trails/reunion": {
 "at": "2026-11-06T14:03+04:00",
 "changed": "2026-11-06T14:03+04:00",
-"h": "e758f73015e822cc2e17a73accba9a26ab5ccdc3dcfb2f12ccd204bb7a38ccfe"
+"h": "e758f73015e822cc2e17a73accba9a26ab5ccdc3dcfb2f12ccd204bb7a38ccfe",
+"pending": "3bb184162df802e5ae1f79f15c97e7431a0d25bbdc7bfe93e4b176746e10c9ae",
+"since": "2026-11-06T15:09+04:00"
 },
 "https://ilop.re/ilop-sport/outdoor/": {
 "at": "2026-11-03T13:02+04:00",
@@ -37,7 +39,9 @@
 "https://running.life/calendrier-course-a-pied/reunion": {
 "at": "2026-11-06T13:08+04:00",
 "changed": "2026-11-06T13:08+04:00",
-"h": "18699b225351080a190cd54bda8c6e39b33b9063fa055fa8dd56e24c54b03291"
+"h": "18699b225351080a190cd54bda8c6e39b33b9063fa055fa8dd56e24c54b03291",
+"pending": "6e5e018c0ac1f134fb559ee1f5674ffac742ba2210cea957acae3eff1e348163",
+"since": "2026-11-06T15:09+04:00"
 },
 "https://sportinnovation.fr/Evenements/Inscriptions/9096/PRESENTIEL": {
 "at": "2026-10-27T19:08+04:00",
