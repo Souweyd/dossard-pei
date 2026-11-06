@@ -1,1 +1,214 @@
-{"overrides": {"sans-souci": {"fields": [], "hidden": true}, "foulees-solidaires-entre-deux-2026-11": {"fields": ["fiche", "info", "inscription", "paiement"], "hidden": false}, "tropica-dingue-2026-11": {"fields": ["commune", "epreuves", "fiche", "lieu", "ll", "page", "traces"], "hidden": false}, "swimrun-reunion-2026-11": {"fields": ["epreuves", "fiche"], "hidden": false}, "gayar": {"fields": [], "hidden": true}, "kalla-nescafe-2026-11": {"fields": ["epreuves", "traces"], "hidden": false}, "raid-dalons-2026-12": {"fields": ["epreuves"], "hidden": false}, "mafate-trail-tour-2026-11": {"fields": ["date", "epreuves"], "hidden": false}, "marmailles-masters-trail-2026-12": {"fields": ["epreuves", "traces"], "hidden": false}, "relais-trail-vieux-saint-paul-2026-12": {"fields": ["epreuves", "traces"], "hidden": false}, "tour-ile-pedestre-utoi-2026-10": {"fields": ["info"], "hidden": false}, "trail-urbain-saint-pierre-2026-11": {"fields": ["traces"], "hidden": false}, "dimitile": {"fields": ["traces"], "hidden": false}, "foulees-nocturnes-saint-louis-2026-12": {"fields": ["traces"], "hidden": false}, "odyssea-reunion-2026-11": {"fields": ["traces"], "hidden": false}, "championnat-trail-trans-volcano-2027-01": {"fields": ["traces"], "hidden": false}, "foulees-de-la-liberte-2026-12": {"fields": [], "hidden": false}, "trail-urbain-sainte-marie-2026-12": {"fields": ["traces"], "hidden": false}, "foulees-verval-2026-12": {"fields": ["traces"], "hidden": false}, "boucle-pic-adam-2027-08": {"fields": ["affiche", "commune", "date", "epreuves", "info", "lieu", "ll", "nom", "org", "page", "poster", "poster_lg", "poster_xs"], "hidden": false}, "artichauts": {"fields": ["complet", "epreuves", "info", "inscription", "limite"], "hidden": false}, "relais-marrons-2026-12": {"fields": ["affiche", "commune", "date", "epreuves", "info", "lieu", "ll", "nom", "org", "poster", "poster_lg", "poster_xs"], "hidden": false}, "grand-raid-2027-10": {"fields": ["commune", "date", "epreuves", "fin", "info", "lieu", "ll", "nom", "org", "page"], "hidden": false}, "reunion-tri-tour-2027-09": {"fields": ["info"], "hidden": false}}, "manual": ["volcarox-2027-01"]}
+{
+ "overrides": {
+  "sans-souci": {
+   "fields": [],
+   "hidden": true
+  },
+  "foulees-solidaires-entre-deux-2026-11": {
+   "fields": [
+    "fiche",
+    "info",
+    "inscription",
+    "paiement"
+   ],
+   "hidden": false
+  },
+  "tropica-dingue-2026-11": {
+   "fields": [
+    "commune",
+    "epreuves",
+    "fiche",
+    "lieu",
+    "ll",
+    "page",
+    "traces"
+   ],
+   "hidden": false
+  },
+  "swimrun-reunion-2026-11": {
+   "fields": [
+    "epreuves",
+    "fiche"
+   ],
+   "hidden": false
+  },
+  "gayar": {
+   "fields": [],
+   "hidden": true
+  },
+  "kalla-nescafe-2026-11": {
+   "fields": [
+    "epreuves",
+    "traces"
+   ],
+   "hidden": false
+  },
+  "raid-dalons-2026-12": {
+   "fields": [
+    "epreuves"
+   ],
+   "hidden": false
+  },
+  "mafate-trail-tour-2026-11": {
+   "fields": [
+    "date",
+    "epreuves"
+   ],
+   "hidden": false
+  },
+  "marmailles-masters-trail-2026-12": {
+   "fields": [
+    "epreuves",
+    "traces"
+   ],
+   "hidden": false
+  },
+  "relais-trail-vieux-saint-paul-2026-12": {
+   "fields": [
+    "epreuves",
+    "traces"
+   ],
+   "hidden": false
+  },
+  "tour-ile-pedestre-utoi-2026-10": {
+   "fields": [
+    "info"
+   ],
+   "hidden": false
+  },
+  "trail-urbain-saint-pierre-2026-11": {
+   "fields": [
+    "traces"
+   ],
+   "hidden": false
+  },
+  "dimitile": {
+   "fields": [
+    "traces"
+   ],
+   "hidden": false
+  },
+  "foulees-nocturnes-saint-louis-2026-12": {
+   "fields": [
+    "traces"
+   ],
+   "hidden": false
+  },
+  "odyssea-reunion-2026-11": {
+   "fields": [
+    "traces"
+   ],
+   "hidden": false
+  },
+  "championnat-trail-trans-volcano-2027-01": {
+   "fields": [
+    "traces"
+   ],
+   "hidden": false
+  },
+  "foulees-de-la-liberte-2026-12": {
+   "fields": [],
+   "hidden": false
+  },
+  "trail-urbain-sainte-marie-2026-12": {
+   "fields": [
+    "traces"
+   ],
+   "hidden": false
+  },
+  "foulees-verval-2026-12": {
+   "fields": [
+    "traces"
+   ],
+   "hidden": false
+  },
+  "boucle-pic-adam-2027-08": {
+   "fields": [
+    "affiche",
+    "commune",
+    "date",
+    "epreuves",
+    "info",
+    "lieu",
+    "ll",
+    "nom",
+    "org",
+    "page",
+    "poster",
+    "poster_lg",
+    "poster_xs"
+   ],
+   "hidden": false
+  },
+  "artichauts": {
+   "fields": [
+    "complet",
+    "epreuves",
+    "info",
+    "inscription",
+    "limite"
+   ],
+   "hidden": false
+  },
+  "relais-marrons-2026-12": {
+   "fields": [
+    "affiche",
+    "commune",
+    "date",
+    "epreuves",
+    "info",
+    "lieu",
+    "ll",
+    "nom",
+    "org",
+    "poster",
+    "poster_lg",
+    "poster_xs"
+   ],
+   "hidden": false
+  },
+  "grand-raid-2027-10": {
+   "fields": [
+    "commune",
+    "date",
+    "epreuves",
+    "fin",
+    "info",
+    "lieu",
+    "ll",
+    "nom",
+    "org",
+    "page"
+   ],
+   "hidden": false
+  },
+  "reunion-tri-tour-2027-09": {
+   "fields": [
+    "info"
+   ],
+   "hidden": false
+  },
+  "gto-2027-07": {
+   "fields": [
+    "affiche",
+    "commune",
+    "date",
+    "epreuves",
+    "fin",
+    "info",
+    "lieu",
+    "ll",
+    "nom",
+    "org",
+    "page",
+    "poster",
+    "poster_lg",
+    "poster_xs"
+   ],
+   "hidden": false
+  }
+ },
+ "manual": [
+  "volcarox-2027-01"
+ ]
+}
