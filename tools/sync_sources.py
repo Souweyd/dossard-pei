@@ -723,6 +723,9 @@ try:
             changes.append(f"{r['id']}:annulée")
     # 4b. per-épreuve status from the same agenda page: link, deadline and "Complet" of each épreuve
     ag = sp_agenda(page)
+    if len(ag) < 5:   # nearly empty agenda: say what the page was (maintenance, limit, new layout…) in the log
+        _t = re.search(r"<title>(.*?)</title>", page, re.S)
+        print(f"  agenda Sportpro presque vide ({len(ag)} événement(s), {len(page)} octets, titre : {html.unescape(_t.group(1)).strip()[:80] if _t else '?'})")
     # only events held in La Réunion (Sportpro also times races in Mayotte, Maurice…): the card's town must be a Réunion commune
     import controls as _c
     _reu = {norm(x) for x in _c.COMMUNES} | {"la plaine des cafres", "plaine des cafres", "hell bourg", "cilaos", "mafate"}
@@ -809,7 +812,7 @@ except Exception as e:
 CANCEL = re.compile(r"(?i)\b(?:[ée]v[ée]nement|course|[ée]preuve|manifestation)\s+annul[ée]e?s?\b|ne\s+pas\s+s[’']inscrire")
 SP_ANNUL = []   # cancellations seen only in a Sportpro presentation: reported, not hidden
 import watch  # noqa: E402  (HEDGE: conditional wording)
-if NOW.hour % 3 == 0 or "--all" in sys.argv:
+if NOW.hour % 6 == 0 or "--all" in sys.argv:   # every 6 hours (Sportpro limits the rate of requests)
     lues, essais, derr = 0, 0, None
     for r in data["races"]:
         if r.get("hidden") or not can(r, "hidden"):
@@ -867,7 +870,7 @@ def sp_price(page):
     return " / ".join(f"{p} {l}".strip() for p, l in rows)
 
 
-FULL_PRIX = NOW.hour % 3 == 0 or "--all" in sys.argv   # every 3 hours all prices; each hour the épreuves still without one (new races)
+FULL_PRIX = NOW.hour % 6 == 3 or "--all" in sys.argv   # every 6 hours, 3 h after the race pages (spread the load on Sportpro)   # every 3 hours all prices; each hour the épreuves still without one (new races)
 if True:
     prix_lus, essais, derr = 0, 0, None
     for r in data["races"]:

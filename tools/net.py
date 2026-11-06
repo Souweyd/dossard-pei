@@ -9,6 +9,7 @@ Every request made through net.urlopen():
 Returns a small response object (read(), status, geturl(), headers; usable with `with` and json.load).
 """
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -16,7 +17,13 @@ UA = "Mozilla/5.0 (compatible; DossardPei/1.0; +https://dossardpei.re; contact@d
 CAP = 4_000_000      # bytes
 DEADLINE = 45        # seconds for one whole request
 GAP = 1.0            # seconds between two requests to the same host
+SLOW = {"www.sportpro.re": 4.0}   # hosts that asked us to slow down (rate limiting): a longer gap
 _last = {}
+BACKOFF = {}         # host -> reason: the host answered 429 / 503 in this run, no more requests to it until the next run
+
+
+class Backoff(OSError):
+    pass
 
 
 class Resp:
@@ -45,7 +52,9 @@ def urlopen(req, data=None, timeout=30):
         req = urllib.request.Request(req)
     req.add_header("User-Agent", UA)   # replaces any other User-Agent
     host = urllib.parse.urlsplit(req.full_url).hostname or ""
-    wait = _last.get(host, 0) + GAP - time.monotonic()
+    if host in BACKOFF:
+        raise Backoff(f"{host} a demandé de ralentir ({BACKOFF[host]}) : plus de requête jusqu'au prochain passage")
+    wait = _last.get(host, 0) + SLOW.get(host, GAP) - time.monotonic()
     if wait > 0:
         time.sleep(wait)
     t0 = time.monotonic()
@@ -63,5 +72,9 @@ def urlopen(req, data=None, timeout=30):
                 if time.monotonic() - t0 > DEADLINE:
                     raise TimeoutError(f"lecture trop longue (> {DEADLINE} s)")
             return Resp(r, b"".join(chunks))
+    except urllib.error.HTTPError as e:
+        if e.code in (429, 503):   # the site limits the rate: respect it for the rest of this run
+            BACKOFF[host] = f"HTTP {e.code}"
+        raise
     finally:
         _last[host] = time.monotonic()
