@@ -373,5 +373,12 @@
 "id": "relais-marrons-2026-12",
 "nom": "Le Relais des Marrons",
 "date": "2026-12-20"
+},
+{
+"at": "2026-11-06T22:55+04:00",
+"t": "ajout",
+"id": "gto-2027-07",
+"nom": "Grand Trail de l'Ouest (GTO)",
+"date": "2027-07-02"
 }
 ]

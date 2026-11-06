@@ -17,7 +17,7 @@
   "alerte": 23,
   "depuis": "2026-11-06T20:01+04:00",
   "echecs": 3,
-  "erreur": "HTTPError: HTTP Error 500: Internal Server Error",
+  "erreur": "evenements effondré (< 50% des 28 habituels)",
   "etat": "ko",
   "ref": {
    "associees": 53,
