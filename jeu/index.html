@@ -510,7 +510,7 @@ button.homefig { padding: 0; background: none; border: 0; cursor: pointer; displ
 .defib b { font: 800 1.3rem/1.12 var(--display) } .defib p { margin: 0; color: var(--muted); font-size: .95rem }
 .vraieb { display: grid; gap: 2px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 14px; color: var(--fg); text-decoration: none }
 .vraieb b { font: 800 1.3rem/1.12 var(--display) } .vraieb span { color: var(--muted); font-size: .95rem }
-.lktabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 12px; overflow: hidden }
+.lktabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 12px; overflow: hidden }
 .lktabs button { min-height: 44px; padding: 0 2px; background: var(--surface); color: var(--fg); border: 0; font: 700 clamp(.78rem, 3.4vw, 1rem) var(--body); cursor: pointer }
 .lktabs button.on { background: var(--fg); color: var(--bg) }
 .lkcap { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 6px; margin: 0; text-align: center; font-weight: 600; font-size: .9rem; line-height: 1.2 }
@@ -2167,8 +2167,8 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     hair: [{ n: 'Noirs' }, { n: 'Bruns', c: '#3d3029' }, { n: 'Châtains', c: '#5e4636' }, { n: 'Roux', c: '#a5532e' }, { n: 'Gris', c: '#9aa0a3' }, { n: 'Grisonnants ou noirs' }, { n: 'Blonds', c: '#a07a48' }, { n: 'Blond platine', c: '#d2bb9c' }],
     glass: [{ n: 'De départ' }, { n: 'Miroir orange', f: '#ff7a1a', a: '#ffd08a' }, { n: 'Miroir violet', f: '#6b3fd1', a: '#c9b0ff' }, { n: 'Noirs', f: '#0c1013', a: '#3a4a52' }, { n: 'Jaunes', f: '#ffc400', a: '#fff3a0' }, { n: 'Lunettes Grand Bouchon', f: 'url(#irisX)', a: '#ffffff', o: 'd25' }]
   };
-  const EXPLOITS = { crise: "finis une course après avoir frôlé l'abandon", record: 'bats ton record sur une course', toutes: 'finis les six courses' };
-  const LOCKS = { pose: { 2: 'x-crise', 3: 'x-record', 4: 'x-toutes' }, cap: { 2: 'd10', 3: 'u230', 8: 'x-toutes' }, glass: { 5: 'd25' }, top: { 3: 'u50' }, short: { 3: 'u100' }, shoe: { 3: 'u165' } };
+  const EXPLOITS = { toutes: 'finis les six courses' };
+  const LOCKS = { cap: { 2: 'd10', 3: 'u230', 8: 'x-toutes' }, glass: { 5: 'd25' }, top: { 3: 'u50' }, short: { 3: 'u100' }, shoe: { 3: 'u165' } };
   const lockOf = (k, v) => { const f = (LOCKS[k] || {})[v]; if (!f) return null; return (f.startsWith('x-') ? (CAREER.exploits || {})[f.slice(2)] : CAREER.wins.includes(f)) ? null : f; };
   const lockTxt = f => f.startsWith('x-') ? 'à gagner : ' + EXPLOITS[f.slice(2)] : `à gagner en finissant ${FORMATS[f].name} (${FORMATS[f].short})`;
   function openLook() {
@@ -2178,7 +2178,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     const box = document.createElement('div'); box.className = 'pausebox lookbox'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-label', 'Personnaliser le coureur');
     const HEADS = [0, 1, 4, 5, 6, 7, 2, 3, 8];
     const ROWSET = { tenue: [['cap', 'la tête', HEADS.length, 10], ['glass', 'les lunettes', 6, 25], ['top', 'le haut', 4, 46], ['short', 'le short', 4, 67], ['shoe', 'les chaussures', 4, 89]], physique: [['cut', 'la coupe', 3, 10], ['hair', 'la couleur des cheveux', 8, 27], ['skin', 'la couleur de peau', 5, 49]].concat(CAREER.perso === 'nadia' ? [] : [['beard', 'la barbe', 4, 70]]) };
-    ROWSET.acc = [['lampe', 'la frontale', 4, 10], ['buff', 'le tour de cou', 5, 31], ['sac', 'le sac', 4, 54], ['sock', 'les chaussettes', 6, 82]]; ROWSET.pose = [['pose', 'la pose', 5, 50]];
+    ROWSET.acc = [['lampe', 'la frontale', 4, 10], ['buff', 'le tour de cou', 5, 31], ['sac', 'le sac', 4, 54], ['sock', 'les chaussettes', 6, 82]];
     let ROWS = ROWSET[tab];
     const LKLAB = { buff: 'Tour de cou', sac: 'Sac', lampe: 'Frontale', sock: 'Chaussettes', pose: 'Pose', shoe: 'Chaussures', beard: 'Barbe', cap: 'Tête', glass: 'Lunettes', top: 'Haut', short: 'Short', cut: 'Coupe', hair: 'Cheveux', skin: 'Peau' };
     const lkVal = k => { const L = CAREER.look, nad = CAREER.perso === 'nadia';
@@ -2189,7 +2189,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     const fl = (k, t, d, y) => `<button type="button" class="lkar ${d < 0 ? 'g' : 'd'}" data-k="${k}" data-d="${d}" style="top:${y}%" aria-label="${d < 0 ? 'Précédent' : 'Suivant'} pour ${t}"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="${d < 0 ? 'M15 5 8 12l7 7' : 'M9 5l7 7-7 7'}" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`;
     const render = () => {
       ROWS = ROWSET[tab];
-      box.innerHTML = `<div class="pausecard lookcard"><div class="lktabs" role="group" aria-label="Que modifier">${[['tenue', 'Tenue'], ['acc', 'Accessoires'], ['pose', 'Pose'], ['physique', 'Physique']].map(([k, t]) => `<button type="button" data-tab="${k}" aria-pressed="${tab === k}" class="${tab === k ? 'on' : ''}">${t}</button>`).join('')}</div><div class="lkstage"><div class="lkfig${tab === 'acc' ? ' b-sac5 l-frontale' : ''}">${persoSVG({ solo: true, dos }).replace(/manche/g, 'mancheL').replace(/face-av/g, 'face-avL').replace(/face-ar/g, 'face-arL')}</div>
+      box.innerHTML = `<div class="pausecard lookcard"><div class="lktabs" role="group" aria-label="Que modifier">${[['tenue', 'Tenue'], ['acc', 'Accessoires'], ['physique', 'Physique']].map(([k, t]) => `<button type="button" data-tab="${k}" aria-pressed="${tab === k}" class="${tab === k ? 'on' : ''}">${t}</button>`).join('')}</div><div class="lkstage"><div class="lkfig${tab === 'acc' ? ' b-sac5 l-frontale' : ''}">${persoSVG({ solo: true, dos }).replace(/manche/g, 'mancheL').replace(/face-av/g, 'face-avL').replace(/face-ar/g, 'face-arL')}</div>
         ${ROWS.map(r => fl(r[0], r[1], -1, r[3]) + fl(r[0], r[1], 1, r[3])).join('')}</div>
         ${(() => { const L = ROWS.map(r => [r[0], lockOf(r[0], CAREER.look[r[0]])]).find(x => x[1]); return `<p class="lklock"${L ? '' : ' style="visibility:hidden"'}><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M7 11V8a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="2.6"/><rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor"/></svg><span>${L ? `${esc(lkVal(L[0]))} : ${esc(lockTxt(L[1]))}` : '&nbsp;'}</span></p>`; })()}
         <button type="button" class="lkturn" id="lkTurn">${dos ? 'Voir de face' : 'Voir le dos'}</button>
@@ -2212,7 +2212,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     const INK = '#1d2523', SEAM = '#cfd6d3', UID = 'u' + (persoSVG.n = (persoSVG.n || 0) + 1), SHOE = LOOK.shoe[LK.shoe || 0].c, DIAG = (LK.shoe || 0) === 3;
     const PAT = `<linearGradient id="melX${UID}" x1="0" y1="0" x2="1" y2="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(60 80) scale(84)"><stop offset="0" stop-color="#ffd400"/><stop offset=".25" stop-color="#ffd400"/><stop offset=".25" stop-color="#ff5a36"/><stop offset=".5" stop-color="#ff5a36"/><stop offset=".5" stop-color="#2fb5a4"/><stop offset=".75" stop-color="#2fb5a4"/><stop offset=".75" stop-color="#1d4f9c"/><stop offset="1" stop-color="#1d4f9c"/></linearGradient><pattern id="fleurX${UID}" width="18" height="18" patternUnits="userSpaceOnUse"><rect width="18" height="18" fill="#c62828"/><g fill="#fff"><circle cx="5" cy="5" r="2.2"/><circle cx="5" cy="1.6" r="1.6"/><circle cx="5" cy="8.4" r="1.6"/><circle cx="1.6" cy="5" r="1.6"/><circle cx="8.4" cy="5" r="1.6"/><circle cx="14" cy="14" r="1.8"/></g><circle cx="5" cy="5" r="1.3" fill="#ffd400"/></pattern><linearGradient id="irisX${UID}" x1="0" x2="1"><stop offset="0" stop-color="#ff4fa3"/><stop offset=".5" stop-color="#8a5cff"/><stop offset="1" stop-color="#1fc8e8"/></linearGradient>`;
     const fx = c => String(c).replace(/X\)$/, 'X' + UID + ')');
-    const POSE = o.race ? 0 : LK.pose || 0, UPR = POSE >= 2, UPL = POSE >= 3, BUFF = LK.buff ? fx(LOOK.buff[LK.buff].c) : '', SOCK = LK.sock ? LOOK.sock[LK.sock] : null, SACK = LOOK.sac[LK.sac || 0], LAMPE = LOOK.lampe[LK.lampe || 0].c;
+    const POSE = o.race ? 0 : o.pose || 0, UPR = POSE >= 2, UPL = POSE >= 3, BUFF = LK.buff ? fx(LOOK.buff[LK.buff].c) : '', SOCK = LK.sock ? LOOK.sock[LK.sock] : null, SACK = LOOK.sac[LK.sac || 0], LAMPE = LOOK.lampe[LK.lampe || 0].c;
     const hand = (x, y, r = 7.5) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${SK}" stroke="${INK}" stroke-width="2.5"/>`;
     const upArm = side => { const m = x => side > 0 ? x : 200 - x; return NAD ? limb(`M${m(150)} 120 ${m(168)} 94 ${m(170)} 62`) + hand(m(170), 58, 8) : limb(`M${m(136)} 98 ${m(158)} 74 ${m(162)} 44`) + hand(m(162), 40, 8); };
     const hipArm = side => { const m = x => side > 0 ? x : 200 - x; return limb(`M${m(151)} 122 ${m(160)} 146 ${m(140)} 160`) + hand(m(138), 160); };
@@ -2570,16 +2570,14 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
   function endScreen() {
     pauseB.hidden = true;
     wrap.classList.remove('play');
-    const s = S, o = s.over, T = titleOf(s, o.title);
+    const s = S, o = s.over, T = titleOf(s, o.title), old0 = CAREER.bibs[s.f.id], record = o.finished && old0 && s.t < old0.t;
     CAREER.run = null;
     if (!TOUT) {
       if (s.flags.rougail) CAREER.mem.rougail = true; if (s.flags.attaque) CAREER.mem.attaque = true;
       if (!o.finished) CAREER.abandons++;
       if (o.finished) { const X = CAREER.exploits = CAREER.exploits || {}, old = CAREER.bibs[s.f.id], wins = new Set(CAREER.wins.concat(s.f.id)); s.gains = [];
         const gx = (k, l) => { if (!X[k]) { X[k] = 1; s.gains.push(l); } };
-        if (s.flags.crise) gx('crise', 'la pose « Poing levé »');
-        if (old && s.t < old.t) gx('record', 'la pose « Bras levés »');
-        if (ORDER.every(f => wins.has(f))) gx('toutes', 'la casquette Lé pa loin et la pose « Le saut »'); }
+        if (ORDER.every(f => wins.has(f))) gx('toutes', 'la casquette Lé pa loin'); }
       compte((o.finished ? 'fini/' : 'abandon/') + s.f.id);
       if (o.finished) { const old = CAREER.bibs[s.f.id]; if (!old || s.t < old.t) CAREER.bibs[s.f.id] = { bib: s.bib, t: s.t, temps: fmtT(s.t) }; if (!CAREER.wins.includes(s.f.id)) CAREER.wins.push(s.f.id); }
     }
@@ -2602,7 +2600,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
         <div class="dosinfo"><div><small>Nom</small><b${s.runner.name.length > 8 ? ' class="nomlong"' : ''}>${esc(s.runner.name)}</b></div><div><small>${o.finished ? 'Temps' : 'Arrêt'}</small><b>${o.finished ? fmtT(s.t) : 'Km ' + fmtKm(s.km)}</b></div><div><small>Classement</small><b>${o.finished ? place(s) + 'e/' + s.f.N : 'Abandon'}</b></div></div>
         <div class="dosspon">dossardpei.re</div>
       </div>
-      <div class="goalrow"><div class="stage ${eqClass(s)} ${o.finished ? 'reac-yes' : 'mood-crit'}">${persoSVG({ solo: true })}</div><div class="endsay"><p class="pense">${allDone ? (nadia() ? "Les six. Tous finis. Le tableur est content. Pu jamais." : 'Les six. Je les ai tous faits. Pu jamais.') : o.finished ? 'Pu jamais.' : "L'an prochain, je reviens."}</p><p class="goalt">${goalLine.includes(' : ') ? `<small>${esc(goalLine.split(' : ')[0])}</small>${esc(goalLine.split(' : ').slice(1).join(' : '))}` : esc(goalLine)}</p></div></div>
+      <div class="goalrow"><div class="stage ${eqClass(s)} ${o.finished ? 'reac-yes' : 'mood-crit'}">${persoSVG({ solo: true, pose: !o.finished ? 0 : allDone ? 4 : record ? 3 : s.flags.crise ? 2 : 1 })}</div><div class="endsay"><p class="pense">${allDone ? (nadia() ? "Les six. Tous finis. Le tableur est content. Pu jamais." : 'Les six. Je les ai tous faits. Pu jamais.') : o.finished ? 'Pu jamais.' : "L'an prochain, je reviens."}</p><p class="goalt">${goalLine.includes(' : ') ? `<small>${esc(goalLine.split(' : ')[0])}</small>${esc(goalLine.split(' : ').slice(1).join(' : '))}` : esc(goalLine)}</p></div></div>
       ${!o.finished && worstTxt ? `<div class="micro"><small>Au micro</small><p>${esc(worstTxt)}</p></div>` : ''}
       ${o.finished ? telHTML(['Didier', DIDIER_FIN[Math.min(5, Math.max(0, CAREER.wins.length - 1))]], s.f.start + s.t) : ''}
       ${defiFin(s, o)}${objetGagne(s, o)}
