@@ -1,14 +1,12 @@
 {
- "maczheimer": {
+ "riviere-mat": {
   "source": "sportpro",
   "epreuves": [
-   "10 km",
-   "5 km",
-   "Marche 5 km"
+   "Course Marmay 2010-2020"
   ],
   "plateforme": [
-   "10km - Les Foulées de la Mac'Zheimer",
-   "5km - Les Foulées de la Mac'Zheimer"
+   "Trail des Berges de la Rivière du Mat les Bas",
+   "Rando des Berges de la Rivière du Mat les Bas"
   ]
  }
 }
