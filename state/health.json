@@ -14,14 +14,12 @@
   }
  },
  "sportpro": {
-  "depuis": "2026-11-07T05:00+04:00",
-  "echecs": 1,
-  "erreur": "HTTPError: HTTP Error 500: Internal Server Error",
-  "etat": "ko",
+  "echecs": 0,
+  "etat": "ok",
   "ref": {
-   "associees": 53,
-   "epreuves": 66,
-   "evenements": 28
+   "associees": 30,
+   "epreuves": 40,
+   "evenements": 20
   }
  },
  "sportpro_pages": {

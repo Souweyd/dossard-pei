@@ -1,1 +1,12 @@
-{}
+{
+ "christmas-run": {
+  "source": "sportpro",
+  "epreuves": [
+   "Course et marche 5 km",
+   "Course Marmay"
+  ],
+  "plateforme": [
+   "2012-2022 Course Marmay - Christmas Run"
+  ]
+ }
+}
