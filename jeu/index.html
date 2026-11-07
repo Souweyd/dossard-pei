@@ -496,7 +496,6 @@ button.homefig { padding: 0; background: none; border: 0; cursor: pointer; displ
 .crayon { position: absolute; right: 2px; top: 34%; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: #fff; box-shadow: 0 2px 7px rgba(0,0,0,.28) }
 .lookcard { gap: 10px; max-height: calc(100dvh - 20px); overflow: auto; padding: 12px }
 .lookbox { padding: 10px }
-@media (max-width: 350px) { .lkrows { grid-template-columns: 1fr } .lkrow:last-child:nth-child(odd) { min-width: 0; width: 100% } }
 .lkbody { display: grid; gap: 10px }
 .lkstage { position: relative; background: linear-gradient(#bfe0f4, #eaf4f8); border-radius: 14px; padding: 8px 0 30px }
 .lkfig { height: clamp(170px, calc(100dvh - 400px), 380px); aspect-ratio: 200 / 262; margin: 0 auto; max-width: 100% }
@@ -513,6 +512,7 @@ button.homefig { padding: 0; background: none; border: 0; cursor: pointer; displ
 .lkhint svg { flex: none; color: var(--fg) }
 .lookbox, .lookcard { overscroll-behavior: contain }
 html.lkopen, html.lkopen body { overflow: hidden }
+@media (max-width: 350px) { .lkrows { grid-template-columns: 1fr } .lkrow:last-child:nth-child(odd) { min-width: 0; width: 100% } }
 .lkturn { position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%); background: none; border: 0; color: #1d2523; font: 600 .85rem var(--body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 3px 8px; white-space: nowrap }
 
 /* Défi, objets, vraie course */
