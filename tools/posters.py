@@ -110,7 +110,8 @@ def main(today, now):
         tried = {}
     changed, added = False, []
     for r in data["races"]:
-        if r.get("hidden") or (r.get("fin") or r["date"]) < today or r.get("poster") or r.get("source") == "utoi":
+        cap = bool(r.get("affiche_capture"))   # poster taken from a screenshot (Facebook…): replaced by the organiser's own as soon as found
+        if r.get("hidden") or (r.get("fin") or r["date"]) < today or (r.get("poster") and not cap) or (r.get("source") == "utoi" and not cap):
             continue
         if re.search(r"utoi", (r.get("inscription") or "") + (r.get("org") or ""), re.I):
             continue
@@ -120,7 +121,7 @@ def main(today, now):
             continue
         tried[r["id"]] = now.isoformat(timespec="minutes")
         url, org = find_org(r), True
-        if not url:
+        if not url and not cap:   # a screenshot is only replaced by a poster from the organiser's or platform's own page
             url, org = find(r), False
         if not url:
             continue
@@ -143,6 +144,9 @@ def main(today, now):
             print(f"affiche {r['id']} : image illisible ({e.__class__.__name__})")
             continue
         r.update(affiche=url, poster=f"posters/{r['id']}.webp", poster_lg=f"posters/{r['id']}_lg.webp")
+        if cap:
+            r.pop("affiche_capture", None); r.pop("poster_xs", None)   # the small thumbnail is redrawn from the new poster below
+            print(f"affiche {r['id']} : capture remplacée par l'affiche de l'organisateur")
         tried.pop(r["id"], None)
         changed = True
         added.append(r["nom"])

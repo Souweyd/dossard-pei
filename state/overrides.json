@@ -124,7 +124,6 @@
   },
   "boucle-pic-adam-2027-08": {
    "fields": [
-    "affiche",
     "commune",
     "date",
     "epreuves",
@@ -133,10 +132,7 @@
     "ll",
     "nom",
     "org",
-    "page",
-    "poster",
-    "poster_lg",
-    "poster_xs"
+    "page"
    ],
    "hidden": false
   },
@@ -152,7 +148,6 @@
   },
   "relais-marrons-2026-12": {
    "fields": [
-    "affiche",
     "commune",
     "date",
     "epreuves",
@@ -160,10 +155,7 @@
     "lieu",
     "ll",
     "nom",
-    "org",
-    "poster",
-    "poster_lg",
-    "poster_xs"
+    "org"
    ],
    "hidden": false
   },
@@ -190,7 +182,6 @@
   },
   "gto-2027-07": {
    "fields": [
-    "affiche",
     "commune",
     "date",
     "epreuves",
@@ -200,10 +191,7 @@
     "ll",
     "nom",
     "org",
-    "page",
-    "poster",
-    "poster_lg",
-    "poster_xs"
+    "page"
    ],
    "hidden": false
   }
