@@ -516,6 +516,8 @@ button.homefig { padding: 0; background: none; border: 0; cursor: pointer; displ
 
 /* Pas de zoom au double toucher, le pincement reste possible */
 html, body, button, a, input, label { touch-action: manipulation }
+.nouveau { position: absolute; right: -6px; top: calc(34% - 30px); background: #c62828; color: #fff; font: 800 .8rem/1 var(--display); letter-spacing: .03em; padding: 4px 7px; border-radius: 99px; box-shadow: 0 2px 6px rgba(0,0,0,.25); animation: nvx 1.2s ease-in-out infinite alternate }
+@keyframes nvx { to { transform: scale(1.1) } } @media (prefers-reduced-motion: reduce) { .nouveau { animation: none } }
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -2158,15 +2160,16 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     glass: [{ n: 'De départ' }, { n: 'Miroir orange', f: '#ff7a1a', a: '#ffd08a' }, { n: 'Miroir violet', f: '#6b3fd1', a: '#c9b0ff' }, { n: 'Noirs', f: '#0c1013', a: '#3a4a52' }, { n: 'Jaunes', f: '#ffc400', a: '#fff3a0' }]
   };
   function openLook() {
+    if (CAREER.nouveau) { CAREER.nouveau = 0; saveCareer(); }
     CAREER.look = Object.assign({ top: 0, short: 0, cap: 0, skin: 0, hair: 0, cut: 0, glass: 0, beard: 0 }, CAREER.look);
     let dos = false, tab = 'tenue';
     const box = document.createElement('div'); box.className = 'pausebox lookbox'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-label', 'Personnaliser le coureur');
-    const HEADS = [0, 1].concat(CAREER.wins.includes('d10') ? [2] : [], CAREER.wins.includes('u230') ? [3] : []);
+    const HEADS = [0, 1, 4, 5, 6, 7].concat(CAREER.wins.includes('d10') ? [2] : [], CAREER.wins.includes('u230') ? [3] : []);
     const ROWSET = { tenue: [['cap', 'la tête', HEADS.length, 10], ['glass', 'les lunettes', 5, 27], ['top', 'le haut', 3, 49], ['short', 'le short', 3, 70]], physique: [['cut', 'la coupe', 3, 10], ['hair', 'la couleur des cheveux', 6, 27], ['skin', 'la couleur de peau', 5, 49]].concat(CAREER.perso === 'nadia' ? [] : [['beard', 'la barbe', 4, 70]]) };
     let ROWS = ROWSET[tab];
     const LKLAB = { beard: 'Barbe', cap: 'Tête', glass: 'Lunettes', top: 'Haut', short: 'Short', cut: 'Coupe', hair: 'Cheveux', skin: 'Peau' };
     const lkVal = k => { const L = CAREER.look, nad = CAREER.perso === 'nadia';
-      if (k === 'cap') return ['Rien', 'Casquette', 'Bob de la dame', 'Casquette Ultra Machine'][L.cap];
+      if (k === 'cap') return ['Rien', 'Casquette', 'Bob de la dame', 'Casquette Ultra Machine', 'Casquette blanche', 'Casquette jaune', 'Bob blanc', 'Bob kaki'][L.cap];
       if (k === 'beard') return ['3 jours', 'Rasé', 'Barbe', 'Bouc'][L.beard];
       if (k === 'cut') return (nad ? ['Queue de cheval', 'Tresses', 'Carré'] : ['Courte', 'Crépue', 'Rasée'])[L.cut];
       return LOOK[k][L[k]].n; };
@@ -2190,7 +2193,8 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
   }
   function persoSVG(o = {}) {
     const NAD = CAREER.perso === 'nadia' || o.perso === 'nadia' ? o.perso !== 'jeremi' : false, LVL = o.perso ? 0 : CAREER.wins.length;
-    const LK = (!o.perso && CAREER.look) || {}, TOP = LOOK.top[LK.top || 0].c, SHORT = LOOK.short[LK.short || 0].c, CAP = !!LK.cap, CAPT = LK.cap || 0;
+    const LK = (!o.perso && CAREER.look) || {}, TOP = LOOK.top[LK.top || 0].c, SHORT = LOOK.short[LK.short || 0].c, CAPT = LK.cap || 0, BOB = [2, 6, 7].includes(CAPT), CAP = !!CAPT && !BOB;
+    const BC = { 2: ['#e7d9a8', '#f0e5bd', '#c62828'], 6: ['#e3e8ea', '#fafafa', '#9aa5aa'], 7: ['#8c8759', '#a7a172', '#6b6643'] }[CAPT] || [], KC = { 1: ['#1d4f9c', '#163e7c', '#ffd400'], 3: ['#ff5a36', '#1d2523', '#ffd400'], 4: ['#f4f4f2', '#d4d8d8', '#1d4f9c'], 5: ['#ffd400', '#d9b300', '#1d2523'] }[CAPT] || [];
     const INK = '#1d2523', SEAM = '#cfd6d3';
     const SK = LK.skin ? LOOK.skin[LK.skin].c : (NAD ? '#a8704a' : '#b98158'), GREY = (NAD && !LK.hair) || (!NAD && LK.hair === 5), HAIR = GREY ? '#5d5854' : LK.hair === 5 ? '#17100c' : LK.hair ? LOOK.hair[LK.hair].c : '#20160f', CUT = LK.cut || 0;
     const MECHES = GREY ? `<path d="M84 28Q94 20 106 21M112 23Q121 26 124 34M80 36Q82 30 88 27" fill="none" stroke="#d6d3cf" stroke-width="2.6" stroke-linecap="round"/>` : '';
@@ -2220,7 +2224,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
         ${NAD ? `<path d="M76 46C70 14 94 12 104 14 124 12 132 30 124 48 122 40 118 32 112 29 102 34 88 32 82 32 78 36 77 40 76 46Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>` : `${[`<path d="M78 58C80 72 90 79 100 79 110 79 120 72 122 58 118 66 110 62 100 62 90 62 82 66 78 58Z" fill="${HAIR}" opacity=".3"/>`, '', `<path d="M77 52C78 74 89 84 100 84 111 84 122 74 123 52 119 62 112 63 106 61 102 59 98 59 94 61 88 63 81 62 77 52Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/><path d="M93 66Q100 70 107 66" fill="none" stroke="#5e211c" stroke-width="2.6" stroke-linecap="round"/>`, `<path d="M92 66C92 78 96 82 100 82 104 82 108 78 108 66 104 69 96 69 92 66Z" fill="${HAIR}" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/><path d="M90 61Q100 57 110 61" fill="none" stroke="${HAIR}" stroke-width="3.2" stroke-linecap="round"/>`][LK.beard || 0]}
         ${CUT === 1 ? `<path d="M72 48C58 30 66 6 90 6 98 0 114 2 120 8 140 8 146 34 128 48 124 38 118 32 110 31 100 34 90 34 82 31 76 36 72 48Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>` : CUT === 2 ? '' : `<path d="M74 46C70 18 94 14 106 16 122 14 130 30 126 46 123 38 120 34 116 32 106 36 90 36 82 32 78 36 76 40 74 46Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>`}`}
         ${CUT === 2 && !NAD ? '' : MECHES}
-        ${CAPT === 2 ? `<path d="M62 44Q100 30 138 44Q142 50 134 48Q100 40 66 48Q58 50 62 44Z" fill="#e7d9a8" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M76 40C76 8 124 8 124 40Q100 34 76 40Z" fill="#f0e5bd" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M76 34Q100 28 124 34" fill="none" stroke="#c62828" stroke-width="3"/>` : CAP ? `<path d="M73 42C70 8 130 8 127 42Q100 34 73 42Z" fill="${CAPT === 3 ? '#ff5a36' : '#1d4f9c'}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M71 42Q100 32 129 42Q133 49 125 47Q100 40 75 47Q67 49 71 42Z" fill="${CAPT === 3 ? '#1d2523' : '#163e7c'}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><circle cx="100" cy="25" r="5.5" fill="#ffd400" stroke="${INK}" stroke-width="2"/>` : ''}
+        ${BOB ? `<path d="M62 44Q100 30 138 44Q142 50 134 48Q100 40 66 48Q58 50 62 44Z" fill="${BC[0]}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M76 40C76 8 124 8 124 40Q100 34 76 40Z" fill="${BC[1]}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M76 34Q100 28 124 34" fill="none" stroke="${BC[2]}" stroke-width="3"/>` : CAP ? `<path d="M73 42C70 8 130 8 127 42Q100 34 73 42Z" fill="${KC[0]}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M71 42Q100 32 129 42Q133 49 125 47Q100 40 75 47Q67 49 71 42Z" fill="${KC[1]}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><circle cx="100" cy="25" r="5.5" fill="${KC[2]}" stroke="${INK}" stroke-width="2"/>` : ''}
         <g class="blink"><ellipse cx="90" cy="50" rx="5" ry="3.2" fill="#fff" stroke="${INK}" stroke-width="1.8"/><ellipse cx="110" cy="50" rx="5" ry="3.2" fill="#fff" stroke="${INK}" stroke-width="1.8"/><circle cx="91" cy="50" r="2.3" fill="${INK}"/><circle cx="111" cy="50" r="2.3" fill="${INK}"/></g>
         <path d="M79 48 74 50M121 48 126 50" stroke="${INK}" stroke-width="2.5" stroke-linecap="round"/><path d="M79 46Q100 41 121 46L120 54Q111 61 103 54 100 51 97 54 89 61 80 54Z" fill="${GL.f}" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/><path d="M83 48Q90 45 97 46M104 46Q110 45 116 47" fill="none" stroke="${GL.a}" stroke-width="2.4" stroke-linecap="round"/>
         <path d="M100 56 98 60H102" fill="none" stroke="${INK}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2233,7 +2237,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
         <text x="100" y="163" text-anchor="middle" font-family="Saira Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="12.5" fill="${TOP === '#1d4f9c' ? '#fff' : '#000'}">dossardpei.re</text>
         ${limb('M151 122 150 148')}${limb('M49 122 50 148')}${mirror(flag)}${mirror(sleeveL)}
         <path d="M88 86V70H112V86Z" fill="${SK}" stroke="${INK}" stroke-width="2.5"/>${ears}
-        <path d="M75 46C72 18 94 14 106 16 122 14 130 30 125 46 125 66 112 76 100 76 88 76 75 66 75 46Z" fill="${!NAD && CUT === 2 ? SK : HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>${!NAD && CUT === 1 ? `<path d="M70 50C56 30 66 4 90 6 98 0 114 2 120 8 142 8 146 36 130 52 120 64 80 64 70 50Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>` : ''}${NAD && CUT === 2 ? `<path d="M71 42C70 12 130 12 129 42L132 72Q133 80 125 79Q112 84 100 84 88 84 75 79 67 80 68 72Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>` : ''}<path d="M75 50Q100 57 125 50" fill="none" stroke="#3a4a52" stroke-width="3"/>${NAD && CUT === 0 ? `<path d="M90 44C88 70 92 92 100 108 108 92 112 70 110 44Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><rect x="92" y="40" width="16" height="7" rx="3" fill="#c62828"/>` : ''}${NAD && CUT === 1 ? `<path d="M86 44C82 70 84 96 88 116M114 44C118 70 116 96 112 116" fill="none" stroke="${INK}" stroke-width="13" stroke-linecap="round"/><path d="M86 44C82 70 84 96 88 116M114 44C118 70 116 96 112 116" fill="none" stroke="${HAIR}" stroke-width="8" stroke-linecap="round" stroke-dasharray="7 3"/>` : ''}${CAPT === 2 ? `<path d="M62 42Q100 54 138 42Q100 30 62 42Z" fill="#e7d9a8" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M76 42C76 8 124 8 124 42Q100 48 76 42Z" fill="#f0e5bd" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>` : CAP ? `<path d="M73 44C70 8 130 8 127 44Q100 52 73 44Z" fill="${CAPT === 3 ? '#ff5a36' : '#1d4f9c'}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>` : ''}</g>`;
+        <path d="M75 46C72 18 94 14 106 16 122 14 130 30 125 46 125 66 112 76 100 76 88 76 75 66 75 46Z" fill="${!NAD && CUT === 2 ? SK : HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>${!NAD && CUT === 1 ? `<path d="M70 50C56 30 66 4 90 6 98 0 114 2 120 8 142 8 146 36 130 52 120 64 80 64 70 50Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>` : ''}${NAD && CUT === 2 ? `<path d="M71 42C70 12 130 12 129 42L132 72Q133 80 125 79Q112 84 100 84 88 84 75 79 67 80 68 72Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>` : ''}<path d="M75 50Q100 57 125 50" fill="none" stroke="#3a4a52" stroke-width="3"/>${NAD && CUT === 0 ? `<path d="M90 44C88 70 92 92 100 108 108 92 112 70 110 44Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><rect x="92" y="40" width="16" height="7" rx="3" fill="#c62828"/>` : ''}${NAD && CUT === 1 ? `<path d="M86 44C82 70 84 96 88 116M114 44C118 70 116 96 112 116" fill="none" stroke="${INK}" stroke-width="13" stroke-linecap="round"/><path d="M86 44C82 70 84 96 88 116M114 44C118 70 116 96 112 116" fill="none" stroke="${HAIR}" stroke-width="8" stroke-linecap="round" stroke-dasharray="7 3"/>` : ''}${BOB ? `<path d="M62 42Q100 54 138 42Q100 30 62 42Z" fill="${BC[0]}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M76 42C76 8 124 8 124 42Q100 48 76 42Z" fill="${BC[1]}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>` : CAP ? `<path d="M73 44C70 8 130 8 127 44Q100 52 73 44Z" fill="${KC[0]}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>` : ''}</g>`;
     return `<svg viewBox="0 0 200 270" role="img" aria-label="${esc2(CUSTOM && !o.perso ? CUSTOM : NAD ? 'Ana' : 'Sam')} debout, bras croisés, l'air sûr ${NAD ? "d'elle" : 'de lui'}, ${NAD ? 't-shirt blanc Dossard Péi, drapeau de La Réunion sur la manche droite' : 'débardeur blanc Dossard Péi'}">
       <defs><clipPath id="manche"><polygon points="${sleeve}"/></clipPath></defs>
       <path d="M0 225 Q50 205 100 219 T200 212V270H0Z" fill="#8db48a"/>
@@ -2345,7 +2349,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
   function objetGagne(s, o) {
     if (!o.finished || !OBJETS[s.f.id]) return '';
     CAREER.objets = CAREER.objets || {}; if (CAREER.objets[s.f.id]) return '';
-    CAREER.objets[s.f.id] = 1; saveCareer();
+    CAREER.objets[s.f.id] = 1; CAREER.nouveau = 1; saveCareer();
     return `<div class="defib fin"><small>Objet gagné</small><b>${esc(OBJETS[s.f.id])}</b><p>Touche ton coureur à l'accueil pour le mettre.</p></div>`;
   }
   function finHTML() {
@@ -2383,7 +2387,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     if (!CAREER.perso) return chooseScreen();
     decor.classList.add('home');
     const ov = document.createElement('div'); ov.className = 'homeov';
-    ov.innerHTML = `<h1>Une histoire<br>de dossard</h1><button type="button" class="stage homefig" id="perso" aria-label="Personnaliser le coureur">${persoSVG()}<span class="crayon" aria-hidden="true"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M4 20l1-5L16 4l4 4L9 19z" fill="#ffd400" stroke="#1d2523" stroke-width="2.2" stroke-linejoin="round"/></svg></span></button>`;
+    ov.innerHTML = `<h1>Une histoire<br>de dossard</h1><button type="button" class="stage homefig" id="perso" aria-label="Personnaliser le coureur">${persoSVG()}${CAREER.nouveau ? '<span class="nouveau">Nouveau</span>' : ''}<span class="crayon" aria-hidden="true"><svg viewBox="0 0 24 24" width="17" height="17"><path d="M4 20l1-5L16 4l4 4L9 19z" fill="#ffd400" stroke="#1d2523" stroke-width="2.2" stroke-linejoin="round"/></svg></span></button>`;
     decor.appendChild(ov);
     const got = Object.keys(memoryTitles).length, total = Object.keys(TITLES).length;
     panel.innerHTML = `<div class="col col-a"><p class="pense">${esc(nomIn(nadia() ? "Ana a tout prévu. Presque." : "Sam a pris un dossard. Il n'aurait pas dû."))}</p>
