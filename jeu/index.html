@@ -510,8 +510,8 @@ button.homefig { padding: 0; background: none; border: 0; cursor: pointer; displ
 .defib b { font: 800 1.3rem/1.12 var(--display) } .defib p { margin: 0; color: var(--muted); font-size: .95rem }
 .vraieb { display: grid; gap: 2px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 14px; color: var(--fg); text-decoration: none }
 .vraieb b { font: 800 1.3rem/1.12 var(--display) } .vraieb span { color: var(--muted); font-size: .95rem }
-.lktabs { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 12px; overflow: hidden }
-.lktabs button { min-height: 44px; background: var(--surface); color: var(--fg); border: 0; font: 700 1rem var(--body); cursor: pointer }
+.lktabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 12px; overflow: hidden }
+.lktabs button { min-height: 44px; padding: 0 2px; background: var(--surface); color: var(--fg); border: 0; font: 700 clamp(.78rem, 3.4vw, 1rem) var(--body); cursor: pointer }
 .lktabs button.on { background: var(--fg); color: var(--bg) }
 .lkcap { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 6px; margin: 0; text-align: center; font-weight: 600; font-size: .9rem; line-height: 1.2 }
 .lkcap small { display: block; font: 700 .68rem/1.3 var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted) }
@@ -2158,32 +2158,40 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     top: [{ n: 'Blanc', c: '#fff' }, { n: 'Bleu marine', c: '#1d4f9c' }, { n: 'Jaune', c: '#ffd400' }, { n: 'Maillot Mélangé', c: 'url(#melX)', o: 'u50' }],
     short: [{ n: 'Vert', c: '#0d6b67' }, { n: 'Bleu marine', c: '#1d4f9c' }, { n: 'Noir', c: '#20262a' }, { n: 'Short fleuri', c: 'url(#fleurX)', o: 'u100' }],
     shoe: [{ n: 'Jaunes', c: '#ffd400' }, { n: 'Blanches', c: '#f4f4f2' }, { n: 'Noires', c: '#20262a' }, { n: 'Chaussures Diagonale', c: '#ff5a36', o: 'u165' }],
+    buff: [{ n: 'Aucun' }, { n: 'Rouge', c: '#c62828' }, { n: 'Bleu marine', c: '#1d4f9c' }, { n: 'Jaune', c: '#ffd400' }, { n: 'Fleuri', c: 'url(#fleurX)' }],
+    sac: [{ n: 'Orange', c: 'url(#gO)', s: '#8f2f10' }, { n: 'Bleu', c: '#2f7fc9', s: '#163e7c' }, { n: 'Noir', c: '#2a3236', s: '#0c1013' }, { n: 'Turquoise', c: '#2fb5a4', s: '#0d6b67' }],
+    lampe: [{ n: 'Bleue', c: '#2f7fc9' }, { n: 'Rouge', c: '#c62828' }, { n: 'Noire', c: '#20262a' }, { n: 'Jaune', c: '#ffd400' }],
+    sock: [{ n: 'De départ' }, { n: 'Blanches', c: '#fff', h: 0 }, { n: 'Noires', c: '#20262a', h: 0 }, { n: 'Manchons rouges', c: '#c62828', h: 1 }, { n: 'Manchons bleus', c: '#1d4f9c', h: 1 }, { n: 'Manchons noirs', c: '#20262a', h: 1 }],
+    pose: [{ n: 'Bras croisés' }, { n: 'Mains sur les hanches' }, { n: 'Poing levé' }, { n: 'Bras levés' }, { n: 'Le saut' }],
     skin: [{ n: 'Teinte de départ' }, { n: 'Très claire', c: '#f1c9a5' }, { n: 'Claire', c: '#d9a27a' }, { n: 'Foncée', c: '#8d5a3a' }, { n: 'Très foncée', c: '#5e3a24' }],
     hair: [{ n: 'Noirs' }, { n: 'Bruns', c: '#3d3029' }, { n: 'Châtains', c: '#5e4636' }, { n: 'Roux', c: '#a5532e' }, { n: 'Gris', c: '#9aa0a3' }, { n: 'Grisonnants ou noirs' }, { n: 'Blonds', c: '#a07a48' }, { n: 'Blond platine', c: '#d2bb9c' }],
     glass: [{ n: 'De départ' }, { n: 'Miroir orange', f: '#ff7a1a', a: '#ffd08a' }, { n: 'Miroir violet', f: '#6b3fd1', a: '#c9b0ff' }, { n: 'Noirs', f: '#0c1013', a: '#3a4a52' }, { n: 'Jaunes', f: '#ffc400', a: '#fff3a0' }, { n: 'Lunettes Grand Bouchon', f: 'url(#irisX)', a: '#ffffff', o: 'd25' }]
   };
-  const LOCKS = { cap: { 2: 'd10', 3: 'u230' }, glass: { 5: 'd25' }, top: { 3: 'u50' }, short: { 3: 'u100' }, shoe: { 3: 'u165' } };
-  const lockOf = (k, v) => { const f = (LOCKS[k] || {})[v]; return f && !CAREER.wins.includes(f) ? f : null; };
+  const EXPLOITS = { crise: "finis une course après avoir frôlé l'abandon", record: 'bats ton record sur une course', toutes: 'finis les six courses' };
+  const LOCKS = { pose: { 2: 'x-crise', 3: 'x-record', 4: 'x-toutes' }, cap: { 2: 'd10', 3: 'u230', 8: 'x-toutes' }, glass: { 5: 'd25' }, top: { 3: 'u50' }, short: { 3: 'u100' }, shoe: { 3: 'u165' } };
+  const lockOf = (k, v) => { const f = (LOCKS[k] || {})[v]; if (!f) return null; return (f.startsWith('x-') ? (CAREER.exploits || {})[f.slice(2)] : CAREER.wins.includes(f)) ? null : f; };
+  const lockTxt = f => f.startsWith('x-') ? 'à gagner : ' + EXPLOITS[f.slice(2)] : `à gagner en finissant ${FORMATS[f].name} (${FORMATS[f].short})`;
   function openLook() {
     if (CAREER.nouveau) { CAREER.nouveau = 0; saveCareer(); }
-    CAREER.look = Object.assign({ top: 0, short: 0, shoe: 0, cap: 0, skin: 0, hair: 0, cut: 0, glass: 0, beard: 0 }, CAREER.look);
+    CAREER.look = Object.assign({ buff: 0, sac: 0, lampe: 0, sock: 0, pose: 0, top: 0, short: 0, shoe: 0, cap: 0, skin: 0, hair: 0, cut: 0, glass: 0, beard: 0 }, CAREER.look);
     let dos = false, tab = 'tenue'; const PREV = Object.assign({}, CAREER.look);
     const box = document.createElement('div'); box.className = 'pausebox lookbox'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-label', 'Personnaliser le coureur');
-    const HEADS = [0, 1, 4, 5, 6, 7, 2, 3];
+    const HEADS = [0, 1, 4, 5, 6, 7, 2, 3, 8];
     const ROWSET = { tenue: [['cap', 'la tête', HEADS.length, 10], ['glass', 'les lunettes', 6, 25], ['top', 'le haut', 4, 46], ['short', 'le short', 4, 67], ['shoe', 'les chaussures', 4, 89]], physique: [['cut', 'la coupe', 3, 10], ['hair', 'la couleur des cheveux', 8, 27], ['skin', 'la couleur de peau', 5, 49]].concat(CAREER.perso === 'nadia' ? [] : [['beard', 'la barbe', 4, 70]]) };
+    ROWSET.acc = [['lampe', 'la frontale', 4, 10], ['buff', 'le tour de cou', 5, 31], ['sac', 'le sac', 4, 54], ['sock', 'les chaussettes', 6, 82]]; ROWSET.pose = [['pose', 'la pose', 5, 50]];
     let ROWS = ROWSET[tab];
-    const LKLAB = { shoe: 'Chaussures', beard: 'Barbe', cap: 'Tête', glass: 'Lunettes', top: 'Haut', short: 'Short', cut: 'Coupe', hair: 'Cheveux', skin: 'Peau' };
+    const LKLAB = { buff: 'Tour de cou', sac: 'Sac', lampe: 'Frontale', sock: 'Chaussettes', pose: 'Pose', shoe: 'Chaussures', beard: 'Barbe', cap: 'Tête', glass: 'Lunettes', top: 'Haut', short: 'Short', cut: 'Coupe', hair: 'Cheveux', skin: 'Peau' };
     const lkVal = k => { const L = CAREER.look, nad = CAREER.perso === 'nadia';
-      if (k === 'cap') return ['Rien', 'Casquette', 'Bob de la dame', 'Casquette Ultra Machine', 'Casquette blanche', 'Casquette jaune', 'Bob blanc', 'Bob kaki'][L.cap];
+      if (k === 'cap') return ['Rien', 'Casquette', 'Bob de la dame', 'Casquette Ultra Machine', 'Casquette blanche', 'Casquette jaune', 'Bob blanc', 'Bob kaki', 'Casquette Lé pa loin'][L.cap];
       if (k === 'beard') return ['3 jours', 'Rasé', 'Barbe', 'Bouc'][L.beard];
       if (k === 'cut') return (nad ? ['Queue de cheval', 'Tresses', 'Carré'] : ['Courte', 'Crépue', 'Rasée'])[L.cut];
       return LOOK[k][L[k]].n; };
     const fl = (k, t, d, y) => `<button type="button" class="lkar ${d < 0 ? 'g' : 'd'}" data-k="${k}" data-d="${d}" style="top:${y}%" aria-label="${d < 0 ? 'Précédent' : 'Suivant'} pour ${t}"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="${d < 0 ? 'M15 5 8 12l7 7' : 'M9 5l7 7-7 7'}" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>`;
     const render = () => {
       ROWS = ROWSET[tab];
-      box.innerHTML = `<div class="pausecard lookcard"><div class="lktabs" role="group" aria-label="Que modifier"><button type="button" data-tab="tenue" aria-pressed="${tab === 'tenue'}" class="${tab === 'tenue' ? 'on' : ''}">Tenue</button><button type="button" data-tab="physique" aria-pressed="${tab === 'physique'}" class="${tab === 'physique' ? 'on' : ''}">Physique</button></div><div class="lkstage"><div class="lkfig">${persoSVG({ solo: true, dos }).replace(/manche/g, 'mancheL').replace(/face-av/g, 'face-avL').replace(/face-ar/g, 'face-arL')}</div>
+      box.innerHTML = `<div class="pausecard lookcard"><div class="lktabs" role="group" aria-label="Que modifier">${[['tenue', 'Tenue'], ['acc', 'Accessoires'], ['pose', 'Pose'], ['physique', 'Physique']].map(([k, t]) => `<button type="button" data-tab="${k}" aria-pressed="${tab === k}" class="${tab === k ? 'on' : ''}">${t}</button>`).join('')}</div><div class="lkstage"><div class="lkfig${tab === 'acc' ? ' b-sac5 l-frontale' : ''}">${persoSVG({ solo: true, dos }).replace(/manche/g, 'mancheL').replace(/face-av/g, 'face-avL').replace(/face-ar/g, 'face-arL')}</div>
         ${ROWS.map(r => fl(r[0], r[1], -1, r[3]) + fl(r[0], r[1], 1, r[3])).join('')}</div>
-        ${(() => { const L = ROWS.map(r => [r[0], lockOf(r[0], CAREER.look[r[0]])]).find(x => x[1]); return `<p class="lklock"${L ? '' : ' style="visibility:hidden"'}><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M7 11V8a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="2.6"/><rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor"/></svg><span>${L ? `${esc(lkVal(L[0]))} : à gagner en finissant ${esc(FORMATS[L[1]].name)} (${FORMATS[L[1]].short})` : '&nbsp;'}</span></p>`; })()}
+        ${(() => { const L = ROWS.map(r => [r[0], lockOf(r[0], CAREER.look[r[0]])]).find(x => x[1]); return `<p class="lklock"${L ? '' : ' style="visibility:hidden"'}><svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path d="M7 11V8a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="2.6"/><rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor"/></svg><span>${L ? `${esc(lkVal(L[0]))} : ${esc(lockTxt(L[1]))}` : '&nbsp;'}</span></p>`; })()}
         <button type="button" class="lkturn" id="lkTurn">${dos ? 'Voir de face' : 'Voir le dos'}</button>
         <button class="cta" id="lkOk" type="button">Validé</button></div>`;
       box.querySelectorAll('.lkar').forEach(b => b.onclick = () => { const r = ROWS.find(x => x[0] === b.dataset.k), n = r[2], k = r[0], d = b.dataset.d; if (k === 'cap') { const i = Math.max(0, HEADS.indexOf(CAREER.look.cap)); CAREER.look.cap = HEADS[(i + +d + n) % n]; } else CAREER.look[k] = (CAREER.look[k] + +d + n) % n; render(); const nb = box.querySelector(`.lkar[data-k="${k}"][data-d="${d}"]`); if (nb) nb.focus({ preventScroll: true }); });
@@ -2200,28 +2208,33 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
   function persoSVG(o = {}) {
     const NAD = CAREER.perso === 'nadia' || o.perso === 'nadia' ? o.perso !== 'jeremi' : false, LVL = o.perso ? 0 : CAREER.wins.length;
     const LK = (!o.perso && CAREER.look) || {}, TOP0 = LOOK.top[LK.top || 0].c, SHORT0 = LOOK.short[LK.short || 0].c, CAPT = LK.cap || 0, BOB = [2, 6, 7].includes(CAPT), CAP = !!CAPT && !BOB;
-    const BC = { 2: ['#e7d9a8', '#f0e5bd', '#c62828'], 6: ['#e3e8ea', '#fafafa', '#9aa5aa'], 7: ['#8c8759', '#a7a172', '#6b6643'] }[CAPT] || [], KC = { 1: ['#1d4f9c', '#163e7c', '#ffd400'], 3: ['#ff5a36', '#1d2523', '#ffd400'], 4: ['#f4f4f2', '#d4d8d8', '#1d4f9c'], 5: ['#ffd400', '#d9b300', '#1d2523'] }[CAPT] || [];
+    const BC = { 2: ['#e7d9a8', '#f0e5bd', '#c62828'], 6: ['#e3e8ea', '#fafafa', '#9aa5aa'], 7: ['#8c8759', '#a7a172', '#6b6643'] }[CAPT] || [], KC = { 1: ['#1d4f9c', '#163e7c', '#ffd400'], 3: ['#ff5a36', '#1d2523', '#ffd400'], 4: ['#f4f4f2', '#d4d8d8', '#1d4f9c'], 5: ['#ffd400', '#d9b300', '#1d2523'], 8: ['#1d2523', '#ffd400', '#c62828'] }[CAPT] || [];
     const INK = '#1d2523', SEAM = '#cfd6d3', UID = 'u' + (persoSVG.n = (persoSVG.n || 0) + 1), SHOE = LOOK.shoe[LK.shoe || 0].c, DIAG = (LK.shoe || 0) === 3;
     const PAT = `<linearGradient id="melX${UID}" x1="0" y1="0" x2="1" y2="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(60 80) scale(84)"><stop offset="0" stop-color="#ffd400"/><stop offset=".25" stop-color="#ffd400"/><stop offset=".25" stop-color="#ff5a36"/><stop offset=".5" stop-color="#ff5a36"/><stop offset=".5" stop-color="#2fb5a4"/><stop offset=".75" stop-color="#2fb5a4"/><stop offset=".75" stop-color="#1d4f9c"/><stop offset="1" stop-color="#1d4f9c"/></linearGradient><pattern id="fleurX${UID}" width="18" height="18" patternUnits="userSpaceOnUse"><rect width="18" height="18" fill="#c62828"/><g fill="#fff"><circle cx="5" cy="5" r="2.2"/><circle cx="5" cy="1.6" r="1.6"/><circle cx="5" cy="8.4" r="1.6"/><circle cx="1.6" cy="5" r="1.6"/><circle cx="8.4" cy="5" r="1.6"/><circle cx="14" cy="14" r="1.8"/></g><circle cx="5" cy="5" r="1.3" fill="#ffd400"/></pattern><linearGradient id="irisX${UID}" x1="0" x2="1"><stop offset="0" stop-color="#ff4fa3"/><stop offset=".5" stop-color="#8a5cff"/><stop offset="1" stop-color="#1fc8e8"/></linearGradient>`;
     const fx = c => String(c).replace(/X\)$/, 'X' + UID + ')');
+    const POSE = o.race ? 0 : LK.pose || 0, UPR = POSE >= 2, UPL = POSE >= 3, BUFF = LK.buff ? fx(LOOK.buff[LK.buff].c) : '', SOCK = LK.sock ? LOOK.sock[LK.sock] : null, SACK = LOOK.sac[LK.sac || 0], LAMPE = LOOK.lampe[LK.lampe || 0].c;
+    const hand = (x, y, r = 7.5) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${SK}" stroke="${INK}" stroke-width="2.5"/>`;
+    const upArm = side => { const m = x => side > 0 ? x : 200 - x; return NAD ? limb(`M${m(150)} 120 ${m(168)} 94 ${m(170)} 62`) + hand(m(170), 58, 8) : limb(`M${m(136)} 98 ${m(158)} 74 ${m(162)} 44`) + hand(m(162), 40, 8); };
+    const hipArm = side => { const m = x => side > 0 ? x : 200 - x; return limb(`M${m(151)} 122 ${m(160)} 146 ${m(140)} 160`) + hand(m(138), 160); };
+    const BUFFSVG = BUFF ? `<path d="M86 74Q100 84 114 74L116 89Q100 99 84 89Z" fill="${BUFF}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>` : '';
     const SK = LK.skin ? LOOK.skin[LK.skin].c : (NAD ? '#c48e66' : '#b98158'), GREY = (NAD && !LK.hair) || (!NAD && LK.hair === 5), HAIR = GREY ? '#7e7975' : LK.hair === 5 ? '#242120' : LK.hair ? LOOK.hair[LK.hair].c : '#262322', CUT = LK.cut || 0;
     const MECHES = '';
     const TOP = fx(TOP0), SHORT = fx(SHORT0), GL = LK.glass ? Object.assign({}, LOOK.glass[LK.glass], { f: fx(LOOK.glass[LK.glass].f) }) : { f: '#15252e', a: NAD ? '#ffb347' : '#5fd0d6' };
     const limb = d => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${SK}" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>`;
-    const leg = (x, c) => `<g class="${o.race ? c : ''}"><path d="M${x} 196V232" stroke="${INK}" stroke-width="24" stroke-linecap="round"/><path d="M${x} 196V232" stroke="${SK}" stroke-width="18" stroke-linecap="round"/><rect x="${x - 10}" y="${!NAD && LVL >= 3 ? 208 : 226}" width="20" height="${!NAD && LVL >= 3 ? 30 : 12}" rx="3" fill="${!NAD && LVL >= 3 ? '#0d6b67' : '#fff'}" stroke="${INK}" stroke-width="2.5"/><rect class="shoe" x="${x - 15}" y="236" width="30" height="14" rx="6" fill="${SHOE}" stroke="${INK}" stroke-width="3"/>${DIAG ? `<path d="M${x - 9} 248 ${x + 3} 238" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/>` : ''}</g>`;
+    const leg = (x, c) => `<g class="${o.race ? c : ''}"><path d="M${x} 196V232" stroke="${INK}" stroke-width="24" stroke-linecap="round"/><path d="M${x} 196V232" stroke="${SK}" stroke-width="18" stroke-linecap="round"/><rect x="${x - 10}" y="${(SOCK ? SOCK.h : !NAD && LVL >= 3) ? 208 : 226}" width="20" height="${(SOCK ? SOCK.h : !NAD && LVL >= 3) ? 30 : 12}" rx="3" fill="${SOCK ? SOCK.c : !NAD && LVL >= 3 ? '#0d6b67' : '#fff'}" stroke="${INK}" stroke-width="2.5"/><rect class="shoe" x="${x - 15}" y="236" width="30" height="14" rx="6" fill="${SHOE}" stroke="${INK}" stroke-width="3"/>${DIAG ? `<path d="M${x - 9} 248 ${x + 3} 238" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/>` : ''}</g>`;
     const sleeve = '66,88 42,106 52,132 72,116';
     // Manche droite du coureur : drapeau de La Réunion, cinq rayons depuis le sommet du volcan
     const flag = !NAD ? '' : `<g clip-path="url(#manche)"><rect x="36" y="82" width="50" height="54" fill="#1d4f9c"/><path d="M60 114 36 86h8zM60 114 49 84h6zM60 114 57 82h6zM60 114 66 84h6zM60 114 77 86h8z" fill="#ffd400"/><path d="M60 112 40 136h40z" fill="#e3242b"/></g><polygon points="${sleeve}" fill="none" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`;
     const sleeveL = !NAD ? '' : `<polygon points="134,88 158,106 148,132 128,116" fill="${TOP}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`;
     const mirror = inner => `<g transform="translate(200 0) scale(-1 1)">${inner}</g>`;
     const shorts = `<path d="M63 166H137L142 202H105L100 190 95 202H58Z" fill="${SHORT}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>`;
-    const shoulders = NAD ? '' : limb('M64 98 49 122') + limb('M136 98 151 122');
+    const shoulders = NAD ? '' : (UPL ? upArm(-1) : limb('M64 98 49 122')) + (UPR ? upArm(1) : limb('M136 98 151 122'));
     const tee = !NAD ? `${shoulders}<path d="${LVL < 2 ? 'M76 87H87Q100 104 113 87H124L133 112 145 165Q100 190 55 165L67 112Z' : LVL < 4 ? 'M76 87H87Q100 104 113 87H124L131 112 139 172Q100 182 61 172L69 112Z' : 'M78 87H88Q100 102 112 87H122L128 112 134 172Q100 180 66 172L72 112Z'}" fill="${TOP}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M72 122 68 170M128 122 132 170" stroke="${TOP === '#fff' ? SEAM : 'rgba(0,0,0,.18)'}" stroke-width="2.5" fill="none"/>` : `<path d="M66 88Q100 78 134 88L138 172Q100 181 62 172Z" fill="${TOP}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M72 120 68 170M128 120 132 170" stroke="${SEAM}" stroke-width="2.5" fill="none"/>`;
     const ears = `<circle cx="75" cy="52" r="5.5" fill="${SK}" stroke="${INK}" stroke-width="2.5"/><circle cx="125" cy="52" r="5.5" fill="${SK}" stroke="${INK}" stroke-width="2.5"/>`;
     const front = `<g id="face-av">${tee}
-        <path d="M88 84Q100 95 112 84V70H88Z" fill="${SK}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M88 84Q100 95 112 84V70H88Z" fill="${SK}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>${BUFFSVG}
         <svg x="${NAD ? 99 : 85}" y="${NAD ? 92 : 103}" width="${NAD ? 28 : 30}" height="${NAD ? 28 : 30}" viewBox="0 0 64 64" aria-label="Logo Dossard Péi">${LOGO}</svg>
-        ${o.race ? '' : `${limb('M151 122 148 146 80 138')}<circle cx="78" cy="137" r="7" fill="${SK}" stroke="${INK}" stroke-width="2.5"/>${limb('M49 122 52 148 122 142')}<circle cx="125" cy="141" r="8" fill="${SK}" stroke="${INK}" stroke-width="2.5"/>${sleeveL}${flag}`}
+        ${o.race ? '' : `${POSE === 0 ? `${limb('M151 122 148 146 80 138')}<circle cx="78" cy="137" r="7" fill="${SK}" stroke="${INK}" stroke-width="2.5"/>${limb('M49 122 52 148 122 142')}<circle cx="125" cy="141" r="8" fill="${SK}" stroke="${INK}" stroke-width="2.5"/>` : (UPR ? (NAD ? upArm(1) : '') : hipArm(1)) + (UPL ? (NAD ? upArm(-1) : '') : hipArm(-1))}${sleeveL}${flag}`}
         ${NAD && CUT === 0 ? `<path d="M124 30C148 34 150 62 138 84 132 74 130 54 120 44Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>` : ''}${NAD && CUT === 1 ? `<path d="M76 40C66 60 70 96 72 114M124 40C134 60 130 96 128 114" fill="none" stroke="${INK}" stroke-width="13" stroke-linecap="round"/><path d="M76 40C66 60 70 96 72 114M124 40C134 60 130 96 128 114" fill="none" stroke="${HAIR}" stroke-width="8" stroke-linecap="round" stroke-dasharray="7 3"/><circle cx="72" cy="116" r="4" fill="#c62828"/><circle cx="128" cy="116" r="4" fill="#c62828"/>` : ''}${NAD && CUT === 2 ? `<path d="M74 34C64 50 64 76 70 84H84V50ZM126 34C136 50 136 76 130 84H116V50Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>` : ''}
         ${NAD && !o.race && LVL < 6 ? `<rect x="104" y="136" width="9" height="11" rx="2" fill="#1d2523"/>${LVL < 4 ? '<rect x="92" y="137" width="8" height="10" rx="2" fill="#0d6b67"/>' : ''}${LVL < 2 ? '<rect x="134" y="134" width="8" height="10" rx="2" fill="#ffd400" stroke="#1d2523"/>' : ''}` : ''}
         ${NAD && LVL >= 5 ? `<path d="M84 26Q72 34 76 50M116 24Q130 28 128 42" fill="none" stroke="${HAIR}" stroke-width="2.5" stroke-linecap="round"/>` : ''}
@@ -2243,14 +2256,14 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
         <g class="fm m-yes"><path d="M84 39 95 37M105 37 116 39" stroke="${HAIR}" stroke-width="3.5" stroke-linecap="round"/><path d="M88 65Q100 76 112 65" fill="none" stroke="${INK}" stroke-width="2.8" stroke-linecap="round"/></g></g>`;
     const back = `<g id="face-ar" hidden>${tee}
         <text x="100" y="163" text-anchor="middle" font-family="Saira Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="12.5" fill="${TOP === '#1d4f9c' ? '#fff' : '#000'}"${TOP0.startsWith('url') ? ' stroke="#fff" stroke-width="3" paint-order="stroke"' : ''}>dossardpei.re</text>
-        ${limb('M151 122 150 148')}${limb('M49 122 50 148')}${mirror(flag)}${mirror(sleeveL)}
-        <path d="M88 86V70H112V86Z" fill="${SK}" stroke="${INK}" stroke-width="2.5"/>${ears}
+        ${UPL ? (NAD ? upArm(-1) : '') : limb('M151 122 150 148')}${UPR ? (NAD ? upArm(1) : '') : limb('M49 122 50 148')}${mirror(flag)}${mirror(sleeveL)}
+        <path d="M88 86V70H112V86Z" fill="${SK}" stroke="${INK}" stroke-width="2.5"/>${BUFFSVG}${ears}
         <path d="M75 46C72 18 94 14 106 16 122 14 130 30 125 46 125 66 112 76 100 76 88 76 75 66 75 46Z" fill="${!NAD && CUT === 2 ? SK : HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>${!NAD && CUT === 1 ? `<path d="M70 50C56 30 66 4 90 6 98 0 114 2 120 8 142 8 146 36 130 52 120 64 80 64 70 50Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>` : ''}${NAD && CUT === 2 ? `<path d="M71 42C70 12 130 12 129 42L132 72Q133 80 125 79Q112 84 100 84 88 84 75 79 67 80 68 72Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>` : ''}<path d="M75 50Q100 57 125 50" fill="none" stroke="#3a4a52" stroke-width="3"/>${NAD && CUT === 0 ? `<path d="M90 44C88 70 92 92 100 108 108 92 112 70 110 44Z" fill="${HAIR}" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><rect x="92" y="40" width="16" height="7" rx="3" fill="#c62828"/>` : ''}${NAD && CUT === 1 ? `<path d="M86 44C82 70 84 96 88 116M114 44C118 70 116 96 112 116" fill="none" stroke="${INK}" stroke-width="13" stroke-linecap="round"/><path d="M86 44C82 70 84 96 88 116M114 44C118 70 116 96 112 116" fill="none" stroke="${HAIR}" stroke-width="8" stroke-linecap="round" stroke-dasharray="7 3"/>` : ''}${BOB ? `<path d="M62 42Q100 54 138 42Q100 30 62 42Z" fill="${BC[0]}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M76 42C76 8 124 8 124 42Q100 48 76 42Z" fill="${BC[1]}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>` : CAP ? `<path d="M73 44C70 8 130 8 127 44Q100 52 73 44Z" fill="${KC[0]}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>` : ''}</g>`;
     return `<svg viewBox="0 0 200 270" role="img" aria-label="${esc2(CUSTOM && !o.perso ? CUSTOM : NAD ? 'Ana' : 'Sam')} debout, bras croisés, l'air sûr ${NAD ? "d'elle" : 'de lui'}, ${NAD ? 't-shirt blanc Dossard Péi, drapeau de La Réunion sur la manche droite' : 'débardeur blanc Dossard Péi'}">
       <defs>${PAT}<clipPath id="manche"><polygon points="${sleeve}"/></clipPath></defs>
       <path d="M0 225 Q50 205 100 219 T200 212V270H0Z" fill="#8db48a"/>
-      <ellipse cx="100" cy="252" rx="52" ry="7" fill="#1d2523" opacity=".28"/>
-      <g class="flip" ${o.solo ? '' : 'id="flip"'}><g class="bob">${leg(80, 'legA')}${leg(120, 'legB')}${shorts}${BEHIND}${o.dos ? back.replace('id="face-ar" hidden', '') : front}${OVER}${o.solo ? '' : back}</g></g></svg>`;
+      <ellipse cx="100" cy="252" rx="${POSE === 4 ? 38 : 52}" ry="7" fill="#1d2523" opacity="${POSE === 4 ? '.16' : '.28'}"/>
+      <g class="flip" ${o.solo ? '' : 'id="flip"'}><g class="bob"${POSE === 4 ? ' transform="translate(0 -20)"' : ''}>${leg(80, 'legA')}${leg(120, 'legB')}${shorts}${o.dos ? '' : BEHIND.replace(/url\(#gO\)/g, SACK.c)}${o.dos ? back.replace('id="face-ar" hidden', '') + BEHIND.replace(/url\(#gO\)/g, SACK.c) : front}${(o.dos ? OVER.replace(/<g class="eq eq-(gros|sac5)">[^]*?<\/g>/g, '') : OVER).replace(/#8f2f10/g, SACK.s).replace('stroke="#2f7fc9" stroke-width="5"', `stroke="${LAMPE}" stroke-width="5"`)}${o.solo ? '' : back}</g></g></svg>`;
   }
   function heroHTML() {
     return `<div class="hero"><div class="stage" id="perso">${persoSVG()}<button class="fold" id="turn" type="button">Voir le dos</button></div>
@@ -2355,10 +2368,12 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
   }
   const OBJETS = { d10: "le bob de la dame du 10 km", d25: "les lunettes Grand Bouchon", u50: "le maillot Mélangé", u100: "le short fleuri", u165: "les chaussures Diagonale", u230: "la casquette Ultra Machine" };
   function objetGagne(s, o) {
-    if (!o.finished || !OBJETS[s.f.id]) return '';
-    CAREER.objets = CAREER.objets || {}; if (CAREER.objets[s.f.id]) return '';
-    CAREER.objets[s.f.id] = 1; CAREER.nouveau = 1; saveCareer();
-    return `<div class="defib fin"><small>Objet gagné</small><b>${esc(OBJETS[s.f.id])}</b><p>Touche ton coureur à l'accueil pour le mettre.</p></div>`;
+    if (!o.finished) return '';
+    CAREER.objets = CAREER.objets || {}; const g = (s.gains || []).slice();
+    if (OBJETS[s.f.id] && !CAREER.objets[s.f.id]) { CAREER.objets[s.f.id] = 1; g.unshift(OBJETS[s.f.id]); }
+    if (!g.length) return '';
+    CAREER.nouveau = 1; saveCareer();
+    return `<div class="defib fin"><small>Débloqué</small><b>${esc(g.join(', '))}</b><p>Touche ton coureur à l'accueil pour ${g.length > 1 ? 'les' : 'le'} mettre.</p></div>`;
   }
   function finHTML() {
     const total = ORDER.reduce((a, f) => a + ((CAREER.bibs[f] || {}).t || 0), 0);
@@ -2491,7 +2506,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     const q = fatigueTone(S, phrase(S, sceneQ(S, scene) + recallLine(S, scene)));
     if (scene.id === 'arche') sfx('foule');
     const opts = resolveChoices(S, scene);
-    if (scene.crisis) { shake(); react('reac-aie'); sfx('choc'); buzz(); }
+    if (scene.crisis) { S.flags.crise = 1; shake(); react('reac-aie'); sfx('choc'); buzz(); }
     if (scene.crisis) opts.push({ l: "J'abandonne", stop: true, fx: { r: "{S} s'arrête et rend son dossard. Aucune honte à ça. On l'applaudit quand même.", end: CRISIS[scene.crisis].cause, msg: ['Maman', "Rentre, il y a à manger"] } });
     const big = false; wrap.classList.add('play');
     const rowH = 66, n = opts.length, H = n * rowH, cy = H / 2;
@@ -2560,6 +2575,11 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     if (!TOUT) {
       if (s.flags.rougail) CAREER.mem.rougail = true; if (s.flags.attaque) CAREER.mem.attaque = true;
       if (!o.finished) CAREER.abandons++;
+      if (o.finished) { const X = CAREER.exploits = CAREER.exploits || {}, old = CAREER.bibs[s.f.id], wins = new Set(CAREER.wins.concat(s.f.id)); s.gains = [];
+        const gx = (k, l) => { if (!X[k]) { X[k] = 1; s.gains.push(l); } };
+        if (s.flags.crise) gx('crise', 'la pose « Poing levé »');
+        if (old && s.t < old.t) gx('record', 'la pose « Bras levés »');
+        if (ORDER.every(f => wins.has(f))) gx('toutes', 'la casquette Lé pa loin et la pose « Le saut »'); }
       compte((o.finished ? 'fini/' : 'abandon/') + s.f.id);
       if (o.finished) { const old = CAREER.bibs[s.f.id]; if (!old || s.t < old.t) CAREER.bibs[s.f.id] = { bib: s.bib, t: s.t, temps: fmtT(s.t) }; if (!CAREER.wins.includes(s.f.id)) CAREER.wins.push(s.f.id); }
     }
