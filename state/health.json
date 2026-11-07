@@ -14,9 +14,10 @@
   }
  },
  "sportpro": {
+  "alerte": 26,
   "depuis": "2026-11-07T23:01+04:00",
-  "echecs": 2,
-  "erreur": "evenements effondré (< 50% des 29 habituels)",
+  "echecs": 3,
+  "erreur": "0 evenements lu(s)",
   "etat": "ko",
   "ref": {
    "associees": 48,
@@ -35,7 +36,7 @@
   "echecs": 0,
   "etat": "ok",
   "ref": {
-   "prix": 25
+   "prix": 34
   }
  },
  "topchrono": {
