@@ -494,20 +494,25 @@ fieldset legend { font: 800 1.45rem/1.05 var(--display); padding: 0 } .pq { font
 #decor { overflow: clip }
 button.homefig { padding: 0; background: none; border: 0; cursor: pointer; display: block }
 .crayon { position: absolute; right: 2px; top: 34%; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; background: #fff; box-shadow: 0 2px 7px rgba(0,0,0,.28) }
-.lookcard { gap: 10px; max-height: calc(100dvh - 32px); overflow: auto }
+.lookcard { gap: 10px; max-height: calc(100dvh - 20px); overflow: auto; padding: 12px }
+.lookbox { padding: 10px }
+@media (max-width: 350px) { .lkrows { grid-template-columns: 1fr } .lkrow:last-child:nth-child(odd) { min-width: 0; width: 100% } }
 .lkbody { display: grid; gap: 10px }
 .lkstage { position: relative; background: linear-gradient(#bfe0f4, #eaf4f8); border-radius: 14px; padding: 8px 0 30px }
-.lkfig { height: clamp(150px, calc(100dvh - 560px), 320px); aspect-ratio: 200 / 262; margin: 0 auto; max-width: 100% }
+.lkfig { height: clamp(170px, calc(100dvh - 400px), 380px); aspect-ratio: 200 / 262; margin: 0 auto; max-width: 100% }
 .lkfig svg { display: block; width: 100%; height: 100% } .lkfig > svg > path:first-of-type { display: none }
-.lkrows { display: grid; gap: 6px; align-content: start }
-.lkrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px 6px 4px 14px }
-.lkrow b { font: 700 1rem var(--body) }
-.lkrow.lock { border-color: var(--fg) }
-.lkbtns { display: flex; gap: 8px }
-.lkar { width: 40px; height: 40px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: #fff; color: #1d2523; box-shadow: 0 1px 5px rgba(0,0,0,.22); cursor: pointer }
+.lkrows { display: grid; grid-template-columns: 1fr 1fr; gap: 6px }
+.lkrow { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px }
+.lkrow:last-child:nth-child(odd) { grid-column: 1 / -1; justify-self: center; width: auto; min-width: calc(50% - 3px) }
+.lkrow b { font: 700 .84rem/1.1 var(--body); letter-spacing: -.01em; text-align: center; white-space: nowrap }
+.lkrow.lock { border-color: var(--fg); box-shadow: inset 0 0 0 1px var(--fg) }
+.lkar { width: 32px; height: 32px; flex: none; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: #fff; color: #1d2523; box-shadow: 0 1px 5px rgba(0,0,0,.22); cursor: pointer }
+.lkar svg { width: 18px; height: 18px }
 .lkar:active { background: #ffd400 } @media (hover: hover) { .lkar:hover { background: #ffd400 } } .lkar:focus-visible { outline: 3px solid #1d2523; outline-offset: 1px }
-.lkhint { grid-column: 1 / -1; margin: 0 0 4px; display: flex; gap: 6px; align-items: center; font: 600 .8rem/1.25 var(--body); color: var(--muted) }
+.lkhint { margin: 0; display: flex; gap: 6px; align-items: center; font: 600 .8rem/1.25 var(--body); color: var(--muted) }
 .lkhint svg { flex: none; color: var(--fg) }
+.lookbox, .lookcard { overscroll-behavior: contain }
+html.lkopen, html.lkopen body { overflow: hidden }
 .lkturn { position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%); background: none; border: 0; color: #1d2523; font: 600 .85rem var(--body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 3px 8px; white-space: nowrap }
 
 /* Défi, objets, vraie course */
@@ -2198,18 +2203,18 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     const render = () => {
       ROWS = ROWSET[tab];
       box.innerHTML = `<div class="pausecard lookcard"><div class="lktabs" role="group" aria-label="Que modifier">${[['tenue', 'Tenue'], ['acc', 'Équipement'], ['physique', 'Moi']].map(([k, t]) => `<button type="button" data-tab="${k}" aria-pressed="${tab === k}" class="${tab === k ? 'on' : ''}">${t}</button>`).join('')}</div><div class="lkbody"><div class="lkstage"><div class="lkfig${tab === 'acc' ? ' b-sac5 l-frontale' : ''}">${persoSVG({ solo: true, dos }).replace(/manche/g, 'mancheL').replace(/face-av/g, 'face-avL').replace(/face-ar/g, 'face-arL')}</div><button type="button" class="lkturn" id="lkTurn">${dos ? 'Voir de face' : 'Voir le dos'}</button></div>
-        <div class="lkrows">${ROWS.map(r => { const lk = lockOf(r[0], CAREER.look[r[0]]); return `<div class="lkrow${lk ? ' lock' : ''}"><b>${LKLAB[r[0]]}</b><span class="lkbtns">${fl(r[0], r[1], -1)}${fl(r[0], r[1], 1)}</span>${lk ? `<p class="lkhint"><svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path d="M7 11V8a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="2.6"/><rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor"/></svg>${esc(lkVal(r[0]))} : ${esc(lockTxt(lk))}</p>` : ''}</div>`; }).join('')}</div></div>
+        <div class="lkrows">${ROWS.map(r => `<div class="lkrow${lockOf(r[0], CAREER.look[r[0]]) ? ' lock' : ''}">${fl(r[0], r[1], -1)}<b>${LKLAB[r[0]]}</b>${fl(r[0], r[1], 1)}</div>`).join('')}</div>${(() => { const r = ROWS.find(x => lockOf(x[0], CAREER.look[x[0]])); return r ? `<p class="lkhint"><svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path d="M7 11V8a5 5 0 0 1 10 0v3" fill="none" stroke="currentColor" stroke-width="2.6"/><rect x="5" y="11" width="14" height="10" rx="2" fill="currentColor"/></svg>${esc(lkVal(r[0]))} : ${esc(lockTxt(lockOf(r[0], CAREER.look[r[0]])))}</p>` : ''; })()}</div>
         <button class="cta" id="lkOk" type="button">Validé</button></div>`;
       box.querySelectorAll('.lkar').forEach(b => b.onclick = () => { const r = ROWS.find(x => x[0] === b.dataset.k), n = r[2], k = r[0], d = b.dataset.d; if (k === 'cap') { const i = Math.max(0, HEADS.indexOf(CAREER.look.cap)); CAREER.look.cap = HEADS[(i + +d + n) % n]; } else CAREER.look[k] = (CAREER.look[k] + +d + n) % n; render(); const nb = box.querySelector(`.lkar[data-k="${k}"][data-d="${d}"]`); if (nb) nb.focus({ preventScroll: true }); });
       box.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; render(); });
       $('lkTurn').onclick = () => { dos = !dos; render(); };
       $('lkOk').onclick = close;
     };
-    const close = () => { Object.keys(LOCKS).forEach(k => { if (lockOf(k, CAREER.look[k])) CAREER.look[k] = lockOf(k, PREV[k]) ? 0 : PREV[k] || 0; }); saveCareer(); box.remove(); document.removeEventListener('keydown', onKey); home(); };
+    const close = () => { Object.keys(LOCKS).forEach(k => { if (lockOf(k, CAREER.look[k])) CAREER.look[k] = lockOf(k, PREV[k]) ? 0 : PREV[k] || 0; }); saveCareer(); box.remove(); document.documentElement.classList.remove('lkopen'); document.removeEventListener('keydown', onKey); home(); };
     const onKey = e => { if (e.key === 'Escape') close(); };
-    box.addEventListener('click', e => { if (e.target === box) close(); });
+    box.addEventListener('click', e => { if (e.target === box) close(); }); box.addEventListener('touchmove', e => { if (!e.target.closest('.lookcard') || e.target.closest('.lookcard').scrollHeight <= e.target.closest('.lookcard').clientHeight) e.preventDefault(); }, { passive: false });
     document.addEventListener('keydown', onKey);
-    document.body.appendChild(box); render(); $('lkOk').focus({ preventScroll: true });
+    document.documentElement.classList.add('lkopen'); document.body.appendChild(box); render(); $('lkOk').focus({ preventScroll: true });
   }
   function persoSVG(o = {}) {
     const NAD = CAREER.perso === 'nadia' || o.perso === 'nadia' ? o.perso !== 'jeremi' : false, LVL = o.perso ? 0 : CAREER.wins.length;
