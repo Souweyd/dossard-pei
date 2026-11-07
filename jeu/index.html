@@ -2159,7 +2159,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     short: [{ n: 'Vert', c: '#0d6b67' }, { n: 'Bleu marine', c: '#1d4f9c' }, { n: 'Noir', c: '#20262a' }, { n: 'Short fleuri', c: 'url(#fleurX)', o: 'u100' }],
     shoe: [{ n: 'Jaunes', c: '#ffd400' }, { n: 'Blanches', c: '#f4f4f2' }, { n: 'Noires', c: '#20262a' }, { n: 'Chaussures Diagonale', c: '#ff5a36', o: 'u165' }],
     skin: [{ n: 'Teinte de départ' }, { n: 'Très claire', c: '#f1c9a5' }, { n: 'Claire', c: '#d9a27a' }, { n: 'Foncée', c: '#8d5a3a' }, { n: 'Très foncée', c: '#5e3a24' }],
-    hair: [{ n: 'Noirs' }, { n: 'Bruns', c: '#4a2d1a' }, { n: 'Châtains', c: '#7a4b26' }, { n: 'Roux', c: '#b4502a' }, { n: 'Gris', c: '#9aa0a3' }, { n: 'Grisonnants ou noirs' }],
+    hair: [{ n: 'Noirs' }, { n: 'Bruns', c: '#3d3029' }, { n: 'Châtains', c: '#5e4636' }, { n: 'Roux', c: '#a5532e' }, { n: 'Gris', c: '#9aa0a3' }, { n: 'Grisonnants ou noirs' }, { n: 'Blonds', c: '#a07a48' }, { n: 'Blond platine', c: '#d2bb9c' }],
     glass: [{ n: 'De départ' }, { n: 'Miroir orange', f: '#ff7a1a', a: '#ffd08a' }, { n: 'Miroir violet', f: '#6b3fd1', a: '#c9b0ff' }, { n: 'Noirs', f: '#0c1013', a: '#3a4a52' }, { n: 'Jaunes', f: '#ffc400', a: '#fff3a0' }, { n: 'Lunettes Grand Bouchon', f: 'url(#irisX)', a: '#ffffff', o: 'd25' }]
   };
   const LOCKS = { cap: { 2: 'd10', 3: 'u230' }, glass: { 5: 'd25' }, top: { 3: 'u50' }, short: { 3: 'u100' }, shoe: { 3: 'u165' } };
@@ -2170,7 +2170,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     let dos = false, tab = 'tenue'; const PREV = Object.assign({}, CAREER.look);
     const box = document.createElement('div'); box.className = 'pausebox lookbox'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-modal', 'true'); box.setAttribute('aria-label', 'Personnaliser le coureur');
     const HEADS = [0, 1, 4, 5, 6, 7, 2, 3];
-    const ROWSET = { tenue: [['cap', 'la tête', HEADS.length, 10], ['glass', 'les lunettes', 6, 25], ['top', 'le haut', 4, 46], ['short', 'le short', 4, 67], ['shoe', 'les chaussures', 4, 89]], physique: [['cut', 'la coupe', 3, 10], ['hair', 'la couleur des cheveux', 6, 27], ['skin', 'la couleur de peau', 5, 49]].concat(CAREER.perso === 'nadia' ? [] : [['beard', 'la barbe', 4, 70]]) };
+    const ROWSET = { tenue: [['cap', 'la tête', HEADS.length, 10], ['glass', 'les lunettes', 6, 25], ['top', 'le haut', 4, 46], ['short', 'le short', 4, 67], ['shoe', 'les chaussures', 4, 89]], physique: [['cut', 'la coupe', 3, 10], ['hair', 'la couleur des cheveux', 8, 27], ['skin', 'la couleur de peau', 5, 49]].concat(CAREER.perso === 'nadia' ? [] : [['beard', 'la barbe', 4, 70]]) };
     let ROWS = ROWSET[tab];
     const LKLAB = { shoe: 'Chaussures', beard: 'Barbe', cap: 'Tête', glass: 'Lunettes', top: 'Haut', short: 'Short', cut: 'Coupe', hair: 'Cheveux', skin: 'Peau' };
     const lkVal = k => { const L = CAREER.look, nad = CAREER.perso === 'nadia';
@@ -2204,7 +2204,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     const INK = '#1d2523', SEAM = '#cfd6d3', UID = 'u' + (persoSVG.n = (persoSVG.n || 0) + 1), SHOE = LOOK.shoe[LK.shoe || 0].c, DIAG = (LK.shoe || 0) === 3;
     const PAT = `<linearGradient id="melX${UID}" x1="0" y1="0" x2="1" y2="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(60 80) scale(84)"><stop offset="0" stop-color="#ffd400"/><stop offset=".25" stop-color="#ffd400"/><stop offset=".25" stop-color="#ff5a36"/><stop offset=".5" stop-color="#ff5a36"/><stop offset=".5" stop-color="#2fb5a4"/><stop offset=".75" stop-color="#2fb5a4"/><stop offset=".75" stop-color="#1d4f9c"/><stop offset="1" stop-color="#1d4f9c"/></linearGradient><pattern id="fleurX${UID}" width="18" height="18" patternUnits="userSpaceOnUse"><rect width="18" height="18" fill="#c62828"/><g fill="#fff"><circle cx="5" cy="5" r="2.2"/><circle cx="5" cy="1.6" r="1.6"/><circle cx="5" cy="8.4" r="1.6"/><circle cx="1.6" cy="5" r="1.6"/><circle cx="8.4" cy="5" r="1.6"/><circle cx="14" cy="14" r="1.8"/></g><circle cx="5" cy="5" r="1.3" fill="#ffd400"/></pattern><linearGradient id="irisX${UID}" x1="0" x2="1"><stop offset="0" stop-color="#ff4fa3"/><stop offset=".5" stop-color="#8a5cff"/><stop offset="1" stop-color="#1fc8e8"/></linearGradient>`;
     const fx = c => String(c).replace(/X\)$/, 'X' + UID + ')');
-    const SK = LK.skin ? LOOK.skin[LK.skin].c : (NAD ? '#c48e66' : '#b98158'), GREY = (NAD && !LK.hair) || (!NAD && LK.hair === 5), HAIR = GREY ? '#7e7975' : LK.hair === 5 ? '#17100c' : LK.hair ? LOOK.hair[LK.hair].c : '#20160f', CUT = LK.cut || 0;
+    const SK = LK.skin ? LOOK.skin[LK.skin].c : (NAD ? '#c48e66' : '#b98158'), GREY = (NAD && !LK.hair) || (!NAD && LK.hair === 5), HAIR = GREY ? '#7e7975' : LK.hair === 5 ? '#242120' : LK.hair ? LOOK.hair[LK.hair].c : '#262322', CUT = LK.cut || 0;
     const MECHES = '';
     const TOP = fx(TOP0), SHORT = fx(SHORT0), GL = LK.glass ? Object.assign({}, LOOK.glass[LK.glass], { f: fx(LOOK.glass[LK.glass].f) }) : { f: '#15252e', a: NAD ? '#ffb347' : '#5fd0d6' };
     const limb = d => `<path d="${d}" fill="none" stroke="${INK}" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="${SK}" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>`;
