@@ -1,16 +1,1 @@
-{
- "curcuma": {
-  "source": "sportpro",
-  "epreuves": [
-   "Fast Hiking du Curcuma"
-  ],
-  "plateforme": [
-   "Trail du curcuma",
-   "Fast Hiking (Temps Or)",
-   "Fast Hiking (Temps Argent)",
-   "Fast Hiking (trop rapide ou hors délai)",
-   "Rando sportive (Fast Hiking) du curcuma",
-   "Rando Classique du curcuma"
-  ]
- }
-}
+{}
