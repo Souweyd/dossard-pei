@@ -821,7 +821,7 @@ html { overflow-x: hidden } body { overflow-x: clip }   /* Safari does not apply
 /* Safari (iOS) still lets the page and the sheets slide sideways a little: only vertical panning and
    pinch-zoom there; the rows that scroll sideways on purpose are scroll boxes and keep their own swipe */
 @media (pointer: coarse) { body, .dlg-panel { touch-action: pan-y pinch-zoom } }
-.dlg-panel { overscroll-behavior-x: none } .dlg-panel > * { min-width: 0; max-width: 100% }
+.dlg-panel { overscroll-behavior-x: none } .dlg-panel > * { min-width: 0; max-width: 100% } .dlg-panel > .dlg-bar { max-width: none }   /* the sticky title bar spans the full width (negative margins) */
 /* directions to the start */
 .trkfoot { align-items: center; gap: 10px; flex-wrap: wrap }
 .godep { margin-right: auto; display: flex; flex-direction: column; gap: 2px; min-width: 0 }
@@ -1302,3 +1302,5 @@ body { margin: 0; padding-left: max(24px, env(safe-area-inset-left, 0px)); paddi
 .szlink, .state, .lname, .sclose { font-weight: 600 }
 .ldate b { font-weight: 700; letter-spacing: -.02em }
 .lep b { font-weight: 600; letter-spacing: -.01em }
+/* race sheet: forecast or trend in the top right corner of the weather block */
+.wxc2 .wxh .wxtag { margin-left: auto }
