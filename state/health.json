@@ -14,11 +14,8 @@
   }
  },
  "sportpro": {
-  "alerte": 25,
-  "depuis": "2026-11-07T15:01+04:00",
-  "echecs": 3,
-  "erreur": "HTTPError: HTTP Error 500: Internal Server Error",
-  "etat": "ko",
+  "echecs": 0,
+  "etat": "ok",
   "ref": {
    "associees": 48,
    "epreuves": 62,
