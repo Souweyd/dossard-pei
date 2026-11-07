@@ -513,6 +513,9 @@ button.homefig { padding: 0; background: none; border: 0; cursor: pointer; displ
 .lktabs button.on { background: var(--fg); color: var(--bg) }
 .lkcap { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 6px; margin: 0; text-align: center; font-weight: 600; font-size: .9rem; line-height: 1.2 }
 .lkcap small { display: block; font: 700 .68rem/1.3 var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted) }
+
+/* Pas de zoom au double toucher, le pincement reste possible */
+html, body, button, a, input, label { touch-action: manipulation }
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
