@@ -597,7 +597,7 @@ const TITLES = {
   rougail: ['Estomac en carton', 'Abandon pour raison de cary'], fringale: ['Batterie plate', 'Abandon, plus de carburant'],
   soif: ['Letchi séché', 'Abandon, plus une goutte'], crampes: ['Mollets en bois de natte', 'Abandon, jambes hors service'],
   moral: ['Rentré à la case', 'Abandon, le moral est parti devant'], barriere: ['Dernier bus', 'Arrêté par la barrière horaire'],
-  fusee: ['Fusée à vapeur', 'A tout doublé en montée et a quand même fini'], lamp: ['Ti lamp ti lamp', 'Parti tout doucement, arrivé en forme'],
+  fusee: ['Fusée à vapeur', 'A tout doublé en montée et a quand même fini'], lamp: ['Ti pas ti pas', 'Parti tout doucement, arrivé en forme'],
   ravito: ['Pilier de ravito', 'A fini en mangeant à chaque occasion'], selfie: ['Roi du selfie', 'A surtout couru pour les photos'],
   didier: ['Tombeur de beau-frère', 'A battu Didier'], josiane: ['Protégé de Josiane', 'A fini avec les conseils de Josiane'],
   survivant: ['Survivant du cary', 'A digéré le cary et a fini'], survivantS: ['Survivant du samoussa fromage', 'A digéré le samoussa et a fini'], finisher: ['Dossard mérité', 'A fini, sans gloire ni honte']
@@ -706,7 +706,7 @@ const PREP = [
     ] },
   { id: 'pace', pre: 1, title: 'Le départ', q: "Le speaker compte à rebours. Je me mets où ?",
     ch: () => [
-      ch("Tout derrière, ti lamp ti lamp", { set: 'prudent', pace: 1.1, drain: .86, m: 3 }),
+      ch("Tout derrière, ti pas ti pas", { set: 'prudent', pace: 1.1, drain: .86, m: 3 }),
       ch("Au milieu, avec les gens normaux", { pace: 1, drain: 1 }),
       ch("Devant, pour la photo", { set: 'devant', pace: .89, drain: 1.3, m: 10, photo: 1 })
     ] }
@@ -718,7 +718,7 @@ const SCENES = {
       ch: () => [
         ch("Je la laisse, elle a dû couper", { r: "Dossard {d} laisse filer Josiane, 64 ans. Josiane qui n'a rien coupé du tout, je le précise.", m: -5 }),
         ch("J'accélère, y a des limites", { r: "Oh, le dossard {d} ne veut pas se laisser faire ! Il repasse Josiane. Elle lui sourit. Je ne suis pas sûr que ce soit bon signe.", j: -7, t: -1, m: 3 }),
-        ch("Je lui demande comment elle fait", { r: "Le dossard {d} demande conseil à Josiane. « Ti lamp ti lamp, mon gaté », qu'elle lui dit. Elle a raison, Josiane.", t: .8, m: 8, set: 'josiane', drainDelta: -.05, msg: ['Maman', "C'est bien, tu as une copine"] })
+        ch("Je lui demande comment elle fait", { r: "Le dossard {d} demande conseil à Josiane. « Ti pas ti pas, mon gaté », qu'elle lui dit. Elle a raison, Josiane.", t: .8, m: 8, set: 'josiane', drainDelta: -.05, msg: ['Maman', "C'est bien, tu as une copine"] })
       ] },
     { km: 3, id: 'tonton', title: 'Le tonton de la case', q: "Un tonton a sorti sa marmite devant sa case. « Oté marmaille, un ti cary ? » Ça sent trop bon.",
       ch: s => [
@@ -1281,7 +1281,7 @@ const NADIA_PREP = {
 const NADIA_VERDICTS = { plume: "Moins de 100 g. Le gain est réel. Le risque aussi.", ceinture: "Tout tient dans la ceinture. J'ai fait un essai.", gros: "J'ai un plan B pour chaque plan B.", sac5: "Exactement ce que dit mon tableur.", frontale: "Autonomie vérifiée deux fois.", frontale2: "C'est un mauvais choix, et je le sais.", tel: "34 %. Ce n'était pas prévu.", neuves: "Elles sont dans le fichier, mais pas encore rodées.", vieilles: "812 km au compteur. Je le sais, je compte.", grandes: "Une taille au-dessus. Ça me stresse déjà.", pain: "80 g de glucides, comme prévu.", rougail: "Ce n'est pas dans le plan. Je ne sais pas ce qui m'a pris.", cafe: "Un café, pesé.", tortue: "Départ prudent, conforme au plan.", dossard: "Allure cible tenable, normalement.", photo: "Trop vite. Mais la photo sera bonne." };
 const NADIA_TEXT = {
   d10: {
-    josiane: { q: "Une dame de 64 ans vient de me doubler. Allure estimée : 5:40. Elle n'a même pas de montre.", r: ["{S} laisse partir Josiane, 64 ans. Elle regarde sa montre, puis Josiane, puis sa montre.", "{S} repasse Josiane, et elle explose son allure cible. Sa montre a sonné, je l'ai entendue d'ici.", "{S} demande à Josiane quel est son plan. « Ti lamp ti lamp », qu'elle répond. Ça ne rentre dans aucune case."] },
+    josiane: { q: "Une dame de 64 ans vient de me doubler. Allure estimée : 5:40. Elle n'a même pas de montre.", r: ["{S} laisse partir Josiane, 64 ans. Elle regarde sa montre, puis Josiane, puis sa montre.", "{S} repasse Josiane, et elle explose son allure cible. Sa montre a sonné, je l'ai entendue d'ici.", "{S} demande à Josiane quel est son plan. « Ti pas ti pas », qu'elle répond. Ça ne rentre dans aucune case."] },
     tonton: { q: "Un tonton propose du cary devant sa case. Ce n'est pas au programme. Ça sent très bon. Ce n'est pas au programme.", r: ["On me dit que {s} s'est arrêtée manger un cary. Elle a demandé le poids de la portion.", "Riz nature pour {s}. Elle calcule combien ça fait de glucides, et le tonton la regarde faire.", "{S} refuse poliment. Elle a son gel, son heure et son plan. Le tonton hausse les épaules."] },
     ravito1: { q: "Ravito au km 3,9. Prévu au 4. Je perds déjà ma référence. Eau, cola, letchis. Et des samoussas fromage, qui ne sont sur aucune liste. On reste calme.", r: ["Eau et banane pour {s}, en vingt secondes, comme répété à la maison.", "Six letchis pour {s}. Elle en avait prévu deux, et elle ne se le pardonnera pas.", "{S} prend un samoussa fromage. Elle demande combien il y a de glucides. Le bénévole lui répond que c'est chaud."] },
     montee: { q: "Montée à 20 %. Fréquence cardiaque déjà en zone 4. D'après le plan, je marche. D'après mes jambes, je pourrais courir.", r: ["Mais qu'est-ce qu'elle fait, {s} ? Elle double tout le monde en sortant de son plan ! Ses montres n'y croient pas.", "{S} marche, mains sur les cuisses, exactement comme sur sa fiche. Elle a même une fiche.", "{S} trottine, l'œil sur le cardio. Elle se parle à voix basse, on dirait des chiffres."] },
@@ -1518,7 +1518,7 @@ function statsAna(t, wins) {
   return [['Glucides par heure', [60, 70, 80, 90, 100, 110][Math.min(5, t.manger)] + ' g'], ['Allure cible', '6:12 au km'], ['Volume par semaine', [35, 45, 55, 70, 85, 100][Math.min(5, t.longue)] + ' km'], ['Montres', wins < 2 ? 3 : wins < 4 ? 2 : wins < 6 ? 1 : 0], ['Plans B', 7 - Math.min(5, t.renfo + t.longue + t.manger)], ['Fichiers ouverts', 14 - wins * 2], ['Lâcher-prise', Math.min(9, wins + (t.renfo + t.longue + t.manger)) + '/10']];
 }
 const NADIA_BIOS = ["J'ai un tableur pour cette course. Il a quatorze onglets. Ça va bien se passer.", "J'ai fini le 10 km à 4 secondes de mon plan. Ces 4 secondes, je vais les retrouver.", "25 km. Le plan n'a pas tenu. Je refais le plan.", "Ce n'est pas le plan qui compte, c'est de s'adapter. Je l'ai noté dans le plan.", "100 km. Je suis partie avec trois montres, et revenue avec une.", "Un chien m'a parlé de mon allure, et j'ai suivi ses conseils.", "J'ai fini les six. Je n'ai plus de tableur. Enfin, si, un petit."];
-const FEM_TITLES = { lamp: 'Ti lamp ti lamp', fusee: 'Fusée à vapeur', survivant: 'Survivante du cary', survivantS: 'Survivante du samoussa fromage', didier: 'Tombeuse de beau-frère', josiane: 'Protégée de Josiane', selfie: 'Reine du selfie', moral: 'Rentrée à la case', ravito: 'Pilier de ravito', finisher: 'Dossard mérité' };
+const FEM_TITLES = { lamp: 'Ti pas ti pas', fusee: 'Fusée à vapeur', survivant: 'Survivante du cary', survivantS: 'Survivante du samoussa fromage', didier: 'Tombeuse de beau-frère', josiane: 'Protégée de Josiane', selfie: 'Reine du selfie', moral: 'Rentrée à la case', ravito: 'Pilier de ravito', finisher: 'Dossard mérité' };
 function titleOf(s, k) { const r = titleBase(s, k); return k === 'rougail' && s.flags && s.flags.gutSamoussa ? [r[0], r[1].replace('de cary', 'de samoussa fromage')] : r; }
 function titleBase(s, k) { return s.runner.id === 'nadia' ? [FEM_TITLES[k] || TITLES[k][0], fem(TITLES[k][1]).replace('Arrêté', 'Arrêtée')] : TITLES[k]; }
 
@@ -1640,7 +1640,7 @@ const RETROUVE = [null,
   { q: "Josiane m'attend au ravito. Elle me demande : « Toi qui as fait le 100, tu fais comment la nuit ? » C'est elle qui me demande ça. À moi.",
     ch: [["Je lui explique, tout fier", "Le dossard {d} donne des conseils à Josiane. Elle hoche la tête. Elle a fait quinze ultras, mais elle hoche la tête.", { m: 20, t: 1.5 }], ["Je lui dis que je sais pas non plus", "« Moi non plus je ne sais pas », dit le dossard {d} à Josiane. Elle éclate de rire. C'est la bonne réponse.", { m: 16, t: .8 }], ["Je lui demande comment elle, elle fait", "Josiane sort un carnet de 1993. Le dossard {d} repart avec trois bons conseils et une recette.", { e: 10, m: 8, t: 1.2 }]] },
   { q: "Josiane. Elle ne court plus, elle est bénévole aujourd'hui. Elle me tend un verre, et elle me dit : « Je savais que tu viendrais jusque-là. »",
-    ch: [["Je la prends dans mes bras", "Le dossard {d} serre Josiane dans ses bras. Je vais avoir besoin d'une minute, moi aussi, excusez-moi.", { m: 26, t: 1.5, h: 10 }], ["Je bois, et je ne dis rien", "Le dossard {d} boit, et il ne dit rien. Josiane non plus. Ils se sont compris.", { h: 22, m: 14, t: .8 }], ["Je lui dis : ti lamp ti lamp", "« Ti lamp ti lamp », lui dit le dossard {d}. Josiane rit, et il repart. Tout est dit.", { m: 18, h: 8 }]] }
+    ch: [["Je la prends dans mes bras", "Le dossard {d} serre Josiane dans ses bras. Je vais avoir besoin d'une minute, moi aussi, excusez-moi.", { m: 26, t: 1.5, h: 10 }], ["Je bois, et je ne dis rien", "Le dossard {d} boit, et il ne dit rien. Josiane non plus. Ils se sont compris.", { h: 22, m: 14, t: .8 }], ["Je lui dis : ti pas ti pas", "« Ti pas ti pas », lui dit le dossard {d}. Josiane rit, et il repart. Tout est dit.", { m: 18, h: 8 }]] }
 ];
 function retrouveScene(fid) {
   const i = ORDER.indexOf(fid), d = RETROUVE[i]; if (!d) return null;
@@ -2134,7 +2134,7 @@ const OPT={
  "Pain, confiture, banane":['pain',"Comme dans les magazines."],
  "Le reste de cary d'hier":['rougail',"C'est meilleur réchauffé. Et là je suis invincible."],
  "Un café, je mangerai après":['cafe',"Je tiens plus en place. C'est bon signe, non ?"],
- "Tout derrière, ti lamp ti lamp":['tortue',"Une gramoun me dit bonjour. Ça commence bien."],
+ "Tout derrière, ti pas ti pas":['tortue',"Une gramoun me dit bonjour. Ça commence bien."],
  "Au milieu, avec les gens normaux":['dossard',"Des coudes partout. Parfait."],
  "Devant, pour la photo":['photo',"Ils ont tous des mollets de statue. Pas grave."]
 };
