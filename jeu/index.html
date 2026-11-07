@@ -1680,7 +1680,7 @@ function recallLine(s, sc) {
   if (M.chaise && sc.id === 'chaise') return H ? " Je connais le coût exact de cette chaise." : " Je la connais, cette chaise. Elle m'a déjà eu.";
   return '';
 }
-const DIDIER_FIN = ["Alors, c'était plat ?", "OK. C'est pas mal. Pour toi.", "Sérieux ? T'as fini ça ?", "Tu me ferais un plan d'entraînement ?", "Je dis à tout le monde que je te connais.", "Respect. Vraiment. Les letchis sont pour toi."];
+const DIDIER_FIN = ["Alors, c'était plat ?", "OK. C'est pas mal. Pour toi.", "Sérieux ? T'as fini ça ?", "Tu me ferais un plan d'entraînement ?", "Je dis à tout le monde que je te connais.", "Respect. Vraiment. Les 100 samoussas sont pour toi."];
 function fatigueTone(s, q) {
   if (s.f.dist < 60 || !q) return q; const r = s.km / s.f.dist; if (r < .68) return q;
   if (r < .86) return q.replace(/\. /g, '... ');
