@@ -1,12 +1,11 @@
 {
- "riviere-mat": {
+ "dimitile": {
   "source": "sportpro",
   "epreuves": [
-   "Course Marmay 2010-2020"
+   "Rando Dimitile"
   ],
   "plateforme": [
-   "Trail des Berges de la Rivière du Mat les Bas",
-   "Rando des Berges de la Rivière du Mat les Bas"
+   "Trans Dimitile"
   ]
  }
 }

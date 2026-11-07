@@ -17,7 +17,7 @@
   "alerte": 24,
   "depuis": "2026-11-07T08:00+04:00",
   "echecs": 3,
-  "erreur": "evenements effondré (< 50% des 29 habituels)",
+  "erreur": "associees effondré (< 50% des 48 habituels)",
   "etat": "ko",
   "ref": {
    "associees": 48,
@@ -29,7 +29,7 @@
   "echecs": 0,
   "etat": "ok",
   "ref": {
-   "pages": 10
+   "pages": 16
   }
  },
  "sportpro_prix": {
