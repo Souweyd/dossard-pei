@@ -2433,7 +2433,7 @@ const EQK={sac:'b',lampe:'l',shoes:'s',dej:'d',pace:'p'};
     const label = () => { $('pickgo').textContent = 'Commencer avec ' + (clean($('pickname').value) || dflt()); };
     panel.querySelectorAll('.pcard').forEach(b => b.onclick = () => { cur = b.dataset.p; panel.querySelectorAll('.pcard').forEach(x => x.classList.toggle('on', x === b)); $('pnw').hidden = false; $('pickname').placeholder = dflt(); $('pickgo').disabled = false; label(); });
     $('pickname').addEventListener('input', label);
-    $('pickgo').onclick = () => { compte('choix/' + cur); const n = clean($('pickname').value); CAREER.perso = cur; CAREER.name = n && n !== dflt() ? n : null; CUSTOM = CAREER.name; saveCareer(); home(); };
+    $('pickgo').onclick = () => { compte('choix/' + (cur === 'nadia' ? 'ana' : 'sam')); const n = clean($('pickname').value); CAREER.perso = cur; CAREER.name = n && n !== dflt() ? n : null; CUSTOM = CAREER.name; saveCareer(); home(); };
   }
   function home() {
     pauseB.hidden = true;
