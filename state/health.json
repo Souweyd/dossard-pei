@@ -14,10 +14,8 @@
   }
  },
  "sportpro": {
-  "depuis": "2026-11-08T15:01+04:00",
-  "echecs": 1,
-  "erreur": "evenements effondré (< 50% des 29 habituels)",
-  "etat": "ko",
+  "echecs": 0,
+  "etat": "ok",
   "ref": {
    "associees": 48,
    "epreuves": 62,
