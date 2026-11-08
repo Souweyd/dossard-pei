@@ -1,5 +1,5 @@
 {
- "at": "2026-11-08T17:02+04:00",
+ "at": "2026-11-08T19:10+04:00",
  "since": "2026-11-08T14:21:10+04:00",
  "rien": false,
  "sources": [
@@ -12,6 +12,11 @@
    "id": "runninglife",
    "url": "https://running.life/calendrier-course-a-pied/reunion",
    "changed": "2026-11-08T17:02+04:00"
+  },
+  {
+   "id": "huge-event",
+   "url": "https://www.huge-event.fr",
+   "changed": "2026-11-08T19:10+04:00"
   },
   {
    "id": "grandraid",
