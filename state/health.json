@@ -14,9 +14,10 @@
   }
  },
  "sportpro": {
+  "alerte": 27,
   "depuis": "2026-11-08T23:01+04:00",
-  "echecs": 2,
-  "erreur": "HTTPError: HTTP Error 500: Internal Server Error",
+  "echecs": 3,
+  "erreur": "evenements effondré (< 50% des 29 habituels)",
   "etat": "ko",
   "ref": {
    "associees": 48,
