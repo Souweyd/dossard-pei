@@ -21,6 +21,9 @@ KEEP = 3       # builds whose files are kept
 
 def main():
     page = open("index.html", encoding="utf-8").read()
+    # entrées vers le jeu « Une histoire de dossard » (pastille, carte du Scroll, pied de page) : jeu/promo.js
+    if "/jeu/promo.js" not in page:
+        page = page.rstrip("\n") + '\n<script src="/jeu/promo.js" defer></script>\n'
     os.makedirs("assets", exist_ok=True)
     used = set()
 

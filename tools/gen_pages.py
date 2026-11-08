@@ -420,7 +420,8 @@ def main():
                 os.remove(f"{folder}/{f}")
     # sitemap + robots
     lastmod = (data.get("updatedAt") or reu_today().isoformat())[:10]
-    urls = [f"<url><loc>{SITE}/</loc><lastmod>{lastmod}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>"]
+    urls = [f"<url><loc>{SITE}/</loc><lastmod>{lastmod}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>",
+            f"<url><loc>{SITE}/jeu/</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq></url>"]
     for r in sorted(races, key=lambda r: r["date"]):
         urls.append(f"<url><loc>{SITE}/course/{r['id']}/</loc><lastmod>{lastmod}</lastmod><changefreq>weekly</changefreq></url>")
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "\n".join(urls) + "\n</urlset>\n"
