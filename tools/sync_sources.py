@@ -800,7 +800,7 @@ try:
     run["sportpro"] = {"metrics": {"evenements": len(ag), "epreuves": sum(len(v) for v in ag.values()),
                                    "associees": associees}}
 except Exception as e:
-    errors.append(f"sportpro ({e.__class__.__name__})")
+    errors.append(f"sportpro ({e.__class__.__name__}{' ' + str(e.code) if hasattr(e, 'code') else ''})")
     run["sportpro"] = {"metrics": {}, "error": f"{e.__class__.__name__}: {str(e)[:150]}"}
 
 # 5. Sportpro race pages (every 3 hours, to stay light on the site): a cancellation can also be
@@ -1071,6 +1071,20 @@ try:
     import os, subprocess, tempfile
     import controls
     verif, alertes = controls.statut(data, VERIF, TODAY)
+    # a platform page that fails one hour (Sportpro answers some runs with an error) must not turn a race
+    # read a moment ago into « non vérifiable »: its last successful reading stays valid for 6 hours
+    try:
+        seen = json.load(open("state/verif_seen.json"))
+    except Exception:
+        seen = {}
+    lim6 = (NOW - dt.timedelta(hours=6)).isoformat(timespec="minutes")
+    for k, v in verif.items():
+        if v == "ok":
+            seen[k] = NOW.isoformat(timespec="minutes")
+        elif v == "nv" and seen.get(k, "") >= lim6:
+            verif[k] = "ok"
+    seen = {k: t for k, t in seen.items() if k in verif and t >= (NOW - dt.timedelta(days=2)).isoformat()}
+    json.dump(seen, open("state/verif_seen.json", "w"), ensure_ascii=False, indent=0, sort_keys=True)
     try:
         old_vf = json.load(open("verif.json"))
         stale = (NOW - dt.datetime.fromisoformat(old_vf["at"])).total_seconds() > 1.8 * 3600
