@@ -20,11 +20,9 @@
 "h": "8e633ccdc2a48943c4c2169a509823b3616e5d428a2b6b40e2973e18c1ba13d4"
 },
 "https://gotrail.run/calendrier-trails/reunion": {
-"at": "2026-11-08T05:16+04:00",
-"changed": "2026-11-08T05:16+04:00",
-"h": "76fa6a979e729f2ba6cb69ee77495e5529f013c528912805b250ac5e6828a826",
-"pending": "500c8ec2484f92d629b42c51419373e93696e6437f190d593214698dcb943342",
-"since": "2026-11-08T16:13+04:00"
+"at": "2026-11-08T17:02+04:00",
+"changed": "2026-11-08T17:02+04:00",
+"h": "500c8ec2484f92d629b42c51419373e93696e6437f190d593214698dcb943342"
 },
 "https://ilop.re/ilop-sport/outdoor/": {
 "at": "2026-11-03T13:02+04:00",
@@ -37,11 +35,9 @@
 "h": "16554cc068a8ed92bcaf3b437c0b81a13a4bce85dfc1c4a76e7cbe5dede396e3"
 },
 "https://running.life/calendrier-course-a-pied/reunion": {
-"at": "2026-11-08T05:16+04:00",
-"changed": "2026-11-08T05:16+04:00",
-"h": "5c2996f11329ddf6190bc9bb5a2c55afeb9850bb242b54d265abddb26e95ff60",
-"pending": "c1273dd73ca09e8db05e6da730e8346f1fb1aa26eda601a860d3dd3b7ac6ba57",
-"since": "2026-11-08T16:13+04:00"
+"at": "2026-11-08T17:02+04:00",
+"changed": "2026-11-08T17:02+04:00",
+"h": "c1273dd73ca09e8db05e6da730e8346f1fb1aa26eda601a860d3dd3b7ac6ba57"
 },
 "https://sportinnovation.fr/Evenements/Inscriptions/9096/PRESENTIEL": {
 "at": "2026-10-27T19:08+04:00",
@@ -91,9 +87,7 @@
 "https://www.huge-event.fr": {
 "at": "2026-11-01T17:02+04:00",
 "changed": "2026-11-01T17:02+04:00",
-"h": "00ee623e61061cbb4ebf3c4d393acce7be8ef078c399a2f2c42902f149851262",
-"pending": "868bb4c51a8c14879bae39ae1fc7daf200ac5c0f660178f299dbfff1e7da4989",
-"since": "2026-11-08T16:13+04:00"
+"h": "00ee623e61061cbb4ebf3c4d393acce7be8ef078c399a2f2c42902f149851262"
 },
 "https://www.tcsa-974.fr/evenements/2027/04/25/triathlonduathlon-du-colosse-2027-2565375": {
 "at": "2026-11-07T04:16+04:00",
