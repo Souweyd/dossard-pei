@@ -87,7 +87,9 @@
 "https://www.huge-event.fr": {
 "at": "2026-11-08T19:10+04:00",
 "changed": "2026-11-08T19:10+04:00",
-"h": "868bb4c51a8c14879bae39ae1fc7daf200ac5c0f660178f299dbfff1e7da4989"
+"h": "868bb4c51a8c14879bae39ae1fc7daf200ac5c0f660178f299dbfff1e7da4989",
+"pending": "c9aec0099cf3e34e05bea98929ccaca3f76bb0ff42713027be2d4a57c68092ad",
+"since": "2026-11-09T07:05+04:00"
 },
 "https://www.tcsa-974.fr/evenements/2027/04/25/triathlonduathlon-du-colosse-2027-2565375": {
 "at": "2026-11-07T04:16+04:00",
