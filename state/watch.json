@@ -35,11 +35,9 @@
 "h": "16554cc068a8ed92bcaf3b437c0b81a13a4bce85dfc1c4a76e7cbe5dede396e3"
 },
 "https://running.life/calendrier-course-a-pied/reunion": {
-"at": "2026-11-08T17:02+04:00",
-"changed": "2026-11-08T17:02+04:00",
-"h": "c1273dd73ca09e8db05e6da730e8346f1fb1aa26eda601a860d3dd3b7ac6ba57",
-"pending": "5914a97ffa2152f64e00301e69b619e55f86fc1d56fb7540ef3ab60354666f10",
-"since": "2026-11-09T16:05+04:00"
+"at": "2026-11-09T17:02+04:00",
+"changed": "2026-11-09T17:02+04:00",
+"h": "5914a97ffa2152f64e00301e69b619e55f86fc1d56fb7540ef3ab60354666f10"
 },
 "https://sportinnovation.fr/Evenements/Inscriptions/9096/PRESENTIEL": {
 "at": "2026-10-27T19:08+04:00",
@@ -84,7 +82,9 @@
 "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/": {
 "at": "2026-11-09T11:02+04:00",
 "changed": "2026-11-09T11:02+04:00",
-"h": "fe6da417621b714d163fdf02d21168dbe43461e6ec5ce453ba777c368b26f793"
+"h": "fe6da417621b714d163fdf02d21168dbe43461e6ec5ce453ba777c368b26f793",
+"pending": "b8a91ffb590abb875ccf763be60b434bf87028d15c5f50d9f63379ea1ac880eb",
+"since": "2026-11-09T17:02+04:00"
 },
 "https://www.huge-event.fr": {
 "at": "2026-11-08T19:10+04:00",
