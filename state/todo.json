@@ -1,14 +1,8 @@
 {
- "at": "2026-11-09T06:07+04:00",
- "since": "2026-11-08T19:21:14+04:00",
- "rien": false,
- "sources": [
-  {
-   "id": "grandraid",
-   "url": "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/",
-   "changed": "2026-11-09T06:07+04:00"
-  }
- ],
+ "at": "2026-11-09T10:05+04:00",
+ "since": "2026-11-09T09:20:43+04:00",
+ "rien": true,
+ "sources": [],
  "avenir": [],
  "illisibles": [
   {
