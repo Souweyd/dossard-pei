@@ -5,11 +5,9 @@
 "h": "a6a964c8a851c551ac2bdbedb3867b4d876cfd11435254ab80f87269200781be"
 },
 "https://case-des-bancouliers.webnode.fr/": {
-"at": "2026-11-04T13:02+04:00",
-"changed": "2026-11-04T13:02+04:00",
-"h": "57831a41ce1da4b5ad9e84385877aa0512aa5f3329de6abe9c537758004f9d19",
-"pending": "d4a7032bf0f3fdd72047fba8c335b5917f50a2a7d03941fd1671dd0f67dd6dfd",
-"since": "2026-11-10T16:05+04:00"
+"at": "2026-11-10T17:02+04:00",
+"changed": "2026-11-10T17:02+04:00",
+"h": "d4a7032bf0f3fdd72047fba8c335b5917f50a2a7d03941fd1671dd0f67dd6dfd"
 },
 "https://chronometrage.com/": {
 "at": "2026-11-02T13:02+04:00",
@@ -24,12 +22,16 @@
 "https://gotrail.run/calendrier-trails/reunion": {
 "at": "2026-11-10T10:05+04:00",
 "changed": "2026-11-10T10:05+04:00",
-"h": "2af4d3c99b721821db3a10a30878f7f396a272c27f2b1280ba3ca62217d44e28"
+"h": "2af4d3c99b721821db3a10a30878f7f396a272c27f2b1280ba3ca62217d44e28",
+"pending": "bb8c330068cffc359c5b419b68abbf7a81f6a6be666cbc5d85007fb81b3cf11c",
+"since": "2026-11-10T17:02+04:00"
 },
 "https://ilop.re/ilop-sport/outdoor/": {
 "at": "2026-11-03T13:02+04:00",
 "changed": "2026-11-03T13:02+04:00",
-"h": "20c29c3b0cfea40adca87dca42b29ae69c9962c854dfba39556aaa22793cf6fd"
+"h": "20c29c3b0cfea40adca87dca42b29ae69c9962c854dfba39556aaa22793cf6fd",
+"pending": "6e08ad58b9614d63c649d2a2cd972941558518009a647e58d5033b0480b7c95a",
+"since": "2026-11-10T17:02+04:00"
 },
 "https://reuniontritour.com/infos/": {
 "at": "2026-11-04T14:32+04:00",
@@ -37,11 +39,9 @@
 "h": "16554cc068a8ed92bcaf3b437c0b81a13a4bce85dfc1c4a76e7cbe5dede396e3"
 },
 "https://running.life/calendrier-course-a-pied/reunion": {
-"at": "2026-11-10T10:05+04:00",
-"changed": "2026-11-10T10:05+04:00",
-"h": "5914a97ffa2152f64e00301e69b619e55f86fc1d56fb7540ef3ab60354666f10",
-"pending": "d633a854a9a09fff9f306a99b6d65b3f6e99867eca0fdb56dfe250d60b2e1ba0",
-"since": "2026-11-10T16:05+04:00"
+"at": "2026-11-10T17:02+04:00",
+"changed": "2026-11-10T17:02+04:00",
+"h": "d633a854a9a09fff9f306a99b6d65b3f6e99867eca0fdb56dfe250d60b2e1ba0"
 },
 "https://sportinnovation.fr/Evenements/Inscriptions/9096/PRESENTIEL": {
 "at": "2026-10-27T19:08+04:00",
@@ -56,12 +56,16 @@
 "https://traildesanglais.re/inscriptions/": {
 "at": "2026-11-03T14:36+04:00",
 "changed": "2026-11-03T14:21+04:00",
-"h": "3ae26caa504f9f91fda0fd6ad6575051ebac3065e83ee7cefc0f30148c84be6d"
+"h": "3ae26caa504f9f91fda0fd6ad6575051ebac3065e83ee7cefc0f30148c84be6d",
+"pending": "73ed3d81efbaf8a88ef0ef2e89aec0a4cf70e85e758af969741415f5ee06e9e0",
+"since": "2026-11-10T17:02+04:00"
 },
 "https://ultramarathondescirques.re/#umc-inscriptions": {
 "at": "2026-10-31T15:08+04:00",
 "changed": "2026-10-31T14:21+04:00",
-"h": "07660d23f0ad7fb3a6ec8abbd8c9f2d7f03410d9553827dea604899ac1d2ddba"
+"h": "07660d23f0ad7fb3a6ec8abbd8c9f2d7f03410d9553827dea604899ac1d2ddba",
+"pending": "153a5f634007cb9ef85b3586e5ab10b37d98367649209380ab9c165b0379a1bd",
+"since": "2026-11-10T17:02+04:00"
 },
 "https://www.aajm.re/courses/trail-grand-bassin/": {
 "at": "2026-10-27T19:08+04:00",
@@ -86,14 +90,14 @@
 "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/": {
 "at": "2026-11-09T23:02+04:00",
 "changed": "2026-11-09T23:02+04:00",
-"h": "b8a91ffb590abb875ccf763be60b434bf87028d15c5f50d9f63379ea1ac880eb",
-"pending": "30e783f6accd2c0e870dd9d2236b6b53ab504285a4bf1422f33a791fb064dd78",
-"since": "2026-11-10T16:05+04:00"
+"h": "b8a91ffb590abb875ccf763be60b434bf87028d15c5f50d9f63379ea1ac880eb"
 },
 "https://www.huge-event.fr": {
 "at": "2026-11-10T09:04+04:00",
 "changed": "2026-11-10T09:04+04:00",
-"h": "868bb4c51a8c14879bae39ae1fc7daf200ac5c0f660178f299dbfff1e7da4989"
+"h": "868bb4c51a8c14879bae39ae1fc7daf200ac5c0f660178f299dbfff1e7da4989",
+"pending": "c9aec0099cf3e34e05bea98929ccaca3f76bb0ff42713027be2d4a57c68092ad",
+"since": "2026-11-10T17:02+04:00"
 },
 "https://www.tcsa-974.fr/evenements/2027/04/25/triathlonduathlon-du-colosse-2027-2565375": {
 "at": "2026-11-07T04:16+04:00",

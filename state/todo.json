@@ -1,9 +1,26 @@
 {
- "at": "2026-11-10T14:33+04:00",
+ "at": "2026-11-10T17:02+04:00",
  "since": "2026-11-10T14:20:59+04:00",
- "rien": true,
- "sources": [],
- "avenir": [],
+ "rien": false,
+ "sources": [
+  {
+   "id": "runninglife",
+   "url": "https://running.life/calendrier-course-a-pied/reunion",
+   "changed": "2026-11-10T17:02+04:00"
+  },
+  {
+   "id": "bancouliers",
+   "url": "https://case-des-bancouliers.webnode.fr/",
+   "changed": "2026-11-10T17:02+04:00"
+  }
+ ],
+ "avenir": [
+  {
+   "id": "boucle-pic-adam-2027-08",
+   "url": "https://case-des-bancouliers.webnode.fr/",
+   "changed": "2026-11-10T17:02+04:00"
+  }
+ ],
  "illisibles": [
   {
    "id": "saint-benoit",
