@@ -20,18 +20,14 @@
 "h": "8e633ccdc2a48943c4c2169a509823b3616e5d428a2b6b40e2973e18c1ba13d4"
 },
 "https://gotrail.run/calendrier-trails/reunion": {
-"at": "2026-11-10T10:05+04:00",
-"changed": "2026-11-10T10:05+04:00",
-"h": "2af4d3c99b721821db3a10a30878f7f396a272c27f2b1280ba3ca62217d44e28",
-"pending": "bb8c330068cffc359c5b419b68abbf7a81f6a6be666cbc5d85007fb81b3cf11c",
-"since": "2026-11-10T17:02+04:00"
+"at": "2026-11-10T17:17+04:00",
+"changed": "2026-11-10T17:17+04:00",
+"h": "bb8c330068cffc359c5b419b68abbf7a81f6a6be666cbc5d85007fb81b3cf11c"
 },
 "https://ilop.re/ilop-sport/outdoor/": {
-"at": "2026-11-03T13:02+04:00",
-"changed": "2026-11-03T13:02+04:00",
-"h": "20c29c3b0cfea40adca87dca42b29ae69c9962c854dfba39556aaa22793cf6fd",
-"pending": "6e08ad58b9614d63c649d2a2cd972941558518009a647e58d5033b0480b7c95a",
-"since": "2026-11-10T17:02+04:00"
+"at": "2026-11-10T17:17+04:00",
+"changed": "2026-11-10T17:17+04:00",
+"h": "6e08ad58b9614d63c649d2a2cd972941558518009a647e58d5033b0480b7c95a"
 },
 "https://reuniontritour.com/infos/": {
 "at": "2026-11-04T14:32+04:00",
@@ -54,18 +50,14 @@
 "h": "1654eca3e91764fa28b52301423d7777b76a1781a0df7ac506dd019fa4bf96b9"
 },
 "https://traildesanglais.re/inscriptions/": {
-"at": "2026-11-03T14:36+04:00",
-"changed": "2026-11-03T14:21+04:00",
-"h": "3ae26caa504f9f91fda0fd6ad6575051ebac3065e83ee7cefc0f30148c84be6d",
-"pending": "73ed3d81efbaf8a88ef0ef2e89aec0a4cf70e85e758af969741415f5ee06e9e0",
-"since": "2026-11-10T17:02+04:00"
+"at": "2026-11-10T17:17+04:00",
+"changed": "2026-11-10T17:17+04:00",
+"h": "73ed3d81efbaf8a88ef0ef2e89aec0a4cf70e85e758af969741415f5ee06e9e0"
 },
 "https://ultramarathondescirques.re/#umc-inscriptions": {
-"at": "2026-10-31T15:08+04:00",
-"changed": "2026-10-31T14:21+04:00",
-"h": "07660d23f0ad7fb3a6ec8abbd8c9f2d7f03410d9553827dea604899ac1d2ddba",
-"pending": "153a5f634007cb9ef85b3586e5ab10b37d98367649209380ab9c165b0379a1bd",
-"since": "2026-11-10T17:02+04:00"
+"at": "2026-11-10T17:17+04:00",
+"changed": "2026-11-10T17:17+04:00",
+"h": "153a5f634007cb9ef85b3586e5ab10b37d98367649209380ab9c165b0379a1bd"
 },
 "https://www.aajm.re/courses/trail-grand-bassin/": {
 "at": "2026-10-27T19:08+04:00",
@@ -95,9 +87,7 @@
 "https://www.huge-event.fr": {
 "at": "2026-11-10T09:04+04:00",
 "changed": "2026-11-10T09:04+04:00",
-"h": "868bb4c51a8c14879bae39ae1fc7daf200ac5c0f660178f299dbfff1e7da4989",
-"pending": "c9aec0099cf3e34e05bea98929ccaca3f76bb0ff42713027be2d4a57c68092ad",
-"since": "2026-11-10T17:02+04:00"
+"h": "868bb4c51a8c14879bae39ae1fc7daf200ac5c0f660178f299dbfff1e7da4989"
 },
 "https://www.tcsa-974.fr/evenements/2027/04/25/triathlonduathlon-du-colosse-2027-2565375": {
 "at": "2026-11-07T04:16+04:00",

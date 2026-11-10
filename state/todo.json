@@ -1,12 +1,22 @@
 {
- "at": "2026-11-10T17:02+04:00",
+ "at": "2026-11-10T17:17+04:00",
  "since": "2026-11-10T14:20:59+04:00",
  "rien": false,
  "sources": [
   {
+   "id": "gotrail",
+   "url": "https://gotrail.run/calendrier-trails/reunion",
+   "changed": "2026-11-10T17:17+04:00"
+  },
+  {
    "id": "runninglife",
    "url": "https://running.life/calendrier-course-a-pied/reunion",
    "changed": "2026-11-10T17:02+04:00"
+  },
+  {
+   "id": "ilop",
+   "url": "https://ilop.re/ilop-sport/outdoor/",
+   "changed": "2026-11-10T17:17+04:00"
   },
   {
    "id": "bancouliers",
@@ -15,6 +25,16 @@
   }
  ],
  "avenir": [
+  {
+   "id": "trail-anglais-2027-02",
+   "url": "https://traildesanglais.re/inscriptions/",
+   "changed": "2026-11-10T17:17+04:00"
+  },
+  {
+   "id": "ultra-marathon-cirques-2027-06",
+   "url": "https://ultramarathondescirques.re/#umc-inscriptions",
+   "changed": "2026-11-10T17:17+04:00"
+  },
   {
    "id": "boucle-pic-adam-2027-08",
    "url": "https://case-des-bancouliers.webnode.fr/",

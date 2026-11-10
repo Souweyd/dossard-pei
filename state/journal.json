@@ -443,5 +443,12 @@
 "id": "villele",
 "nom": "Trail de Villèle",
 "date": "2026-11-29"
+},
+{
+"at": "2026-11-10T17:09+04:00",
+"t": "retrait",
+"id": "raid-dalons-2026-12",
+"nom": "Le Raid des Dalons",
+"date": "2026-12-18"
 }
 ]
