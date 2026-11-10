@@ -450,5 +450,12 @@
 "id": "raid-dalons-2026-12",
 "nom": "Le Raid des Dalons",
 "date": "2026-12-18"
+},
+{
+"at": "2026-11-10T22:00+04:00",
+"t": "complet",
+"id": "dimitile",
+"nom": "Trans Dimitile",
+"date": "2026-12-06"
 }
 ]
