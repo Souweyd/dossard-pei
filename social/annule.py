@@ -23,9 +23,24 @@ def race(rid):
             return r
 
 
+def source_txt(r):
+    """Annulation apprise ailleurs que chez l'organisateur : annule_source = {"nom": ..., "date": "AAAA-MM-JJ", "url"?}."""
+    s = r.get('annule_source')
+    if not s:
+        return ''
+    if isinstance(s, str):
+        s = {'nom': s}
+    out = f"Source : {s['nom']}"
+    if s.get('date'):
+        d = D.date.fromisoformat(s['date'])
+        out += f", {d.day} {N.MOIS[d.month - 1]}"
+    return out
+
+
 def html_story(r, motif='', info=''):
     poster = poster_path(r)
     img = (poster or art_path(r)).as_uri()
+    src = source_txt(r)
     nm = r['nom']; fs = 80 if len(nm) <= 22 else (66 if len(nm) <= 32 else 56)
     E = N.esc
     return f'''<!doctype html><html><head><meta charset="utf-8"><style>
@@ -46,6 +61,7 @@ body{{font-family:I,sans-serif;color:{N.INK};position:relative;background:{N.CRE
   <div class="s" style="font-weight:800;font-size:{fs}px;line-height:.95">{E(nm)}</div>
   <div style="font-size:40px;font-weight:600;margin-top:14px">{E(N.when(r))} · {E(r['commune'])}</div>
   {f'<div style="font-size:38px;font-weight:600;margin-top:12px">{E(motif)}</div>' if motif else ''}
+  {f'<div style="font-size:34px;font-weight:600;margin-top:10px">{E(src)}</div>' if src else ''}
   {f'<div style="display:inline-block;margin-top:18px;font-weight:700;font-size:34px;color:#fff;background:{RED};border-radius:999px;padding:8px 28px">{E(info)}</div>' if info else ''}</div>
 <div style="position:absolute;left:0;right:0;top:1620px;display:flex;justify-content:center">
   <div style="display:flex;align-items:center;gap:22px;background:#fff;border:6px solid {N.INK};border-radius:999px;padding:14px 40px 14px 18px;box-shadow:0 16px 30px rgba(29,37,35,.22)">
@@ -61,6 +77,8 @@ def post_text(r, motif='', info=''):
         lines.append(motif)
     if info:
         lines.append(info)
+    if source_txt(r):
+        lines.append(f"ℹ️ {source_txt(r)}")
     lines.append('Toutes les autres courses 👉 dossardpei.re')
     return '\n'.join(lines)
 

@@ -45,9 +45,12 @@
   },
   "raid-dalons-2026-12": {
    "fields": [
-    "epreuves"
+    "annule",
+    "annule_source",
+    "epreuves",
+    "hidden"
    ],
-   "hidden": false
+   "hidden": true
   },
   "mafate-trail-tour-2026-11": {
    "fields": [
