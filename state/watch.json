@@ -7,7 +7,9 @@
 "https://case-des-bancouliers.webnode.fr/": {
 "at": "2026-11-04T13:02+04:00",
 "changed": "2026-11-04T13:02+04:00",
-"h": "57831a41ce1da4b5ad9e84385877aa0512aa5f3329de6abe9c537758004f9d19"
+"h": "57831a41ce1da4b5ad9e84385877aa0512aa5f3329de6abe9c537758004f9d19",
+"pending": "d4a7032bf0f3fdd72047fba8c335b5917f50a2a7d03941fd1671dd0f67dd6dfd",
+"since": "2026-11-10T16:05+04:00"
 },
 "https://chronometrage.com/": {
 "at": "2026-11-02T13:02+04:00",
@@ -37,7 +39,9 @@
 "https://running.life/calendrier-course-a-pied/reunion": {
 "at": "2026-11-10T10:05+04:00",
 "changed": "2026-11-10T10:05+04:00",
-"h": "5914a97ffa2152f64e00301e69b619e55f86fc1d56fb7540ef3ab60354666f10"
+"h": "5914a97ffa2152f64e00301e69b619e55f86fc1d56fb7540ef3ab60354666f10",
+"pending": "d633a854a9a09fff9f306a99b6d65b3f6e99867eca0fdb56dfe250d60b2e1ba0",
+"since": "2026-11-10T16:05+04:00"
 },
 "https://sportinnovation.fr/Evenements/Inscriptions/9096/PRESENTIEL": {
 "at": "2026-10-27T19:08+04:00",
@@ -82,7 +86,9 @@
 "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/": {
 "at": "2026-11-09T23:02+04:00",
 "changed": "2026-11-09T23:02+04:00",
-"h": "b8a91ffb590abb875ccf763be60b434bf87028d15c5f50d9f63379ea1ac880eb"
+"h": "b8a91ffb590abb875ccf763be60b434bf87028d15c5f50d9f63379ea1ac880eb",
+"pending": "30e783f6accd2c0e870dd9d2236b6b53ab504285a4bf1422f33a791fb064dd78",
+"since": "2026-11-10T16:05+04:00"
 },
 "https://www.huge-event.fr": {
 "at": "2026-11-10T09:04+04:00",
