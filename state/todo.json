@@ -1,5 +1,5 @@
 {
- "at": "2026-11-10T17:17+04:00",
+ "at": "2026-11-10T19:05+04:00",
  "since": "2026-11-10T14:20:59+04:00",
  "rien": false,
  "sources": [
@@ -22,6 +22,11 @@
    "id": "bancouliers",
    "url": "https://case-des-bancouliers.webnode.fr/",
    "changed": "2026-11-10T17:02+04:00"
+  },
+  {
+   "id": "grandraid",
+   "url": "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/",
+   "changed": "2026-11-10T19:05+04:00"
   }
  ],
  "avenir": [
