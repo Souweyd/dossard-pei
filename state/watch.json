@@ -14,6 +14,11 @@
 "changed": "2026-11-02T13:02+04:00",
 "h": "bc36100c29b261ab3cfc20f3ca5919cad536d5bd54e97dd81ccec33ad9b63e5b"
 },
+"https://chronorun974.re/laustral/": {
+"at": "2026-11-11T09:33+04:00",
+"changed": "2026-11-11T09:21:04+04:00",
+"h": "12476b22d1e47775d315d46917dcff3fa176929f8845cc0edb1fd5e604cd0b80"
+},
 "https://foulee-solidaire-polio.netlify.app/": {
 "at": "2026-10-31T09:27+04:00",
 "changed": "2026-10-30T19:23+04:00",
@@ -82,12 +87,16 @@
 "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/": {
 "at": "2026-11-11T03:04+04:00",
 "changed": "2026-11-11T03:04+04:00",
-"h": "30e783f6accd2c0e870dd9d2236b6b53ab504285a4bf1422f33a791fb064dd78"
+"h": "30e783f6accd2c0e870dd9d2236b6b53ab504285a4bf1422f33a791fb064dd78",
+"pending": "8e39dce8d22e3254d6eb240057ab97313264e9a1b5a5e49732627a9e6a8e55f2",
+"since": "2026-11-11T09:33+04:00"
 },
 "https://www.huge-event.fr": {
 "at": "2026-11-10T09:04+04:00",
 "changed": "2026-11-10T09:04+04:00",
-"h": "868bb4c51a8c14879bae39ae1fc7daf200ac5c0f660178f299dbfff1e7da4989"
+"h": "868bb4c51a8c14879bae39ae1fc7daf200ac5c0f660178f299dbfff1e7da4989",
+"pending": "c9aec0099cf3e34e05bea98929ccaca3f76bb0ff42713027be2d4a57c68092ad",
+"since": "2026-11-11T09:33+04:00"
 },
 "https://www.tcsa-974.fr/evenements/2027/04/25/triathlonduathlon-du-colosse-2027-2565375": {
 "at": "2026-11-07T04:16+04:00",
