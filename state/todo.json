@@ -1,5 +1,5 @@
 {
- "at": "2026-11-11T03:04+04:00",
+ "at": "2026-11-11T04:05+04:00",
  "since": "2026-11-10T19:22:46+04:00",
  "rien": false,
  "sources": [
@@ -24,7 +24,7 @@
   {
    "id": "saint-benoit",
    "url": "https://www.saint-benoit.re/evenements/",
-   "erreur": "RemoteDisconnected"
+   "erreur": "HTTPError 404"
   },
   {
    "id": "milesrepublic",
