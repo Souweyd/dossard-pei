@@ -87,14 +87,14 @@
 "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/": {
 "at": "2026-11-11T12:05+04:00",
 "changed": "2026-11-11T12:05+04:00",
-"h": "30e783f6accd2c0e870dd9d2236b6b53ab504285a4bf1422f33a791fb064dd78"
+"h": "30e783f6accd2c0e870dd9d2236b6b53ab504285a4bf1422f33a791fb064dd78",
+"pending": "b8a91ffb590abb875ccf763be60b434bf87028d15c5f50d9f63379ea1ac880eb",
+"since": "2026-11-11T15:05+04:00"
 },
 "https://www.huge-event.fr": {
-"at": "2026-11-11T13:05+04:00",
-"changed": "2026-11-11T13:05+04:00",
-"h": "c9aec0099cf3e34e05bea98929ccaca3f76bb0ff42713027be2d4a57c68092ad",
-"pending": "868bb4c51a8c14879bae39ae1fc7daf200ac5c0f660178f299dbfff1e7da4989",
-"since": "2026-11-11T14:03+04:00"
+"at": "2026-11-11T15:05+04:00",
+"changed": "2026-11-11T15:05+04:00",
+"h": "868bb4c51a8c14879bae39ae1fc7daf200ac5c0f660178f299dbfff1e7da4989"
 },
 "https://www.tcsa-974.fr/evenements/2027/04/25/triathlonduathlon-du-colosse-2027-2565375": {
 "at": "2026-11-07T04:16+04:00",
