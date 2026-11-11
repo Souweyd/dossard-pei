@@ -534,5 +534,12 @@
 "id": "possession",
 "nom": "Les Foulées de la Possession",
 "date": "2026-11-29"
+},
+{
+"at": "2026-11-12T00:00+04:00",
+"t": "clos",
+"id": "diab",
+"nom": "Diab'athlétique",
+"date": "2026-11-15"
 }
 ]
