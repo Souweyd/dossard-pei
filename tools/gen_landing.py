@@ -94,7 +94,7 @@ def shell(path, title, desc, h1, intro, body, logo, n):
 <meta property="og:type" content="website"><meta property="og:site_name" content="Dossard Péi"><meta property="og:locale" content="fr_FR">
 <meta property="og:title" content="{esc(title)}"><meta property="og:description" content="{esc(desc)}"><meta property="og:url" content="{url}"><meta property="og:image" content="{G.SITE}/og/home.jpg?v=3">
 <meta name="theme-color" content="#f5efe6" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#14110e" media="(prefers-color-scheme: dark)">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fonts/fonts.css">
 <script type="application/ld+json">{ld}</script>
 <script data-goatcounter="https://dossardpei.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <style>{G.CSS}{EXTRA_CSS}</style></head><body>

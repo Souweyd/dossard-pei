@@ -1,0 +1,332 @@
+{
+"ail": {
+"commune": "Petite-Île",
+"date": "2026-10-25",
+"epreuves": [
+{
+"km": 20,
+"nom": "Course de l'Ail solo",
+"type": "trail"
+},
+{
+"km": 20,
+"nom": "Course de l'Ail relais",
+"type": "relais"
+},
+{
+"km": 13,
+"nom": "Foulées de la gousse d'Ail",
+"type": "trail"
+},
+{
+"km": 15,
+"nom": "Fast Hiking",
+"type": "marche"
+},
+{
+"km": 13,
+"nom": "Rando de l'Ail",
+"type": "marche"
+}
+],
+"lieu": "Petite-Île",
+"nom": "Course de l'Ail",
+"org": "COSPI",
+"page": "https://chronorun974.re/course-de-lail-2026/",
+"until": "2027-04-23"
+},
+"avirons-urbain": {
+"commune": "Les Avirons",
+"date": "2026-10-31",
+"epreuves": [
+{
+"dp": 550,
+"km": 15,
+"nom": "15 km",
+"type": "trail"
+},
+{
+"dp": 250,
+"km": 7.5,
+"nom": "7,5 km",
+"type": "trail"
+}
+],
+"lieu": "Parvis de la mairie des Avirons",
+"nom": "Trail Urbain des Avirons",
+"org": "Club Tôlérans 974",
+"page": "https://www.sportpro.re/courses/02165-trail-urbain-des-avirons/",
+"until": "2027-04-29"
+},
+"curcuma": {
+"commune": "Saint-Joseph",
+"date": "2026-11-07",
+"epreuves": [
+{
+"dp": 1650,
+"km": 24.2,
+"nom": "Trail du Curcuma",
+"type": "trail"
+},
+{
+"dp": 850,
+"km": 12.5,
+"nom": "Fast Hiking du Curcuma",
+"type": "marche"
+},
+{
+"dp": 850,
+"km": 12.5,
+"nom": "Rando classique",
+"type": "marche"
+}
+],
+"lieu": "Stade Raphaël Babet (arrivée champ de foire, Plaine des Grègues)",
+"nom": "Les Montées Curcuma",
+"org": "Maison des Associations de Saint-Joseph",
+"page": "https://www.sportpro.re/courses/02159-les-montees-curcuma-2026/",
+"until": "2027-05-06"
+},
+"flambeaux": {
+"commune": "Saint-Benoît",
+"date": "2026-11-06",
+"epreuves": [
+{
+"km": 0.8,
+"nom": "Relais aux Flambeaux",
+"type": "relais"
+},
+{
+"km": 0.8,
+"nom": "Handisport",
+"type": "relais"
+}
+],
+"lieu": "Esplanade de Saint-Benoît",
+"nom": "Relais aux Flambeaux",
+"org": "Samsora Tonique Athlé Sainte-Anne",
+"page": "https://www.sportpro.re/courses/02161-relais-aux-flambeaux-/",
+"until": "2027-05-05"
+},
+"leu-eclairs": {
+"commune": "Saint-Leu",
+"date": "2026-10-24",
+"epreuves": [
+{
+"dp": 500,
+"km": 12,
+"nom": "Trail urbain",
+"type": "trail"
+}
+],
+"lieu": "La Chaloupe Saint-Leu, gymnase Noé Phalaris",
+"nom": "Leu Urban Trail des Éclairs",
+"org": "Team Éclair",
+"page": "https://chronorun974.re/leu-urban-trail-des-eclairs-2026/",
+"until": "2027-04-22"
+},
+"marathon-relais-sb": {
+"commune": "Saint-Benoît",
+"date": "2026-11-11",
+"epreuves": [
+{
+"km": 42.2,
+"nom": "Marathon relais",
+"type": "relais"
+},
+{
+"km": 42.2,
+"nom": "Équipe inclusive (5 valides, 5 handi)",
+"type": "relais"
+}
+],
+"lieu": "Esplanade de Saint-Benoît",
+"nom": "Marathon Relais de Saint-Benoît",
+"org": "Samsora Tonique Athlé Sainte-Anne",
+"page": "https://www.sportpro.re/courses/02158-marathon-relais-de-saint-benoit/",
+"until": "2027-05-10"
+},
+"octobre-rose": {
+"commune": "Saint-Benoît",
+"date": "2026-10-24",
+"epreuves": [
+{
+"km": 14,
+"nom": "Foulées et Marche Octobre Rose",
+"type": "route"
+},
+{
+"nom": "Course Marmay 2012-2023",
+"type": "jeunes"
+}
+],
+"lieu": "Saint-Benoît",
+"nom": "Foulées Octobre Rose",
+"org": "Athlétics-Club des Marsouins",
+"page": "https://www.sportpro.re/courses/02151-foulees-octobre-rose/",
+"until": "2027-04-22"
+},
+"odyssea-reunion-2026-11": {
+"commune": "L'Étang-Salé",
+"date": "2026-11-07",
+"epreuves": [
+{
+"km": 2.6,
+"nom": "Marche de la diversité 2,6 km",
+"type": "marche"
+},
+{
+"nom": "Courses Marmailles",
+"type": "jeunes"
+},
+{
+"dp": 72,
+"km": 10,
+"nom": "10 km Course Nature (chronométrée)",
+"type": "trail"
+},
+{
+"km": 5,
+"nom": "5 km Randonnée (dimanche)",
+"type": "marche"
+}
+],
+"fin": "2026-11-08",
+"lieu": "Forêt de l'Étang-Salé",
+"nom": "Odysséa La Réunion",
+"org": "Odysséa Réunion",
+"page": "https://odyssea.info/courses/odyssea-reunion/",
+"until": "2027-05-07"
+},
+"pompiers-port": {
+"commune": "Le Port",
+"date": "2026-10-25",
+"epreuves": [
+{
+"km": 12,
+"nom": "12 km",
+"type": "route"
+},
+{
+"km": 5,
+"nom": "5 km",
+"type": "route"
+}
+],
+"lieu": "Le Port",
+"nom": "Foulées Sapeurs-Pompiers du Port",
+"org": "Amicale des Sapeurs-Pompiers du Port",
+"page": "https://www.sportpro.re/courses/02131-foulees-sapeurs-pompiers-du-port/",
+"until": "2027-04-23"
+},
+"route-lait": {
+"commune": "Le Tampon",
+"date": "2026-11-07",
+"epreuves": [
+{
+"km": 10,
+"nom": "La Route du Lait",
+"type": "route"
+}
+],
+"lieu": "Plaine des Cafres",
+"nom": "La Route du Lait",
+"org": "ASCAH",
+"page": "https://www.sportpro.re/courses/02133-la-route-du-lait/",
+"until": "2027-05-06"
+},
+"run-marmailles": {
+"commune": "Saint-Benoît",
+"date": "2026-11-06",
+"epreuves": [
+{
+"nom": "3 à 8 ans",
+"type": "jeunes"
+},
+{
+"nom": "9 à 12 ans",
+"type": "jeunes"
+},
+{
+"nom": "13 à 14 ans",
+"type": "jeunes"
+}
+],
+"lieu": "Arrivée esplanade de Saint-Benoît",
+"nom": "Le Run Marmailles",
+"org": "Samsora Tonique Athlé Sainte-Anne",
+"page": "https://www.sportpro.re/courses/02163-le-run-marmailles/",
+"until": "2027-05-05"
+},
+"tevelave": {
+"commune": "Les Avirons",
+"date": "2026-11-07",
+"epreuves": [
+{
+"dp": 600,
+"km": 14,
+"nom": "Foulées du Tévelave",
+"type": "trail"
+}
+],
+"lieu": "Plateau sportif du Tévelave",
+"nom": "Les Foulées du Tévelave",
+"org": "Team Choka",
+"page": "https://chronorun974.re/les-foulees-du-tevelave/",
+"until": "2027-05-06"
+},
+"tour-ile-pedestre-utoi-2026-10": {
+"commune": "La Possession",
+"date": "2026-10-31",
+"epreuves": [
+{
+"dp": 1378,
+"km": 180,
+"nom": "Relais à 10",
+"type": "relais"
+},
+{
+"dp": 1378,
+"km": 180,
+"nom": "Relais à 5",
+"type": "relais"
+}
+],
+"lieu": "Place Festival (arrivée au Barachois, Saint-Denis)",
+"nom": "Tour de l'Île pédestre",
+"org": "UTOI / ACSR",
+"page": "https://utoi.re/product-category/saison-2026/tour-de-lile-pedestre-2026/",
+"until": "2027-04-29"
+},
+"tri-salazes": {
+"commune": "Saint-Benoît",
+"date": "2026-10-31",
+"epreuves": [
+{
+"km": 38.8,
+"nom": "Triathlon S individuel",
+"type": "multisport"
+},
+{
+"km": 43,
+"nom": "Duathlon S individuel",
+"type": "multisport"
+},
+{
+"km": 38.8,
+"nom": "Relais à 3 triathlon",
+"type": "multisport"
+},
+{
+"km": 43,
+"nom": "Relais à 3 duathlon",
+"type": "multisport"
+}
+],
+"lieu": "Saint-Benoît",
+"nom": "Triathlon Tri Salazes",
+"org": "Club de Natation les Z'anguilles de Salazie",
+"page": "https://www.sportpro.re/courses/02112-triathlon-tri-salazes/",
+"until": "2027-04-29"
+}
+}

@@ -262,18 +262,32 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
     if poster or has_og: ev["image"] = [img] + ([f"{SITE}/{poster}"] if poster else [])
     org = {"@type": "Organization", "name": r.get("org") or r["nom"], **({"url": r["page"]} if r.get("page") else {})}
     ev["organizer"] = org
-    prices = [price_num(e.get("prix")) for e in r.get("epreuves", [])]
-    prices = [p for p in prices if p is not None]
-    # an offer is only declared when its price is known (Google flags offers without price)
-    if r.get("inscription") and prices:
-        # several prices (one per épreuve): a range « de … à … € » rather than the cheapest one only
-        off = {"@type": "Offer", "price": min(prices)} if len(set(prices)) == 1 else \
-              {"@type": "AggregateOffer", "lowPrice": min(prices), "highPrice": max(prices), "offerCount": len(prices)}
-        off.update({"url": r["inscription"], "priceCurrency": "EUR",
-                    "availability": "https://schema.org/SoldOut" if r.get("complet") else "https://schema.org/InStock",
-                    "validFrom": r.get("ouverture") or (data_date or today)})
-        if r.get("limite"): off["validThrough"] = r["limite"]
-        ev["offers"] = off
+    # offers (tarifs): one per épreuve whose price is known (Google flags offers without price), with its own
+    # registration link and status; several prices give a range « de … à … € »
+    def avail(x, top=False):
+        if x.get("complet") or (top and r.get("complet")): return "https://schema.org/SoldOut"
+        if x.get("clos") or (x.get("limite") and x["limite"] < today) or (top and (r.get("clos") or past)): return "https://schema.org/SoldOut"
+        if (x.get("ouverture") and x["ouverture"] > now_reu) or (x.get("avenir") and not x.get("ouverture")): return "https://schema.org/PreOrder"
+        return "https://schema.org/InStock"
+    reg = r.get("inscription") or r.get("fiche") or r.get("page")
+    offs = []
+    for e in r.get("epreuves", []):
+        pr = price_num(e.get("prix"))
+        if pr is None or e.get("type") == "jeunes" and pr == 0: continue
+        o = {"@type": "Offer", "name": e.get("nom") or r["nom"], "price": pr, "priceCurrency": "EUR",
+             "availability": avail({**{k: r.get(k) for k in ("ouverture", "avenir", "limite", "clos")}, **{k: v for k, v in e.items() if v not in (None, "")}}),
+             "validFrom": e.get("ouverture") or r.get("ouverture") or (data_date or today)}
+        if e.get("url") or reg: o["url"] = e.get("url") or reg
+        if e.get("limite") or r.get("limite"): o["validThrough"] = e.get("limite") or r.get("limite")
+        offs.append(o)
+    if offs:
+        ps = [o["price"] for o in offs]
+        if len(offs) == 1:
+            ev["offers"] = offs[0]
+        else:
+            ev["offers"] = {"@type": "AggregateOffer", "lowPrice": min(ps), "highPrice": max(ps), "offerCount": len(offs), "priceCurrency": "EUR",
+                            "availability": avail(r, True), "validFrom": r.get("ouverture") or (data_date or today), "offers": offs,
+                            **({"url": reg} if reg else {})}
     ld = json.dumps(ev, ensure_ascii=False).replace("</", "<\\/")
 
     rows = "".join(
@@ -307,7 +321,7 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
 <meta property="og:url" content="{url}"><meta property="og:image" content="{img}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#f5efe6" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#14110e" media="(prefers-color-scheme: dark)">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/fonts/fonts.css">
 <script type="application/ld+json">{ld}</script>
 <script data-goatcounter="https://dossardpei.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <style>{CSS}</style></head><body>
@@ -332,6 +346,92 @@ HOME_HEAD = re.compile(r'<link rel="canonical"[^>]*>|<meta property="og:[^>]*>|<
                        r'<script type="application/ld\+json">.*?</script>|<title>.*?</title>|<meta name="description"[^>]*>', re.S)
 
 
+# ---------------------------------------------------------------- finished races
+TERM = "state/terminees.json"   # {id: {nom, date, fin, commune, lieu, epreuves, until}}: pages kept after the race
+KEEP_DAYS = 180                 # « quelques mois » after the race
+
+
+def norm_name(s):
+    import unicodedata
+    s = unicodedata.normalize("NFKD", (s or "").replace("œ", "oe").replace("Œ", "Oe").replace("æ", "ae")).encode("ascii", "ignore").decode().lower()
+    s = re.sub(r"\b(19|20)\d\d\b|\b\d+(e|eme|ème)\b|\bedition\b", " ", s)
+    return " ".join(w for w in re.sub(r"[^a-z0-9]+", " ", s).split() if w not in {"la", "le", "les", "de", "du", "des", "d", "l", "et", "a"})
+
+
+def term_record(r):
+    """what a finished race's page needs (the race itself is no longer in data.json)"""
+    end = d_of(r.get("fin") or r["date"])
+    return {"nom": r["nom"], "date": r["date"], **({"fin": r["fin"]} if r.get("fin") and r["fin"] != r["date"] else {}),
+            "commune": r.get("commune", ""), **({"lieu": r["lieu"]} if r.get("lieu") else {}), **({"org": r["org"]} if r.get("org") else {}),
+            **({"page": r.get("page") or r.get("fiche")} if r.get("page") or r.get("fiche") else {}),
+            "epreuves": [{k: e[k] for k in ("nom", "km", "dp", "type") if e.get(k) not in (None, "")} for e in r.get("epreuves", [])][:12],
+            "until": (end + dt_mod.timedelta(days=KEEP_DAYS)).isoformat()}
+
+
+def snapshot_race(path, rid):
+    """the race as the page last showed it (its embedded data snapshot)"""
+    try:
+        t = open(path, encoding="utf-8").read()
+        m = re.search(r'<script type="application/json" id="snapshot">(.*?)</script>', t, re.S)
+        if m:
+            return next((r for r in json.loads(m.group(1).replace("<\\/", "</")).get("races", []) if r.get("id") == rid), None)
+    except Exception:
+        pass
+    return None
+
+
+def a_commune(c):
+    """« à Saint-Leu », « au Tampon », « aux Avirons »"""
+    return "au " + c[3:] if c.startswith("Le ") else "aux " + c[4:] if c.startswith("Les ") else "à " + c
+
+
+def ended_page(rid, t, logo, races):
+    """« Course terminée »: what the race was, the next edition when there is one, and the next races"""
+    today = reu_today().isoformat()
+    a = d_of(t["date"]); b = d_of(t.get("fin") or t["date"])
+    when = date_range({"date": t["date"], "fin": t.get("fin")})
+    nn = norm_name(t["nom"])
+    up = sorted([r for r in races if (r.get("fin") or r["date"]) >= today], key=lambda r: r["date"])
+    nxt = next((r for r in up if norm_name(r["nom"]) == nn and r["date"] > t["date"]), None)
+    near = [r for r in up if r.get("commune") == t.get("commune") and r is not nxt][:3]
+    soon = [r for r in up if r is not nxt and r not in near][:6 - len(near)]
+    li = lambda r: (f'<li><a href="/course/{esc(r["id"])}/"><b>{esc(r["nom"])}</b><span>{esc(date_range(r))} · {esc(r.get("commune", ""))}</span></a></li>')
+    eps = " · ".join(esc(e.get("nom", "")) + (f" ({fmt_km(e['km'])} km)" if e.get("km") else "") for e in t.get("epreuves", []))
+    title = f"{t['nom']} {a.year} · course terminée | Dossard Péi"
+    desc = f"{t['nom']} a eu lieu {'le ' if a == b else ''}{when} à {t.get('commune', '')}. Les prochaines courses de La Réunion sont sur Dossard Péi."
+    return f"""<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>{esc(title)}</title>
+<meta name="description" content="{esc(desc)}">
+<meta name="robots" content="noindex, follow">
+<meta name="theme-color" content="#f5efe6" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#14110e" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<script data-goatcounter="https://dossardpei.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<style>{CSS}
+.ended{{display:inline-block;margin:0 0 10px;padding:5px 12px;border-radius:99px;background:#efe7dc;color:#5a4a3c;font-weight:700;font-size:.9rem}}
+.nx{{margin:18px 0 0;padding:14px 16px;border-radius:14px;background:#e3f1ef}} .nx a{{font-weight:700}}
+ul.up{{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:8px}} ul.up a{{display:flex;flex-direction:column;min-height:44px;justify-content:center;padding:8px 12px;border-radius:12px;background:var(--card,#fff);border:1px solid #e3ddd3;text-decoration:none;color:inherit}}
+ul.up span{{color:#636368;font-size:.92rem}} h2{{font-size:1.15rem;margin:26px 0 0}}
+@media (prefers-color-scheme: dark){{.ended{{background:#2b241e;color:#e8dccd}} .nx{{background:#12312e}} ul.up a{{background:#1d1915;border-color:#3a322a}} ul.up span{{color:#b9ada0}}}}</style></head><body>
+<header class="top"><a class="brand" href="/">{logo}<span>Dossard Péi</span></a><a class="all" href="/">Toutes les courses →</a></header>
+<main><article class="card" style="display:block">
+<p class="ended">Course terminée</p>
+<p class="when">{esc(when)}</p>
+<h1>{esc(t['nom'])}</h1>
+<p class="where">{esc(t.get('commune', ''))}{' · ' + esc(t['lieu']) if t.get('lieu') and t.get('lieu') != t.get('commune') else ''}{' · organisé par ' + esc(t['org']) if t.get('org') else ''}</p>
+{f'<p>{eps}</p>' if eps else ''}
+<p>Cette course a eu lieu. {f'Résultats et prochaine édition : voir <a href="{esc(t["page"])}" rel="noopener">le site de l’organisateur</a>.' if t.get('page') else ''}</p>
+{f'<p class="nx">Prochaine édition : <a href="/course/{esc(nxt["id"])}/">{esc(nxt["nom"])}, {esc(date_range(nxt))}</a></p>' if nxt else ''}
+{f'<h2>Prochaines courses {esc(a_commune(t.get("commune", "")))}</h2><ul class="up">' + "".join(li(r) for r in near) + '</ul>' if near else ''}
+{'<h2>Prochaines courses à La Réunion</h2><ul class="up">' + "".join(li(r) for r in soon) + '</ul>' if soon else ''}
+<div class="cta"><a class="btn main" href="/">Voir toutes les courses à venir</a></div>
+</article></main>
+<footer>Dossard Péi · toutes les courses de La Réunion au même endroit · <a href="/">dossardpei.re</a> · <a href="/#contact">Nous contacter</a></footer>
+</body></html>
+"""
+
+
 def app_page(idx, static_doc, rid):
     """The page of a race = the full site (same as a click on the race: list behind, race open in the
     dialog), with the race's own title, description, share image and structured data, and its static
@@ -345,10 +445,10 @@ def app_page(idx, static_doc, rid):
     if i < 0:
         return static_doc
     head, body = HOME_HEAD.sub("", idx[:i]), idx[i:]
-    # open this race at start: the site reads #c-<id> (then shows /course/<id>/ again in the address bar)
-    go = f'<script>if(!/^#/.test(location.hash))history.replaceState(null,"",location.pathname+"#c-{rid}");</script>\n'
+    # the site opens the race of /course/<id>/ itself (it reads the address), so no inline script is needed here
     j = head.find("<style>")
-    head = head[:j] + tags + "\n" + go + head[j:] if j >= 0 else head + tags + go
+    if j < 0: j = head.find('<link rel="stylesheet" href="assets/')
+    head = head[:j] + tags + "\n" + head[j:] if j >= 0 else head + tags
     return head + (f"<noscript>{m.group(0)}</noscript>\n" if m else "") + body
 
 
@@ -409,9 +509,34 @@ def main():
             f'<meta http-equiv="refresh" content="0;url=/course/{new}/"></head>'
             f'<body><a href="/course/{new}/">Voir la course</a></body></html>')
         keep.add(old + "#alias")
-    # drop pages of races that left the data
+    # finished races: their page stays a few months as « Course terminée » (instead of a 404 for shared or indexed links)
+    keep |= {k[:-6] for k in keep if k.endswith("#alias")}
+    term = json.load(open(TERM, encoding="utf-8")) if os.path.exists(TERM) else {}
+    today_s = reu_today().isoformat()
+    in_data = {r.get("id") for r in data.get("races", [])}
     if os.path.isdir("course"):
-        keep |= {k[:-6] for k in keep if k.endswith("#alias")}
+        for d in os.listdir("course"):
+            if d in keep or d in term or d in in_data or not re.fullmatch(r"[a-z0-9-]+", d):
+                continue
+            r = snapshot_race(f"course/{d}/index.html", d)
+            if r and r.get("date") and (r.get("fin") or r["date"]) < today_s and not r.get("annule"):
+                term[d] = term_record(r)
+    for d in sorted(term):
+        if term[d].get("until", "") < today_s or d in keep or d in in_data:
+            del term[d]; continue
+        try:
+            os.makedirs(f"course/{d}", exist_ok=True)
+            out = nbsp_html(ended_page(d, term[d], logo, races)); p = f"course/{d}/index.html"
+            if not os.path.exists(p) or open(p, encoding="utf-8").read() != out:
+                open(p, "w", encoding="utf-8").write(out)
+            keep.add(d)
+        except Exception as e:
+            print(f"page terminée {d} non générée ({e.__class__.__name__}: {e})")
+    os.makedirs("state", exist_ok=True)
+    if not os.path.exists(TERM) or json.load(open(TERM, encoding="utf-8")) != term:
+        json.dump(term, open(TERM, "w", encoding="utf-8"), ensure_ascii=False, indent=0, sort_keys=True)
+    # drop pages of races that left the data (and whose « terminée » page has expired)
+    if os.path.isdir("course"):
         for d in os.listdir("course"):
             if d not in keep: shutil.rmtree(f"course/{d}", ignore_errors=True)
     for f in os.listdir("og"):
