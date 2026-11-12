@@ -541,5 +541,19 @@
 "id": "diab",
 "nom": "Diab'athlétique",
 "date": "2026-11-15"
+},
+{
+"at": "2026-11-12T07:00+04:00",
+"t": "complet",
+"id": "dimitile",
+"nom": "Trans Dimitile",
+"date": "2026-12-06"
+},
+{
+"at": "2026-11-12T07:00+04:00",
+"t": "réouvert",
+"id": "ti-bwa",
+"nom": "Kours Ti Bwa",
+"date": "2026-12-06"
 }
 ]
