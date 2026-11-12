@@ -1,5 +1,5 @@
 {
- "at": "2026-11-12T03:04+04:00",
+ "at": "2026-11-12T04:05+04:00",
  "since": "2026-11-11T19:21:21+04:00",
  "rien": false,
  "sources": [
@@ -14,12 +14,23 @@
    "changed": "2026-11-12T03:04+04:00"
   },
   {
+   "id": "tcsa",
+   "url": "https://www.tcsa-974.fr/evenements/2027/04/25/triathlonduathlon-du-colosse-2027-2565375",
+   "changed": "2026-11-12T04:05+04:00"
+  },
+  {
    "id": "grandraid",
    "url": "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/",
    "changed": "2026-11-12T01:05+04:00"
   }
  ],
- "avenir": [],
+ "avenir": [
+  {
+   "id": "triathlon-colosse-2027-04",
+   "url": "https://www.tcsa-974.fr/evenements/2027/04/25/triathlonduathlon-du-colosse-2027-2565375",
+   "changed": "2026-11-12T04:05+04:00"
+  }
+ ],
  "illisibles": [
   {
    "id": "saint-benoit",
