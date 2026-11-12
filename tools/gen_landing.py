@@ -44,7 +44,7 @@ MOIS_C = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "s
 
 
 def slug(s):
-    s = unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode().lower()
+    s = unicodedata.normalize("NFKD", (s).replace("œ", "oe").replace("Œ", "Oe").replace("æ", "ae").replace("Æ", "Ae")).encode("ascii", "ignore").decode().lower()
     return re.sub(r"[^a-z0-9]+", "-", s).strip("-")
 
 

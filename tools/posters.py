@@ -29,7 +29,7 @@ STOP = {"de", "du", "des", "la", "le", "les", "l", "d", "et", "a", "au", "aux", 
 
 
 def norm(s):
-    s = unicodedata.normalize("NFKD", s or "").encode("ascii", "ignore").decode().lower()
+    s = unicodedata.normalize("NFKD", (s or "").replace("œ", "oe").replace("Œ", "Oe").replace("æ", "ae").replace("Æ", "Ae")).encode("ascii", "ignore").decode().lower()
     return re.sub(r"[^a-z0-9]+", " ", s).strip()
 
 
