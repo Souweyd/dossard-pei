@@ -362,6 +362,16 @@ def main():
     json.dump(FIRST, open(fs, "w"), indent=0, sort_keys=True)
     races = [r for r in data.get("races", []) if r.get("id") and r.get("date") and not r.get("hidden") and re.fullmatch(r"[a-z0-9-]+", r["id"])]
     idx = open("index.html", encoding="utf-8").read()
+    # keep the data snapshot embedded in the home page (and so in every course page) equal to data.json:
+    # the page shows it at once, before its fresh fetch of data.json
+    # (only when the races changed, not for a mere updatedAt/checkedAt, to keep the hourly commits small)
+    snap = open("data.json", encoding="utf-8").read().strip().replace("</", "<\\/")
+    old = re.search(r'<script type="application/json" id="snapshot">(.*?)</script>', idx, re.S)
+    try: same = old and {k: v for k, v in json.loads(old.group(1).replace("<\\/", "</")).items() if k not in ("updatedAt", "checkedAt")} == {k: v for k, v in data.items() if k not in ("updatedAt", "checkedAt")}
+    except ValueError: same = False
+    idx2 = idx if same or not old else idx[:old.start(1)] + snap + idx[old.end(1):]
+    if idx2 != idx:
+        open("index.html", "w", encoding="utf-8").write(idx2); idx = idx2
     m = re.search(r'<svg class="logo biglogo".*?</svg>', idx, re.S)
     logo = re.sub(r'class="logo biglogo"', 'aria-hidden="true"', m.group(0)) if m else ""
     logo = re.sub(r'\s(role|aria-label)="[^"]*"', "", logo)

@@ -23,7 +23,7 @@
 [hidden] { display: none !important }
 body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.45;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 40px }
-a { color: var(--accent) }
+a { color: var(--accent-ink, var(--accent)) }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
 .wrap { max-width: 1320px; margin: 0 auto; display: grid; gap: 18px }
 header { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px }
@@ -66,7 +66,7 @@ header > div:first-child { display: grid; justify-items: center }
 select, .chip, input[type=text], input[type=url], input[type=date], input[type=number] { font: inherit; font-size: .9rem; color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 5px 10px }
 .chip { border-radius: 999px; cursor: pointer; padding: 5px 12px }
 .chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg) }
-.reset { background: none; border: 0; color: var(--accent); font: inherit; font-size: .9rem; cursor: pointer; text-decoration: underline; padding: 0 }
+.reset { background: none; border: 0; color: var(--accent-ink, var(--accent)); font: inherit; font-size: .9rem; cursor: pointer; text-decoration: underline; padding: 0 }
 .switch { display: flex; max-width: 620px }
 .switch #v-carte { display: none }
 .cal { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 10px; min-width: 0 }
@@ -146,16 +146,16 @@ select, .chip, input[type=text], input[type=url], input[type=date], input[type=n
 .rbody { padding: 12px 14px; display: grid; gap: 8px; min-width: 0 }
 .rhead { display: flex; justify-content: space-between; gap: 10px; align-items: baseline }
 .race h3 { margin: 0; font-family: var(--display); font-weight: 700; font-size: 1.35rem; line-height: 1.05; text-wrap: balance }
-.race h3 button { all: unset; cursor: pointer } .race h3 button:hover { color: var(--accent) }
+.race h3 button { all: unset; cursor: pointer } .race h3 button:hover { color: var(--accent-ink, var(--accent)) }
 .race h3 button:focus-visible { outline: 2px solid var(--accent) }
 .where { color: var(--muted); font-size: .9rem; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center }
 .disc { font-size: .7rem; text-transform: uppercase; letter-spacing: .07em; font-weight: 700; color: var(--fg); border: 1px solid var(--line); border-radius: 4px; padding: 0 6px }
-.state { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; background: var(--accent-soft); color: var(--accent) }
+.state { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; background: var(--accent-soft); color: var(--accent-ink, var(--accent)) }
 .state.full { background: transparent; color: var(--hot); border: 1px solid var(--hot) }
 .eps { display: flex; flex-wrap: wrap; gap: 6px }
 .ep { font-family: var(--mono); font-size: .8rem; border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; white-space: nowrap; font-variant-numeric: tabular-nums }
 .ep.walk { color: var(--muted); border-style: dashed }
-.ep b { font-weight: 500; color: var(--accent) }
+.ep b { font-weight: 500; color: var(--accent-ink, var(--accent)) }
 .gpxtag { font-size: .72rem; font-weight: 700; color: var(--hot); display: inline-flex; align-items: center; gap: 3px; white-space: nowrap } .trkico { width: 18px; height: 10px; flex: none }
 .actions { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: .9rem }
 .cta { background: var(--accent); color: var(--bg); text-decoration: none; font-weight: 700; padding: 6px 12px; border-radius: 8px }
@@ -163,7 +163,7 @@ select, .chip, input[type=text], input[type=url], input[type=date], input[type=n
 .src { color: var(--muted); font-size: .8rem; margin-left: auto }
 .detail { border-top: 1px dashed var(--line); padding-top: 10px; display: grid; gap: 10px }
 .tblwrap { overflow-x: auto }
-.vline { margin: 0; font-size: .8rem; color: var(--muted) } .vline.ok { color: var(--accent) } .vline.warn { color: var(--hot); font-weight: 600 }
+.vline { margin: 0; font-size: .8rem; color: var(--muted) } .vline.ok { color: var(--accent-ink, var(--accent)) } .vline.warn { color: var(--hot); font-weight: 600 }
 .state.chk { background: transparent; color: var(--hot); border: 1px dashed var(--hot) }
 .dinfo { margin: 0; padding: 10px 14px; border-radius: 12px; background: var(--accent-soft); color: var(--fg); font-size: .88rem; line-height: 1.45 } .dinfo a { font-weight: 700; white-space: nowrap }
 td.est { white-space: nowrap; padding-right: 0 }
@@ -212,7 +212,7 @@ td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space
 .btn { font: inherit; font-size: .88rem; font-weight: 700; padding: 6px 12px; border-radius: 8px; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--bg) }
 .btn.ghost { background: transparent; color: var(--fg); border-color: var(--line) }
 .btn.danger { background: transparent; color: var(--hot); border-color: var(--hot) }
-.msg { font-size: .85rem; color: var(--accent) } .msg.err { color: var(--hot) }
+.msg { font-size: .85rem; color: var(--accent-ink, var(--accent)) } .msg.err { color: var(--hot) }
 .badge { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line) }
 .badge.warn { color: var(--warn); border-color: var(--warn) }
 /* v6: search, favourites, deadlines, tentative dates, discipline rings */
@@ -220,14 +220,14 @@ td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space
 .search input { width: 100%; padding: 7px 12px; border-radius: 8px }
 .fav { font: inherit; font-size: 1.25rem; line-height: 1; background: none; border: 0; color: var(--muted); cursor: pointer; padding: 0 2px; flex: none }
 .fav[aria-pressed="true"] { color: var(--hot) }
-.shr { font: inherit; font-size: .85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; background: none; border: 1px solid var(--line); border-radius: 999px; padding: 4px 11px; color: var(--accent); cursor: pointer } .shr svg { width: 15px; height: 15px }
+.shr { font: inherit; font-size: .85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; background: none; border: 1px solid var(--line); border-radius: 999px; padding: 4px 11px; color: var(--accent-ink, var(--accent)); cursor: pointer } .shr svg { width: 15px; height: 15px }
 .rhead .right { display: flex; gap: 8px; align-items: center; flex: none }
 .state.soon { background: var(--hot); color: var(--bg) }
-.state.ouv { background: transparent; color: var(--accent); border: 1px dashed var(--accent) }
+.state.ouv { background: transparent; color: var(--accent-ink, var(--accent)); border: 1px dashed var(--accent) }
 .bib.approx { background: transparent; color: var(--fg); border-right: 1px dashed var(--line) }
 .bib.approx b { font-size: 1.4rem }
 .tbc { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--warn) }
-.ghostlink { font: inherit; font-size: .9rem; background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; text-decoration: none }
+.ghostlink { font: inherit; font-size: .9rem; background: none; border: 0; color: var(--accent-ink, var(--accent)); cursor: pointer; padding: 0; text-decoration: none }
 .ghostlink:hover { text-decoration: underline }
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 8px 14px; border-radius: 8px; font-size: .9rem; z-index: 70; box-shadow: 0 4px 16px rgba(0,0,0,.2) }
 .tbclist { display: grid; gap: 6px; border-top: 1px dashed var(--line); padding-top: 10px }
@@ -290,7 +290,7 @@ td.n { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space
 .rban .pdate { position: absolute; left: 12px; top: 10px; background: var(--surface); color: var(--fg); border-radius: 6px; padding: 3px 7px; font-family: var(--display); text-align: center; line-height: 1.05; text-transform: uppercase; font-size: .72rem; box-shadow: 0 2px 8px rgba(0,0,0,.25) }
 .rban .pdate b { display: block; font-size: 1.25rem }
 .rban-r { position: absolute; right: 10px; top: 10px; display: flex; gap: 6px; align-items: center }
-.rban-r .state { background: var(--surface); color: var(--accent) } .rban-r .state.full { background: var(--surface); color: var(--hot); border-color: var(--hot) } .rban-r .state.soon { background: var(--hot); color: #fff }
+.rban-r .state { background: var(--surface); color: var(--accent-ink, var(--accent)) } .rban-r .state.full { background: var(--surface); color: var(--hot); border-color: var(--hot) } .rban-r .state.soon { background: var(--hot); color: #fff }
 .rban-r .fav { color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,.4) } .rban-r .fav[aria-pressed="true"] { color: #ffd400 }
 .rthumb { position: absolute; right: 0; top: 0; bottom: 0; width: 96px; border: 0; padding: 0; cursor: zoom-in; background: transparent; display: none }
 .rthumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block }
@@ -320,7 +320,7 @@ body.noscroll { overflow: hidden }
 .minimap .contour { stroke-width: .5 } .minimap .sentier { stroke-width: 1.3 }
 .mmleg { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .78rem; color: var(--muted) } .mmleg i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px } .mmleg i.dash { width: 16px; height: 0; border-radius: 0; border-top: 2px dashed #7a3f12; vertical-align: 3px }
 .trkfoot { display: flex; justify-content: flex-end }
-.gpxdl { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: .82rem; font-weight: 700; letter-spacing: .02em; color: var(--accent); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; white-space: nowrap }
+.gpxdl { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: .82rem; font-weight: 700; letter-spacing: .02em; color: var(--accent-ink, var(--accent)); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; white-space: nowrap }
 .gpxdl:hover { border-color: var(--accent); background: var(--accent-soft) } .gpxdl svg { width: 15px; height: 15px; flex: none }
 .trksrc a { color: inherit }
 .trk-tabs { display: flex; flex-wrap: wrap; gap: 6px } .trk-tabs .chip { font-size: .82rem }
@@ -354,7 +354,7 @@ footer p { margin: 0 }
 :root[data-theme="dark"] { --bg:#14110e; --surface:#1f1a16; --fg:#f1eae2; --muted:#a89a8d; --line:#332b25; --accent:#5cc4bc; --accent-soft:#1d3532; --hot:#ff6a45; --sea:#1b2424; --commune: rgba(245,245,247,.25) }
 body { -webkit-font-smoothing: antialiased; padding-top: 14px }
 .wrap { gap: 22px; grid-template-columns: minmax(0, 1fr) } .wrap > * { min-width: 0 } .soon { overflow: hidden }
-a { color: var(--accent) }
+a { color: var(--accent-ink, var(--accent)) }
 /* top bar */
 header.top { flex-direction: row; text-align: left } .top { display: flex; align-items: center; justify-content: space-between; gap: 12px }
 .top .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--fg) }
@@ -512,7 +512,7 @@ body.filtering .soonwrap, body.filtering .mine, body.filtering .hstats { display
 .lep { font-size: .78rem; border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; white-space: nowrap; font-variant-numeric: tabular-nums }
 .lep.more { color: var(--muted) }
 .lstate .state { text-transform: none; letter-spacing: 0; font-weight: 600; font-size: .78rem }
-.state { background: var(--accent-soft); color: var(--accent); text-transform: none; letter-spacing: 0; font-weight: 600 } .state.soon { background: var(--hot); color: #fff } .state.full { color: var(--muted); border-color: var(--line) }
+.state { background: var(--accent-soft); color: var(--accent-ink, var(--accent)); text-transform: none; letter-spacing: 0; font-weight: 600 } .state.soon { background: var(--hot); color: #fff } .state.full { color: var(--muted); border-color: var(--line) }
 .gpxtag { color: var(--hot); font-weight: 600 }
 .mapcol { top: 14px }
 .mapbox { border: 0; border-radius: 24px }
@@ -650,7 +650,7 @@ html { overflow-x: hidden }
 
 /* ---------- contact form ---------- */
 .sitefoot { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 10px; padding: 28px 0 40px; color: var(--muted); font-size: .92rem; text-align: center }
-.sitefoot a { color: var(--accent); font-weight: 600 }
+.sitefoot a { color: var(--accent-ink, var(--accent)); font-weight: 600 }
 .sitefoot { flex-direction: column; align-items: center; gap: 14px }
 .sitefoot .socrow { display: flex; align-items: center; gap: 12px; font-weight: 600; color: var(--ink, inherit) }
 .sitefoot .socs { display: flex; gap: 8px }
@@ -679,7 +679,7 @@ html { overflow-x: hidden }
 .cform button[type=submit] { font: inherit; font-weight: 700; color: #fff; background: var(--hot); border: 0; border-radius: 999px; padding: 11px 22px; cursor: pointer }
 .cform button[type=submit]:disabled { opacity: .6; cursor: wait }
 .cform .x { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font-size: 1.3rem; line-height: 1; cursor: pointer }
-.cform .msg { font-size: .9rem; color: var(--muted) } .cform .msg.ok { color: var(--accent); font-weight: 600 } .cform .msg.err { color: var(--hot) }
+.cform .msg { font-size: .9rem; color: var(--muted) } .cform .msg.ok { color: var(--accent-ink, var(--accent)); font-weight: 600 } #f-commune option:disabled { color: var(--muted) } .cform .msg.err { color: var(--hot) } .cform .msg.warn { color: var(--warn); font-weight: 600 } .cform .msg a { white-space: nowrap }
 .cform .done { text-align: center; padding: 10px 0 4px; display: grid; gap: 10px; justify-items: center }
 .cform .done b { font-size: 1.2rem }
 .dlg-report { color: var(--muted); font-size: .85rem }
@@ -794,7 +794,7 @@ html { overflow-x: hidden }
   .toast { bottom: calc(76px + env(safe-area-inset-bottom, 0px)) }
   .rhint { bottom: calc(74px + env(safe-area-inset-bottom)) !important }
 }
-.tbhint { position: fixed; z-index: 57; left: 50%; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: #fff; color: var(--accent); font-weight: 700; font-size: .85rem; padding: 8px 12px; border-radius: 12px; white-space: nowrap; box-shadow: 0 4px 14px rgba(0,0,0,.3); pointer-events: none; animation: tbIn .3s ease-out }
+.tbhint { position: fixed; z-index: 57; left: 50%; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: #fff; color: var(--accent-ink, var(--accent)); font-weight: 700; font-size: .85rem; padding: 8px 12px; border-radius: 12px; white-space: nowrap; box-shadow: 0 4px 14px rgba(0,0,0,.3); pointer-events: none; animation: tbIn .3s ease-out }
 .tbhint::after { content: ""; position: absolute; left: 50%; bottom: -6px; margin-left: -6px; border: 6px solid transparent; border-bottom: 0; border-top-color: #fff }
 @keyframes tbUp { from { opacity: 0; transform: translate(-50%, 8px) } } @keyframes tbFade { from { opacity: 0 } }
 @keyframes tbIn { from { opacity: 0; transform: translate(-50%, 6px) } }
@@ -807,7 +807,7 @@ html { overflow-x: hidden }
 .trkseg button { all: unset; box-sizing: border-box; cursor: pointer; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 8px 8px 7px; border-radius: 11px; text-align: center; -webkit-tap-highlight-color: transparent }
 .trkseg button span { font-weight: 700; font-size: .9rem; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .trkseg button small { font-size: .78rem; color: var(--muted) }
-.trkseg button[aria-pressed="true"] { background: var(--surface); box-shadow: 0 1px 4px rgba(0,0,0,.14) } .trkseg button[aria-pressed="true"] small { color: var(--accent); font-weight: 600 }
+.trkseg button[aria-pressed="true"] { background: var(--surface); box-shadow: 0 1px 4px rgba(0,0,0,.14) } .trkseg button[aria-pressed="true"] small { color: var(--accent-ink, var(--accent)); font-weight: 600 }
 .trkseg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px }
 .trkseg.many { overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity } .trkseg.many::-webkit-scrollbar { display: none }
 .trkseg.many button { flex: 0 0 auto; padding: 8px 14px 7px; scroll-snap-align: start }
@@ -825,7 +825,7 @@ html { overflow-x: hidden } body { overflow-x: clip }   /* Safari does not apply
 /* directions to the start */
 .trkfoot { align-items: center; gap: 10px; flex-wrap: wrap }
 .godep { margin-right: auto; display: flex; flex-direction: column; gap: 2px; min-width: 0 }
-.godep { position: relative } .godep-b, .godep a.x { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; padding: 6px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--accent); font-weight: 700; font-size: .82rem; letter-spacing: .02em; text-decoration: none; white-space: nowrap } .godep-b { font: inherit; font-weight: 700; font-size: .82rem; cursor: pointer } .godep-b:hover, .godep-b[aria-expanded="true"] { border-color: var(--accent); background: var(--accent-soft) }
+.godep { position: relative } .godep-b, .godep a.x { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; padding: 6px 12px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); color: var(--accent-ink, var(--accent)); font-weight: 700; font-size: .82rem; letter-spacing: .02em; text-decoration: none; white-space: nowrap } .godep-b { font: inherit; font-weight: 700; font-size: .82rem; cursor: pointer } .godep-b:hover, .godep-b[aria-expanded="true"] { border-color: var(--accent); background: var(--accent-soft) }
 .godep-m { position: absolute; left: 0; bottom: calc(100% + 6px); z-index: 5; display: grid; min-width: 180px; padding: 6px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(0,0,0,.22) }
 .godep-m a { padding: 10px 12px; border-radius: 9px; color: var(--fg); font-weight: 600; font-size: .92rem; text-decoration: none } .godep-m a:hover, .godep-m a:focus-visible { background: var(--accent-soft) }
 .godep-b svg { width: 14px; height: 14px; fill: currentColor } .godep span { font-size: .74rem; color: var(--muted); padding-left: 4px; line-height: 1.3 }
@@ -912,7 +912,7 @@ html.reels-open .rtop .rqk { opacity: var(--rp, 1); transition: opacity .2s }
 .crow .ci { flex: 1; min-width: 0; display: grid }
 .crow .ci b { font-size: .95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
 .crow .ci small { color: var(--muted); font-size: .8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
-.cst { flex: none; font-size: .72rem; font-weight: 700; padding: 4px 8px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 14%, var(--surface)); color: var(--accent); white-space: nowrap }
+.cst { flex: none; font-size: .72rem; font-weight: 700; padding: 4px 8px; border-radius: 999px; background: color-mix(in srgb, var(--accent) 14%, var(--surface)); color: var(--accent-ink, var(--accent)); white-space: nowrap }
 .cst.hot { background: color-mix(in srgb, #cc3d1b 14%, var(--surface)); color: #cc3d1b } .cst.full { background: color-mix(in srgb, var(--fg) 10%, var(--surface)); color: var(--fg) } .cst.soon { background: color-mix(in srgb, #6b5bd2 14%, var(--surface)); color: #6b5bd2 }
 .agenda { display: grid; gap: 4px }
 .crow { border-left: 4px solid var(--dc, var(--line)); padding-left: 7px }
@@ -990,8 +990,8 @@ section.soon { background: var(--surface); border-radius: 18px; padding: 16px 16
 
 /* ===== essai « épuré + running » ===== */
 :root { --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; --body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; --mono: var(--body);
-  --bg: #f2f2f7; --surface: #ffffff; --fg: #111113; --muted: #6e6e73; --line: #e3e3e8; --accent: #00968f; --accent-soft: color-mix(in srgb, #00968f 12%, #fff) }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0d1626; --surface: #172238; --fg: #f3f5fa; --muted: #9aa7be; --line: #26334d; --accent: #2ccfc6; --accent-soft: color-mix(in srgb, #2ccfc6 18%, #172238) } }
+  --bg: #f2f2f7; --surface: #ffffff; --fg: #111113; --muted: #636368; --line: #e3e3e8; --accent: #00968f; --accent-ink: #00706b; --accent-soft: color-mix(in srgb, #00968f 12%, #fff) }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0d1626; --surface: #172238; --fg: #f3f5fa; --muted: #9aa7be; --line: #26334d; --accent: #2ccfc6; --accent-ink: #2ccfc6; --accent-soft: color-mix(in srgb, #2ccfc6 18%, #172238) } }
 body { letter-spacing: -.005em }
 .list .lrow { box-shadow: none; border-radius: 18px } .list .lrow:hover { box-shadow: 0 6px 18px rgba(0,0,0,.07) }
 .lname { font-weight: 700; font-size: 1.06rem; letter-spacing: -.02em }
@@ -1137,7 +1137,7 @@ section.mine h2 { font-family: var(--display); font-weight: 800; letter-spacing:
 .sz-ch { display: block; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: color-mix(in srgb, #b07d00 85%, var(--fg)); margin-bottom: 1px }
 .sz-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; background: var(--kc) }
 .sz-i { display: block; font-size: .78rem; color: var(--muted); font-weight: 400; margin-top: 2px }
-.sz-ok { font: inherit; font-size: .78rem; font-weight: 700; border: 0; border-radius: 99px; padding: 6px 11px; background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); cursor: pointer; white-space: nowrap; flex: none }
+.sz-ok { font: inherit; font-size: .78rem; font-weight: 700; border: 0; border-radius: 99px; padding: 6px 11px; background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent-ink, var(--accent)); cursor: pointer; white-space: nowrap; flex: none }
 .sz-ok:hover { background: var(--accent); color: #fff }
 .sz-src { margin: 18px 0 0; font-size: .76rem; color: var(--muted) }
 @media (max-width: 640px) {
@@ -1210,7 +1210,7 @@ section.mine h2 { font-family: var(--display); font-weight: 800; letter-spacing:
 .dlg-bar span { font-weight: 700; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; max-width: 100% }
 .dlg-panel { grid-template-columns: minmax(0, 1fr) }   /* a long name in the bar never widens the sheet */
 .dlg-head { grid-template-columns: minmax(0, 1fr) }
-.actions .agl { margin-left: auto; font-size: .9rem; color: var(--accent); text-decoration: none; white-space: nowrap }
+.actions .agl { margin-left: auto; font-size: .9rem; color: var(--accent-ink, var(--accent)); text-decoration: none; white-space: nowrap }
 .actions .agl:hover { text-decoration: underline }
 /* while Scroll covers the screen, the page behind it is neither laid out nor painted (no images loaded, not reachable with Tab) */
 html.reels-open .wrap { content-visibility: hidden }
@@ -1276,3 +1276,38 @@ header.top .brand { opacity: 1 } header.top .brand .logo { opacity: 0 } header.t
 
 .szrow { justify-self: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px } .szrow .szlink { margin: 8px 0 0 !important }
 @media (max-width: 520px) { .szrow .szlink { font-size: .86rem; padding: 7px 12px } }
+
+/* ===== Retouches de l'accueil ===== */
+/* icons drawn with one line, in the colour of their text (no emoji in the chrome) */
+.ico, .rintro .rin svg.ico { width: 1.15em !important; height: 1.15em !important; flex: none; margin-right: .4em; vertical-align: -.2em; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round }
+/* the sky reaches the edges of the window: the browser's default body margin cut it, the phone fade is no longer needed */
+body { margin: 0; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); padding-top: 22px; padding-bottom: 48px }
+@media (max-width: 760px) { body { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)) } .herobg { -webkit-mask-image: none; mask-image: none } }
+/* next-start cards: same lines at the same height, status at the bottom */
+.scard { grid-template-rows: auto auto auto 1fr; align-content: start }
+.sname { min-height: 2.5em }
+.sst { display: flex; flex-wrap: wrap; align-items: center; align-self: end; gap: 4px 8px; margin-top: 6px }
+.sst .state { margin: 0 }
+.swx.wxchip { margin: 0; padding: 3px 8px 3px 6px; border-radius: 7px; box-shadow: none; font-size: .74rem; font-weight: 600; font-variant-numeric: tabular-nums }
+@media (min-width: 1100px) { .soon-row { padding-bottom: 22px } }   /* keeps the height of the « Dernière ligne droite » column */
+/* the J-n leaves the top of the poster, where the race's name and date are */
+.swhen { top: auto; bottom: 8px; font-weight: 600 }
+.sph, .simg:has(.sclose) .sph { bottom: 40px }
+/* last call: red only when it is urgent */
+.lc { font-weight: 600; font-variant-numeric: tabular-nums }
+.lc.far { background: none !important; color: var(--muted) !important; box-shadow: inset 0 0 0 1px var(--line) }
+/* fewer weights: size and colour carry the hierarchy */
+.soon h2, .lastc h2, section.mine h2, .list > .month { font-weight: 700; letter-spacing: -.02em }
+.tagl { font-weight: 600; letter-spacing: -.01em }
+.szlink, .state, .lname, .sclose { font-weight: 600 }
+.ldate b { font-weight: 700; letter-spacing: -.02em }
+.lep b { font-weight: 600; letter-spacing: -.01em }
+/* race sheet: forecast or trend in the top right corner of the weather block */
+.wxc2 .wxh .wxtag { margin-left: auto }
+
+/* ===== contraste (audit du 12/11/2026, WCAG AA 4,5:1) : texte teal foncé sur fond clair, gris plus soutenu ===== */
+a { color: var(--accent-ink, var(--accent)) }
+.state { color: var(--accent-ink, var(--accent)) }
+.state.chk { color: #b83c1c }
+.lbar .switch button[aria-pressed="true"] { background: var(--accent-ink, var(--accent)) }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .state.chk { color: #ff8a6a } :root:not([data-theme="light"]) .lbar .switch button[aria-pressed="true"] { color: #0d1626 } }

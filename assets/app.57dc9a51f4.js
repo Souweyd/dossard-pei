@@ -34,7 +34,16 @@ function discOf(r) {
   return ["trail", "route", "cross", "multisport", "relais", "marche", "autre", "jeunes"].find(has) || "autre";
 }
 const MULTI = ["triathlon", "duathlon", "aquathlon", "swimrun", "raid-multisport", "biathlon"];
-function merge() {
+// favourites saved under an old race id (renamed or merged into an event: BASE.alias) follow the race
+function remapFavs() { const al = BASE.alias || {}, fx = s => new Set([...s].map(id => al[id] || id)); const f = fx(FAVS), g = fx(REG);
+  if (f.size !== FAVS.size || [...f].some(id => !FAVS.has(id)) || [...g].some(id => !REG.has(id))) { FAVS = f; REG = g; saveprefs(); } }
+const HOME_TITLE = document.title;   // the public site gets a longer title (gh_sync); the artifact keeps its short one
+// race rows are real links to /course/<id>/ (crawlable, open in a new tab with Ctrl/Cmd/middle click); a plain click opens the sheet in place
+function cardClick(e, el) { if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return; e.preventDefault(); openRace(el.dataset.card); }
+// commune filter: communes without an upcoming race are greyed out (disabled), unless currently selected
+function syncCommuneOpts() { const t = todayISO(), has = new Set(); RACES.forEach(r => { if (!r.hidden && (r.fin || r.date) >= t) communesOf(r).forEach(c => has.add(c)); });
+  $("#f-commune").querySelectorAll("option").forEach(o => { if (o.value) o.disabled = !has.has(o.value) && o.value !== state.commune; }); }
+function merge() { try { remapFavs(); } catch (e) {}
   const ov = LIVE.overrides;
   const byId = new Map();
   BASE.races.forEach(r => byId.set(r.id, r));
@@ -92,7 +101,7 @@ const FFA = [["XXS", 0, 25], ["XS", 25, 45], ["S", 45, 75], ["M", 75, 115], ["L"
 const effort = e => e.km ? e.km + (e.dp || 0) / 100 : null;
 const ffaOf = e => { const k = effort(e); return k == null ? null : FFA.find(f => k >= f[1] && k < f[2])[0]; };
 // search text: no accents, hyphens and apostrophes as spaces, « st / ste » as « saint / sainte » (« st pierre », « etang sale » find Saint-Pierre, L'Étang-Salé)
-const fold = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[-'’_.]/g, " ").replace(/\bste\b/g, "sainte").replace(/\bst\b/g, "saint").replace(/\s+/g, " ").trim();
+const fold = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/œ/g, "oe").replace(/æ/g, "ae").replace(/[-'’_.]/g, " ").replace(/\bste\b/g, "sainte").replace(/\bst\b/g, "saint").replace(/\s+/g, " ").trim();
 let state = { wk: "", near: null, q: "", commune: "", mois: "", dist: "", dp: "", ffa: "", fav: false, disc: "", ouvert: "", sel: null, open: new Set(), rview: "liste", cal: null, day: null };
 let FAVS = new Set(), REG = new Set(), FAVHINT = false;
 let NOMAP = false;   // desktop list without the map (large posters)
@@ -168,7 +177,7 @@ function inWeekend(r, which) { const [a, b] = weekendRange(which); return (r.epr
 function kmTo(a, b) { const R = 6371, rad = x => x * Math.PI / 180, dLa = rad(b[0] - a[0]), dLo = rad(b[1] - a[1]);
   const h = Math.sin(dLa / 2) ** 2 + Math.cos(rad(a[0])) * Math.cos(rad(b[0])) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(h)); }
 function quickStats() { const t = todayISO(), up = RACES.filter(r => !r.hidden && (r.fin || r.date) >= t), we = up.filter(r => inWeekend(r, "we")).length;
-  const html = `${up.length} courses à venir<span>·</span>${new Set(up.map(r => r.commune)).size} communes`;
+  const nc = new Set(up.map(r => r.commune)).size, html = `${up.length} course${up.length > 1 ? "s" : ""} à venir<span>·</span>${nc} commune${nc > 1 ? "s" : ""}`;
   document.querySelectorAll(".hstats").forEach(e => e.innerHTML = html);
   document.querySelectorAll("#q-we, .q-we").forEach(e => e.textContent = we || ""); syncChips(); return { n: up.length, we }; }
 function syncChips() { document.querySelectorAll("[data-q]").forEach(b => { const k = b.dataset.q;
@@ -191,9 +200,10 @@ function quick(k, then) {
 }
 function filtered() {
   const t = todayISO(), q = fold(state.q), eps = r => (r.epreuves || []).filter(e => e.type !== "jeunes");
+  const als = {}; if (q) Object.entries(BASE.alias || {}).forEach(([k, v]) => (als[v] = als[v] || []).push(k.replace(/-\d{4}-\d{2}$/, "")));
   const dpf = state.dp && DPF.find(d => d[0] === state.dp)[2];
   return RACES.filter(r => !r.hidden && (r.fin || r.date) >= t
-    && (!q || fold(r.nom + " " + r.commune + " " + (r.lieu || "") + " " + (r.org || "")).includes(q))
+    && (!q || fold([r.nom, r.commune, r.lieu, r.org, ...(r.epreuves || []).flatMap(e => [e.nom, e.commune, e.lieu]), ...(als[r.id] || [])].filter(Boolean).join(" ")).includes(q))
     && (!state.commune || communesOf(r).includes(state.commune))
     && (!state.mois || r.date.startsWith(state.mois))
     && (!state.disc || r.disc === state.disc || (r.epreuves || []).some(e => e.type === state.disc))
@@ -212,7 +222,7 @@ const byDate = (a, b) => sortKey(a).localeCompare(sortKey(b)) || a.nom.localeCom
 const ARTIFACT_URL = "https://claude.ai/artifact/4t8BeKe6bFhvK7sG5KcAxD";
 function toast(txt) { const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = txt; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
 function toggleFav(id) { const on = !FAVS.has(id); on ? FAVS.add(id) : (FAVS.delete(id), REG.delete(id)); const first = on && !FAVHINT; if (first) FAVHINT = true; saveprefs(); render();
-  toast(on ? (first ? "Ajoutée à Mes courses : retrouve tes favoris avec ⭐ Mes courses sur l'accueil" : "Ajoutée à Mes courses") : "Retirée de Mes courses"); }
+  toast(on ? (first ? "Ajoutée à Mes courses : retrouve tes favoris avec Mes courses sur l'accueil" : "Ajoutée à Mes courses") : "Retirée de Mes courses"); }
 function toggleReg(id) { const on = !REG.has(id); on ? (REG.add(id), FAVS.add(id)) : REG.delete(id); FAVHINT = true; saveprefs(); render(); if (DETAIL === id) { const b = document.querySelector(".dlg [data-reg]"); if (b) b.outerHTML = regBtn(RACES.find(x => x.id === id)); bindReg(document.querySelector(".dlg") || document); } toast(on ? "Noté : tu es inscrit ✓" : "Inscription retirée"); }
 const regBtn = r => "";
 function bindReg(root) { root.querySelectorAll("[data-reg]").forEach(b => { if (b.dataset.bound) return; b.dataset.bound = 1; b.addEventListener("click", e => { e.stopPropagation(); toggleReg(b.dataset.reg); }); }); }
@@ -297,18 +307,18 @@ function renderGrid(rs) {
     const m = r.date.slice(0, 7), d = dt(r.date);
     if (m !== cur) { cur = m; html += `<h3 class="month">${cap(MOIS[+m.slice(5) - 1])}${m.slice(0, 4) !== todayISO().slice(0, 4) ? " " + m.slice(0, 4) : ""}</h3>`; }
     const seen = new Set(), eps = (r.epreuves || []).filter(e => e.km && e.type !== "jeunes").sort((a, b) => b.km - a.km).filter(e => { const k = e.km + "/" + (e.dp || ""); if (seen.has(k)) return false; seen.add(k); return true; }), shown = eps.slice(0, 3);
-    html += `<button type="button" class="lrow${state.sel === r.id ? " on" : ""}" id="r-${esc(r.id)}" data-card="${esc(r.id)}" data-com="${esc(r.commune)}" style="--dc:var(${DCOL[r.disc]})" aria-haspopup="dialog">
+    html += `<a class="lrow${state.sel === r.id ? " on" : ""}" href="/course/${esc(r.id)}/" id="r-${esc(r.id)}" data-card="${esc(r.id)}" data-com="${esc(r.commune)}" style="--dc:var(${DCOL[r.disc]})" aria-haspopup="dialog">
       <span class="ldate"><small>${JOURS[d.getDay()].replace(".", "")}</small><b>${dnum(r).replace("–", "–<br>")}</b></span>
       <span class="lthumb${artCls(r)}"><span class="lph">${esc(r.nom)}</span>${r.poster ? `<img src="${esc(NOMAP ? thumbOf(r) : xsOf(r))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}</span>
       <span class="lmain"><span class="lname">${esc(r.nom)}${FAVS.has(r.id) ? ` <i class="lfav" aria-label="favori">★</i>` : ""}</span>
         <span class="lmeta"><i class="ldot"></i><span class="vh">${DISC[r.disc]}, </span>${esc(r.commune)}${hasTrack(r.id) ? ` <span class="gpxtag" title="Tracé disponible" aria-label="Tracé disponible" role="img">${TRK_ICO}</span>` : ""}</span>
         <span class="leps">${shown.map(e => `<span class="lep"><span class="lk"><i class="lbar" style="width:${Math.round(Math.max(4, Math.min(56, e.km * 56 / 70)))}px"></i><b>${fmt(e.km)}</b> km</span><span class="ld">${e.dp ? `<svg viewBox="0 0 16 12" aria-hidden="true"><path d="M1 11 6 3l3 4 2-3 4 7z"/></svg>${e.dp} m` : ""}</span></span>`).join("")}${eps.length > 3 ? `<span class="lep more">+ ${eps.length - 3} autre${eps.length - 3 > 1 ? "s" : ""}</span>` : ""}</span></span>
-      <span class="lstate">${stateBadge(r)}</span></button>`;
+      <span class="lstate">${stateBadge(r)}</span></a>`;
   });
   $("#list").innerHTML = html || `<div class="empty">Aucune course ne correspond à ces filtres.<br><button class="reset" type="button" id="empty-reset">Tout afficher</button></div>`;
   $("#empty-reset")?.addEventListener("click", () => $("#f-reset").click());
   $("#list").querySelectorAll("[data-card]").forEach(b => {
-    b.addEventListener("click", () => openRace(b.dataset.card));
+    b.addEventListener("click", e => cardClick(e, b));
     b.addEventListener("mouseenter", () => { hoverCom(b.dataset.com); previewRace(b.dataset.card); });
     b.addEventListener("mouseleave", () => { hoverCom(null); previewRace(null); });
   });
@@ -355,7 +365,7 @@ function scardHTML(r, mode) {
   const meta = mode === "dl" ? d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: d.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined }) + " · " + esc(r.commune) : esc(r.commune) + (r.main && r.main.km ? " · " + fmt(r.main.km) + " km" : "");
   return `<button type="button" class="scard" data-card="${esc(r.id)}" style="--dc:var(${DCOL[r.disc]})" aria-haspopup="dialog">
       <span class="simg${artCls(r)}"><span class="sph">${esc(r.nom)}</span>${r.poster ? `<img src="${esc(thumbOf(r))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}<span class="swhen${mode === "dl" ? " hot" : ""}" title="${esc(d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }))}">${when}</span>${flag}</span>
-      <span class="sname">${esc(r.nom)}</span><span class="smeta">${meta}${mode === "dl" ? "" : wxBadge(r)}</span>${mode === "dl" ? "" : `<span class="sst">${stateBadge(r)}</span>`}</button>`;
+      <span class="sname">${esc(r.nom)}</span><span class="smeta">${meta}</span>${mode === "dl" ? "" : `<span class="sst">${stateBadge(r)}${wxBadge(r)}</span>`}</button>`;
 }
 // « ⭐ Mes courses (n) » on the Scroll home: shown as soon as one race to come is in the favourites
 function favLinkSync() { const t = todayISO(), n = RACES.filter(r => FAVS.has(r.id) && !r.hidden && (r.fin || r.date) >= t).length;
@@ -398,9 +408,9 @@ function renderSoon() {
     .sort((a, b) => a.c.l.localeCompare(b.c.l) || byDate(a.r, b.r)).slice(0, 12);
   $("#dlsec").hidden = !dl.length;
   requestAnimationFrame(dlFade);
-  $("#dl").innerHTML = dl.map(({ r, c }) => { const nl = daysTo(c.l), d = dt(r.date), part = c.tot > 1 && c.n < c.tot ? ` · ${c.n} format${c.n > 1 ? "s" : ""} sur ${c.tot}` : "";
-    return `<button type="button" class="lrow2" data-card="${esc(r.id)}" style="--dc:var(${DCOL[r.disc]})"><span class="lt${artCls(r)}">${r.poster ? `<img src="${esc(xsOf(r))}" alt="" loading="lazy" onerror="this.remove()">` : ""}</span><span class="lx"><b>${esc(r.nom)}</b><small>${d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: d.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined })} · ${esc(r.commune)}${part}</small></span><span class="lc">${nl <= 0 ? "Auj." : nl === 1 ? "Demain" : "J-" + nl}</span></button>`; }).join("");
-  [$("#soon"), $("#dl")].forEach(row => row.querySelectorAll("[data-card]").forEach(b => b.addEventListener("click", () => openRace(b.dataset.card))));
+  $("#dl").innerHTML = dl.map(({ r, c }) => { const nl = daysTo(c.l), d = dt(r.date), part = c.tot > 1 && c.n < c.tot ? ` · ${c.n}/${c.tot} formats` : "";
+    return `<a class="lrow2" href="/course/${esc(r.id)}/" data-card="${esc(r.id)}" style="--dc:var(${DCOL[r.disc]})"><span class="lt${artCls(r)}">${r.poster ? `<img src="${esc(xsOf(r))}" alt="" loading="lazy" onerror="this.remove()">` : ""}</span><span class="lx"><b>${esc(r.nom)}</b><small>${d.toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: d.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined })} · ${esc(r.commune)}${part}</small></span><span class="lc${nl > 2 ? " far" : ""}">${nl <= 0 ? "Auj." : nl === 1 ? "Demain" : "J-" + nl}</span></a>`; }).join("");
+  [$("#soon"), $("#dl")].forEach(row => row.querySelectorAll("[data-card]").forEach(b => b.addEventListener("click", e => cardClick(e, b))));
 }
 // ---------- race detail (dialog) ----------
 let DETAIL = null, detailBox = null, lastFocus = null;
@@ -575,7 +585,7 @@ function closeDetail() {
   if (!detailBox) return;
   const was = DETAIL, box = detailBox;
   if (reduced()) box.remove(); else { box.classList.add("out"); setTimeout(() => box.remove(), 230); }
-  detailBox = null; DETAIL = null; document.body.classList.remove("noscroll"); setPath("/"); document.title = "Dossard Péi";
+  detailBox = null; DETAIL = null; document.body.classList.remove("noscroll"); setPath("/"); document.title = HOME_TITLE;
   COUNTED = null;
   if (state.sel === was) { state.sel = null; render(); }
   removeEventListener("keydown", detailKey); lastFocus?.focus?.({ preventScroll: true });
@@ -721,7 +731,7 @@ function wxHTML(r) {   // compact: one line per race day (sky, temperature at th
     return `<div class="wxl"><span class="wxi k-${k}">${wxSvg(k)}</span><div class="wxm"><b>${x.start.t}° · ${esc(wxTxt(x.start.sym))}</b><small>${md ? esc(d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric" })) + " · " : ""}${x.h ? "départ " + esc(x.h) : "au départ"}</small></div><div class="wxb">${bits.map(b => `<span>${b}</span>`).join("")}</div></div>
       ${x.veille ? `<p class="wxv">${wxSvg("wet")}Pluie la veille (≈ ${x.veille} mm) : terrain probablement glissant</p>` : ""}`; }).join("");
   const j = xs[0].j;
-  return `<section class="wx wxc2 k-${wxKind(xs[0].start.sym)}"><div class="wxh"><h4>Météo</h4><span class="wxtag${j >= 3 ? "" : " sure"}">${j >= 3 ? "Tendance" : "Prévision"}</span><span class="wxsrc2">peut évoluer</span></div>${rows}</section>`;
+  return `<section class="wx wxc2 k-${wxKind(xs[0].start.sym)}"><div class="wxh"><h4>Météo</h4><span class="wxtag${j >= 3 ? "" : " sure"}">${j >= 3 ? "Tendance" : "Prévision"}</span></div>${rows}</section>`;
 }
 // start-up: the four data files (weather, verification, profiles, fresh data.json) are applied as they come,
 // but the page is redrawn ONCE when they are all in (or after 1.5 s), instead of once per file
@@ -811,11 +821,12 @@ function profSVG(r) {
 }
 function render() {
   try { favLinkSync(); } catch (e) {}
+  try { syncCommuneOpts(); } catch (e) {}
   $("#f-commune").value = state.commune; $("#f-disc").value = state.disc; typeof syncD === "function" && syncD(); $("#f-mois").value = state.mois; $("#map-mois") && ($("#map-mois").value = state.mois); $("#f-dist").value = state.dist; $("#f-ouvert").value = state.ouvert;
   $("#f-dp").value = state.dp; $("#f-ffa").value = state.ffa; $("#f-fav").value = state.fav ? "1" : "";
   $("#f-fav").options[1].textContent = "Mes favoris" + (FAVS.size ? ` (${FAVS.size})` : "");
   const rs = filtered();
-  $("#s-courses").textContent = rs.length;
+  $("#s-courses").textContent = rs.length; $("#s-courses-l").textContent = rs.length > 1 ? "courses à venir" : "course à venir";
   $("#s-communes").textContent = new Set(rs.map(r => r.commune)).size;
   $("#s-km").textContent = Math.round(rs.reduce((s, r) => s + (r.main.km || 0), 0));
   // while Scroll covers the screen the list behind it is not built (it is built when Scroll closes)
@@ -1136,9 +1147,31 @@ function drawPins(rs) {
     const on = selR ? list.includes(selR) : state.commune === com;
     pin(P(lat, lon), list, on, com, () => { state.commune = state.commune === com ? "" : com; state.sel = null; render(); fitCommune(); }, scale, selR && !on);
   });
-  gPins.querySelectorAll(".pin").forEach(g => { const m = /translate\(([-\d.]+),([-\d.]+)\)/.exec(g.getAttribute("transform")); if (m) { const x = +m[1], y = +m[2], lb = g.querySelector(".lbl"); taken.push([x - 16 * scale, y - 16 * scale, x + 16 * scale + (lb ? lb.textContent.length * 7 * scale : 0), y + 16 * scale]); } });
+  placePinLabels(scale, taken);
   drawLabels(zoomK, scale, taken);
   drawPrev();
+}
+// commune labels: on the right of the pin, on the left when that would leave the visible map (east coast on a phone)
+// or hit another pin or label; hidden when neither side is free (the count stays, the name is in the pin's aria-label).
+// Selected pins first, then the communes with the most races.
+function placePinLabels(scale, taken) {
+  const sh = svg.clientHeight || lastW * vb[3] / vb[2], k = Math.min(lastW / vb[2], sh / vb[3]), visW = lastW / k, visH = sh / k,
+    vL = vb[0] + vb[2] / 2 - visW / 2, vR = vL + visW, vT = vb[1] + vb[3] / 2 - visH / 2, vB = vT + visH, cw = 7.2 * scale, h = 7.5 * scale, m = 4 * scale, gap = 2 * scale;
+  const pins = [...gPins.querySelectorAll(".pin")].map(g => { const t = /translate\(([-\d.]+),([-\d.]+)\)/.exec(g.getAttribute("transform")) || [0, 0, 0];
+    return { x: +t[1], y: +t[2], r: +(g.querySelector(".core") || { getAttribute: () => 11 * scale }).getAttribute("r"), lb: g.querySelector(".lbl"), n: +(g.querySelector(".n") || {}).textContent || 0, on: g.classList.contains("on") }; });
+  pins.forEach(p => taken.push([p.x - p.r, p.y - p.r, p.x + p.r, p.y + p.r]));
+  const free = b => b[0] >= vL + m && b[2] <= vR - m && b[1] >= vT + m && b[3] <= vB - m && !taken.some(r => b[0] < r[2] && b[2] > r[0] && b[1] < r[3] && b[3] > r[1]);
+  pins.filter(p => p.lb).sort((a, b) => b.on - a.on || b.n - a.n).forEach(p => {
+    const d = p.r + 4 * scale, w = p.lb.textContent.length * cw, x = p.x, y = p.y, dy = p.r + gap + h;
+    const opts = [   // [box, text x, text y, anchor]
+      [[x + d, y - h, x + d + w, y + h], d, 0, "start"], [[x - d - w, y - h, x - d, y + h], -d, 0, "end"],
+      [[x - w / 2, y + p.r + gap, x + w / 2, y + p.r + gap + 2 * h], 0, dy, "middle"], [[x - w / 2, y - p.r - gap - 2 * h, x + w / 2, y - p.r - gap], 0, -dy, "middle"],
+      [[x, y + p.r + gap, x + w, y + p.r + gap + 2 * h], 0, dy, "start"], [[x - w, y + p.r + gap, x, y + p.r + gap + 2 * h], 0, dy, "end"]];
+    const o = opts.find(o => free(o[0])) || (p.on ? opts[0] : null);
+    if (!o) { p.lb.remove(); return; }
+    p.lb.setAttribute("x", o[1]); p.lb.setAttribute("y", o[2]); p.lb.style.textAnchor = o[3];
+    taken.push(o[0]);
+  });
 }
 function pin([x, y], list, on, label, onClick, scale, dim, nolabel) {
   const n = list.length;
@@ -1331,7 +1364,7 @@ document.addEventListener("pointerout", e => { if (e.target.classList && e.targe
 // ---------- admin (editors only) ----------
 let DB = null, ME = null, adminTab = "courses", editId = null;
 const flash = (id, txt, err) => { const m = document.getElementById(id); if (m) { m.textContent = txt; m.className = "msg" + (err ? " err" : ""); } };
-const slug = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "x";
+const slug = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/œ/g, "oe").replace(/æ/g, "ae").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "x";
 function renderAdmin() {
   const box = $("#admin");
   if (box.hidden) return;
@@ -1520,6 +1553,8 @@ function openContact(raceId, subject) {
     const body = `${text}\n\n—\nObjet : ${objet}${r ? `\nCourse : ${r.nom} (${r.date}, ${r.commune})\nFiche : ${page}` : ""}\nNom : ${fd.get("nom") || "–"}\nE-mail : ${mail || "–"}`;
     const fallback = () => { location.href = `mailto:${CONTACT_MAIL}?subject=${encodeURIComponent("[Dossard Péi] " + objet + (r ? " · " + r.nom : ""))}&body=${encodeURIComponent(body)}`; };
     if (!WEB3_KEY || WEB3_KEY.startsWith("__")) return fallback();
+    const mailLink = `<a href="mailto:${CONTACT_MAIL}?subject=${encodeURIComponent("[Dossard Péi] " + objet + (r ? " · " + r.nom : ""))}&body=${encodeURIComponent(body)}">${CONTACT_MAIL}</a>`;
+    if (navigator.onLine === false) { msg.className = "msg err"; msg.innerHTML = `Pas de connexion internet : ton message est gardé. Réessaie une fois connecté, ou écris à ${mailLink}.`; return; }
     btn.disabled = true; msg.className = "msg"; msg.textContent = "Envoi…";
     try {
       const ctl = new AbortController(); setTimeout(() => ctl.abort(), 15000);
@@ -1537,14 +1572,18 @@ function openContact(raceId, subject) {
           document.body.appendChild(hf); ifr.addEventListener("load", () => done(), { once: true }); setTimeout(done, 6000); hf.submit();
           setTimeout(() => { hf.remove(); ifr.remove(); }, 15000);
         });
-        res = { ok: true }; j = { success: true };
+        // the hidden form gives no readable answer: do not announce a success we cannot confirm
+        gcount("contact/non-confirme", "Message non confirmé", true);
+        btn.disabled = false; btn.textContent = "Renvoyer"; msg.className = "msg warn";
+        msg.innerHTML = `Envoi non confirmé : ton message est gardé ci-dessus. Si tu n’as pas de réponse, écris à ${mailLink}.`;
+        return;
       }
       if (!res.ok || j.success === false) throw new Error(j.message || res.status);
       gcount("contact/" + (fd.get("objet") || ""), "Message envoyé", true);
       f.innerHTML = `<button type="button" class="x" aria-label="Fermer">×</button><div class="done"><b>Merci, c’est envoyé !</b><span class="msg">${mail ? "On te répond dès que possible." : "Ton message nous aide à garder le site à jour."}</span><button type="submit" style="display:none"></button></div>`;
     } catch (err) {
       btn.disabled = false; msg.className = "msg err";
-      msg.innerHTML = `L’envoi n’a pas marché. Tu peux nous écrire directement à <a href="mailto:${CONTACT_MAIL}">${CONTACT_MAIL}</a>.`;
+      msg.innerHTML = `L’envoi n’a pas marché : ton message est gardé ci-dessus. Tu peux réessayer ou écrire à ${mailLink}.`;
     }
   });
   document.body.appendChild(box); f.message.focus();
@@ -1723,8 +1762,8 @@ function openReels() {
     <div class="rfeed">
       <section class="rs rintro rhome"><div class="rbg" aria-hidden="true">${night}</div><div class="rin"><div class="rhead">${logo}<h1>Dossard Péi</h1></div><p class="rtag">Trouv out prochin dosar !</p>
         <button type="button" class="rsearch" aria-label="Rechercher une course"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m15.5 15.5 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Course, commune…</button>
-        <div class="qchips" role="group" aria-label="Raccourcis"><button type="button" data-q="we">📅 Ce week-end <b class="q-we"></b></button><button type="button" data-q="next">Le week-end prochain</button><button type="button" data-q="near">📍 Près de moi</button><button type="button" data-q="trail" style="--dc:var(--c-trail)"><i class="qdot"></i>Trail</button><button type="button" data-q="route" style="--dc:var(--c-route)"><i class="qdot"></i>Route</button><button type="button" data-q="marche" style="--dc:var(--c-marche)"><i class="qdot"></i>Rando</button><button type="button" data-q="multisport" style="--dc:var(--c-tri)"><i class="qdot"></i>Multisport</button></div>
-        <p class="hstats"></p><br><button type="button" class="qsaison szlink">🗓️ Calendrier 2027 <span aria-hidden="true">›</span></button><button type="button" class="favlink szlink" hidden>⭐ Mes courses <b class="favn"></b></button>
+        <div class="qchips" role="group" aria-label="Raccourcis"><button type="button" data-q="we"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Ce week-end <b class="q-we"></b></button><button type="button" data-q="next">Le week-end prochain</button><button type="button" data-q="near"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.800 12 21 12 21Z"/><circle cx="12" cy="9.500" r="2.500"/></svg>Près de moi</button><button type="button" data-q="trail" style="--dc:var(--c-trail)"><i class="qdot"></i>Trail</button><button type="button" data-q="route" style="--dc:var(--c-route)"><i class="qdot"></i>Route</button><button type="button" data-q="marche" style="--dc:var(--c-marche)"><i class="qdot"></i>Rando</button><button type="button" data-q="multisport" style="--dc:var(--c-tri)"><i class="qdot"></i>Multisport</button></div>
+        <p class="hstats"></p><br><button type="button" class="qsaison szlink"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendrier 2027 <span aria-hidden="true">›</span></button><button type="button" class="favlink szlink" hidden><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.500 2.600 5.400 5.900.8-4.300 4.100 1 5.900-5.200-2.800-5.200 2.800 1-5.900-4.300-4.100 5.900-.8Z"/></svg>Mes courses <b class="favn"></b></button>
 <div class="rsoc2" role="group" aria-label="Dossard Péi sur les réseaux">${(() => { try { return socLinks("socb", false); } catch (e) { return ""; } })()}</div></div>
         <div class="rhint"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 14l6-6 6 6"/></svg>${rs.length ? `Glisse pour voir ${rs.length > 1 ? "les " + rs.length + " courses" : "la course"}${state.fav ? (rs.length > 1 ? " de tes favoris" : " de tes favoris") : state.wk === "we" ? " de ce week-end" : state.wk === "next" ? " du week-end prochain" : state.near ? " près de toi" : ""}` : "Aucune course pour ce choix"}</div></section>
       ${rs.map(slide).join("")}
@@ -2137,7 +2176,7 @@ function goTab(v) {
   try {
     if (matchMedia("(max-width: 760px)").matches && !localStorage.getItem("dp-tbhint")) {
       localStorage.setItem("dp-tbhint", "1");
-      setTimeout(() => { const h = document.createElement("div"); h.className = "tbhint"; h.textContent = "4 façons de voir les courses"; document.body.appendChild(h); setTimeout(() => h.remove(), 5000); }, 1200);
+      setTimeout(() => { const h = document.createElement("div"); h.className = "tbhint"; h.textContent = "4 façons de voir les courses"; document.body.appendChild(h); const bye = () => h.remove(); setTimeout(bye, 3000); ["scroll", "pointerdown"].forEach(t => addEventListener(t, bye, { once: true, passive: true })); }, 1200);
     }
   } catch (e) {}
 })();
