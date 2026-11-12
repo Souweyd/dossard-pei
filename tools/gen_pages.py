@@ -62,6 +62,12 @@ def day_short(s):
     d = d_of(s); return f"{JOURS[d.weekday()][:3]}. {d.day}"
 
 
+def thou(n):
+    """14368 -> « 14 368 » (thousands separated by a narrow no-break space)"""
+    try: return f"{round(float(n)):,}".replace(",", "\u202f")
+    except (TypeError, ValueError): return str(n)
+
+
 def fmt_km(k):
     return (f"{k:.1f}".rstrip("0").rstrip(".")).replace(".", ",")
 
@@ -80,7 +86,7 @@ def summary(r):
     parts = []
     for e in sorted(eps, key=lambda e: -e["km"])[:4]:
         s = f"{fmt_km(e['km'])} km"
-        if e.get("dp"): s += f" ({e['dp']} m D+)"
+        if e.get("dp"): s += f" ({thou(e['dp'])} m D+)"
         if s not in parts:   # two épreuves of the same distance (e.g. solo and relay) are named once
             parts.append(s)
     return ", ".join(parts)
@@ -286,13 +292,13 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
             ev["offers"] = offs[0]
         else:
             ev["offers"] = {"@type": "AggregateOffer", "lowPrice": min(ps), "highPrice": max(ps), "offerCount": len(offs), "priceCurrency": "EUR",
-                            "availability": avail(r, True), "validFrom": r.get("ouverture") or (data_date or today), "offers": offs,
+                            "availability": next((x for x in ("https://schema.org/InStock", "https://schema.org/PreOrder") if any(o["availability"] == x for o in offs)), "https://schema.org/SoldOut"), "validFrom": r.get("ouverture") or (data_date or today), "offers": offs,
                             **({"url": reg} if reg else {})}
     ld = json.dumps(ev, ensure_ascii=False).replace("</", "<\\/")
 
     rows = "".join(
         f"<tr><td>{esc(e.get('nom'))}{note_html(e)}</td>"
-        f"<td class=n>{fmt_km(e['km']) + ' km' if e.get('km') else '–'}</td><td class=n>{str(e['dp']) + ' m' if e.get('dp') else '–'}</td>"
+        f"<td class=n>{fmt_km(e['km']) + ' km' if e.get('km') else '–'}</td><td class=n>{thou(e['dp']) + ' m' if e.get('dp') else '–'}</td>"
         f"<td>{esc(e.get('cat') or DISC.get(typ(e), '–'))}</td><td class=n>{esc(((day_short(e['date']) + (' · ' if e.get('h') else '')) if md and e.get('date') else '') + (e.get('h') or '') or '–')}</td><td>{esc(e.get('prix') or '–')}</td></tr>"
         for e in r.get("epreuves", []))
     kms = sorted({e["km"] for e in r.get("epreuves", []) if e.get("km")}, reverse=True)
