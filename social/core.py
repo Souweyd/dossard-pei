@@ -102,7 +102,9 @@ def dist_label(r, maxn=2):
 
 
 def fmt_km(k):
-    return str(int(k)) if float(k).is_integer() else str(k).replace('.', ',')
+    # at most one decimal, as on the site (173,75 -> 173,8)
+    r = round(float(k), 1)
+    return str(int(r)) if r.is_integer() else str(r).replace('.', ',')
 
 
 def status(r, ref):
