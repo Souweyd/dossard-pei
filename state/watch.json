@@ -40,11 +40,9 @@
 "h": "16554cc068a8ed92bcaf3b437c0b81a13a4bce85dfc1c4a76e7cbe5dede396e3"
 },
 "https://running.life/calendrier-course-a-pied/reunion": {
-"at": "2026-11-12T14:15+04:00",
-"changed": "2026-11-12T14:15+04:00",
-"h": "d1bdd5b42fe9478444869b7210f1bedeae33db4608ad7f1a6241f67a6c68c1de",
-"pending": "6ec43ebd21b7f79227296db8134e44ce4b54876ef1bd26ca0b814f037e471f3c",
-"since": "2026-11-12T19:05+04:00"
+"at": "2026-11-12T20:03+04:00",
+"changed": "2026-11-12T20:03+04:00",
+"h": "6ec43ebd21b7f79227296db8134e44ce4b54876ef1bd26ca0b814f037e471f3c"
 },
 "https://sportinnovation.fr/Evenements/Inscriptions/9096/PRESENTIEL": {
 "at": "2026-10-27T19:08+04:00",
@@ -87,18 +85,14 @@
 "h": "a211a0b030f414bc282e2e54edc71478e75d13bbaf9d4fb20f6919c771f46413"
 },
 "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/": {
-"at": "2026-11-12T14:15+04:00",
-"changed": "2026-11-12T14:15+04:00",
-"h": "30e783f6accd2c0e870dd9d2236b6b53ab504285a4bf1422f33a791fb064dd78",
-"pending": "8e39dce8d22e3254d6eb240057ab97313264e9a1b5a5e49732627a9e6a8e55f2",
-"since": "2026-11-12T18:05+04:00"
+"at": "2026-11-12T20:03+04:00",
+"changed": "2026-11-12T20:03+04:00",
+"h": "8e39dce8d22e3254d6eb240057ab97313264e9a1b5a5e49732627a9e6a8e55f2"
 },
 "https://www.huge-event.fr": {
 "at": "2026-11-11T15:05+04:00",
 "changed": "2026-11-11T15:05+04:00",
-"h": "868bb4c51a8c14879bae39ae1fc7daf200ac5c0f660178f299dbfff1e7da4989",
-"pending": "c9aec0099cf3e34e05bea98929ccaca3f76bb0ff42713027be2d4a57c68092ad",
-"since": "2026-11-12T19:05+04:00"
+"h": "868bb4c51a8c14879bae39ae1fc7daf200ac5c0f660178f299dbfff1e7da4989"
 },
 "https://www.tcsa-974.fr/evenements/2027/04/25/triathlonduathlon-du-colosse-2027-2565375": {
 "at": "2026-11-12T12:04+04:00",
