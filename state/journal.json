@@ -562,5 +562,12 @@
 "id": "ti-bwa",
 "nom": "Kours Ti Bwa",
 "date": "2026-12-06"
+},
+{
+"at": "2026-11-13T12:01+04:00",
+"t": "clos",
+"id": "christmas-run",
+"nom": "Christmas Run",
+"date": "2026-12-12"
 }
 ]
