@@ -81,6 +81,11 @@ def main():
         def dem(d):
             return 'const DEM = {"contours":[],"src":"/' + out("json", d.group(1), "dem") + '"};'
         body = re.sub(r'^const DEM = (\{"contours":.*?\});$', dem, body, count=1, flags=re.M)
+        # the commune outlines (MAP) stay in the script, and are also written as plain JSON for the
+        # social-media scripts (social/core.py), which cannot read them once the script is minified
+        mm = re.search(r'^const MAP = (\{"W":.*?\});$', body, flags=re.M)
+        if mm:
+            open("assets/map.json", "w", encoding="utf-8").write(mm.group(1))
         return f'<script src="{out("js", minify(body, "js"))}"></script>'
 
     page = re.sub(r"<style(\s[^>]*)?>(.*?)</style>", style, page, flags=re.S)

@@ -153,14 +153,26 @@ _MAP = None
 def MAP():
     global _MAP
     if _MAP is None:
-        # the map used to be inline in index.html; since the site split (assets/app.<hash>.js) it lives in the app script
-        s = (ROOT / 'index.html').read_text()
-        m = re.search(r'MAP\s*=\s*\{', s)
-        if not m:
+        # assets/map.json: plain JSON copy of the map written at each publication (tools/split_assets.py);
+        # the app script itself is minified (keys without quotes), so it is only read as a fallback, through Node
+        f = ROOT / 'assets' / 'map.json'
+        if f.exists():
+            _MAP = json.loads(f.read_text())
+        else:
+            s = (ROOT / 'index.html').read_text()
             js = re.search(r'assets/app\.[0-9a-f]+\.js', s)
-            s = (ROOT / js.group(0)).read_text() if js else ''
+            s = (ROOT / js.group(0)).read_text() if js else s
             m = re.search(r'MAP\s*=\s*\{', s)
-        _MAP, _ = json.JSONDecoder().raw_decode(s[m.end() - 1:])
+            try:
+                _MAP, _ = json.JSONDecoder().raw_decode(s[m.end() - 1:])
+            except ValueError:
+                import subprocess
+                i, depth = m.end() - 1, 0
+                for j in range(i, len(s)):
+                    depth += {'{': 1, '}': -1}.get(s[j], 0)
+                    if depth == 0: break
+                _MAP = json.loads(subprocess.run(['node', '-e', 'process.stdout.write(JSON.stringify(' + s[i:j + 1] + '))'],
+                                                  capture_output=True, text=True, check=True).stdout)
     return _MAP
 
 
