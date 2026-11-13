@@ -27,7 +27,7 @@ jobs:
           git config user.name "Dossard Pei"; git config user.email "noreply@dossardpei.re"
           # another update may have pushed meanwhile: on a conflict the pages are rebuilt on top of it (3 tries)
           for i in 1 2 3; do
-            git add -A course og sitemap.xml robots.txt tools/first_seen.json
+            git add -A index.html course og sitemap.xml robots.txt tools/first_seen.json state/terminees.json
             if git diff --cached --quiet; then echo "rien à publier"; exit 0; fi
             git commit -q -m "Pages des courses [pages]"
             if git pull --rebase origin main && git push origin main; then exit 0; fi
