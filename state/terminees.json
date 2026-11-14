@@ -58,6 +58,27 @@
 "page": "https://www.sportpro.re/courses/02165-trail-urbain-des-avirons/",
 "until": "2027-04-29"
 },
+"cross-city": {
+"commune": "Saint-Denis",
+"date": "2026-11-14",
+"epreuves": [
+{
+"km": 4.8,
+"nom": "Cross court (Espoirs à Masters)",
+"type": "cross"
+},
+{
+"km": 1.1,
+"nom": "Cross par catégorie (Poussins à Masters)",
+"type": "cross"
+}
+],
+"lieu": "Vélodrome de Champ Fleuri",
+"nom": "Cross City Sport",
+"org": "Entente du Nord",
+"page": "https://www.sportpro.re/courses/02179-cross-city-sport/",
+"until": "2027-05-13"
+},
 "curcuma": {
 "commune": "Saint-Joseph",
 "date": "2026-11-07",
@@ -107,6 +128,50 @@
 "org": "Samsora Tonique Athlé Sainte-Anne",
 "page": "https://www.sportpro.re/courses/02161-relais-aux-flambeaux-/",
 "until": "2027-05-05"
+},
+"foulees-solidaires-entre-deux-2026-11": {
+"commune": "Entre-Deux",
+"date": "2026-11-14",
+"epreuves": [
+{
+"km": 10,
+"nom": "Course 10 km chronométrée",
+"type": "route"
+},
+{
+"km": 5,
+"nom": "Randonnée solidaire 5 km",
+"type": "marche"
+}
+],
+"lieu": "Entre-Deux",
+"nom": "Les Foulées Solidaires de l'Entre-Deux",
+"org": "Dimitile Sports Actions, avec les Rotary Clubs de Saint-Pierre et de l'Entre-Deux",
+"page": "https://www.helloasso.com/associations/dimitile-sports-actions/evenements/les-foulees-solidaires-de-l-entre-deux-tous-contre-la-polio",
+"until": "2027-05-13"
+},
+"lesquilibres": {
+"commune": "La Plaine-des-Palmistes",
+"date": "2026-11-14",
+"epreuves": [
+{
+"dp": 318,
+"km": 13,
+"nom": "Le Trail LesQuiLibres",
+"type": "trail"
+},
+{
+"dp": 29,
+"km": 3,
+"nom": "Rando ludique",
+"type": "marche"
+}
+],
+"lieu": "La Plaine-des-Palmistes",
+"nom": "LesQuiLibres sur les sentiers de l'enfance",
+"org": "Association LesQuiLibres",
+"page": "https://www.sportpro.re/courses/02168-lesquilibres-sur-les-sentiers-de-lenfance/",
+"until": "2027-05-13"
 },
 "leu-eclairs": {
 "commune": "Saint-Leu",
