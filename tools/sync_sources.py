@@ -58,6 +58,7 @@ VERIF = {}  # race id -> platform that confirmed its registration state during t
 # state/partiels.json, reported by the daily summary until the names are matched (or fixed by hand).
 PARTIAL = {}
 FOUND = {}  # source -> [(key, label, url)] races listed by the platforms (new-race detector, tools/watch.py)
+AWAY = {}   # same, for races left out as held outside La Réunion (Mayotte, Maurice): reported once for checking
 SP_DATES = {}  # Sportpro event id -> date of the event (agenda)
 MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"]
 
@@ -741,6 +742,9 @@ try:
         ville = re.search(r'lbl-ville">[^<]*</span>\s*<span class="valCourse">\s*([^<]+?)\s*(?:<|$)', card)
         v = norm(html.unescape(ville.group(1))) if ville else ""
         if v and any(v == c or v.startswith(c + " ") for c in _away):
+            # left out, but reported once (« Courses écartées ») so the owner can correct a mistake
+            AWAY.setdefault("Sportpro", []).append((f"courses/{m.group(1)}-", html.unescape(m.group(3)).strip() + (f" ({SP_DATES[m.group(1)]})" if m.group(1) in SP_DATES else "") + f", {ville.group(1).strip()}",
+                                                    f"https://www.sportpro.re/courses/{m.group(1)}-{m.group(2)}/"))
             continue
         doubt = bool(v) and not any(v == c or v.startswith(c + " ") for c in _reu)
         FOUND["Sportpro"].append((f"courses/{m.group(1)}-", html.unescape(m.group(3)).strip() + (f" ({SP_DATES[m.group(1)]})" if m.group(1) in SP_DATES else "") + (f", {ville.group(1).strip()}" if ville else "") + (" (lieu à vérifier)" if doubt else ""),
@@ -1156,6 +1160,7 @@ try:
         return True
 
     rep["nouveautes"] = watch.nouveautes(data, FOUND, check={"Chrono Run": _future_race, "Top Chrono": _future_race, "WeRun": _werun_reunion})
+    rep["ecartees"] = watch.ecartees(data, AWAY)
     if NOW.hour % 3 == 0 or "--all" in sys.argv:
         rep["annulation"] = watch.annulations(data, TODAY, controls.get) + SP_ANNUL
     evts = watch.diff(prev_data, data, TODAY, NOW)

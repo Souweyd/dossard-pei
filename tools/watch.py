@@ -64,6 +64,22 @@ def nouveautes(data, found, state_path="state/nouveautes.json", check=None):
     return out
 
 
+def ecartees(data, away, state_path="state/nouveautes.json"):
+    """races a platform lists but that were left out as held outside La Réunion (Mayotte, Maurice…):
+    reported once each (key « <source> hors Réunion » of the same state file), so the owner can say if one
+    is in fact in La Réunion."""
+    st = load(state_path, {})
+    known = known_keys(data)
+    out = []
+    for src, items in away.items():
+        key = f"{src} hors Réunion"
+        seen = set(st.get(key, []))
+        out += [f"**{lab}** — {src} : {u}" for k, lab, u in items if k not in seen and k not in known and (u or "") not in known]
+        st[key] = sorted(seen | {k for k, _, _ in items})
+    save_if_changed(state_path, st)
+    return out
+
+
 # ---------- cancellations ----------
 MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"]
 

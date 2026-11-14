@@ -56,6 +56,8 @@ def info(report, open_, api):
     parts = []
     if report.get("nouveautes"):
         parts.append("**Nouvelles courses repérées chez les organisateurs** (elles seront ajoutées au prochain passage de la mise à jour Claude, 9h20 / 14h20 / 19h20) :\n" + "\n".join(f"- {x}" for x in report["nouveautes"]))
+    if report.get("ecartees"):
+        parts.append("**Courses écartées car hors de La Réunion** (Mayotte, Maurice…) : si l'une d'elles est en fait à La Réunion, dis-le et elle sera ajoutée :\n" + "\n".join(f"- {x}" for x in report["ecartees"]))
     if report.get("journal"):
         parts.append("**Changements sur le site** :\n" + "\n".join(f"- {x}" for x in report["journal"]))
     try:
