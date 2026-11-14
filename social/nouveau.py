@@ -239,16 +239,48 @@ def distances(r):
     return s + ''.join(f" · {fmt_km(e['km'])} km" for e in ep[1:3])
 
 
+TAG = {'trail': '#trail', 'route': '#courseapied', 'marche': '#rando', 'cross': '#cross', 'relais': '#relais',
+       'multisport': '#triathlon', 'jeunes': '#coursesenfants', 'autre': '#running'}
+LOW = {'trail': 'trail', 'route': 'course', 'marche': 'rando', 'cross': 'cross', 'relais': 'relais',
+       'multisport': 'multisport', 'jeunes': 'courses enfants', 'autre': 'course'}
+
+
+def formats(r):
+    """« trail 25 km, course 12 km, rando 12 km et courses enfants » (au plus 3, sinon « 5 formats de 10 à 85 km »)"""
+    eps = sorted(r.get('epreuves', []), key=lambda e: -(e.get('km') or 0))
+    kms = [e['km'] for e in eps if e.get('km')]
+    if len(eps) > 4 and kms:
+        return f"{len(eps)} formats de {fmt_km(min(kms))} à {fmt_km(max(kms))} km"
+    groups = {}                                   # type -> distances, in order of the longest course
+    for e in eps:
+        g = groups.setdefault(LOW.get(e.get('type') or 'autre', 'course'), [])
+        if e.get('km') and fmt_km(e['km']) not in g:
+            g.append(fmt_km(e['km']))
+    et = lambda xs: (', '.join(xs[:-1]) + ' et ' + xs[-1]) if len(xs) > 1 else (xs[0] if xs else '')
+    return et([f"{t} {et(k)} km" if k else t for t, k in groups.items()])
+
+
+def hashtag(s):
+    import unicodedata
+    s = ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
+    return '#' + re.sub(r'[^A-Za-z0-9]', '', s).lower()
+
+
 def post_text(r):
+    """Titre, une ligne d'infos, les hashtags (format validé le 14/11/2026)."""
     emo = TYPE_EMO.get(r['_type'], '🏅')
-    b = 'Complet' if status(r, D.date.today())[0] == 'complet' else None
-    lines = [f"{emo} Nouveau dossard : {r['nom']}", f"📅 {when_c(r)} · 📍 {r['commune']}"]
-    if b == 'Complet':
-        lines.append('Complet')
-    elif distances(r):
-        lines.append(distances(r))
-    lines.append('Parcours, infos et inscription 👉 dossardpei.re')
-    return '\n'.join(lines)
+    code, lab = status(r, D.date.today())
+    d = when_c(r); d = d[0].upper() + d[1:]
+    f = formats(r)
+    insc = {'complet': 'Complet', 'bientot': lab}.get(code, 'Inscriptions ouvertes')
+    line = f"{d} à {r['commune']}" + (f" : {f}" if f else '') + f". {insc} 👉 dossardpei.re"
+    tags = []
+    for e in sorted(r.get('epreuves', []), key=lambda e: -(e.get('km') or 0)):
+        t = TAG.get(e.get('type') or 'autre')
+        if t and t not in tags:
+            tags.append(t)
+    tags = tags[:3] + [hashtag(r['commune']), '#lareunion', '#974', '#dossardpei']
+    return '\n'.join([f"{emo} Nouveau dossard : {r['nom']}", line, ' '.join(tags)])
 
 
 
