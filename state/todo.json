@@ -1,5 +1,5 @@
 {
- "at": "2026-11-14T08:00+04:00",
+ "at": "2026-11-14T09:05+04:00",
  "since": "2026-11-13T19:38:53+04:00",
  "rien": false,
  "sources": [
@@ -36,6 +36,11 @@
    "id": "gto",
    "url": "https://www.grandtrail-ouest.re/",
    "erreur": "URLError"
+  },
+  {
+   "id": "grand-raid-2027-10",
+   "url": "https://www.grandraid-reunion.com/fr/les-courses/",
+   "erreur": "TimeoutError"
   }
  ]
 }
