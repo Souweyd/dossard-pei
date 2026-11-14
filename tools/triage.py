@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Hourly triage for the Claude update (run by the GitHub workflow, free).
 
-The Claude update (3 times a day) used to fetch every source itself just to see whether anything
+The Claude update (5 times a day) used to fetch every source itself just to see whether anything
 had changed. This script does that watch every hour instead:
   - every active source of data.json (auto != false, actif != false), plus the registration page
     of each race still « À venir » (avenir: true, no opening date);

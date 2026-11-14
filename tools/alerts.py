@@ -55,7 +55,7 @@ def info(report, open_, api):
     """journal of changes and new races: one comment on a permanent issue (one e-mail), weekly recap: own issue"""
     parts = []
     if report.get("nouveautes"):
-        parts.append("**Nouvelles courses repérées chez les organisateurs** (elles seront ajoutées au prochain passage de la mise à jour Claude, 9h20 / 14h20 / 19h20) :\n" + "\n".join(f"- {x}" for x in report["nouveautes"]))
+        parts.append("**Nouvelles courses repérées chez les organisateurs** (elles seront ajoutées au prochain passage de la mise à jour Claude, 7h30 / 11h30 / 15h30 / 19h30 / 22h30) :\n" + "\n".join(f"- {x}" for x in report["nouveautes"]))
     if report.get("ecartees"):
         parts.append("**Courses écartées car hors de La Réunion** (Mayotte, Maurice…) : si l'une d'elles est en fait à La Réunion, dis-le et elle sera ajoutée :\n" + "\n".join(f"- {x}" for x in report["ecartees"]))
     if report.get("journal"):

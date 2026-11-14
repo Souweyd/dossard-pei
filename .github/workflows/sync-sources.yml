@@ -5,7 +5,7 @@ name: Synchro horaire des sources
 # from Trace de Trail / Openrunner links (tools/tracks.py); tools/triage.py lists the sources that
 # changed for the Claude update (state/todo.json), race-day weather from MET Norway
 # (tools/weather.py, every 3 hours); new races and tracks are added by the
-# Claude update (3 times a day).
+# Claude update (5 times a day).
 on:
   # hourly run: dispatched by cron-job.org at about :00 (GitHub's own schedule was removed: it ran a
   # second, useless pass at :17)
