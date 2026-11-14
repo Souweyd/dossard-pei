@@ -1,1 +1,23 @@
-{}
+{
+ "cross-city": {
+  "source": "sportpro",
+  "epreuves": [
+   "Cross court (Espoirs à Masters)"
+  ],
+  "plateforme": [
+   "Poussins - Cross City Sport",
+   "Benjamines - Cross City Sport",
+   "Benjamins - Cross City Sport",
+   "Minimes F-  Cross City Sport",
+   "Minimes G - Cross City Sport",
+   "Cadettes - Cross City Sport",
+   "Cadets - Cross City Sport",
+   "Juniors H - Cross City Sport",
+   "Juniors F - Cross City Sport",
+   "ESM F - Cross City Sport",
+   "ESM H - Cross City Sport",
+   "Poussines - Cross City Sport",
+   "Cross Court (ES-SE-MA) - à partir de 2007"
+  ]
+ }
+}
