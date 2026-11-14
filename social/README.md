@@ -9,7 +9,7 @@ et de captures du site en ligne.
 | Lundi | Les courses du week-end (avec les clôtures) | Calendrier / « Ce week-end » |
 | Mercredi | Un thème (rotation : première course, relais, gros D+…) | Filtres |
 | Vendredi | Une région (rotation : Ouest, Sud, Est, Nord) | Carte |
-| Vendredi soir | Story « Météo des courses » du week-end (`meteo.py`, vidéo + image) | Météo des fiches |
+| Vendredi soir | Story vidéo « Météo des courses » du week-end (`meteo.py`) | Météo des fiches |
 
 Le 1er du mois remplace le post du jour s'il tombe un lundi, mercredi ou vendredi. (`reel.py` / `vendredi` : reel du parcours d'une course, plus utilisé dans le planning.)
 
@@ -34,7 +34,7 @@ Tout dessin du drapeau (logo, dossard, bandeau) : fond bleu marine, volcan rouge
 
 ## Stories
 - `nouveau.py <id>…` : story vidéo « Nouveau dossard » (MP4 1080×1920, 11 s : nom de la course sur la carte floutée, zoom sur le lieu de départ, puis carte de la course avec une ligne par épreuve), seulement pour une fiche dont les inscriptions sont ouvertes ou dont la date d'ouverture est annoncée (pas « À venir » sans date, pas complète).
-- `meteo.py <vendredi>` : story « Météo des courses » (samedi et dimanche, 5 courses au plus), même bloc météo que le site ; `rec.py` enregistre la vidéo image par image.
+- `meteo.py <vendredi>` : story vidéo « Météo des courses » (samedi et dimanche, 8 courses au plus) : vue d'ensemble de l'île, un trait part de chaque course vers son cadre météo ; `rec.py` enregistre la vidéo image par image, `sfx.py` ajoute les bruitages (synthétisés, sans fichier son externe).
 
 ## Légendes
 Pas d'appel à commenter, taguer ou enregistrer. Toujours ces 4 hashtags : #trail #run #iledelareunion #reunionisland.

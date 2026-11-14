@@ -10,12 +10,13 @@ Requiert Playwright (Chromium préinstallé), Pillow et ffmpeg.
 """
 import sys, re, pathlib, html, datetime as D
 from core import load, status, MAP, P_xy, _same, poster_path, art_path, fmt_km, JOURS, JOURS_C, MOIS, MOIS_C, TYPE_COL, TYPE_EMO, ROOT, SOC
-import rec
+import rec, sfx
 
 OUT = SOC / 'out' / 'nouveau'
 F = (SOC / 'fonts').as_uri()
 LOGO = (SOC / 'assets' / 'logo-512.png').as_uri()
 INK, TEAL, CREAM, SURF, MUTED, SEA = '#1d2523', '#0d6b67', '#f5efe6', '#fffcf7', '#6b625a', '#cfe1e4'
+OCEAN = (ROOT / 'ocean.webp').as_uri()        # same IGN sea picture as the site map
 W, H, DUR = 1080, 1920, 11.0
 esc = lambda s: html.escape(str(s))
 TLAB = {'trail': 'Trail', 'route': 'Route', 'marche': 'Rando', 'cross': 'Cross', 'relais': 'Relais',
@@ -130,10 +131,10 @@ def page(r):
 @font-face{{font-family:I;font-weight:600;src:url('{F}/inter-latin-600-normal.woff2')}}
 @font-face{{font-family:I;font-weight:700;src:url('{F}/inter-latin-700-normal.woff2')}}
 @font-face{{font-family:I;font-weight:800;src:url('{F}/inter-latin-800-normal.woff2')}}
-*{{box-sizing:border-box;margin:0;padding:0}} html,body{{width:{W}px;height:{H}px;overflow:hidden;background:{SEA}}}
+*{{box-sizing:border-box;margin:0;padding:0}} html,body{{width:{W}px;height:{H}px;overflow:hidden;background:#083b5a}}
 body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S,sans-serif}}
 .anim{{animation-duration:{DUR}s;animation-fill-mode:both;animation-timing-function:linear}}
-#lens{{position:absolute;inset:0;animation-name:lens}}
+#lens{{position:absolute;inset:0;background:#083b5a;animation-name:lens}}
 @keyframes lens{{0%{{filter:blur(22px) saturate(.8)}} {p(1.3)}{{filter:blur(22px) saturate(.8);animation-timing-function:ease-out}} {p(2.3)}{{filter:blur(0) saturate(1)}} 100%{{filter:blur(0) saturate(1)}}}}
 #world{{position:absolute;left:0;top:0;width:{M['W']}px;height:{M['H']}px;transform-origin:0 0;animation-name:cam}}
 @keyframes cam{{0%{{transform:{T0}}} {p(1.4)}{{transform:{T1};animation-timing-function:cubic-bezier(.6,0,.25,1)}}
@@ -160,7 +161,7 @@ body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S
 @keyframes ring{{0%,{p(3.5)}{{transform:scale(.2);opacity:0}} {p(3.55)}{{opacity:.9;transform:scale(.3)}} {p(4.3)},100%{{transform:scale(1.6);opacity:0}}}}
 .lab{{position:absolute;top:22px;left:0;transform:translateX(-50%);white-space:nowrap;text-align:center;animation-name:lab}}
 .lab b{{display:inline-block;background:{INK};color:#fff;font-family:S;font-weight:800;font-size:48px;padding:4px 26px 6px;border-radius:14px;line-height:1.05}}
-.lab i{{display:block;font-style:normal;font-weight:700;font-size:28px;color:{INK};margin-top:6px;text-shadow:0 0 8px #fff,0 0 4px #fff}}
+.lab i{{display:block;font-style:normal;font-weight:700;font-size:28px;color:#fff;margin-top:6px;text-shadow:0 1px 3px rgba(0,0,0,.8),0 0 10px rgba(0,0,0,.55)}}
 @keyframes lab{{0%,{p(3.55)}{{opacity:0;transform:translate(-50%,14px)}} {p(3.9)},100%{{opacity:1;transform:translate(-50%,0)}}}}
 #stack{{position:absolute;left:36px;right:36px;top:700px}}
 #card{{position:relative;background:{SURF};border-radius:40px;box-shadow:0 -10px 50px rgba(29,37,35,.18),0 30px 60px rgba(29,37,35,.2);padding:40px 40px 26px;animation-name:card}}
@@ -188,7 +189,7 @@ body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S
 #brand>div{{display:flex;align-items:center;gap:18px;background:#fff;border:5px solid {INK};border-radius:999px;padding:10px 34px 10px 14px;box-shadow:0 14px 26px rgba(29,37,35,.22)}}
 @keyframes brand{{0%,{p(6.2)}{{opacity:0;transform:translateY(30px)}} {p(6.7)},100%{{opacity:1;transform:none}}}}
 </style></head><body>
-<div id="lens" class="anim"><div id="world" class="anim"><img src="{island()}">
+<div id="lens" class="anim"><div id="world" class="anim"><img src="{OCEAN}"><img src="{island()}">
  <svg width="{M['W']}" height="{M['H']}" viewBox="0 0 {M['W']} {M['H']}">
   <g class="anim dim" fill="{CREAM}" fill-opacity=".55">{communes}</g>
   <g fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="2" vector-effect="non-scaling-stroke" style="vector-effect:non-scaling-stroke">{allc.replace('<path ', '<path vector-effect="non-scaling-stroke" ')}</g>
@@ -296,6 +297,10 @@ def main(ids):
         f = OUT / f'_{rid}.html'; f.write_text(page(r))
         tmp = OUT / f'_{rid}.mp4'
         rec.record(f, tmp, DUR)
+        n = min(len(rows(r)), 5)
+        ev = [(.25, 'pop', 520), (.6, 'pop', 700), (1.45, 'whoosh', 1.8), (3.45, 'thud'), (3.9, 'whoosh', .75, .4),
+              (4.55, 'pop', 480, .12, .35)] + [(5.5 + i * .14, 'tick', 1500 + 120 * i) for i in range(n)] + [(6.2, 'chime')]
+        wav = OUT / f'_{rid}.wav'; sfx.track(ev, DUR, wav); sfx.mux(tmp, wav); wav.unlink()
         tmp.replace(OUT / f'{rid}.mp4'); f.unlink()
         print(f'=== {OUT / (rid + ".mp4")}\n{post_text(r)}\n')
 

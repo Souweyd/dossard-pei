@@ -1,18 +1,23 @@
-"""Story « Météo des courses » du week-end (1080×1920), vidéo animée + image fixe, à partir de weather.json.
-Usage (depuis la racine du dépôt) : python3 social/meteo.py <date du vendredi>   ex. python3 social/meteo.py 2026-10-30
-Sortie : social/out/meteo/story-meteo-<vendredi>.mp4 et .jpg ; « rien » s'il n'y a pas de course avec météo samedi / dimanche.
-Charte : décor du site (ciel bleu), étiquette bleu marine des stories, bloc météo identique au site (couleur selon le temps)."""
+"""Story vidéo « Météo des courses » du week-end (1080×1920, MP4 avec bruitages), à partir de weather.json.
+Modèle validé le 14/11/2026 : « Météo des courses » et les dates sur la carte floutée, puis vue d'ensemble de l'île ;
+course après course (ordre chronologique), un point se pose sur le départ, un trait en part vers son cadre météo
+(nom, temps et température pendant la course, jour et heure, commune, terrain glissant, pluie, vent).
+Cadres au-dessus de l'île pour les courses du nord, en dessous pour celles du sud ; 8 courses au plus
+(au-delà : 7 + « + N autres courses »). Une course sur deux jours n'a qu'un cadre (son premier jour).
+Usage (depuis la racine du dépôt) : python3 social/meteo.py <date du vendredi>   ex. python3 social/meteo.py 2026-11-13
+Sortie : social/out/meteo/story-meteo-<vendredi>.mp4 ; « rien » s'il n'y a pas de course avec météo samedi / dimanche."""
 import sys, json, pathlib, datetime as D
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from core import C, ROOT, JOURS, MOIS, LOGO, load, esc, css, scene
-from rec import record
+from core import load, MAP, P_xy, ROOT, JOURS, JOURS_C, MOIS
+from nouveau import island, INK, TEAL, SURF, esc
+import rec, sfx
 
-HERE = pathlib.Path(__file__).resolve().parent
-OUT = HERE / 'out' / 'meteo'
-W, H, T, B, R = 1080, 1920, 250, 320, 170
-EASE = 'cubic-bezier(.2,.8,.2,1)'
-BACK = 'cubic-bezier(.34,1.56,.64,1)'
-
+OUT = ROOT / 'social' / 'out' / 'meteo'
+F = (ROOT / 'social' / 'fonts').as_uri()
+LOGO = (ROOT / 'social' / 'assets' / 'logo-512.png').as_uri()
+OCEAN = (ROOT / 'ocean.webp').as_uri()        # same IGN sea picture as the site map
+SEA = '#083b5a'
+W, H = 1080, 1920
 WXT = {'clearsky': 'Ensoleillé', 'fair': 'Plutôt beau', 'partlycloudy': 'Éclaircies', 'cloudy': 'Nuageux', 'fog': 'Brouillard',
        'lightrain': 'Faible pluie', 'rain': 'Pluie', 'heavyrain': 'Fortes pluies', 'lightrainshowers': 'Quelques averses',
        'rainshowers': 'Averses', 'heavyrainshowers': 'Fortes averses'}
@@ -47,120 +52,155 @@ def svg(p, s, col, sw=1.8): return f'<svg width="{s}" height="{s}" viewBox="0 0 
 def mm(x): return '0 mm' if x < 1 else (f'{round(x)} mm' if x >= 10 else f'{x:.1f} mm'.replace('.', ','))
 
 
-def build(friday):
+GRAD = dict(sun=('#f6b73c', '#e3762a'), part=('#5fb3ec', '#2f7fc9'), cloud=('#8597a8', '#536576'), fog=('#8597a8', '#536576'),
+            rain=('#4f86b8', '#2a4f7a'), storm=('#5b5891', '#2e2b57'))
+CW, CH, GAP, SIDE = 246, 270, 14, 24          # weather card size, gap, side margin
+KF, CY = 760 / 1100, 940                     # final zoom (island 800 px wide) and centre
+TOP_Y, BOT_Y = 290, 1318                     # rows of cards above / under the island
+STEP = .5                                    # one race every half second
+
+
+def races(friday):
     wx = json.loads((ROOT / 'weather.json').read_text())
-    data, races = load()
-    byid = {r['id']: r for r in races}
-    days = [friday + D.timedelta(days=1), friday + D.timedelta(days=2)]
-    items = []
+    data, rs = load(); by = {r['id']: r for r in rs}
+    days = {friday + D.timedelta(days=1), friday + D.timedelta(days=2)}
+    out, seen = [], set()
     for rid, lst in wx['races'].items():
-        r = byid.get(rid)
-        for x in lst:
-            if r and D.date.fromisoformat(x['date']) in days:
-                items.append((x['date'], x.get('h') or '99', r, x))
-    items.sort(key=lambda t: (t[0], t[1]))
+        for x in sorted(lst, key=lambda x: x['date']):
+            if rid in by and rid not in seen and D.date.fromisoformat(x['date']) in days:
+                seen.add(rid); out.append((x['date'], x.get('h') or '99', by[rid], x))
+    return wx, out
+
+
+def spread(xs):
+    """card centres near their pins, in the same order, without overlap"""
+    lo, hi, d = SIDE + CW / 2, W - SIDE - CW / 2, CW + GAP
+    c = [min(max(x, lo), hi) for x in xs]
+    for _ in range(50):
+        for i in range(1, len(c)):
+            if c[i] - c[i - 1] < d:
+                m = (c[i] + c[i - 1]) / 2; c[i - 1], c[i] = m - d / 2, m + d / 2
+        c = [min(max(x, lo + i * 0), hi) for i, x in enumerate(c)]
+        if c and c[0] < lo:
+            c = [x + lo - c[0] for x in c]
+        if c and c[-1] > hi:
+            c = [x - (c[-1] - hi) for x in c]
+    return c
+
+
+def page(friday):
+    wx, items = races(friday)
     if not items:
-        return None, 0, [], 0
-    more = max(0, len(items) - 5)
-    items = items[:5]                       # 5 blocks at most, readable on a phone
-    sure = all(x['j'] < 3 for *_, x in items)
+        return None, 0
+    M = MAP()
+    more = 0
+    if len(items) > 8:
+        more = len(items) - 7; items = sorted(items, key=lambda t: (t[0], t[1]))[:7]
+    # pins on screen (final framing)
+    P = []
+    for it in items:
+        mx, my = P_xy(*it[2]['ll'])
+        P.append((W / 2 + (mx - M['W'] / 2) * KF, CY + (my - M['H'] / 2) * KF))
+    order = sorted(range(len(items)), key=lambda i: P[i][1])           # north first
+    ntop = min(4, max(len(items) - 4, (len(items) + 1) // 2))
+    top, bot = sorted(order[:ntop], key=lambda i: P[i][0]), sorted(order[ntop:], key=lambda i: P[i][0])
+    slot = {}
+    for row, y in ((top, TOP_Y), (bot, BOT_Y)):
+        for i, cx in zip(row, spread([P[i][0] for i in row])):
+            slot[i] = (cx, y)
+    # appearance order: by date and hour
+    seq = sorted(range(len(items)), key=lambda i: (items[i][0], items[i][1]))
+    T0 = 3.0
+    DUR = T0 + len(items) * STEP + 5.5
+    p = lambda t: f'{t / DUR * 100:.2f}%'
+    k0 = 1000 / M['W']
+    cam = lambda k, sy: f"translate({W / 2 - M['W'] / 2 * k:.1f}px,{sy - M['H'] / 2 * k:.1f}px) scale({k:.4f})"
     dset = sorted({D.date.fromisoformat(i[0]) for i in items})
-    when = ' et '.join(f"{JOURS[d.weekday()]} {d.day}" for d in dset) + f" {MOIS[dset[-1].month - 1]}"
-    n = len(items)
-    Z = max(1.1, min(1.75, 1000 / (n * 222 + (n - 1) * 14)))      # zoom of the site block (site css px -> story px)
-    cards = []
-    for k, (ds, h, r, x) in enumerate(items):
-        dly = 1.0 + k * .35
-        kd = kind(x['start']['sym'])
-        path, bg, col = ICON[kd]
-        w = x['window']
-        rain = mm(w['rain'])
-        tile = lambda ic, val, lab: f'<div class="wxc">{svg(SMALL[ic] if ic in SMALL else TEMP, 18, "rgba(255,255,255,.85)", 1.7)}<b>{val}</b><span>{lab}</span></div>'
-        tiles = [tile('temp', f"{w['tmin']}°" if w['tmin'] == w['tmax'] else f"{w['tmin']}–{w['tmax']}°",
-                      f"Pendant la course (≈ {round(w['hours'])} h)" if w.get('hours', 0) >= 1.5 else 'Pendant la course'),
-                 tile('drop', rain, 'Pluie prévue'), tile('wind', f"{w['w']} km/h", 'Vent max')]
-        if x.get('top'):
-            tiles.append(tile('peak', f"{x['top']['t']}°", f"Au sommet ({x['top']['alt']:,} m)".replace(',', ' ')))
-        alert = (f'<p class="wxv">{svg(SMALL["wet"], 18, "#fff", 1.7)}Pluie la veille (≈ {x["veille"]} mm) : terrain probablement glissant</p>') if x.get('veille') else ''
-        hh = (x.get('h') or '').replace('h00', 'h').lstrip('0')
-        dd = D.date.fromisoformat(ds)
-        txt = WXT.get(x['start']['sym'].replace('andthunder', ''), 'Orages' if kd == 'storm' else '')
-        tag = 'Prévision' if x['j'] < 3 else 'Tendance'
-        cards.append(f'''
-      <div style="animation:slide .6s {EASE} {dly:.2f}s both">
-        <section class="wx k-{kd}"><div class="wxh"><h4 class="rname">{esc(r['nom'])}</h4><span class="wxtag{' sure' if tag == 'Prévision' else ''}">{tag}</span></div>
-          <div class="wxtop"><span class="wxbig ic ic-{kd}">{svg(path, 34, "#fff", 1.6)}</span>
-            <div><b class="wxt" style="animation:pop .5s {BACK} {dly + .35:.2f}s both">{x['start']['t']}°</b><span class="wxs">{txt}{' · départ ' + hh if hh else ''} · {esc(r['commune'])}</span></div></div>
-          <div class="wxg">{''.join(tiles)}</div>{alert}</section>
-      </div>''')
-    total = 1.0 + n * .35 + 7.5
-    style = f'''{css()}
-    html,body{{height:{H}px}}
-    @keyframes up{{from{{opacity:0;transform:translateY(50px)}}to{{opacity:1;transform:none}}}}
-    @keyframes slide{{from{{opacity:0;transform:translateX(140px)}}to{{opacity:1;transform:none}}}}
-    @keyframes pop{{from{{opacity:0;transform:scale(.3)}}to{{opacity:1;transform:scale(1)}}}}
-    @keyframes spin{{to{{transform:rotate(90deg)}}}}
-    @keyframes fall{{0%{{transform:translateY(-3px);opacity:0}}30%{{opacity:1}}100%{{transform:translateY(4px);opacity:0}}}}
-    @keyframes drift{{from{{transform:translateX(-1.2px)}}to{{transform:translateX(1.2px)}}}}
-    @keyframes flash{{0%,60%,100%{{opacity:1}}70%,90%{{opacity:.15}}}}
-    .cards{{zoom:{Z:.3f}}}
-    .wxh h4.rname{{font-family:Saira;font-weight:800;font-size:1.15rem;letter-spacing:-.02em;line-height:1.1;color:#fff;text-transform:none}}
-    .rsub{{font-size:14px;color:#6e6e73;font-weight:500;margin:2px 0 8px}}
-    .wx{{--g1:#4aa3e8;--g2:#1f6fb8;border-radius:18px;padding:16px;color:#fff;background:linear-gradient(145deg,var(--g1),var(--g2));box-shadow:0 8px 24px color-mix(in srgb,var(--g2) 35%,transparent)}}
-    .wx.k-sun{{--g1:#f6b73c;--g2:#e3762a}} .wx.k-part{{--g1:#5fb3ec;--g2:#2f7fc9}} .wx.k-cloud,.wx.k-fog{{--g1:#8597a8;--g2:#536576}}
-    .wx.k-rain{{--g1:#4f86b8;--g2:#2a4f7a}} .wx.k-storm{{--g1:#5b5891;--g2:#2e2b57}}
-    .wxh{{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}}
-    .wxh h4{{margin:0;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.85);font-weight:700}}
-    .wxtag{{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.2);color:#fff}}
-    .wxtag.sure{{background:#fff;color:var(--g2)}}
-    .wxtop{{display:flex;align-items:center;gap:14px}}
-    .wxbig{{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;background:rgba(255,255,255,.22);color:#fff;flex:none}}
-    .wxt{{display:block;font-size:2.3rem;line-height:1;letter-spacing:-.03em;font-weight:800}}
-    .wxs{{display:block;margin-top:4px;color:rgba(255,255,255,.88);font-size:.9rem}}
-    .wxg{{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px;margin-top:14px}}
-    .wxc{{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.18);border-radius:13px;padding:10px 11px;display:grid;gap:2px;align-content:start}}
-    .wxc svg{{margin-bottom:2px}}
-    .wxc b{{font-size:1.1rem;letter-spacing:-.01em}} .wxc span{{font-size:.74rem;color:rgba(255,255,255,.82);line-height:1.25}}
-    .wxv{{display:flex;align-items:center;gap:8px;margin:10px 0 0;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.2);color:#fff;font-size:.84rem}}
-    .ic .rays{{transform-box:view-box;transform-origin:12px 12px;animation:spin 6s linear infinite}}
-    .ic-part .rays{{transform-origin:8.5px 9px}}
-    .ic .drops{{animation:fall .9s linear infinite}}
-    .ic .drift{{animation:drift 1.6s ease-in-out infinite alternate}}
-    .ic .flash{{animation:flash 1.4s linear infinite}}
-    '''
-    F = (ROOT / 'social' / 'fonts').as_uri(); LOGOPNG = (ROOT / 'social' / 'assets' / 'logo-512.png').as_uri()
     title = (f"{JOURS[dset[0].weekday()]} {dset[0].day} {MOIS[dset[0].month - 1]}" if len(dset) == 1
-             else f"{JOURS[dset[0].weekday()][:3]}. {dset[0].day} et {JOURS[dset[1].weekday()][:3]}. {dset[1].day} {MOIS[dset[1].month - 1]}")
-    style += f"""@font-face{{font-family:SC;font-weight:800;src:url('{F}/SairaCondensed-800.woff2')}}
-    @font-face{{font-family:IS;font-weight:400 700;src:url('{F}/InstrumentSans.woff2')}}
-    .sc{{font-family:SC,sans-serif}} .wxh h4.rname{{font-family:SC,sans-serif;font-weight:800;font-size:1.3rem;letter-spacing:.01em}}"""
-    body = f'''
-    {scene(dict(W=W, H=H), .36)}
-    <div style="position:absolute;left:0;right:0;top:200px;display:flex;justify-content:center;animation:pop .5s {BACK} .05s both">
-      <div class="sc" style="background:#1d4f9c;color:#fff;font-weight:800;font-size:46px;letter-spacing:1px;padding:8px 30px;border-radius:14px;border:5px solid #1d2523;border-bottom:8px solid #ffd400;transform:rotate(-2deg);box-shadow:0 12px 24px rgba(29,37,35,.25)">Météo des courses</div></div>
-    <div class="sc" style="position:absolute;left:64px;right:64px;top:335px;text-align:center;font-weight:800;font-size:92px;line-height:1;color:#1d2523;animation:up .6s {EASE} .2s both">{title[0].upper() + title[1:]}</div>
-    <div style="position:absolute;left:56px;right:56px;top:475px">
-      <div class="cards" style="display:flex;flex-direction:column;gap:14px">{''.join(cards)}</div></div>
-    <div style="position:absolute;left:0;right:0;bottom:185px;display:flex;flex-direction:column;align-items:center;gap:16px;animation:up .6s {EASE} {1.0 + n * .35 + .3:.2f}s both">
-      <div style="display:flex;align-items:center;gap:22px;background:#fff;border:6px solid #1d2523;border-radius:999px;padding:14px 40px 14px 18px;box-shadow:0 16px 30px rgba(29,37,35,.22)">
-        <img src="{LOGOPNG}" style="width:110px;display:block">
-        <div><div class="sc" style="font-weight:800;font-size:54px;line-height:.95;color:#1d2523">Dossard Péi</div>
-        <div style="font-family:IS;font-weight:700;font-size:30px;color:#0d6b67;margin-top:4px">dossardpei.re</div></div></div>
-      {f'<div style="font-family:IS;font-size:30px;font-weight:700;color:#1d2523">+ {more} autre{"s" if more > 1 else ""} course{"s" if more > 1 else ""} sur dossardpei.re</div>' if more else ''}
-      <div style="font-family:IS;font-size:24px;font-weight:600;color:#1d2523">Prévisions MET Norway du {D.datetime.fromisoformat(wx['at']).strftime('%d/%m à %Hh')}</div></div>'''
-    html = f'<!doctype html><html><head><meta charset="utf-8"><style>{style}</style></head><body>{body}</body></html>'
-    return html, total, items, more
+             else f"{JOURS_C[dset[0].weekday()]} {dset[0].day} et {JOURS_C[dset[1].weekday()]} {dset[1].day} {MOIS[dset[1].month - 1]}")
+    title = title[0].upper() + title[1:]
+    lines, pins, cards = [], [], []
+    for k, i in enumerate(seq):
+        ds, h, r, x = items[i]; t = T0 + k * STEP
+        px, py = P[i]; cx, cy = slot[i]
+        ey = cy + CH if cy == TOP_Y else cy                       # attach to the card edge facing the island
+        kd = kind(x['start']['sym']); g = GRAD[kd]; w = x['window']
+        lines.append(f'<line class="ln anim" style="animation-delay:{t + .15:.2f}s" x1="{px:.0f}" y1="{py:.0f}" x2="{cx:.0f}" y2="{ey:.0f}" pathLength="1"/>')
+        pins.append(f'<div class="pin anim" style="left:{px:.0f}px;top:{py:.0f}px;animation-delay:{t:.2f}s;--c:{g[1]}"></div>')
+        d = D.date.fromisoformat(ds)
+        hh = (x.get('h') or '').replace('h00', 'h').lstrip('0')
+        temp = f"{w['tmin']}–{w['tmax']}°" if w['tmin'] != w['tmax'] else f"{w['tmin']}°"
+        txt = WXT.get(x['start']['sym'].replace('andthunder', ''), 'Orages' if kd == 'storm' else '')
+        extra = f'<div class="wet">{svg(SMALL["wet"], 18, "#fff", 2)}Terrain glissant</div>' if x.get('veille') else ''
+        cards.append(f'''<div class="card anim" style="left:{cx - CW / 2:.0f}px;top:{cy}px;animation-delay:{t + .35:.2f}s;background:linear-gradient(150deg,{g[0]},{g[1]})">
+      <div class="cn s">{esc(r['nom'])}</div>
+      <div class="ct">{svg(ICON[kd][0], 44, '#fff', 1.7)}<b>{temp}</b></div>
+      <div class="cs"><b>{JOURS_C[d.weekday()].capitalize()} {hh}</b></div><div class="cs cc">{esc(r['commune'])}</div>
+      {extra}
+      <div class="cw"><span>{svg(SMALL['drop'], 18, '#fff', 2)}{mm(w['rain'])}</span><span>{svg(SMALL['wind'], 18, '#fff', 2)}{w['w']} km/h</span></div></div>''')
+    at = D.datetime.fromisoformat(wx['at'])
+    tf = T0 + len(items) * STEP + .2
+    allc = ''.join(f'<path vector-effect="non-scaling-stroke" d="{c["d"]}"/>' for c in M['communes'])
+    html = f'''<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{{font-family:S;font-weight:800;src:url('{F}/SairaCondensed-800.woff2')}}
+@font-face{{font-family:I;font-weight:400;src:url('{F}/inter-latin-400-normal.woff2')}}
+@font-face{{font-family:I;font-weight:600;src:url('{F}/inter-latin-600-normal.woff2')}}
+@font-face{{font-family:I;font-weight:700;src:url('{F}/inter-latin-700-normal.woff2')}}
+*{{box-sizing:border-box;margin:0;padding:0}} html,body{{width:{W}px;height:{H}px;overflow:hidden;background:{SEA}}}
+body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S,sans-serif}}
+.anim{{animation-duration:{DUR}s;animation-fill-mode:both;animation-timing-function:linear}}
+#lens{{position:absolute;inset:0;background:{SEA};animation-name:lens}}
+@keyframes lens{{0%,{p(1.3)}{{filter:blur(22px) saturate(.8)}} {p(1.3)}{{animation-timing-function:ease-out}} {p(2.4)},100%{{filter:blur(0) saturate(1)}}}}
+#world{{position:absolute;left:0;top:0;width:{M['W']}px;height:{M['H']}px;transform-origin:0 0;animation-name:cam}}
+@keyframes cam{{0%{{transform:{cam(k0 * .96, 900)}}} {p(1.4)}{{transform:{cam(k0, 900)};animation-timing-function:cubic-bezier(.6,0,.25,1)}} {p(2.7)},100%{{transform:{cam(KF, CY)}}}}}
+#world img{{position:absolute;left:0;top:0;width:{M['W']}px;height:{M['H']}px}} #world svg{{position:absolute;left:0;top:0;overflow:visible}}
+#tag{{position:absolute;left:0;right:0;top:0;display:flex;flex-direction:column;align-items:center;transform-origin:50% 0;animation-name:tag}}
+#tag .t{{background:{TEAL};color:#fff;font-weight:800;font-size:92px;letter-spacing:1px;padding:10px 44px 14px;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.35);line-height:1}}
+#tag .n{{margin-top:22px;background:{SURF};color:{INK};font-weight:800;font-size:84px;line-height:1;padding:12px 40px 16px;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.3);animation-name:nm}}
+@keyframes tag{{0%,{p(.25)}{{transform:translateY(700px) scale(.5);opacity:0}} {p(.25)}{{animation-timing-function:cubic-bezier(.3,1.6,.5,1)}}
+  {p(.8)},{p(1.5)}{{transform:translateY(700px) scale(1);opacity:1}} {p(1.5)}{{animation-timing-function:cubic-bezier(.6,0,.2,1)}} {p(2.5)},100%{{transform:translateY(120px) scale(.6);opacity:1}}}}
+@keyframes nm{{0%,{p(.55)}{{opacity:0;transform:translateY(30px)}} {p(.55)}{{animation-timing-function:cubic-bezier(.2,.9,.3,1)}} {p(1.0)},100%{{opacity:1;transform:none}}}}
+#lines{{position:absolute;left:0;top:0}}
+.ln{{stroke:#fff;stroke-width:4;stroke-linecap:round;stroke-dasharray:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));animation-name:draw}}
+@keyframes draw{{0%{{stroke-dashoffset:1}} {.3 / DUR * 100:.2f}%,100%{{stroke-dashoffset:0}}}}
+.pin{{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:var(--c);border:6px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.5);animation-name:pop}}
+@keyframes pop{{0%{{opacity:0;transform:scale(.2)}} {.18 / DUR * 100:.2f}%{{opacity:1;transform:scale(1.25)}} {.3 / DUR * 100:.2f}%,100%{{opacity:1;transform:scale(1)}}}}
+.card{{position:absolute;width:{CW}px;height:{CH}px;border-radius:22px;border:4px solid #fff;color:#fff;padding:12px 14px;box-shadow:0 14px 30px rgba(0,0,0,.4);display:flex;flex-direction:column;gap:3px;animation-name:pop}}
+.ct{{display:flex;align-items:center;gap:8px;margin:4px 0 2px}} .ct b{{font:800 46px/1 S,sans-serif}}
+.cn{{font-weight:800;font-size:28px;line-height:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}}
+.cs{{font-size:19px;font-weight:600;line-height:1.2;opacity:.95;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}} .cs b{{font-weight:800}} .cs.cc{{-webkit-line-clamp:2}}
+.cnd{{font-size:19px;opacity:.9}}
+.wet{{display:flex;align-items:center;gap:5px;font-size:18px;font-weight:700;background:rgba(0,0,0,.22);border-radius:8px;padding:1px 7px;align-self:flex-start}}
+.cw{{margin-top:auto;display:flex;gap:14px;font-size:20px;font-weight:700}} .cw span{{display:flex;align-items:center;gap:4px}}
+#foot{{position:absolute;left:0;right:0;top:1612px;display:flex;flex-direction:column;align-items:center;gap:10px;animation-name:foot}}
+@keyframes foot{{0%,{p(tf)}{{opacity:0;transform:translateY(20px)}} {p(tf + .5)},100%{{opacity:1;transform:none}}}}
+#foot .b{{display:flex;align-items:center;gap:16px;background:#fff;border:5px solid {INK};border-radius:999px;padding:8px 30px 8px 12px}}
+#foot .b img{{width:70px;display:block}} #foot .b div{{font:800 40px/1 S,sans-serif}} #foot .b small{{display:block;font:700 22px I,sans-serif;color:{TEAL};margin-top:2px}}
+#foot .src{{font-size:21px;font-weight:600;color:#fff;opacity:.85}}
+</style></head><body>
+<div id="lens" class="anim"><div id="world" class="anim"><img src="{OCEAN}"><img src="{island()}">
+ <svg width="{M['W']}" height="{M['H']}" viewBox="0 0 {M['W']} {M['H']}"><g fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.5">{allc}</g></svg></div></div>
+<svg id="lines" width="{W}" height="{H}">{''.join(lines)}</svg>
+{''.join(pins)}{''.join(cards)}
+<div id="tag" class="anim"><div class="s t">Météo des courses</div><div class="s n anim">{esc(title)}</div></div>
+<div id="foot" class="anim"><div class="b"><img src="{LOGO}"><div>Dossard Péi<small>dossardpei.re</small></div></div>
+ <div class="src">{f"+ {more} autres courses sur dossardpei.re · " if more else ""}Prévisions MET Norway du {at.day:02d}/{at.month:02d} à {at.hour}h</div></div>
+</body></html>'''
+    page.n = len(items) + more
+    page.ev = [(.25, 'pop', 520), (.6, 'pop', 700), (1.45, 'whoosh', 1.4)] + [e for k in range(len(items)) for e in ((T0 + k * STEP, 'pop', 620, .1, .4), (T0 + k * STEP + .15, 'tick', 1400, .05, .15), (T0 + k * STEP + .35, 'pop', 900, .1, .3))] + [(tf, 'chime')]
+    return html, DUR
 
 
 if __name__ == '__main__':
     fri = D.date.fromisoformat(sys.argv[1])
-    html, total, items, more = build(fri)
+    html, dur = page(fri)
     if not html:
         print('rien : aucune course avec météo samedi / dimanche'); sys.exit(0)
     OUT.mkdir(parents=True, exist_ok=True)
     f = OUT / '_meteo.html'; f.write_text(html)
-    mp4, jpg = OUT / f'story-meteo-{fri}.mp4', OUT / f'story-meteo-{fri}.jpg'
-    record(f, mp4, total, stills=[(total - .05, jpg)])
-    f.unlink()
+    mp4 = OUT / f'story-meteo-{fri}.mp4'; tmp = OUT / '_meteo.mp4'
+    rec.record(f, tmp, dur)
+    wav = OUT / '_meteo.wav'; sfx.track(page.ev, dur, wav); sfx.mux(tmp, wav); wav.unlink()
+    tmp.replace(mp4); f.unlink()
     wx_at = json.loads((ROOT / 'weather.json').read_text())['at']
-    print(f'ok {len(items) + more} course(s) · météo du {wx_at}\n{jpg}\n{mp4}')
+    print(f'ok {page.n} course(s) · météo du {wx_at}\n{mp4}')
