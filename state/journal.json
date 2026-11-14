@@ -576,5 +576,12 @@
 "id": "christmas-run",
 "nom": "Christmas Run",
 "date": "2026-12-12"
+},
+{
+"at": "2026-11-14T09:22+04:00",
+"t": "ajout",
+"id": "foulees-de-la-cote-ouest-2027-01",
+"nom": "Foulées de la Côte Ouest",
+"date": "2027-01-23"
 }
 ]
