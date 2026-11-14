@@ -726,18 +726,24 @@ try:
     if len(ag) < 5:   # nearly empty agenda: say what the page was (maintenance, limit, new layout…) in the log
         _t = re.search(r"<title>(.*?)</title>", page, re.S)
         print(f"  agenda Sportpro presque vide ({len(ag)} événement(s), {len(page)} octets, titre : {html.unescape(_t.group(1)).strip()[:80] if _t else '?'})")
-    # only events held in La Réunion (Sportpro also times races in Mayotte, Maurice…): the card's town must be a Réunion commune
+    # Sportpro also times races in Mayotte and Maurice: those towns are left out. Any other town is reported:
+    # the card often gives a locality (La Saline, Les Makes, Sainte-Anne…) rather than the commune, so an
+    # unknown town is flagged « lieu à vérifier » instead of being dropped (the Claude update checks the commune).
     import controls as _c
     _reu = {norm(x) for x in _c.COMMUNES} | {"la plaine des cafres", "plaine des cafres", "hell bourg", "cilaos", "mafate"}
+    _away = {norm(x) for x in ("Acoua", "Bandraboua", "Bandrélé", "Bouéni", "Chiconi", "Chirongui", "Dembéni", "Dzaoudzi",
+             "Kani-Kéli", "Koungou", "M'Tsangamouji", "Mamoudzou", "Mtsamboro", "Ouangani", "Pamandzi", "Sada", "Tsingoni",
+             "Mayotte", "Petite-Terre", "Maurice", "Ile Maurice", "Bel Ombre", "Port-Louis", "Curepipe", "Rodrigues", "Madagascar")}
     FOUND["Sportpro"] = []
     for card in re.split(r'<li class="course-card">', page)[1:]:
         m = re.search(r'class="courseLink" href="courses/(\d{5})-([^"/]+)/?">([^<]+)</a>', card)
         if not m: continue
         ville = re.search(r'lbl-ville">[^<]*</span>\s*<span class="valCourse">\s*([^<]+?)\s*(?:<|$)', card)
         v = norm(html.unescape(ville.group(1))) if ville else ""
-        if v and not any(v == c or v.startswith(c + " ") for c in _reu):
+        if v and any(v == c or v.startswith(c + " ") for c in _away):
             continue
-        FOUND["Sportpro"].append((f"courses/{m.group(1)}-", html.unescape(m.group(3)).strip() + (f" ({SP_DATES[m.group(1)]})" if m.group(1) in SP_DATES else "") + (f", {ville.group(1).strip()}" if ville else ""),
+        doubt = bool(v) and not any(v == c or v.startswith(c + " ") for c in _reu)
+        FOUND["Sportpro"].append((f"courses/{m.group(1)}-", html.unescape(m.group(3)).strip() + (f" ({SP_DATES[m.group(1)]})" if m.group(1) in SP_DATES else "") + (f", {ville.group(1).strip()}" if ville else "") + (" (lieu à vérifier)" if doubt else ""),
                                   f"https://www.sportpro.re/courses/{m.group(1)}-{m.group(2)}/"))
     associees = 0
     for r in data["races"]:
