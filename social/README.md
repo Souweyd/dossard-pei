@@ -33,7 +33,7 @@ Automatisation : des tâches planifiées Claude lancent `jour` 30 min avant chaq
 Tout dessin du drapeau (logo, dossard, bandeau) : fond bleu marine, volcan rouge en bas au centre et **exactement 5 rayons jaunes** qui partent du sommet du volcan, comme dans `favicon.svg`. Jamais 6 rayons, jamais des rayons partant du bas du bandeau.
 
 ## Stories
-- `nouveau.py <id>…` : story « Nouveau dossard », seulement pour une fiche dont les inscriptions sont ouvertes ou dont la date d'ouverture est annoncée (pas « À venir » sans date, pas complète).
+- `nouveau.py <id>…` : story vidéo « Nouveau dossard » (MP4 1080×1920, 11 s : nom de la course sur la carte floutée, zoom sur le lieu de départ, puis carte de la course avec une ligne par épreuve), seulement pour une fiche dont les inscriptions sont ouvertes ou dont la date d'ouverture est annoncée (pas « À venir » sans date, pas complète).
 - `meteo.py <vendredi>` : story « Météo des courses » (samedi et dimanche, 5 courses au plus), même bloc météo que le site ; `rec.py` enregistre la vidéo image par image.
 
 ## Légendes
