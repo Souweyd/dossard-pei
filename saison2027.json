@@ -91,10 +91,11 @@
 "date": "2027-02-13"
 },
 {
-"nom": "Ensemb mon ZéZèr",
+"nom": "Ensemb mon zézèr",
 "nature": "Trail",
 "club": "Bertel Evens",
-"date": "2027-02-14"
+"date": "2027-02-14",
+"id": "ensemb-mon-zezer-2027-02"
 },
 {
 "nom": "Course des Amoureux",
