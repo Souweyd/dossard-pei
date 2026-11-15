@@ -10,7 +10,9 @@ had changed. This script does that watch every hour instead:
   - state/watch.json keeps, per URL, the fingerprint and the time it last changed; a new content
     counts only once it is seen on two runs in a row (some pages shuffle or rotate items);
   - Sportpro, UTOI, Top Chrono and Chrono Run are not watched here: tools/sync_sources.py already
-    reports their new races (issue n° 2).
+    reports their new races (issue n° 2);
+  - sources with role « plateforme » (njuko, Klikego, WeRun: read race by race) or « outil »
+    (OpenRunner, Tracé de Trail, IGN, met.no) are not lists of races: not watched either.
 state/ack.json ({"at": ...}) is written by the Claude update when it has processed the list.
 state/todo.json lists what changed since that time:
   {"at", "since", "rien": bool, "sources": [{id, url, changed}], "avenir": [{id, url, changed}],
@@ -74,6 +76,8 @@ def main(now):
         if s.get("id") in BY_SYNC:
             continue
         if s.get("auto") is False or s.get("actif") is False or s.get("deleted") or not s.get("url"):
+            continue
+        if s.get("role") in ("plateforme", "outil"):   # read race by race elsewhere, not a list of races
             continue
         targets.append(("source", s.get("id") or s["url"], s["url"]))
     for r in data.get("races", []):
