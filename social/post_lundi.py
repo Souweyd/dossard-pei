@@ -346,6 +346,27 @@ def titlefill(title, mood, size):
             f'background:url({url}) 0 0/100% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:{"brightness(2.1) saturate(1.2) " if mood == "soir" else ""}drop-shadow(0 6px 18px rgba(0,0,0,.35))">{esc(title)}</div>')   # evening sky is too dark on the sea: lit up
 
 
+# ------------------------------------------------------------------ ambiance (validée le 16/11/2026)
+# one sky per post type, drawn from the site's own landscape, sharp at the top and fading into the sea and the island :
+# matin = ce week-end, couchant = thèmes, lagon = région, soir = mois. Titles in a plain colour chosen for contrast.
+AMB_TXT = {'matin': INK, 'couchant': INK, 'lagon': INK, 'soir': '#ffffff'}
+AMB_MASK = 'linear-gradient(180deg,#000 0,#000 56%,rgba(0,0,0,.75) 70%,rgba(0,0,0,.35) 84%,transparent 100%)'
+
+
+def ambiance(P, mood, h=None):
+    """the site's drawn landscape (sky, mountains, hills) in the post's mood, across the top of a cover, fading out downwards"""
+    h = h or (1020 if P['H'] > 1500 else 760)
+    svg = CH.decor({'W': P['W'], 'H': h}, mood, .70, cream_from=h * 3)
+    return (f'<div class="abs" style="left:0;right:0;top:0;height:{h}px;-webkit-mask-image:{AMB_MASK};mask-image:{AMB_MASK}">{svg}</div>')
+
+
+def titlesolid(title, mood, size):
+    """big title in one plain colour (ink on the light skies, white on the evening sky)"""
+    col = AMB_TXT.get(mood, '#fff')
+    sh = '0 4px 14px rgba(0,0,0,.35)' if col == '#ffffff' else '0 2px 10px rgba(255,255,255,.25)'
+    return (f'<div class="s" style="display:inline-block;font-size:{size}px;line-height:.92;white-space:nowrap;margin-top:14px;padding:0 6px 8px 0;color:{col};text-shadow:{sh}">{esc(title)}</div>')
+
+
 PERSO = ROOT / 'social' / 'assets' / 'perso'      # drawings of the game « Une histoire de dossard » (Sam, Ana)
 
 
@@ -458,9 +479,9 @@ def cover_v2(P, n, kicker, title, sub, mood, rs, ref, communes=None, numbered=Fa
     lines = title.split('<br>')
     size = int(min(172 if not tt else 178, (W - 2 * P['L']) / (0.44 * max(len(l) for l in lines))))
     th = 20 + sum(size * .92 + 8 for _ in lines)
-    head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:#fff">'
+    head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:{AMB_TXT.get(mood, "#fff")}">'
             f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">{esc(kicker)}</div>'
-            + ''.join(f'<div style="margin-top:{-size * .2 if i else 0:.0f}px">{titlefill(l, mood, size)}</div>' for i, l in enumerate(lines)) +
+            + ''.join(f'<div style="margin-top:{-size * .2 if i else 0:.0f}px">{titlesolid(l, mood, size)}</div>' for i, l in enumerate(lines)) +
             f'<div style="font:600 36px/1.25 I,sans-serif;margin-top:24px">{esc(sub)}</div></div>')
     y0 = top + 60 + th + 60 + 36
     y1 = H - P['B'] - 120
@@ -486,7 +507,7 @@ def cover_v2(P, n, kicker, title, sub, mood, rs, ref, communes=None, numbered=Fa
                    for k, (r, (x, y)) in enumerate(zip(rs, pts), 1))
     arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
-    fade = f'<div class="abs" style="left:0;right:0;top:0;height:{y0 + 40:.0f}px;background:linear-gradient(180deg,{SEA} 0,{SEA} 70%,rgba(8,59,90,0))"></div>'   # the title stays on the sea
+    fade = ambiance(P, mood)   # the post's sky, fading into the sea and the island
     return page(P, world(kf, cx, cy0, W / 2, sy) + fade + pins + head + chrome(P, 1, n) + arrow)
 
 
@@ -568,9 +589,9 @@ def cover_cal_v2(P, n, y, m, rs, ref):
     top = P['T'] + (56 if not tt else 40)
     title = f'{MOIS[m - 1].capitalize()} {y}'
     size = int(min(150 if not tt else 160, (W - 2 * P['L']) / (0.44 * len(title))))
-    head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:#fff">'
+    head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:{AMB_TXT.get("soir", "#fff")}">'
             f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">Le programme du mois</div>'
-            f'<div>{titlefill(title, "soir", size)}</div>'
+            f'<div>{titlesolid(title, "soir", size)}</div>'
             f'<div style="font:600 36px/1.25 I,sans-serif;margin-top:10px">{len(rs)} courses à La Réunion</div></div>')
     w = W - P['L'] - (P['R'] if not tt else P['L'])
     gap = 10; pad = 26
@@ -604,7 +625,8 @@ def cover_cal_v2(P, n, y, m, rs, ref):
              f'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:{gap}px">{cells}</div>'
              f'<div style="display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:18px;padding-top:16px;border-top:2px solid {LINE}">{legend}</div></div>')
     bg = (f'<div class="abs" style="inset:0;filter:blur(14px) saturate(.85)">{world(1000 / M["W"], M["W"] / 2, M["H"] / 2, W / 2, H * .62)}</div>'
-          '<div class="abs" style="inset:0;background:rgba(8,59,90,.45)"></div>')
+          '<div class="abs" style="inset:0;background:rgba(8,59,90,.45)"></div>'
+          + ambiance(P, "soir"))   # the post's sky over the blurred island
     arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
     return page(P, bg + head + panel + chrome(P, 1, n) + arrow)
@@ -617,9 +639,9 @@ def cover_region_v2(P, n, name, sub, rs, communes):
     top = P['T'] + (56 if not tt else 40)
     lines = ['Courir dans', name]
     size = int(min(150 if not tt else 160, (W - 2 * P['L']) / (0.44 * max(len(l) for l in lines))))
-    head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:#fff">'
+    head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:{AMB_TXT.get("lagon", "#fff")}">'
             f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">Près de chez toi</div>'
-            + ''.join(f'<div style="margin-top:{-size * .2 if i else 0:.0f}px">{titlefill(l, "lagon", size)}</div>' for i, l in enumerate(lines)) +
+            + ''.join(f'<div style="margin-top:{-size * .2 if i else 0:.0f}px">{titlesolid(l, "lagon", size)}</div>' for i, l in enumerate(lines)) +
             f'<div style="font:600 36px/1.25 I,sans-serif;margin-top:24px">{esc(sub)}</div></div>')
     y0 = top + 28 + 2 * (size * .92 + 8) + 70 + 40
     y1 = H - P['B'] - 130
@@ -648,7 +670,7 @@ def cover_region_v2(P, n, name, sub, rs, communes):
     leaders, labs = place_labels(rs, scr, big, W, y0 - 10, H - P['B'] - 100, (icx, icy), land=land_fn(kf, cx, cy, W, sy))
     arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
-    fade = f'<div class="abs" style="left:0;right:0;top:0;height:{y0 + 20:.0f}px;background:linear-gradient(180deg,{SEA} 0,{SEA} calc(100% - 90px),rgba(8,59,90,0))"></div>'
+    fade = ambiance(P, "lagon", 690 if P['H'] <= 1500 else 950)   # the post's sky, fading into the sea and the island
     return page(P, world(kf, cx, cy, W / 2, sy, extra) + fade + leaders + pins + labs + head + chrome(P, 1, n) + arrow)
 
 
@@ -727,9 +749,9 @@ def cover_theme_v2(P, n, th, rs, ref):
     top = P['T'] + (56 if not tt else 40)
     lines = th['title'].split('<br>')
     size = int(min(140 if not tt else 150, (W - 2 * P['L']) / (0.44 * max(len(l) for l in lines))))
-    head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:#fff">'
+    head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:{AMB_TXT.get("couchant", "#fff")}">'
             f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">Ces 10 prochaines semaines</div>'
-            + ''.join(f'<div style="margin-top:{-size * .2 if i else 0:.0f}px">{titlefill(l, "couchant", size)}</div>' for i, l in enumerate(lines)) +
+            + ''.join(f'<div style="margin-top:{-size * .2 if i else 0:.0f}px">{titlesolid(l, "couchant", size)}</div>' for i, l in enumerate(lines)) +
             f'<div style="font:600 34px/1.22 I,sans-serif;margin-top:24px">{esc(th["sub"])}</div></div>')
     import math
     w = W - P['L'] - (P['R'] if not tt else P['L'])
@@ -751,7 +773,8 @@ def cover_theme_v2(P, n, th, rs, ref):
                f'<div style="margin-bottom:{ph * .62:.0f}px;margin-left:-6px">{bubble(text)}</div></div>')
     panel += runners
     bg = (f'<div class="abs" style="inset:0;filter:blur(14px) saturate(.85)">{world(1000 / M["W"], M["W"] / 2, M["H"] / 2, W / 2, H * .62)}</div>'
-          '<div class="abs" style="inset:0;background:rgba(8,59,90,.45)"></div>')
+          '<div class="abs" style="inset:0;background:rgba(8,59,90,.45)"></div>'
+          + ambiance(P, "couchant"))   # the post's sky over the blurred island
     arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
     return page(P, bg + head + panel + chrome(P, 1, n) + arrow)
@@ -763,9 +786,9 @@ def cover_weekend_v2(P, n, rs, ref, lab):
     M = MAP(); W, H = P['W'], P['H']; tt = H > 1500
     top = P['T'] + (56 if not tt else 40)
     size = int(min(170 if not tt else 178, (W - 2 * P['L']) / (0.44 * len('Ce week-end'))))
-    head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:#fff">'
+    head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:{AMB_TXT.get("matin", "#fff")}">'
             f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">{esc(lab)}</div>'
-            f'<div>{titlefill("Ce week-end", "matin", size)}</div>'
+            f'<div>{titlesolid("Ce week-end", "matin", size)}</div>'
             f'<div style="font:600 36px/1.25 I,sans-serif;margin-top:24px">{len(rs)} course{"s" if len(rs) > 1 else ""} à La Réunion</div></div>')
     y0 = top + 28 + size * .92 + 8 + 24 + 46 + 50
     y1 = H - P['B'] - 130
@@ -791,7 +814,7 @@ def cover_weekend_v2(P, n, rs, ref, lab):
     leaders, labs = place_labels(rs, scr, big, W, y0 - 10, H - P['B'] - 100, (icx, icy), dsub, land_fn(kf, cx, cy, W, sy))
     arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
-    fade = f'<div class="abs" style="left:0;right:0;top:0;height:{y0 + 20:.0f}px;background:linear-gradient(180deg,{SEA} 0,{SEA} calc(100% - 90px),rgba(8,59,90,0))"></div>'
+    fade = ambiance(P, "matin")   # the post's sky, fading into the sea and the island
     return page(P, world(kf, cx, cy, W / 2, sy) + fade + leaders + pins + labs + head + chrome(P, 1, n) + arrow)
 
 _LAND = {}
