@@ -57,13 +57,14 @@ maplibregl.addProtocol('ignalt', async (p, ab) => {
 const BOUNDS = [55.18, -21.42, 55.86, -20.84];
 const map = new maplibregl.Map({container: 'map', attributionControl: {compact: true}, maxPitch: 78, pitch: 55, zoom: 11, center: [55.45, -21.1], preserveDrawingBuffer: /rec/.test(location.search),
   style: {version: 8,
-    sources: {ign: {type: 'raster', tiles: [ORTHO], tileSize: 256, maxzoom: 19, attribution: 'Photo et relief © IGN'},
+    // photo tiles shown at half size on sharp screens: one more level of detail (else it looks blurry on a phone)
+    sources: {ign: {type: 'raster', tiles: [ORTHO], tileSize: devicePixelRatio > 1.4 ? 128 : 256, maxzoom: 19, attribution: 'Photo et relief © IGN'},
       dem: {type: 'raster-dem', tiles: ['ignalt://{z}/{x}/{y}'], tileSize: 256, encoding: 'terrarium', minzoom: 9, maxzoom: 15, bounds: BOUNDS},
       hs: {type: 'raster-dem', tiles: ['ignalt://{z}/{x}/{y}'], tileSize: 256, encoding: 'terrarium', minzoom: 9, maxzoom: 14, bounds: BOUNDS}},
     layers: [{id: 'ign', type: 'raster', source: 'ign', paint: {'raster-saturation': .1, 'raster-contrast': .06}},
       {id: 'hs', type: 'hillshade', source: 'hs', paint: {'hillshade-exaggeration': .18, 'hillshade-shadow-color': '#14302c', 'hillshade-highlight-color': '#fff6e0', 'hillshade-accent-color': '#14302c'}}],
     terrain: {source: 'dem', exaggeration: 1},
-    sky: {'sky-color': '#6fb0e6', 'horizon-color': '#e6f0f5', 'fog-color': '#dbe7ee', 'sky-horizon-blend': .5, 'horizon-fog-blend': .6, 'fog-ground-blend': .7, 'atmosphere-blend': .9}}});
+    sky: {'sky-color': '#6fb0e6', 'horizon-color': '#e6f0f5', 'fog-color': '#dbe7ee', 'sky-horizon-blend': .5, 'horizon-fog-blend': .4, 'fog-ground-blend': .93, 'atmosphere-blend': .6}}});
 map.addControl(new maplibregl.NavigationControl({visualizePitch: true}), 'bottom-right');
 
 // ---------- little runner with his bib « 974 » (same drawing as the site's 3D view), two frames
@@ -105,8 +106,8 @@ function setTrack(t) {
   if (map.getSource('route')) { map.getSource('route').setData(fc); map.getSource('done').setData({type: 'FeatureCollection', features: []}); }
   else { map.addSource('route', {type: 'geojson', data: fc}); map.addSource('done', {type: 'geojson', data: {type: 'FeatureCollection', features: []}});
     map.addLayer({id: 'case', type: 'line', source: 'route', paint: {'line-color': '#fff', 'line-width': ['interpolate', ['linear'], ['zoom'], 10, 4, 15, 9]}, layout: {'line-join': 'round', 'line-cap': 'round'}});
-    map.addLayer({id: 'line', type: 'line', source: 'route', paint: {'line-color': '#ffb08f', 'line-width': ['interpolate', ['linear'], ['zoom'], 10, 2.2, 15, 5]}, layout: {'line-join': 'round', 'line-cap': 'round'}});
-    map.addLayer({id: 'rest', type: 'line', source: 'done', paint: {'line-color': '#ff5a1f', 'line-width': ['interpolate', ['linear'], ['zoom'], 10, 2.2, 15, 5]}, layout: {'line-join': 'round', 'line-cap': 'round'}}); }
+    map.addLayer({id: 'line', type: 'line', source: 'route', paint: {'line-color': '#ff5a1f', 'line-width': ['interpolate', ['linear'], ['zoom'], 10, 2.2, 15, 5]}, layout: {'line-join': 'round', 'line-cap': 'round'}});
+    map.addLayer({id: 'rest', type: 'line', source: 'done', paint: {'line-color': '#b8360a', 'line-width': ['interpolate', ['linear'], ['zoom'], 10, 2.2, 15, 5]}, layout: {'line-join': 'round', 'line-cap': 'round'}}); }
   marks.forEach(m => m.remove());
   marks = [new maplibregl.Marker({element: dotEl('#1b7f3b')}).setLngLat(coords[0]).addTo(map), new maplibregl.Marker({element: dotEl('#1d2523')}).setLngLat(coords.at(-1)).addTo(map)];
   // profile bar
