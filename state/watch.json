@@ -28,7 +28,7 @@
 "at": "2026-11-14T17:02+04:00",
 "changed": "2026-11-14T17:02+04:00",
 "h": "2037eb9f3906f89d1c6bdf41e903e32c8f6b053b4bee6b35f886544252fc84f4",
-"pending": "474a26d50fc8b43710aa96c1901a89061267fb274206cfb117becde76a0244da",
+"pending": "9d199f9f42262cde8c9e2cf0e440a888e12649244dd8448f4ce1216fb623b94d",
 "since": "2026-11-15T04:05+04:00"
 },
 "https://ilop.re/ilop-sport/outdoor/": {
@@ -42,11 +42,9 @@
 "h": "16554cc068a8ed92bcaf3b437c0b81a13a4bce85dfc1c4a76e7cbe5dede396e3"
 },
 "https://running.life/calendrier-course-a-pied/reunion": {
-"at": "2026-11-12T20:03+04:00",
-"changed": "2026-11-12T20:03+04:00",
-"h": "6ec43ebd21b7f79227296db8134e44ce4b54876ef1bd26ca0b814f037e471f3c",
-"pending": "bb0199ffd1dcc706ffff1c3bc00f962102378f5ba6eba92f6dd9d13c2fa249a5",
-"since": "2026-11-15T04:05+04:00"
+"at": "2026-11-15T05:07+04:00",
+"changed": "2026-11-15T05:07+04:00",
+"h": "bb0199ffd1dcc706ffff1c3bc00f962102378f5ba6eba92f6dd9d13c2fa249a5"
 },
 "https://sportinnovation.fr/Evenements/Inscriptions/9096/PRESENTIEL": {
 "at": "2026-10-27T19:08+04:00",
@@ -91,7 +89,9 @@
 "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/": {
 "at": "2026-11-15T01:05+04:00",
 "changed": "2026-11-15T01:05+04:00",
-"h": "fe6da417621b714d163fdf02d21168dbe43461e6ec5ce453ba777c368b26f793"
+"h": "fe6da417621b714d163fdf02d21168dbe43461e6ec5ce453ba777c368b26f793",
+"pending": "8e39dce8d22e3254d6eb240057ab97313264e9a1b5a5e49732627a9e6a8e55f2",
+"since": "2026-11-15T05:07+04:00"
 },
 "https://www.huge-event.fr": {
 "at": "2026-11-13T12:04+04:00",
