@@ -460,8 +460,8 @@ def cover_v2(P, n, kicker, title, sub, mood, rs, ref, communes=None, numbered=Fa
     th = 20 + sum(size * .92 + 8 for _ in lines)
     head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:#fff">'
             f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">{esc(kicker)}</div>'
-            + ''.join(f'<div>{titlefill(l, mood, size)}</div>' for l in lines) +
-            f'<div style="font:600 36px/1.25 I,sans-serif;margin-top:16px">{esc(sub)}</div></div>')
+            + ''.join(f'<div style="margin-top:{-size * .2 if i else 0:.0f}px">{titlefill(l, mood, size)}</div>' for i, l in enumerate(lines)) +
+            f'<div style="font:600 36px/1.25 I,sans-serif;margin-top:24px">{esc(sub)}</div></div>')
     y0 = top + 60 + th + 60 + 36
     y1 = H - P['B'] - 120
     if communes:
@@ -619,8 +619,8 @@ def cover_region_v2(P, n, name, sub, rs, communes):
     size = int(min(150 if not tt else 160, (W - 2 * P['L']) / (0.44 * max(len(l) for l in lines))))
     head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:#fff">'
             f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">Près de chez toi</div>'
-            + ''.join(f'<div>{titlefill(l, "lagon", size)}</div>' for l in lines) +
-            f'<div style="font:600 36px/1.25 I,sans-serif;margin-top:10px">{esc(sub)}</div></div>')
+            + ''.join(f'<div style="margin-top:{-size * .2 if i else 0:.0f}px">{titlefill(l, "lagon", size)}</div>' for i, l in enumerate(lines)) +
+            f'<div style="font:600 36px/1.25 I,sans-serif;margin-top:24px">{esc(sub)}</div></div>')
     y0 = top + 28 + 2 * (size * .92 + 8) + 70 + 40
     y1 = H - P['B'] - 130
     # frame : the races (and their communes' centres), with a margin
