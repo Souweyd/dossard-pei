@@ -35,6 +35,39 @@
 "page": "https://chronorun974.re/course-de-lail-2026/",
 "until": "2027-04-23"
 },
+"artichauts": {
+"commune": "Saint-Leu",
+"date": "2026-11-15",
+"epreuves": [
+{
+"dp": 426,
+"km": 12,
+"nom": "Course",
+"type": "trail"
+},
+{
+"dp": 188,
+"km": 7,
+"nom": "Rando",
+"type": "marche"
+},
+{
+"km": 1,
+"nom": "Course enfants 1 km",
+"type": "jeunes"
+},
+{
+"km": 2,
+"nom": "Course enfants 2 km",
+"type": "jeunes"
+}
+],
+"lieu": "Le Plate, place Maxime Laope",
+"nom": "Course des Artichauts",
+"org": "ADH avec l'Athlétic Club Chaloupe",
+"page": "https://chronorun974.re/course-des-artichauts-2026/",
+"until": "2027-05-14"
+},
 "avirons-urbain": {
 "commune": "Les Avirons",
 "date": "2026-10-31",
@@ -108,6 +141,27 @@
 "page": "https://www.sportpro.re/courses/02159-les-montees-curcuma-2026/",
 "until": "2027-05-06"
 },
+"diab": {
+"commune": "Saint-Pierre",
+"date": "2026-11-15",
+"epreuves": [
+{
+"km": 15,
+"nom": "15 km",
+"type": "route"
+},
+{
+"km": 10,
+"nom": "Marche 10 km",
+"type": "marche"
+}
+],
+"lieu": "Parking Salahin, Ravine Blanche",
+"nom": "Diab'athlétique",
+"org": "Club d'Athlétisme Loisirs Santé du Sud",
+"page": "https://www.sportpro.re/courses/02120-diabathletique/",
+"until": "2027-05-14"
+},
 "flambeaux": {
 "commune": "Saint-Benoît",
 "date": "2026-11-06",
@@ -149,6 +203,29 @@
 "org": "Dimitile Sports Actions, avec les Rotary Clubs de Saint-Pierre et de l'Entre-Deux",
 "page": "https://www.helloasso.com/associations/dimitile-sports-actions/evenements/les-foulees-solidaires-de-l-entre-deux-tous-contre-la-polio",
 "until": "2027-05-13"
+},
+"kalla-nescafe-2026-11": {
+"commune": "La Possession",
+"date": "2026-11-15",
+"epreuves": [
+{
+"dp": 1190,
+"km": 24.8,
+"nom": "Trail 24,8 km",
+"type": "trail"
+},
+{
+"dp": 600,
+"km": 11,
+"nom": "Randonnée 11 km",
+"type": "marche"
+}
+],
+"lieu": "Place Festival (arrivée CAPOSS, Sainte-Thérèse)",
+"nom": "Kalla Nescafé",
+"org": "CAPOSS",
+"page": "https://www.topchrono.run/evenements/la-kalla-nescafe-2026/",
+"until": "2027-05-14"
 },
 "lesquilibres": {
 "commune": "La Plaine-des-Palmistes",
@@ -322,6 +399,42 @@
 "org": "Samsora Tonique Athlé Sainte-Anne",
 "page": "https://www.sportpro.re/courses/02163-le-run-marmailles/",
 "until": "2027-05-05"
+},
+"swimrun-reunion-2026-11": {
+"commune": "Saint-Leu",
+"date": "2026-11-14",
+"epreuves": [
+{
+"km": 42,
+"nom": "La Marathon (duo)",
+"type": "multisport"
+},
+{
+"km": 27.5,
+"nom": "La Longue (duo)",
+"type": "multisport"
+},
+{
+"km": 14.5,
+"nom": "La Courte (duo)",
+"type": "multisport"
+},
+{
+"km": 5,
+"nom": "La Nocturne",
+"type": "multisport"
+},
+{
+"nom": "Courses enfants et familiale",
+"type": "jeunes"
+}
+],
+"fin": "2026-11-15",
+"lieu": "Saint-Leu",
+"nom": "SwimRun Réunion",
+"org": "SwimRun Réunion",
+"page": "https://swimrun-reunion.com",
+"until": "2027-05-14"
 },
 "tevelave": {
 "commune": "Les Avirons",
