@@ -32,8 +32,9 @@ body{{font-family:I,sans-serif;color:{INK};background:{SEA};position:relative;ov
 .tag{{display:inline-block;background:{TEAL};color:#fff;font:800 64px/1 S,sans-serif;padding:8px 32px 12px;border-radius:18px;box-shadow:0 14px 30px rgba(0,0,0,.35)}}
 .sub{{display:inline-block;background:{SURF};color:{INK};font:800 50px/1 S,sans-serif;padding:9px 28px 12px;border-radius:18px;box-shadow:0 14px 30px rgba(0,0,0,.3)}}
 .cnt{{position:absolute;background:rgba(0,0,0,.35);color:#fff;font:700 24px/1 I,sans-serif;padding:9px 16px;border-radius:999px}}
-.foot{{position:absolute;display:flex;align-items:center;gap:12px;color:#fff;font:700 28px/1 I,sans-serif}}
-.foot img{{width:52px}}
+.foot{{position:absolute;left:0;right:0;display:flex;justify-content:center}}
+.foot>div{{display:flex;align-items:center;gap:12px;background:#fff;border:4px solid {INK};border-radius:999px;padding:6px 24px 6px 8px;box-shadow:0 10px 24px rgba(0,0,0,.35)}}
+.foot img{{width:54px;display:block}} .foot b{{display:block;font:800 30px/.95 S,sans-serif}} .foot small{{display:block;font:700 19px/1.1 I,sans-serif;color:{TEAL};margin-top:2px}}
 .st{{display:inline-block;color:#fff;font:700 21px/1 I,sans-serif;padding:7px 12px;border-radius:9px;white-space:nowrap}}
 .pin{{position:absolute;width:48px;height:48px;margin:-24px 0 0 -24px;border-radius:50%;border:5px solid #fff;color:#fff;font:800 26px/38px S,sans-serif;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,.5)}}
 .co{{position:absolute;background:{SURF};border-radius:20px;padding:12px 14px 13px;box-shadow:0 12px 28px rgba(0,0,0,.4);display:flex;flex-direction:column;gap:5px}}
@@ -80,7 +81,7 @@ def world(k, cx, cy, sx, sy, extra=''):
 def chrome(P, i, n, light=True):
     """counter (top right) and dossardpei.re (bottom left), inside the safe zones"""
     return (f'<div class="cnt" style="right:{P["R"] - 30}px;top:{P["T"] - 20}px">{i}/{n}</div>'
-            f'<div class="foot" style="left:{P["L"] - 30}px;bottom:{P["B"] - 30}px"><img src="{LOGO}">dossardpei.re</div>')
+            f'<div class="foot" style="bottom:{P["B"] - 32}px"><div><img src="{LOGO}"><div><b>Dossard Péi</b><small>dossardpei.re</small></div></div></div>')
 
 
 def stat(r, ref):
@@ -158,10 +159,8 @@ def cover(P, n, rs, ref, title, lab):
                           f'<div class="d">{esc(dh(r))}</div><div class="c">{esc(r["commune"])}</div><div style="margin-top:auto">{stb}</div></div>')
     svg = f'<svg class="abs" style="left:0;top:0" width="{W}" height="{H}"><g stroke="#fff" stroke-width="4" stroke-linecap="round" style="filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))">{lines}</g></svg>'
     head = (f'<div class="abs" style="left:0;right:0;top:{TOP_T}px;display:flex;flex-direction:column;align-items:center;gap:14px">'
-            f'<div class="tag">{esc(title)}</div><div class="sub">{esc(lab)}</div></div>')
-    sub = f'{len(rs)} course{"s" if len(rs) > 1 else ""} à La Réunion'
-    note = f'<div class="abs" style="left:0;right:0;bottom:{P["B"] - 26}px;text-align:center;color:#fff;font:700 28px I,sans-serif;opacity:.9">{sub}</div>'
-    return page(P, world(kf, M['W'] / 2, M['H'] / 2, W / 2, cy) + svg + pins + cards + head + chrome(P, 1, n) + note)
+            f'<div class="tag">{esc(title)}</div><div class="sub">{esc(lab)} · {len(rs)} course{"s" if len(rs) > 1 else ""}</div></div>')
+    return page(P, world(kf, M['W'] / 2, M['H'] / 2, W / 2, cy) + svg + pins + cards + head + chrome(P, 1, n))
 
 
 # ------------------------------------------------------------------ programme (more than 8 races)
