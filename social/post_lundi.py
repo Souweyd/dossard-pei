@@ -644,18 +644,12 @@ def cover_region_v2(P, n, name, sub, rs, communes):
             k += 1; scr[i] = [x0 + (-1) ** k * (big + 8) * ((k + 1) // 2), yy] if k <= 4 else [x0 + (k - 6) * big / 2, yy + big + 8]
     pins = ''.join(f'<div class="pin" style="left:{x:.0f}px;top:{y:.0f}px;background:{TCOL.get(r["_type"], TEAL)};width:{big}px;height:{big}px;margin:-{big / 2:.0f}px 0 0 -{big / 2:.0f}px;font-size:{big * .55:.0f}px;line-height:{big - 12}px;border-width:6px">{k}</div>'
                    for k, (r, (x, y)) in enumerate(zip(rs, scr), 1))
-    # commune names, under the lowest pin of each commune
-    labs = ''
-    for com in dict.fromkeys(r['commune'] for r in rs):
-        ii = [i for i, r in enumerate(rs) if r['commune'] == com]
-        x = sum(scr[i][0] for i in ii) / len(ii); y = max(scr[i][1] for i in ii) + big / 2 + 8
-        x = min(max(x, P['L'] + 90), W - P['R'] - 90)
-        labs += (f'<div class="abs" style="left:{x:.0f}px;top:{y:.0f}px;transform:translateX(-50%);white-space:nowrap;background:{INK};color:#fff;'
-                 f'font:800 30px/1 S,sans-serif;padding:5px 14px 7px;border-radius:10px;box-shadow:0 6px 14px rgba(0,0,0,.35)">{esc(com)}</div>')
+    icx, icy = W / 2 + (M['W'] / 2 - cx) * kf, sy + (M['H'] / 2 - cy) * kf
+    leaders, labs = place_labels(rs, scr, big, W, y0 - 10, H - P['B'] - 100, (icx, icy))
     arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
     fade = f'<div class="abs" style="left:0;right:0;top:0;height:{y0 + 20:.0f}px;background:linear-gradient(180deg,{SEA} 0,{SEA} calc(100% - 90px),rgba(8,59,90,0))"></div>'
-    return page(P, world(kf, cx, cy, W / 2, sy, extra) + fade + labs + pins + head + chrome(P, 1, n) + arrow)
+    return page(P, world(kf, cx, cy, W / 2, sy, extra) + fade + leaders + pins + labs + head + chrome(P, 1, n) + arrow)
 
 
 # ------------------------------------------------------------------ theme covers (16/11/2026)
@@ -792,40 +786,53 @@ def cover_weekend_v2(P, n, rs, ref, lab):
             k += 1; scr[i] = [x0 + (-1) ** k * (big + 8) * ((k + 1) // 2), yy] if k <= 4 else [x0 + (k - 6) * big / 2, yy + big + 8]
     pins = ''.join(f'<div class="pin" style="left:{x:.0f}px;top:{y:.0f}px;background:{TCOL.get(r["_type"], TEAL)};width:{big}px;height:{big}px;margin:-{big / 2:.0f}px 0 0 -{big / 2:.0f}px;font-size:{big * .55:.0f}px;line-height:{big - 12}px;border-width:6px">{k}</div>'
                    for k, (r, (x, y)) in enumerate(zip(rs, scr), 1))
-    labs = ''; placed = []
-    for com in dict.fromkeys(r['commune'] for r in rs):
-        ii = [i for i, r in enumerate(rs) if r['commune'] == com]
-        days = sorted({rs[i]['_d'] for i in ii})
-        dtxt = ' · '.join(f"{JOURS_C[d.weekday()]} {d.day}" for d in days)
-        gx = sum(scr[i][0] for i in ii) / len(ii); gy = sum(scr[i][1] for i in ii) / len(ii)
-        lw, lh = max(len(com) * 15, len(dtxt) * 10) + 32, 60
-        # outwards from the island's centre : coastal towns get their label on the sea, where there is room
-        icx, icy = W / 2 + (M['W'] / 2 - cx) * kf, sy + (M['H'] / 2 - cy) * kf
-        dx, dy = gx - icx, gy - icy
-        half = max(abs(scr[i][0] - gx) for i in ii) + big / 2 + 10
-        if abs(dx) > abs(dy) * 1.2 and len(ii) == 1:
-            x = gx + (1 if dx > 0 else -1) * (half + lw / 2); y = gy - lh / 2
-        elif dy < 0:
-            x, y = gx, min(scr[i][1] for i in ii) - big / 2 - 8 - lh
-        else:
-            x, y = gx, max(scr[i][1] for i in ii) + big / 2 + 8
-        if y < y0 - 20:      # never over the title : below the pins instead
-            y = max(scr[i][1] for i in ii) + big / 2 + 8
-        x = min(max(x, lw / 2 + 24), W - lw / 2 - 24)
-        def hit(x, y):
-            return (sum(abs(x - a) < (lw + b) / 2 + 6 and abs(y - c) < lh + 6 for a, c, b in placed) * 3
-                    + sum(abs(px - x) < lw / 2 + big / 2 and y - big / 2 < py < y + lh + big / 2 for px, py in scr)
-                    + (x - lw / 2 < 20 or x + lw / 2 > W - 20) * 5 + (y < y0 - 20) * 9)
-        if hit(x, y):      # crowded : the place with the fewest overlaps (above, below, sideways)
-            ytop = min(scr[i][1] for i in ii) - big / 2 - 8 - lh
-            cands = [(x, y), (x, ytop), (x, y + lh + 10), (x - lw / 2 - 44, y - lh / 2 - 20), (x + lw / 2 + 44, y - lh / 2 - 20),
-                     (x + lw / 2 + 44, y + 10), (x - lw / 2 - 44, y + 10), (x, ytop - lh - 10)]
-            x, y = min(cands, key=lambda c: hit(*c))
-        placed.append((x, y, lw))
-        labs += (f'<div class="abs" style="left:{x:.0f}px;top:{y:.0f}px;transform:translateX(-50%);white-space:nowrap;text-align:center;background:{INK};color:#fff;'
-                 f'padding:5px 14px 7px;border-radius:10px;box-shadow:0 6px 14px rgba(0,0,0,.35)"><div style="font:800 30px/1 S,sans-serif">{esc(com)}</div>'
-                 f'<div style="font:700 20px/1.1 I,sans-serif;color:#ffd400;margin-top:3px">{esc(dtxt)}</div></div>')
+    icx, icy = W / 2 + (M['W'] / 2 - cx) * kf, sy + (M['H'] / 2 - cy) * kf
+    dsub = lambda com, ii: ' · '.join(f"{JOURS_C[d.weekday()]} {d.day}" for d in sorted({rs[i]['_d'] for i in ii}))
+    leaders, labs = place_labels(rs, scr, big, W, y0 - 10, H - P['B'] - 100, (icx, icy), dsub)
     arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
     fade = f'<div class="abs" style="left:0;right:0;top:0;height:{y0 + 20:.0f}px;background:linear-gradient(180deg,{SEA} 0,{SEA} calc(100% - 90px),rgba(8,59,90,0))"></div>'
-    return page(P, world(kf, cx, cy, W / 2, sy) + fade + labs + pins + head + chrome(P, 1, n) + arrow)
+    return page(P, world(kf, cx, cy, W / 2, sy) + fade + leaders + pins + labs + head + chrome(P, 1, n) + arrow)
+
+def place_labels(rs, scr, big, W, ymin, ymax, center, sub=None):
+    """commune labels glued to their pins : for each commune, the free spot closest to its pins (outwards first),
+    with a short white leader line when the label could not touch the pin. Returns (svg leader lines, label html)."""
+    placed, lines, labs = [], '', ''
+    pins = [(x, y) for x, y in scr]
+    icx, icy = center
+    for com in dict.fromkeys(r['commune'] for r in rs):
+        ii = [i for i, r in enumerate(rs) if r['commune'] == com]
+        sub_txt = sub(com, ii) if sub else ''
+        lw = max(len(com) * 15, len(sub_txt) * 10) + 32; lh = 62 if sub_txt else 42
+        gx0 = min(scr[i][0] for i in ii) - big / 2; gx1 = max(scr[i][0] for i in ii) + big / 2
+        gy0 = min(scr[i][1] for i in ii) - big / 2; gy1 = max(scr[i][1] for i in ii) + big / 2
+        gx, gy = (gx0 + gx1) / 2, (gy0 + gy1) / 2
+        out = (gx - icx, gy - icy); on = (out[0] ** 2 + out[1] ** 2) ** .5 or 1
+        cands = []
+        for gap in (8, 50, 95):
+            for cx_, cy_ in ((gx1 + gap + lw / 2, gy), (gx0 - gap - lw / 2, gy), (gx, gy1 + gap + lh / 2), (gx, gy0 - gap - lh / 2),
+                             (gx1 + gap + lw / 2, gy1 + gap / 2 + lh / 2), (gx0 - gap - lw / 2, gy1 + gap / 2 + lh / 2),
+                             (gx1 + gap + lw / 2, gy0 - gap / 2 - lh / 2), (gx0 - gap - lw / 2, gy0 - gap / 2 - lh / 2)):
+                cands.append((cx_, cy_, gap))
+        def score(c):
+            x, y, gap = c
+            bx0, bx1, by0, by1 = x - lw / 2, x + lw / 2, y - lh / 2, y + lh / 2
+            sc = sum(3 for a0, a1, b0, b1 in placed if bx0 < a1 + 8 and bx1 > a0 - 8 and by0 < b1 + 8 and by1 > b0 - 8)
+            sc += sum(2 for px, py in pins if bx0 - big / 2 < px < bx1 + big / 2 and by0 - big / 2 < py < by1 + big / 2)
+            sc += 9 * (bx0 < 16 or bx1 > W - 16 or by0 < ymin or by1 > ymax)
+            d = ((x - gx) * out[0] + (y - gy) * out[1]) / on                 # > 0 : towards the sea
+            return sc + gap / 60 + (0 if d > 0 else .6)
+        x, y, gap = min(cands, key=score)
+        placed.append((x - lw / 2, x + lw / 2, y - lh / 2, y + lh / 2))
+        # leader : from the nearest pin to the nearest point of the label
+        px, py = min(((scr[i][0], scr[i][1]) for i in ii), key=lambda p: (p[0] - x) ** 2 + (p[1] - y) ** 2)
+        qx, qy = min(max(px, x - lw / 2), x + lw / 2), min(max(py, y - lh / 2), y + lh / 2)
+        if ((qx - px) ** 2 + (qy - py) ** 2) ** .5 > big / 2 + 12:
+            lines += (f'<line x1="{px:.0f}" y1="{py:.0f}" x2="{qx:.0f}" y2="{qy:.0f}" stroke="{INK}" stroke-width="8" stroke-linecap="round"/>'
+                      f'<line x1="{px:.0f}" y1="{py:.0f}" x2="{qx:.0f}" y2="{qy:.0f}" stroke="#fff" stroke-width="4" stroke-linecap="round"/>')
+        labs += (f'<div class="abs" style="left:{x - lw / 2:.0f}px;top:{y - lh / 2:.0f}px;width:{lw:.0f}px;height:{lh}px;white-space:nowrap;text-align:center;background:{INK};color:#fff;'
+                 f'border:3px solid #fff;border-radius:12px;box-shadow:0 6px 14px rgba(0,0,0,.35);display:flex;flex-direction:column;justify-content:center">'
+                 f'<div style="font:800 28px/1 S,sans-serif">{esc(com)}</div>'
+                 + (f'<div style="font:700 19px/1.1 I,sans-serif;color:#ffd400;margin-top:3px">{esc(sub_txt)}</div>' if sub_txt else '') + '</div>')
+    svg = f'<svg class="abs" style="left:0;top:0;overflow:visible" width="{W}" height="{ymax}">{lines}</svg>'
+    return svg, labs
