@@ -645,7 +645,7 @@ def cover_region_v2(P, n, name, sub, rs, communes):
     pins = ''.join(f'<div class="pin" style="left:{x:.0f}px;top:{y:.0f}px;background:{TCOL.get(r["_type"], TEAL)};width:{big}px;height:{big}px;margin:-{big / 2:.0f}px 0 0 -{big / 2:.0f}px;font-size:{big * .55:.0f}px;line-height:{big - 12}px;border-width:6px">{k}</div>'
                    for k, (r, (x, y)) in enumerate(zip(rs, scr), 1))
     icx, icy = W / 2 + (M['W'] / 2 - cx) * kf, sy + (M['H'] / 2 - cy) * kf
-    leaders, labs = place_labels(rs, scr, big, W, y0 - 10, H - P['B'] - 100, (icx, icy))
+    leaders, labs = place_labels(rs, scr, big, W, y0 - 10, H - P['B'] - 100, (icx, icy), land=land_fn(kf, cx, cy, W, sy))
     arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
     fade = f'<div class="abs" style="left:0;right:0;top:0;height:{y0 + 20:.0f}px;background:linear-gradient(180deg,{SEA} 0,{SEA} calc(100% - 90px),rgba(8,59,90,0))"></div>'
@@ -788,16 +788,33 @@ def cover_weekend_v2(P, n, rs, ref, lab):
                    for k, (r, (x, y)) in enumerate(zip(rs, scr), 1))
     icx, icy = W / 2 + (M['W'] / 2 - cx) * kf, sy + (M['H'] / 2 - cy) * kf
     dsub = lambda com, ii: ' · '.join(f"{JOURS_C[d.weekday()]} {d.day}" for d in sorted({rs[i]['_d'] for i in ii}))
-    leaders, labs = place_labels(rs, scr, big, W, y0 - 10, H - P['B'] - 100, (icx, icy), dsub)
+    leaders, labs = place_labels(rs, scr, big, W, y0 - 10, H - P['B'] - 100, (icx, icy), dsub, land_fn(kf, cx, cy, W, sy))
     arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
     fade = f'<div class="abs" style="left:0;right:0;top:0;height:{y0 + 20:.0f}px;background:linear-gradient(180deg,{SEA} 0,{SEA} calc(100% - 90px),rgba(8,59,90,0))"></div>'
     return page(P, world(kf, cx, cy, W / 2, sy) + fade + leaders + pins + labs + head + chrome(P, 1, n) + arrow)
 
-def place_labels(rs, scr, big, W, ymin, ymax, center, sub=None):
+_LAND = {}
+
+
+def land_fn(kf, cx, cy, W, sy):
+    """screen point -> True if it is on the island (alpha of the relief picture)"""
+    from PIL import Image
+    M = MAP()
+    if 'img' not in _LAND:
+        im = Image.open(island().replace('file://', '')).convert('RGBA')
+        _LAND['img'] = im.getchannel('A').resize((800, round(800 * im.height / im.width)))
+    a = _LAND['img']; k = a.width / M['W']
+    def land(x, y):
+        mx, my = (cx + (x - W / 2) / kf) * k, (cy + (y - sy) / kf) * k
+        return 0 <= mx < a.width and 0 <= my < a.height and a.getpixel((int(mx), int(my))) > 128
+    return land
+
+
+def place_labels(rs, scr, big, W, ymin, ymax, center, sub=None, land=None):
     """commune labels glued to their pins : for each commune, the free spot closest to its pins (outwards first),
     with a short white leader line when the label could not touch the pin. Returns (svg leader lines, label html)."""
-    placed, lines, labs = [], '', ''
+    placed, lines, labs, segs = [], '', '', []
     pins = [(x, y) for x, y in scr]
     icx, icy = center
     for com in dict.fromkeys(r['commune'] for r in rs):
@@ -808,8 +825,10 @@ def place_labels(rs, scr, big, W, ymin, ymax, center, sub=None):
         gy0 = min(scr[i][1] for i in ii) - big / 2; gy1 = max(scr[i][1] for i in ii) + big / 2
         gx, gy = (gx0 + gx1) / 2, (gy0 + gy1) / 2
         out = (gx - icx, gy - icy); on = (out[0] ** 2 + out[1] ** 2) ** .5 or 1
+        import math
+        coast = land is not None and any(not land(gx + 110 * math.cos(t / 8 * math.pi), gy + 110 * math.sin(t / 8 * math.pi)) for t in range(16))
         cands = []
-        for gap in (8, 50, 95):
+        for gap in (8, 50, 95, 140):
             for cx_, cy_ in ((gx1 + gap + lw / 2, gy), (gx0 - gap - lw / 2, gy), (gx, gy1 + gap + lh / 2), (gx, gy0 - gap - lh / 2),
                              (gx1 + gap + lw / 2, gy1 + gap / 2 + lh / 2), (gx0 - gap - lw / 2, gy1 + gap / 2 + lh / 2),
                              (gx1 + gap + lw / 2, gy0 - gap / 2 - lh / 2), (gx0 - gap - lw / 2, gy0 - gap / 2 - lh / 2)):
@@ -817,21 +836,39 @@ def place_labels(rs, scr, big, W, ymin, ymax, center, sub=None):
         def score(c):
             x, y, gap = c
             bx0, bx1, by0, by1 = x - lw / 2, x + lw / 2, y - lh / 2, y + lh / 2
-            sc = sum(3 for a0, a1, b0, b1 in placed if bx0 < a1 + 8 and bx1 > a0 - 8 and by0 < b1 + 8 and by1 > b0 - 8)
+            sc = sum(12 for a0, a1, b0, b1 in placed if bx0 < a1 + 8 and bx1 > a0 - 8 and by0 < b1 + 8 and by1 > b0 - 8)
             sc += sum(2 for px, py in pins if bx0 - big / 2 < px < bx1 + big / 2 and by0 - big / 2 < py < by1 + big / 2)
             sc += 9 * (bx0 < 16 or bx1 > W - 16 or by0 < ymin or by1 > ymax)
             d = ((x - gx) * out[0] + (y - gy) * out[1]) / on                 # > 0 : towards the sea
-            return sc + gap / 60 + (0 if d > 0 else .6)
+            if coast:      # coastal race : the label goes on the sea, not on the island
+                f = sum(land(bx0 + (bx1 - bx0) * u / 4, by0 + (by1 - by0) * v / 2) for u in range(5) for v in range(3)) / 15
+                sc += 6 * f
+            # the leader (nearest pin -> label) must not pass by another pin, nor cross another leader
+            px, py = min(((scr[i][0], scr[i][1]) for i in ii), key=lambda p: (p[0] - x) ** 2 + (p[1] - y) ** 2)
+            qx, qy = min(max(px, bx0), bx1), min(max(py, by0), by1)
+            def segd(ax, ay):
+                vx, vy = qx - px, qy - py; L = vx * vx + vy * vy or 1
+                t = max(0, min(1, ((ax - px) * vx + (ay - py) * vy) / L)); return ((px + t * vx - ax) ** 2 + (py + t * vy - ay) ** 2) ** .5
+            sc += 4 * sum(1 for j, (ax, ay) in enumerate(pins) if j not in ii and segd(ax, ay) < big / 2 + 4)
+            def cross(a, b):
+                (x1, y1, x2, y2), (x3, y3, x4, y4) = a, b
+                d1 = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1); d2 = (x2 - x1) * (y4 - y1) - (y2 - y1) * (x4 - x1)
+                d3 = (x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3); d4 = (x4 - x3) * (y2 - y3) - (y4 - y3) * (x2 - x3)
+                return d1 * d2 < 0 and d3 * d4 < 0
+            sc += 6 * sum(cross((px, py, qx, qy), l) for l in segs)
+            sc += 4 * sum(1 for a0, a1, b0, b1 in placed for (lx1, ly1, lx2, ly2) in [(px, py, qx, qy)] if min(lx1, lx2) < a1 and max(lx1, lx2) > a0 and min(ly1, ly2) < b1 and max(ly1, ly2) > b0 and ((qx - px) ** 2 + (qy - py) ** 2) > (big / 2 + 12) ** 2)
+            return sc + gap / 25 + (0 if d > 0 else .6)
         x, y, gap = min(cands, key=score)
         placed.append((x - lw / 2, x + lw / 2, y - lh / 2, y + lh / 2))
         # leader : from the nearest pin to the nearest point of the label
         px, py = min(((scr[i][0], scr[i][1]) for i in ii), key=lambda p: (p[0] - x) ** 2 + (p[1] - y) ** 2)
         qx, qy = min(max(px, x - lw / 2), x + lw / 2), min(max(py, y - lh / 2), y + lh / 2)
+        segs.append((px, py, qx, qy))
         if ((qx - px) ** 2 + (qy - py) ** 2) ** .5 > big / 2 + 12:
             lines += (f'<line x1="{px:.0f}" y1="{py:.0f}" x2="{qx:.0f}" y2="{qy:.0f}" stroke="{INK}" stroke-width="8" stroke-linecap="round"/>'
                       f'<line x1="{px:.0f}" y1="{py:.0f}" x2="{qx:.0f}" y2="{qy:.0f}" stroke="#fff" stroke-width="4" stroke-linecap="round"/>')
         labs += (f'<div class="abs" style="left:{x - lw / 2:.0f}px;top:{y - lh / 2:.0f}px;width:{lw:.0f}px;height:{lh}px;white-space:nowrap;text-align:center;background:{INK};color:#fff;'
-                 f'border:3px solid #fff;border-radius:12px;box-shadow:0 6px 14px rgba(0,0,0,.35);display:flex;flex-direction:column;justify-content:center">'
+                 f'border-radius:12px;box-shadow:0 6px 14px rgba(0,0,0,.35);display:flex;flex-direction:column;justify-content:center">'
                  f'<div style="font:800 28px/1 S,sans-serif">{esc(com)}</div>'
                  + (f'<div style="font:700 19px/1.1 I,sans-serif;color:#ffd400;margin-top:3px">{esc(sub_txt)}</div>' if sub_txt else '') + '</div>')
     svg = f'<svg class="abs" style="left:0;top:0;overflow:visible" width="{W}" height="{ymax}">{lines}</svg>'
