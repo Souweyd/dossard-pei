@@ -159,7 +159,7 @@ def cover(P, n, rs, ref, title, lab):
                           f'<div class="d">{esc(dh(r))}</div><div class="c">{esc(r["commune"])}</div><div style="margin-top:auto">{stb}</div></div>')
     svg = f'<svg class="abs" style="left:0;top:0" width="{W}" height="{H}"><g stroke="#fff" stroke-width="4" stroke-linecap="round" style="filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))">{lines}</g></svg>'
     head = (f'<div class="abs" style="left:0;right:0;top:{TOP_T}px;display:flex;flex-direction:column;align-items:center;gap:14px">'
-            f'<div class="tag">{esc(title)}</div><div class="sub">{esc(lab)} · {len(rs)} course{"s" if len(rs) > 1 else ""}</div></div>')
+            f'<div class="tag">{esc(title)}</div><div class="sub">{esc(lab)}</div></div>')
     return page(P, world(kf, M['W'] / 2, M['H'] / 2, W / 2, cy) + svg + pins + cards + head + chrome(P, 1, n))
 
 
