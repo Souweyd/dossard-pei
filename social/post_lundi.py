@@ -493,12 +493,11 @@ def cover_v2(P, n, kicker, title, sub, mood, rs, ref, communes=None, numbered=Fa
 def list_v2(P, i0, n, tag, rs, ref, numbered=False, grouped=True):
     """the races as rows on cards (several slides when there are many)"""
     W = P['W']; tt = P['H'] > 1500; top = P['T'] + 40
-    per = _per(P, len(rs))        # rows per slide (room left for the discipline headers)
     right = (P['R'] - 40) if tt else 36
     out = []
-    for p0 in range(0, len(rs), per):
+    for p0, p1 in _pages(P, rs, grouped):
         rws, cur = '', None
-        for k, r in enumerate(rs[p0:p0 + per], p0 + 1):
+        for k, r in enumerate(rs[p0:p1], p0 + 1):
             if grouped and r['_type'] != cur:     # discipline header (repeated at the top of a following slide)
                 cur = r['_type']; cnt = sum(1 for x in rs if x['_type'] == cur)
                 rws += (f'<div style="display:flex;align-items:center;gap:12px;margin:{14 if rws else 6}px 0 2px"><span class="chip" style="background:{TCOL.get(cur, TEAL)};padding:7px 14px;border-radius:9px">{esc(TPLUR.get(cur, "Courses"))}</span>'
@@ -517,14 +516,28 @@ def list_v2(P, i0, n, tag, rs, ref, numbered=False, grouped=True):
     return out
 
 
-def _per(P, n):
-    per = 9 if P['H'] > 1500 else 8
-    return per + 1 if n % per == 1 and n > 1 else per    # never a slide with a single race left over
+ROW_H, HEAD_H = 84, 58      # rendered height of a race row and of a discipline header (px)
 
 
-def n_list_v2(P, rs):
-    per = _per(P, len(rs))
-    return (len(rs) + per - 1) // per
+def _pages(P, rs, grouped=True):
+    """cuts the list into slides filled down to the brand pill (headers counted), never one race alone on the last one"""
+    room = (P['H'] - P['B'] - 130) - (P['T'] + 110) - 20
+    out, p0, used, cur = [], 0, 0, None
+    for k, r in enumerate(rs):
+        h = ROW_H + (HEAD_H if grouped and (r['_type'] != cur or k == p0) else 0)
+        if used + h > room and k > p0:
+            out.append([p0, k]); p0, used = k, ROW_H + (HEAD_H if grouped else 0)
+        else:
+            used += h
+        cur = r['_type']
+    out.append([p0, len(rs)])
+    if len(out) > 1 and out[-1][1] - out[-1][0] == 1:     # a lone race: take one more from the previous slide
+        out[-2][1] -= 1; out[-1][0] -= 1
+    return [tuple(x) for x in out]
+
+
+def n_list_v2(P, rs, grouped=True):
+    return len(_pages(P, rs, grouped))
 
 
 def how_v2(P, i, n, feature, title, steps, shot):
