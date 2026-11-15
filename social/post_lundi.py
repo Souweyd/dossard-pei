@@ -16,7 +16,7 @@ OCEAN = (ROOT / 'ocean.webp').as_uri()
 F = (ROOT / 'social' / 'fonts').as_uri()
 LOGO = (ROOT / 'social' / 'assets' / 'logo-512.png').as_uri()
 SITE = __import__('os').environ.get('POST_SITE') == '1'   # proposition du 15/11 (en attente de validation): the site's drawn landscape (sky, mountains, cream ground) behind the slides, as on the site
-V2 = __import__('os').environ.get('POST_V2') == '1'   # proposition du 15/11 : couverture « teaser », programme, dernière chance, Sam / Ana (en attente de validation)
+V2 = __import__('os').environ.get('POST_V2', '1') == '1'   # nouvelle DA validée le 15/11/2026 (POST_V2=0 : ancienne version)
 TAGS = ['#trail', '#run', '#iledelareunion', '#reunionisland']
 STC = {'complet': '#c62828', 'clot': '#d2481e', 'bientot': TEAL, 'ouvert': '#2e7d32'}
 
@@ -343,15 +343,15 @@ def titlefill(title, mood, size):
     svg = CH.decor({'W': 860, 'H': 190}, mood, .58).replace('class="decor" ', 'xmlns="http://www.w3.org/2000/svg" ')
     url = 'data:image/svg+xml;base64,' + base64.b64encode(svg.encode()).decode()
     return (f'<div class="s" style="display:inline-block;font-size:{size}px;line-height:.92;white-space:nowrap;margin-top:14px;padding:0 6px 8px 0;'
-            f'background:url({url}) 0 0/100% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 18px rgba(0,0,0,.35))">{esc(title)}</div>')
+            f'background:url({url}) 0 0/100% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;filter:{"brightness(2.1) saturate(1.2) " if mood == "soir" else ""}drop-shadow(0 6px 18px rgba(0,0,0,.35))">{esc(title)}</div>')   # evening sky is too dark on the sea: lit up
 
 
 PERSO = ROOT / 'social' / 'assets' / 'perso'      # drawings of the game « Une histoire de dossard » (Sam, Ana)
 
 
-def perso(ref, pose):
-    """Sam one week, Ana the next one"""
-    who = 'jeremi' if ref.isocalendar()[1] % 2 == 0 else 'nadia'
+def perso(ref, pose, who=None):
+    """Sam one week, Ana the next one (who forces one of them)"""
+    who = who or ('jeremi' if ref.isocalendar()[1] % 2 == 0 else 'nadia')
     return (PERSO / f'{who}{pose}.svg').read_text()
 
 
@@ -380,8 +380,8 @@ def derniere(P, i, n, rs, ref):
     return page(P, body + chrome(P, i, n))
 
 
-def fin_sea(P, n, ref):
-    """end: the address, and Sam or Ana of the game celebrating"""
+def fin_sea(P, n, ref, duo=False):
+    """end: the address, and Sam or Ana of the game celebrating (both of them for the team themes)"""
     M = MAP(); W, H = P['W'], P['H']; tt = H > 1500
     ph = 560 if tt else 500
     body = (f'<div class="abs" style="inset:0;filter:blur(14px) saturate(.85)">{world(1000 / M["W"], M["W"] / 2, M["H"] / 2, W / 2, H / 2)}</div>'
@@ -392,9 +392,12 @@ def fin_sea(P, n, ref):
             f'<div style="font:700 30px I,sans-serif;color:{TEAL};margin-top:4px">dossardpei.re</div></div></div>'
             f'<div class="sub" style="font-size:42px">Toutes les courses de La Réunion</div></div>'
             f'<div class="abs" style="left:0;right:0;bottom:{P["B"] + 70}px;display:flex;justify-content:center;align-items:flex-end;gap:10px">'
-            f'<div style="width:{ph * .74:.0f}px;height:{ph}px">{perso(ref, 3)}</div>'
-            f'<div style="margin-bottom:{ph * .55:.0f}px">{bubble("Lé pa loin ! On se retrouve sur la ligne ?")}</div></div>'
-            f'<div class="abs" style="left:0;right:0;bottom:{P["B"] + 6}px;text-align:center;color:#fff;font:700 26px I,sans-serif;opacity:.95">Joue aussi à « Une histoire de dossard » sur dossardpei.re/jeu</div>')
+            + (f'<div style="width:{ph * .74:.0f}px;height:{ph}px">{perso(ref, 3)}</div>'
+               f'<div style="margin-bottom:{ph * .55:.0f}px">{bubble("Lé pa loin ! On se retrouve sur la ligne ?")}</div></div>' if not duo else
+               f'<div style="width:{ph * .74:.0f}px;height:{ph}px">{perso(ref, 3, "jeremi")}</div>'
+               f'<div style="width:{ph * .74:.0f}px;height:{ph}px;margin-left:-20px">{perso(ref, 3, "nadia")}</div></div>'
+               f'<div class="abs" style="left:0;right:0;bottom:{P["B"] + 70 + ph * .98:.0f}px;text-align:center">{bubble("On fait équipe ? Lé pa loin !")}</div>')
+            + f'<div class="abs" style="left:0;right:0;bottom:{P["B"] + 6}px;text-align:center;color:#fff;font:700 26px I,sans-serif;opacity:.95">Joue aussi à « Une histoire de dossard » sur dossardpei.re/jeu</div>')
     return page(P, body + f'<div class="cnt" style="right:{P["R"] - 30}px;top:{P["T"] - 20}px">{n}/{n}</div>')
 
 

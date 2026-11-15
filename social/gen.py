@@ -25,7 +25,7 @@ THEMES = [
          filt={'f-dist': 'court', 'f-dp': 'dp1'}, cta='Tague quelqu\'un qui devrait se lancer 👇', flab='Distance « < 15 km » et Dénivelé « < 500 m »', tag='#premierecourse'),
     dict(id='relais', emo='🤝', title='À faire<br>en équipe', short='Les relais',
          sub='Relais entre potes, collègues ou en famille.', pred=lambda r: 'relais' in r['_types'], cta='Tague ton équipe de relais 👇',
-         filt={'f-disc': 'relais'}, flab='Discipline « Relais »', tag='#relais'),
+         filt={'f-disc': 'relais'}, flab='Discipline « Relais »', tag='#relais', duo=True),
     dict(id='gros-dp', emo='⛰️', title='Les gros<br>dénivelés', short='Les gros D+',
          sub='Plus de 1 500 m de D+ : pour les grimpeurs.', pred=lambda r: _has(r, lambda e: (e.get('dp') or 0) >= 1500 and e.get('type') in ('trail', 'marche')), cta='Tu es plutôt montée ou descente ? 👇',
          filt={'f-dp': 'dp3'}, flab='Dénivelé « 1 500 – 3 000 m »', tag='#trailrunning'),
@@ -336,7 +336,7 @@ def build_mardi(ref, data, races):
                     b = info['box']
                     return fit_crop(shot_p, [b[0], b[1], b[2], b[3]], mw, mh)
                 sl.append(PL.how_v2(P, len(sl) + 1, n, 'Filtres', 'Trouve-les en 2 secondes', ['Touche <b>Filtres</b>', th['flab'], 'Touche <b>Voir les courses</b>'], shot))
-            sl.append(PL.fin_sea(P, n, ref))
+            sl.append(PL.fin_sea(P, n, ref, duo=th.get('duo', False)))   # team themes: Sam and Ana together
             pages[fmt] = sl
             continue
         nl = CH.n_list_pages(P, sel)
@@ -445,7 +445,20 @@ def build_mois(ref, data, races):
         return None
     shot_p, info = capture.run(capture.cal_month(TMP / 'cal_m.png', f'{y}-{m:02d}'))
     pages = {}
+    import post_lundi as PL
     for fmt, P in CH.LAYOUT.items():
+        if PL.V2:   # same style as the other posts: evening mood in the title, grouped by discipline
+            st = PL.by_type(sel)
+            n = 1 + PL.n_list_v2(P, st) + (1 if shot_p else 0) + 1
+            sl = [PL.cover_v2(P, n, 'Le programme du mois', MOIS[m - 1].capitalize() + f'<br>{y}', f"{len(sel)} courses à La Réunion", 'soir', st, ref)]
+            sl += PL.list_v2(P, 2, n, MOIS[m - 1].capitalize(), st, ref)
+            if shot_p:
+                sl.append(PL.how_v2(P, len(sl) + 1, n, 'Calendrier', 'Tout le mois sur un écran',
+                                    ['Touche <b>Calendrier</b>', 'Une pastille = une course', 'Touche un jour pour voir ses courses'],
+                                    lambda mw, mh: fit_crop(shot_p, info, mw, mh)))
+            sl.append(PL.fin_sea(P, n, ref))
+            pages[fmt] = sl
+            continue
         nl = CH.n_list_pages(P, sel)
         n = 1 + nl + (1 if shot_p else 0) + 1
         sl = [CH.cover_month(P, 1, n, y, m, sel, ref)]
