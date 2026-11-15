@@ -450,7 +450,7 @@ def build_mois(ref, data, races):
         if PL.V2:   # same style as the other posts: evening mood in the title, grouped by discipline
             st = PL.by_type(sel)
             n = 1 + PL.n_list_v2(P, st) + (1 if shot_p else 0) + 1
-            sl = [PL.cover_v2(P, n, 'Le programme du mois', MOIS[m - 1].capitalize() + f'<br>{y}', f"{len(sel)} courses à La Réunion", 'soir', st, ref)]
+            sl = [PL.cover_cal_v2(P, n, y, m, sel, ref)]   # couverture calendrier (validée le 15/11/2026)
             sl += PL.list_v2(P, 2, n, MOIS[m - 1].capitalize(), st, ref)
             if shot_p:
                 sl.append(PL.how_v2(P, len(sl) + 1, n, 'Calendrier', 'Tout le mois sur un écran',

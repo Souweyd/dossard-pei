@@ -559,3 +559,52 @@ def how_v2(P, i, n, feature, title, steps, shot):
     return page(P, bg + f'<div class="abs" style="left:{P["L"] - 30}px;top:{P["T"] - 22}px"><div class="tag" style="font-size:40px;padding:6px 20px 9px;border-radius:13px">Sur le site · {esc(feature)}</div></div>'
                 f'<div class="abs s" style="left:{P["L"] - 30}px;right:{right}px;top:{top + 80}px;color:#fff;font-size:64px;line-height:1">{esc(title)}</div>'
                 f'<div class="card" style="left:36px;right:{right}px;top:{stop + 20}px;padding:12px 28px">{st}</div>' + vis + chrome(P, i, n))
+
+
+def cover_cal_v2(P, n, y, m, rs, ref):
+    """sea cover for the month (validée le 15/11/2026) : the month grid on a cream panel ; race days filled in teal with a white band holding one dot per race (colour of its discipline)"""
+    import calendar
+    M = MAP(); W, H = P['W'], P['H']; tt = H > 1500
+    top = P['T'] + (56 if not tt else 40)
+    title = f'{MOIS[m - 1].capitalize()} {y}'
+    size = int(min(150 if not tt else 160, (W - 2 * P['L']) / (0.44 * len(title))))
+    head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:#fff">'
+            f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">Le programme du mois</div>'
+            f'<div>{titlefill(title, "soir", size)}</div>'
+            f'<div style="font:600 36px/1.25 I,sans-serif;margin-top:10px">{len(rs)} courses à La Réunion</div></div>')
+    w = W - P['L'] - (P['R'] if not tt else P['L'])
+    gap = 10; pad = 26
+    cw = (w - 2 * pad - 6 * gap) / 7
+    weeks = calendar.Calendar(0).monthdatescalendar(y, m)
+    ch = cw * (.86 if not tt else 1.16)
+    hdr = ''.join(f'<div style="text-align:center;font:700 21px/1 I,sans-serif;letter-spacing:.08em;color:{TEAL if k >= 5 else MUTED}">{j.upper().rstrip(".")}</div>' for k, j in enumerate(JOURS_C))
+    cells = ''
+    for wk in weeks:
+        for k, dd in enumerate(wk):
+            out = dd.month != m
+            day = [r for r in rs if r['_d'] <= dd <= (D.date.fromisoformat(r['fin']) if r.get('fin') else r['_d'])] if not out else []
+            dz = 18 if not tt else 20
+            dots = ''.join(f'<i style="display:block;width:{dz}px;height:{dz}px;border-radius:50%;background:{TCOL.get(r["_type"], MUTED)}"></i>' for r in day[:4])
+            if len(day) > 4:
+                dots += f'<b style="font:800 22px/1 S,sans-serif;color:{INK}">+{len(day) - 4}</b>'
+            num = f'<div class="s" style="font-size:{30 if not tt else 34}px;line-height:1;color:{"#fff" if day else "#b7aea2"};padding:8px 9px 0">{dd.day}</div>'
+            if out:
+                cells += f'<div style="height:{ch:.0f}px"></div>'
+            elif day:   # race day : teal cell, white number, white band with one dot per race
+                cells += (f'<div style="height:{ch:.0f}px;border-radius:14px;background:{TEAL};box-shadow:0 6px 14px rgba(13,107,103,.4);display:flex;flex-direction:column;justify-content:space-between;overflow:hidden">'
+                          f'{num}<div style="background:#fff;margin:0 5px 5px;border-radius:9px;padding:5px 6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;min-height:{dz + 10}px">{dots}</div></div>')
+            else:
+                cells += f'<div style="height:{ch:.0f}px;border-radius:14px;background:{"#efe8dc" if k >= 5 else "transparent"}">{num}</div>'
+    used = [t for t in TYPE_ORDER if any(r['_type'] == t for r in rs)]
+    legend = ''.join(f'<span style="display:inline-flex;align-items:center;gap:8px;font:600 22px I,sans-serif;color:{INK}"><i style="width:16px;height:16px;border-radius:50%;background:{TCOL.get(t, MUTED)}"></i>{TPLUR.get(t, t)} · {sum(r["_type"] == t for r in rs)}</span>' for t in used)
+    cal_h = pad * 2 + 21 + 14 + len(weeks) * (ch + gap) + 54
+    y0 = top + 28 + size * .92 + 22 + 46 + (34 if not tt else 60)
+    panel = (f'<div class="abs" style="left:{P["L"]}px;top:{y0:.0f}px;width:{w}px;background:{SURF};border-radius:32px;padding:{pad}px;box-shadow:0 24px 60px rgba(0,0,0,.4)">'
+             f'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:{gap}px;margin-bottom:14px">{hdr}</div>'
+             f'<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:{gap}px">{cells}</div>'
+             f'<div style="display:flex;flex-wrap:wrap;gap:10px 24px;margin-top:18px;padding-top:16px;border-top:2px solid {LINE}">{legend}</div></div>')
+    bg = (f'<div class="abs" style="inset:0;filter:blur(14px) saturate(.85)">{world(1000 / M["W"], M["W"] / 2, M["H"] / 2, W / 2, H * .62)}</div>'
+          '<div class="abs" style="inset:0;background:rgba(8,59,90,.45)"></div>')
+    arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
+             f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
+    return page(P, bg + head + panel + chrome(P, 1, n) + arrow)
