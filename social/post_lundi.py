@@ -608,3 +608,51 @@ def cover_cal_v2(P, n, y, m, rs, ref):
     arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
     return page(P, bg + head + panel + chrome(P, 1, n) + arrow)
+
+
+def cover_region_v2(P, n, name, sub, rs, communes):
+    """lagoon cover for a region (validée le 15/11/2026) : tight zoom on the region's races, the rest of the island dimmed,
+    the region's communes outlined in white, big numbered pins (numbers of the list), commune names under the pins"""
+    M = MAP(); W, H = P['W'], P['H']; tt = H > 1500
+    top = P['T'] + (56 if not tt else 40)
+    lines = ['Courir dans', name]
+    size = int(min(150 if not tt else 160, (W - 2 * P['L']) / (0.44 * max(len(l) for l in lines))))
+    head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:#fff">'
+            f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">Près de chez toi</div>'
+            + ''.join(f'<div>{titlefill(l, "lagon", size)}</div>' for l in lines) +
+            f'<div style="font:600 36px/1.25 I,sans-serif;margin-top:10px">{esc(sub)}</div></div>')
+    y0 = top + 28 + 2 * (size * .92 + 8) + 70 + 40
+    y1 = H - P['B'] - 130
+    # frame : the races (and their communes' centres), with a margin
+    pts = [P_xy(*r['ll']) for r in rs]
+    xs = [p[0] for p in pts]; ys = [p[1] for p in pts]
+    mx, my = (max(xs) - min(xs)) * .22 + 40, (max(ys) - min(ys)) * .22 + 40
+    bx0, bx1, by0, by1 = min(xs) - mx, max(xs) + mx, min(ys) - my, max(ys) + my
+    kf = min((W - (2 * P['L'] if not tt else 40)) / (bx1 - bx0), (y1 - y0) / (by1 - by0), 1000 / M['W'] * 3.2)
+    cx, cy = (bx0 + bx1) / 2, (by0 + by1) / 2
+    sy = (y0 + y1) / 2
+    inreg = lambda c: _same(c['nom'], communes)        # map names differ (« Tampon », « Étang-Salé »)
+    others = ''.join(f'<path d="{c["d"]}"/>' for c in M['communes'] if not inreg(c))
+    mine = ''.join(f'<path vector-effect="non-scaling-stroke" d="{c["d"]}"/>' for c in M['communes'] if inreg(c))
+    extra = (f'<g fill="#083b5a" fill-opacity=".55">{others}</g>'
+             f'<g fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round">{mine}</g>')
+    scr = [[W / 2 + (x - cx) * kf, sy + (y - cy) * kf] for x, y in pts]
+    big = 64
+    for i in range(len(scr)):
+        x0, yy, k = scr[i][0], scr[i][1], 0
+        while any((scr[i][0] - scr[j][0]) ** 2 + (scr[i][1] - scr[j][1]) ** 2 < (big + 6) ** 2 for j in range(i)) and k < 14:
+            k += 1; scr[i] = [x0 + (-1) ** k * (big + 8) * ((k + 1) // 2), yy] if k <= 4 else [x0 + (k - 6) * big / 2, yy + big + 8]
+    pins = ''.join(f'<div class="pin" style="left:{x:.0f}px;top:{y:.0f}px;background:{TCOL.get(r["_type"], TEAL)};width:{big}px;height:{big}px;margin:-{big / 2:.0f}px 0 0 -{big / 2:.0f}px;font-size:{big * .55:.0f}px;line-height:{big - 12}px;border-width:6px">{k}</div>'
+                   for k, (r, (x, y)) in enumerate(zip(rs, scr), 1))
+    # commune names, under the lowest pin of each commune
+    labs = ''
+    for com in dict.fromkeys(r['commune'] for r in rs):
+        ii = [i for i, r in enumerate(rs) if r['commune'] == com]
+        x = sum(scr[i][0] for i in ii) / len(ii); y = max(scr[i][1] for i in ii) + big / 2 + 8
+        x = min(max(x, P['L'] + 90), W - P['R'] - 90)
+        labs += (f'<div class="abs" style="left:{x:.0f}px;top:{y:.0f}px;transform:translateX(-50%);white-space:nowrap;background:{INK};color:#fff;'
+                 f'font:800 30px/1 S,sans-serif;padding:5px 14px 7px;border-radius:10px;box-shadow:0 6px 14px rgba(0,0,0,.35)">{esc(com)}</div>')
+    arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
+             f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
+    fade = f'<div class="abs" style="left:0;right:0;top:0;height:{y0 + 20:.0f}px;background:linear-gradient(180deg,{SEA} 0,{SEA} calc(100% - 90px),rgba(8,59,90,0))"></div>'
+    return page(P, world(kf, cx, cy, W / 2, sy, extra) + fade + labs + pins + head + chrome(P, 1, n) + arrow)

@@ -387,7 +387,7 @@ def build_jeudi(ref, data, races):
         if PL.V2:   # same style as the Monday post (proposition of 15/11): lagoon mood in the title
             st = PL.by_type(sel)      # grouped by discipline, as on Monday (the numbers follow)
             n = 1 + PL.n_list_v2(P, st) + (1 if shot_p else 0) + 1
-            sl = [PL.cover_v2(P, n, 'Près de chez toi', f'Courir dans<br>{name}', f"{len(sel)} courses {endlab}", 'lagon', st, ref, communes=communes, numbered=True)]
+            sl = [PL.cover_region_v2(P, n, name, f"{len(sel)} courses {endlab}", st, communes)]   # zoom sur la région (validé le 15/11/2026)
             sl += PL.list_v2(P, 2, n, name[0].upper() + name[1:], st, ref, numbered=True)
             if shot_p:
                 def shot(mw, mh, info=info):
