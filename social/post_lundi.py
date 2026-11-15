@@ -111,11 +111,11 @@ def teaser(P, n, rs, ref, title, lab, sea=False, mood='matin'):
     pts = []
     for r in rs:
         mx, my = P_xy(*r['ll']); pts.append([W / 2 + (mx - M['W'] / 2) * kf, cy + (my - M['H'] / 2) * kf])
-    for i in range(len(pts)):
-        for j in range(i):
-            if (pts[i][0] - pts[j][0]) ** 2 + (pts[i][1] - pts[j][1]) ** 2 < 60 ** 2:
-                pts[i][1] += 62
-    col = lambda r: STC[status(r, ref)[0]] if status(r, ref)[0] in ('complet', 'clot') else TCOL.get(r['_type'], TEAL)
+    for i in range(len(pts)):          # same place: put the point beside the others (left, right, then below)
+        x0, y0, k = pts[i][0], pts[i][1], 0
+        while any((pts[i][0] - pts[j][0]) ** 2 + (pts[i][1] - pts[j][1]) ** 2 < 66 ** 2 for j in range(i)) and k < 12:
+            k += 1; pts[i] = [x0 + (-1) ** k * 68 * ((k + 1) // 2), y0] if k <= 4 else [x0 + (k - 6) * 34, y0 + 68]
+    col = (lambda r: TCOL.get(r['_type'], TEAL)) if sea else (lambda r: STC[status(r, ref)[0]] if status(r, ref)[0] in ('complet', 'clot') else TCOL.get(r['_type'], TEAL))
     pins = ''.join(f'<div class="pin" style="left:{x:.0f}px;top:{y:.0f}px;background:{col(r)};width:64px;height:64px;margin:-32px 0 0 -32px;font-size:36px;line-height:54px">{k}</div>'
                    for k, (r, (x, y)) in enumerate(zip(rs, pts), 1))
     tc = '#fff' if sea else INK
@@ -197,6 +197,37 @@ def cover(P, n, rs, ref, title, lab):
 
 
 # ------------------------------------------------------------------ programme (more than 8 races)
+TYPE_ORDER = ['trail', 'route', 'cross', 'relais', 'multisport', 'marche', 'jeunes', 'autre']
+TPLUR = {'trail': 'Trail', 'route': 'Route', 'cross': 'Cross', 'relais': 'Relais', 'multisport': 'Multisport', 'marche': 'Rando', 'jeunes': 'Jeunes', 'autre': 'Autres courses'}
+by_type = lambda rs: sorted(rs, key=lambda r: (TYPE_ORDER.index(r['_type']) if r['_type'] in TYPE_ORDER else 99, r['_d'], r['_h'] or '99'))
+
+
+def programme_types(P, i, n, rs, ref):
+    """the programme grouped by discipline (rs already in that order: same numbers as the cover)"""
+    W = P['W']; top = P['T'] + 40; tt = P['H'] > 1500
+    small = len(rs) > 8
+    fs, sub, rp = (28, 19, 8) if small else (34, 22, 12)
+    out, cur = '', None
+    for k, r in enumerate(rs, 1):
+        t = r['_type']
+        if t != cur:
+            cur = t; cnt = sum(1 for x in rs if x['_type'] == t)
+            out += (f'<div style="display:flex;align-items:center;gap:12px;margin:{18 if out else 6}px 0 4px"><span class="chip" style="background:{TCOL.get(t, TEAL)};padding:7px 14px;border-radius:9px">{esc(TPLUR.get(t, "Courses"))}</span>'
+                    f'<span style="font:700 20px I,sans-serif;color:{MUTED}">{cnt} course{"s" if cnt > 1 else ""}</span></div>')
+        code, sl = stat(r, ref)
+        h = (r.get('_h') or '').replace('h00', 'h').lstrip('0')
+        out += (f'<div class="lrow" style="grid-template-columns:48px 1fr auto;padding:{rp}px 0"><b class="s" style="width:48px;height:48px;border-radius:50%;background:{TCOL.get(t, TEAL)};color:#fff;font-size:28px;line-height:48px;text-align:center">{k}</b>'
+                f'<div style="min-width:0"><div class="s" style="font-size:{fs}px;line-height:1">{esc(r["nom"])}</div>'
+                f'<div style="font-size:{sub}px;color:{MUTED};margin-top:4px">{esc(JOURS_C[r["_d"].weekday()].capitalize())} {r["_d"].day} {MOIS_C[r["_d"].month - 1]}{" · " + esc(h) if h else ""} · {esc(r["commune"])}</div></div>'
+                f'<span class="st" style="background:{STC[code]}">{esc(sl if code != "ouvert" else "Ouvert")}</span></div>')
+    out = out.replace('<div class="lrow"', '<div class="lrow" data-first', 0)
+    right = (P['R'] - 40) if tt else 36
+    bg = f'<div class="abs" style="inset:0;filter:blur(12px) saturate(.85);opacity:.55">{world(900 / MAP()["W"], MAP()["W"] / 2, MAP()["H"] / 2, W / 2, P["H"] / 2)}</div>'
+    body = (bg + f'<div class="abs" style="left:{P["L"] - 30}px;top:{P["T"] - 22}px"><div class="tag" style="font-size:40px;padding:6px 20px 9px;border-radius:13px">Le programme</div></div>'
+            f'<div class="card" style="left:36px;right:{right}px;top:{top + 70}px;padding:12px 30px 12px">{out}</div>')
+    return page(P, body + chrome(P, i, n))
+
+
 def programme_site(P, i, n, rs, ref, sea=False):
     """the list of the week-end (numbers of the cover), on the site landscape"""
     W = P['W']; top = P['T'] + 40; tt = P['H'] > 1500
@@ -345,8 +376,7 @@ def derniere(P, i, n, rs, ref):
             f'<div class="abs" style="left:{P["L"] - 30}px;top:{P["T"] - 22}px"><div class="tag" style="background:{STC["clot"]}">Dernière chance</div></div>'
             f'<div class="abs" style="left:{P["L"] - 30}px;right:{right}px;top:{top + 100}px;color:#fff;font:600 30px/1.3 I,sans-serif">Les inscriptions ferment avant le week-end :</div>'
             f'<div class="card" style="left:36px;right:{right}px;top:{top + 160}px;padding:10px 30px 8px">{rws}</div>'
-            f'<div class="abs" style="left:{P["L"] - 10}px;bottom:{P["B"] + 40}px;width:{ph * .74:.0f}px;height:{ph}px">{perso(ref, 1)}</div>'
-            f'<div class="abs" style="left:{P["L"] + ph * .62:.0f}px;bottom:{P["B"] + ph * .62:.0f}px">{bubble("Ayo, i ferme bientôt !")}</div>')
+            )
     return page(P, body + chrome(P, i, n))
 
 
@@ -394,7 +424,8 @@ def build(ref, data, races):
         else:      # sea, title filled with the landscape (morning, as the Monday posts before)
             last = [r for r in rs if status(r, ref)[0] == 'clot']
             n = 2 + (1 if last else 0) + len(shown) + 1
-            sl = [teaser(P, n, rs, ref, 'Ce week-end', lab.upper(), sea=True, mood='matin'), programme_site(P, 2, n, rs, ref, sea=True)]
+            rt = by_type(rs)
+            sl = [teaser(P, n, rt, ref, 'Ce week-end', lab.upper(), sea=True, mood='matin'), programme_types(P, 2, n, rt, ref)]
             if last:
                 sl.append(derniere(P, 3, n, last, ref))
         for r in shown:
