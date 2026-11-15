@@ -263,7 +263,7 @@ def programme(P, i, n, rs, ref):
 
 
 # ------------------------------------------------------------------ 2. one race: zoomed map + race card
-def race(P, i, n, r, ref):
+def race(P, i, n, r, ref, num=None):
     M = MAP(); W, H = P['W'], P['H']; tt = H > 1500
     x0, y0, x1, y1 = bbox(r['commune'])
     px, py = P_xy(*r['ll'])
@@ -303,7 +303,7 @@ def race(P, i, n, r, ref):
     tag = f'<div class="abs" style="left:{P["L"] - 30}px;top:{P["T"] - 22}px"><div class="tag" style="font-size:40px;padding:6px 20px 9px;border-radius:13px">Ce week-end</div></div>'
     card = f'''<div class="card" style="left:36px;right:{right}px;bottom:{card_bottom}px">
  <div class="top" style="min-height:{ph}px"><div class="post" style="width:{pw}px"><img src="{img}" style="max-width:{pw}px;max-height:{ph}px"></div>
-  <div class="info"><div class="s" style="font-size:{fs}px;line-height:.98">{esc(nm)}</div>
+  <div class="info"><div class="s" style="font-size:{fs}px;line-height:.98">{f'<b style="display:inline-block;vertical-align:.12em;width:{fs * .8:.0f}px;height:{fs * .8:.0f}px;margin-right:12px;border-radius:50%;background:{TCOL.get(r["_type"], TEAL)};color:#fff;font-size:{fs * .55:.0f}px;line-height:{fs * .8:.0f}px;text-align:center">{num}</b>' if num else ''}{esc(nm)}</div>
    <div class="ln">{CAL}<span>{esc(date)}{f'<small>Départ {esc(hh)}</small>' if hh else ''}</span></div>
    <div class="ln">{PINI}<span>{esc(r['commune'])}{f'<small>{esc(lieu)}</small>' if lieu else ''}</span></div>
    <div class="bd" style="background:{STC[code]}">{esc(bl[0])}{f'<small>{esc(bl[1])}</small>' if bl[1] else ''}</div></div></div>
@@ -428,6 +428,11 @@ def build(ref, data, races):
             sl = [teaser(P, n, rt, ref, 'Ce week-end', lab.upper(), sea=True, mood='matin'), programme_types(P, 2, n, rt, ref)]
             if last:
                 sl.append(derniere(P, 3, n, last, ref))
+            # one slide per open race, in the order of the programme, with its number
+            shown = [r for r in rt if status(r, ref)[0] != 'complet'][:15]
+            for r in shown:
+                sl.append(race(P, len(sl) + 1, n, r, ref, num=rt.index(r) + 1))
+            shown = []
         for r in shown:
             sl.append(race(P, len(sl) + 1, n, r, ref))
         sl.append(fin_sea(P, n, ref) if V2 and not SITE else fin(P, n))
