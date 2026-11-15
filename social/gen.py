@@ -329,7 +329,7 @@ def build_mardi(ref, data, races):
         if PL.V2:   # same style as the Monday post (proposition of 15/11): sunset mood in the title
             st = PL.by_type(sel)      # grouped by discipline, as on Monday
             n = 1 + PL.n_list_v2(P, st) + (1 if shot_p else 0) + 1
-            sl = [PL.cover_v2(P, n, 'Ces 10 prochaines semaines', th['title'], th['sub'], 'couchant', st, ref)]
+            sl = [PL.cover_theme_v2(P, n, th, sel, ref)]   # accroche + Sam / Ana (validée le 16/11/2026)
             sl += PL.list_v2(P, 2, n, th['short'], st, ref)
             if shot_p:
                 def shot(mw, mh, info=info):

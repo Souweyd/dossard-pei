@@ -656,3 +656,108 @@ def cover_region_v2(P, n, name, sub, rs, communes):
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
     fade = f'<div class="abs" style="left:0;right:0;top:0;height:{y0 + 20:.0f}px;background:linear-gradient(180deg,{SEA} 0,{SEA} calc(100% - 90px),rgba(8,59,90,0))"></div>'
     return page(P, world(kf, cx, cy, W / 2, sy, extra) + fade + labs + pins + head + chrome(P, 1, n) + arrow)
+
+
+# ------------------------------------------------------------------ theme covers (16/11/2026)
+def _team(r):
+    """team size of a relay race, read in the name / note of its relay formats (None if not said)"""
+    for e in r.get('epreuves', []):
+        if e.get('type') != 'relais':
+            continue
+        t = f"{e.get('nom', '')} {e.get('note', '')}".lower()
+        for pat in (r'équipes? de (\d+)(?: ou (\d+))?', r'relais à (\d+)', r'\bà (\d+)\b', r'(\d+) relayeurs'):
+            m = re.search(pat, t)
+            if m:
+                return (int(m.group(1)), int(m.group(2)) if m.lastindex and m.lastindex > 1 and m.group(2) else None)
+        if 'duo' in t or 'binôme' in t:
+            return (2, None)
+    return None
+
+
+def _d(r):
+    return f"{['lun.', 'mar.', 'mer.', 'jeu.', 'ven.', 'sam.', 'dim.'][r['_d'].weekday()]} {r['_d'].day} {MOIS_C[r['_d'].month - 1]}"
+
+
+def _big(txt, small='', size=150):
+    return f'<div class="s" style="font-size:{size}px;line-height:.9;color:{INK}">{txt}<small style="font-size:{size * .4:.0f}px"> {small}</small></div>'
+
+
+def hero_relais(rs, nmax=None):
+    """the team sizes on offer, nothing else (the races are on the next slides)"""
+    kms = [e['km'] for r in rs for e in r['epreuves'] if e.get('type') == 'relais' and e.get('km')]
+    sizes = sorted({t[0] for t in map(_team, rs) if t} | {t[1] for t in map(_team, rs) if t and t[1]})
+    chips = ''.join(
+        f'<div style="display:flex;flex-direction:column;align-items:center;gap:12px;background:{TEAL};color:#fff;border-radius:22px;padding:24px 0 20px;flex:1">'
+        f'<div style="display:flex;padding-left:10px">' + ''.join(f'<i style="display:block;width:34px;height:34px;border-radius:50%;background:#fff;border:3px solid {TEAL};margin-left:-12px"></i>' for _ in range(n)) + '</div>'
+        f'<div class="s" style="font-size:80px;line-height:.9">à {n}</div></div>' for n in sizes)
+    return (f'<div class="s" style="font-size:30px;letter-spacing:2px;text-transform:uppercase;color:{MUTED}">Il y en a pour toutes les équipes</div>'
+            f'<div style="display:flex;gap:14px;margin:20px 0 22px">{chips}</div>'
+            f'<div style="font:700 34px/1.2 I,sans-serif">{len(rs)} relais, de {fmt_km(min(kms))} à {fmt_km(max(kms))} km</div>')
+
+
+def hero_bars(rs, key, unit, lab):
+    """one big number (the record) and the bars as a silhouette, without the names"""
+    vals = list((max(e[key] for e in es), r) for r in rs if (es := [e for e in r['epreuves'] if (e.get(key) or 0) > 0 and e.get('type') in ('trail', 'route', 'marche')]))
+    vals.sort(key=lambda v: -v[0])
+    vmax, vmin = vals[0][0], vals[-1][0]
+    fmt = (lambda v: f"{v:,.0f}".replace(',', ' ')) if key == 'dp' else fmt_km
+    bars = ''.join(f'<div style="flex:1;height:{max(10, 100 * v / vmax):.0f}%;border-radius:10px 10px 0 0;background:{TCOL.get(r["_type"], TEAL)}"></div>' for v, r in vals)
+    return (f'<div class="s" style="font-size:30px;letter-spacing:2px;text-transform:uppercase;color:{MUTED}">{lab}</div>'
+            f'<div style="display:grid;grid-template-columns:auto 1fr;gap:26px;align-items:end">{_big(fmt(vmax), unit, 120)}'
+            f'<div style="display:flex;align-items:flex-end;gap:8px;height:120px;border-bottom:4px solid {INK}">{bars}</div></div>'
+            f'<div style="font:700 32px/1.2 I,sans-serif;margin-top:16px">{len(vals)} courses, de {fmt(vmin)} à {fmt(vmax)} {unit}</div>')
+
+
+def hero_premiere(rs, nmax=None):
+    kms = sorted(e['km'] for r in rs for e in r['epreuves'] if e.get('km') and e['km'] < 15 and (e.get('dp') or 0) < 500 and e.get('type') in ('route', 'trail', 'cross'))
+    five = [k for k in kms if k >= 5]
+    return (f'<div class="s" style="font-size:30px;letter-spacing:2px;text-transform:uppercase;color:{MUTED}">Pour se lancer</div>'
+            f'{_big("dès " + fmt_km(five[0] if five else kms[0]), "km")}'
+            f'<div style="font:700 34px/1.25 I,sans-serif;margin-top:14px">{len(rs)} courses accessibles,<br>sans gros dénivelé</div>')
+
+
+PERSO_TH = {'relais': (3, 'On fait équipe ?'), 'gros-dp': (1, 'Ayo, i monte !'), 'longues': (1, 'Lé pa loin… ou pas !'), 'premiere': (3, 'Allez, lance-toi !')}
+
+
+HEROES = {'relais': hero_relais, 'premiere': hero_premiere,
+          'gros-dp': lambda rs: hero_bars(rs, 'dp', 'm D+', 'Jusqu\'à'),
+          'longues': lambda rs: hero_bars(rs, 'km', 'km', 'Jusqu\'à')}
+
+
+def cover_theme_v2(P, n, th, rs, ref):
+    """sunset cover for a theme (validée le 16/11/2026) : one strong fact on a cream panel (team sizes, record D+ or distance,
+    shortest distance) and Sam / Ana under it with a word in a bubble ; the other themes keep the island"""
+    if th['id'] not in HEROES:
+        return cover_v2(P, n, 'Ces 10 prochaines semaines', th['title'], th['sub'], 'couchant', by_type(rs), ref)
+    M = MAP(); W, H = P['W'], P['H']; tt = H > 1500
+    top = P['T'] + (56 if not tt else 40)
+    lines = th['title'].split('<br>')
+    size = int(min(140 if not tt else 150, (W - 2 * P['L']) / (0.44 * max(len(l) for l in lines))))
+    head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:#fff">'
+            f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">Ces 10 prochaines semaines</div>'
+            + ''.join(f'<div style="margin-top:{-size * .2 if i else 0:.0f}px">{titlefill(l, "couchant", size)}</div>' for i, l in enumerate(lines)) +
+            f'<div style="font:600 34px/1.22 I,sans-serif;margin-top:24px">{esc(th["sub"])}</div></div>')
+    import math
+    w = W - P['L'] - (P['R'] if not tt else P['L'])
+    sub_lines = math.ceil(len(th['sub']) * .52 * 34 / (W - P['L'] - P['R']))
+    y0 = top + 28 + len(lines) * (size * .92 + 8) - (len(lines) - 1) * size * .2 + 24 + sub_lines * 42 + (34 if not tt else 50)
+    fn = HEROES[th['id']]
+    z = 1.2 if tt else 1      # TikTok : bigger panel
+    panel = (f'<div class="abs" style="left:{P["L"]}px;width:{w}px;top:{y0:.0f}px">'
+             f'<div style="width:{w / z:.0f}px;zoom:{z};background:{SURF};border-radius:32px;padding:30px 34px 32px;box-shadow:0 24px 60px rgba(0,0,0,.4)">'
+             f'{fn(rs)}</div></div>')
+    # the game's runners (Sam, Ana) under the panel, with a word in their bubble
+    pose, text = PERSO_TH[th['id']]
+    ph = 360 if not tt else 380
+    duo = th.get('duo')
+    figs = (f'<div style="width:{ph * .74:.0f}px;height:{ph}px">{perso(ref, pose, "jeremi")}</div>'
+            f'<div style="width:{ph * .74:.0f}px;height:{ph}px;margin-left:-30px">{perso(ref, pose, "nadia")}</div>') if duo else \
+           f'<div style="width:{ph * .74:.0f}px;height:{ph}px">{perso(ref, pose)}</div>'
+    runners = (f'<div class="abs" style="left:{P["L"] - 10}px;bottom:{P["B"] + 70}px;display:flex;align-items:flex-end;gap:6px">{figs}'
+               f'<div style="margin-bottom:{ph * .62:.0f}px;margin-left:-6px">{bubble(text)}</div></div>')
+    panel += runners
+    bg = (f'<div class="abs" style="inset:0;filter:blur(14px) saturate(.85)">{world(1000 / M["W"], M["W"] / 2, M["H"] / 2, W / 2, H * .62)}</div>'
+          '<div class="abs" style="inset:0;background:rgba(8,59,90,.45)"></div>')
+    arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
+             f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
+    return page(P, bg + head + panel + chrome(P, 1, n) + arrow)
