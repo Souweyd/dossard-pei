@@ -324,7 +324,20 @@ def build_mardi(ref, data, races):
     sel = sel[:30]
     shot_p, info = capture.run(capture.filters(TMP / 'filters.png', th['filt']))
     pages = {}
+    import post_lundi as PL
     for fmt, P in CH.LAYOUT.items():
+        if PL.V2:   # same style as the Monday post (proposition of 15/11): sunset mood in the title
+            n = 1 + PL.n_list_v2(P, sel) + (1 if shot_p else 0) + 1
+            sl = [PL.cover_v2(P, n, 'Ces 10 prochaines semaines', th['title'], th['sub'], 'couchant', sel, ref)]
+            sl += PL.list_v2(P, 2, n, th['short'], sel, ref)
+            if shot_p:
+                def shot(mw, mh, info=info):
+                    b = info['box']
+                    return fit_crop(shot_p, [b[0], b[1], b[2], b[3]], mw, mh)
+                sl.append(PL.how_v2(P, len(sl) + 1, n, 'Filtres', 'Trouve-les en 2 secondes', ['Touche <b>Filtres</b>', th['flab'], 'Touche <b>Voir les courses</b>'], shot))
+            sl.append(PL.fin_sea(P, n, ref))
+            pages[fmt] = sl
+            continue
         nl = CH.n_list_pages(P, sel)
         n = 1 + nl + (1 if shot_p else 0) + 1
         sl = [CH.cover_theme(P, 1, n, th, sel, ref)]
@@ -368,7 +381,28 @@ def build_jeudi(ref, data, races):
     endlab = f"ces {weeks} prochaines semaines"
     vb = region_vb(communes, sel)
     pages = {}
+    import post_lundi as PL
     for fmt, P in CH.LAYOUT.items():
+        if PL.V2:   # same style as the Monday post (proposition of 15/11): lagoon mood in the title
+            n = 1 + PL.n_list_v2(P, sel) + (1 if shot_p else 0) + 1
+            sl = [PL.cover_v2(P, n, 'Près de chez toi', f'Courir dans<br>{name}', f"{len(sel)} courses {endlab}", 'lagon', sel, ref, communes=communes, numbered=True)]
+            sl += PL.list_v2(P, 2, n, name[0].upper() + name[1:], sel, ref, numbered=True)
+            if shot_p:
+                def shot(mw, mh, info=info):
+                    ile = info['ile']; pop = info['pop']
+                    mw2 = min(mw, int(mh * 470 / 437 * .95))
+                    m, mh2, _ = crop_img(ile, 0, 128, 470, 565, mw2)
+                    pw = int(mw2 * .58)
+                    pp, ph, _ = crop_img(shot_p, pop[0], pop[1], pop[2], pop[3], pw)
+                    tot = max(mh2, mh2 * .55 + ph)
+                    if tot > mh:
+                        return None
+                    return (f'<div style="position:relative;width:{mw2}px;height:{tot:.0f}px">{m}'
+                            f'<div style="position:absolute;left:-10px;top:{mh2 * .55:.0f}px">{pp}</div></div>', mw2, tot)
+                sl.append(PL.how_v2(P, len(sl) + 1, n, 'Carte', 'Les courses autour de toi', ['Touche <b>Carte</b>', 'Agrandis la carte en plein écran', "Touche ta commune : <b>ses courses s'affichent</b>"], shot))
+            sl.append(PL.fin_sea(P, n, ref))
+            pages[fmt] = sl
+            continue
         nl = CH.n_list_pages(P, sel)
         n = 1 + nl + (1 if shot_p else 0) + 1
         sl = [CH.cover_region(P, 1, n, 'Près de chez toi', f'Courir dans<br>{name}', f"{len(sel)} courses {endlab}", sel, ref, communes, vb)]

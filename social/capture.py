@@ -18,8 +18,13 @@ async def _ctx(p, height=844):
 
 async def _view(pg, name):
     """Switch to Liste / Calendrier whatever the current mode (overlay or toolbar)."""
+    tab = {"Liste": "liste", "Calendrier": "calendrier", "Carte": "carte"}[name]
     loc = pg.locator(f'.reels button:has-text("{name}")')
-    if await loc.count() and await loc.first.is_visible():
+    pill = pg.locator('#tbpill')
+    if await pill.count() and await pill.first.is_visible():     # phones: the bar at the bottom (since November 2026)
+        await pill.first.click(); await pg.wait_for_timeout(400)
+        await pg.locator(f'.tabbar [data-tab={tab}]').click()
+    elif await loc.count() and await loc.first.is_visible():
         await loc.first.click()
     else:
         await pg.locator(f'#v-{"liste" if name == "Liste" else "calendrier"}').click()
@@ -90,7 +95,11 @@ async def filters(out, values):
             await _view(pg, 'Liste')
             await pg.click('#f-toggle'); await pg.wait_for_timeout(900)
             for k, v in values.items():
-                await pg.select_option(f'#{k}', v); await pg.wait_for_timeout(300)
+                if k == 'f-disc':     # the discipline is chosen with the coloured chips (the select is hidden)
+                    await pg.locator(f'#f-dchips button[data-d="{v}"]').click()
+                else:
+                    await pg.select_option(f'#{k}', v)
+                await pg.wait_for_timeout(300)
             await pg.wait_for_timeout(700)
             box = await pg.evaluate("""()=>{const x=document.querySelector('[aria-label="Fermer les filtres"]');let p=x.parentElement;
                 while(p&&p.getBoundingClientRect().height<300)p=p.parentElement;const r=p.getBoundingClientRect();return [r.left,r.top,r.right,Math.min(r.bottom,844)]}""")
@@ -111,9 +120,11 @@ async def map_commune(out, commune):
         pg = await ctx.new_page()
         try:
             await pg.goto(URL, wait_until='networkidle'); await pg.wait_for_timeout(1200)
-            await _view(pg, 'Liste')
-            await pg.click('#mapfab'); await pg.wait_for_timeout(1800)
-            await pg.click('#map-full'); await pg.wait_for_timeout(2200)
+            await _view(pg, 'Carte'); await pg.wait_for_timeout(1800)
+            mf = pg.locator('#map-full')
+            if await mf.is_visible():     # the « Carte » tab of phones is already full screen
+                await mf.click()
+            await pg.wait_for_timeout(2200)
             await pg.screenshot(path=str(out).replace('.png', '_ile.png'))
             await pg.locator(f'g[aria-label^="{commune} :"]').first.click(); await pg.wait_for_timeout(2200)
             pop = await pg.evaluate("""()=>{const x=document.getElementById('mpop-x');let p=x.parentElement;while(p&&p.getBoundingClientRect().height<120)p=p.parentElement;const r=p.getBoundingClientRect();return [r.left,r.top,r.right,r.bottom]}""")

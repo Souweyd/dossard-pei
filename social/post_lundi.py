@@ -445,3 +445,92 @@ def build(ref, data, races):
         lines += ['', '⏳ Dernières inscriptions : ' + ' · '.join(f"{r['nom']} ({status(r, ref)[1].replace('Clôture ', '').lower()})" for r in clot)]
     lines += ['', 'Infos et inscriptions 👉 dossardpei.re (lien en bio)']
     return pages, lines, TAGS
+
+
+# ------------------------------------------------------------------ same style for the other posts (Wednesday theme, Friday region)
+def cover_v2(P, n, kicker, title, sub, mood, rs, ref, communes=None, numbered=False):
+    """sea cover: kicker, title whose letters show the landscape in the post's mood, the island (or the region) with the races"""
+    M = MAP(); W, H = P['W'], P['H']; tt = H > 1500
+    top = P['T'] + (70 if not tt else 40)
+    lines = title.split('<br>')
+    size = int(min(172 if not tt else 178, (W - 2 * P['L']) / (0.44 * max(len(l) for l in lines))))
+    th = 20 + sum(size * .92 + 8 for _ in lines)
+    head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:#fff">'
+            f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">{esc(kicker)}</div>'
+            + ''.join(f'<div>{titlefill(l, mood, size)}</div>' for l in lines) +
+            f'<div style="font:600 36px/1.25 I,sans-serif;margin-top:16px">{esc(sub)}</div></div>')
+    y0 = top + 60 + th + 60 + 36
+    y1 = H - P['B'] - 120
+    if communes:
+        xs, ys = [], []
+        for c in M['communes']:
+            if c['nom'] in communes:
+                v = [float(t) for t in re.findall(r'-?\d+\.?\d*', c['d'])]; xs += v[0::2]; ys += v[1::2]
+        cx, cy0, bw, bh = (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2, max(xs) - min(xs), max(ys) - min(ys)
+        kf = min((W - 120) / bw, (y1 - y0) / bh, 3)
+    else:
+        cx, cy0 = M['W'] / 2, M['H'] / 2; kf = min((W - 300) / M['W'], (y1 - y0) / M['H'])
+    sy = (y0 + y1) / 2
+    pts = []
+    for r in rs:
+        mx, my = P_xy(*r['ll']); pts.append([W / 2 + (mx - cx) * kf, sy + (my - cy0) * kf])
+    big = 58 if numbered else 30
+    for i in range(len(pts)):
+        x0, yy, k = pts[i][0], pts[i][1], 0
+        while any((pts[i][0] - pts[j][0]) ** 2 + (pts[i][1] - pts[j][1]) ** 2 < (big + 4) ** 2 for j in range(i)) and k < 12:
+            k += 1; pts[i] = [x0 + (-1) ** k * (big + 6) * ((k + 1) // 2), yy] if k <= 4 else [x0 + (k - 6) * big / 2, yy + big + 6]
+    pins = ''.join(f'<div class="pin" style="left:{x:.0f}px;top:{y:.0f}px;background:{TCOL.get(r["_type"], TEAL)};width:{big}px;height:{big}px;margin:-{big / 2:.0f}px 0 0 -{big / 2:.0f}px;font-size:{big * .55:.0f}px;line-height:{big - 10}px;border-width:{5 if numbered else 4}px">{k if numbered else ""}</div>'
+                   for k, (r, (x, y)) in enumerate(zip(rs, pts), 1))
+    arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
+             f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
+    fade = f'<div class="abs" style="left:0;right:0;top:0;height:{y0 + 40:.0f}px;background:linear-gradient(180deg,{SEA} 0,{SEA} 70%,rgba(8,59,90,0))"></div>'   # the title stays on the sea
+    return page(P, world(kf, cx, cy0, W / 2, sy) + fade + pins + head + chrome(P, 1, n) + arrow)
+
+
+def list_v2(P, i0, n, tag, rs, ref, numbered=False):
+    """the races as rows on cards (several slides when there are many)"""
+    W = P['W']; tt = P['H'] > 1500; top = P['T'] + 40
+    per = 10 if tt else 9
+    right = (P['R'] - 40) if tt else 36
+    out = []
+    for p0 in range(0, len(rs), per):
+        rws = ''
+        for k, r in enumerate(rs[p0:p0 + per], p0 + 1):
+            code, sl = stat(r, ref)
+            h = (r.get('_h') or '').replace('h00', 'h').lstrip('0')
+            num = (f'<b class="s" style="width:46px;height:46px;border-radius:50%;background:{TCOL.get(r["_type"], TEAL)};color:#fff;font-size:27px;line-height:46px;text-align:center">{k}</b>' if numbered
+                   else f'<span style="width:16px;height:16px;border-radius:50%;background:{TCOL.get(r["_type"], TEAL)};margin:0 15px"></span>')
+            rws += (f'<div class="lrow" style="grid-template-columns:46px 1fr auto;padding:10px 0">{num}'
+                    f'<div style="min-width:0"><div class="s" style="font-size:31px;line-height:1">{esc(r["nom"])}</div>'
+                    f'<div style="font-size:21px;color:{MUTED};margin-top:4px">{esc(JOURS_C[r["_d"].weekday()].capitalize())} {r["_d"].day} {MOIS_C[r["_d"].month - 1]}{" · " + esc(h) if h else ""} · {esc(r["commune"])}</div></div>'
+                    f'<span class="st" style="background:{STC[code]}">{esc(sl if code != "ouvert" else "Ouvert")}</span></div>')
+        bg = f'<div class="abs" style="inset:0;filter:blur(12px) saturate(.85);opacity:.55">{world(900 / MAP()["W"], MAP()["W"] / 2, MAP()["H"] / 2, W / 2, P["H"] / 2)}</div>'
+        out.append(page(P, bg + f'<div class="abs" style="left:{P["L"] - 30}px;top:{P["T"] - 22}px"><div class="tag" style="font-size:40px;padding:6px 20px 9px;border-radius:13px">{esc(tag)}</div></div>'
+                        f'<div class="card" style="left:36px;right:{right}px;top:{top + 70}px;padding:8px 30px 8px">{rws}</div>' + chrome(P, i0 + len(out), n)))
+    return out
+
+
+def n_list_v2(P, rs):
+    per = 10 if P['H'] > 1500 else 9
+    return (len(rs) + per - 1) // per
+
+
+def how_v2(P, i, n, feature, title, steps, shot):
+    """« Sur le site » : the steps, and a capture of the site in a white frame"""
+    W, H = P['W'], P['H']; tt = H > 1500
+    right = (P['R'] - 40) if tt else 36
+    st = ''.join(f'<div style="display:flex;gap:16px;align-items:center;font:600 30px/1.2 I,sans-serif;padding:7px 0"><span class="s" style="flex:none;width:46px;height:46px;border-radius:50%;background:{TEAL};color:#fff;display:grid;place-items:center;font-size:27px">{k}</span><span>{s}</span></div>'
+                 for k, s in enumerate(steps, 1))
+    top = P['T'] + 40
+    stop = top + 90 + 80
+    vtop = stop + 30 + 64 * len(steps) + 40
+    maxw, maxh = W - 36 - right - 40, H - P['B'] - 120 - vtop
+    res = shot(maxw, maxh) if shot else None
+    vis = ''
+    if res:
+        h_, w_, hh = res
+        vis = f'<div class="abs" style="left:{36 + (W - 36 - right - w_) / 2:.0f}px;top:{vtop}px;border:6px solid #fff;border-radius:18px;overflow:hidden;box-shadow:0 16px 36px rgba(0,0,0,.4);background:#fff">{h_}</div>'
+    bg = f'<div class="abs" style="inset:0;filter:blur(12px) saturate(.85);opacity:.55">{world(900 / MAP()["W"], MAP()["W"] / 2, MAP()["H"] / 2, W / 2, H / 2)}</div>'
+    return page(P, bg + f'<div class="abs" style="left:{P["L"] - 30}px;top:{P["T"] - 22}px"><div class="tag" style="font-size:40px;padding:6px 20px 9px;border-radius:13px">Sur le site · {esc(feature)}</div></div>'
+                f'<div class="abs s" style="left:{P["L"] - 30}px;right:{right}px;top:{top + 80}px;color:#fff;font-size:64px;line-height:1">{esc(title)}</div>'
+                f'<div class="card" style="left:36px;right:{right}px;top:{stop + 20}px;padding:12px 28px">{st}</div>' + vis + chrome(P, i, n))
