@@ -597,5 +597,12 @@
 "id": "possession",
 "nom": "Les Foulées de la Possession",
 "date": "2026-11-29"
+},
+{
+"at": "2026-11-15T10:00+04:00",
+"t": "réouvert",
+"id": "villele",
+"nom": "Trail de Villèle",
+"date": "2026-11-29"
 }
 ]
