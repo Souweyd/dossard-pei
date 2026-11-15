@@ -15,7 +15,7 @@ INK, TEAL, SURF, MUTED, SEA, LINE = '#1d2523', '#0d6b67', '#fffcf7', '#6b625a', 
 OCEAN = (ROOT / 'ocean.webp').as_uri()
 F = (ROOT / 'social' / 'fonts').as_uri()
 LOGO = (ROOT / 'social' / 'assets' / 'logo-512.png').as_uri()
-SITE = False   # (proposition du 15/11, en attente de validation) the site's drawn landscape (sky, mountains, cream ground) behind the slides, as on the site
+SITE = __import__('os').environ.get('POST_SITE') == '1'   # proposition du 15/11 (en attente de validation): the site's drawn landscape (sky, mountains, cream ground) behind the slides, as on the site
 TAGS = ['#trail', '#run', '#iledelareunion', '#reunionisland']
 STC = {'complet': '#c62828', 'clot': '#d2481e', 'bientot': TEAL, 'ouvert': '#2e7d32'}
 
@@ -100,6 +100,32 @@ def dh(r):
 
 
 # ------------------------------------------------------------------ 1. cover: island + callouts
+def teaser(P, n, rs, ref, title, lab):
+    """cover that makes people swipe (site style): big title, the island and numbered points only;
+    the races are told on the next slides"""
+    M = MAP(); W, H = P['W'], P['H']; tt = H > 1500
+    top = P['T'] + (70 if not tt else 40)
+    kf = (820 if tt else 740) / M['W']
+    cy = top + (360 if tt else 330) + M['H'] * kf / 2
+    pts = []
+    for r in rs:
+        mx, my = P_xy(*r['ll']); pts.append([W / 2 + (mx - M['W'] / 2) * kf, cy + (my - M['H'] / 2) * kf])
+    for i in range(len(pts)):
+        for j in range(i):
+            if (pts[i][0] - pts[j][0]) ** 2 + (pts[i][1] - pts[j][1]) ** 2 < 60 ** 2:
+                pts[i][1] += 62
+    col = lambda r: STC[status(r, ref)[0]] if status(r, ref)[0] in ('complet', 'clot') else TCOL.get(r['_type'], TEAL)
+    pins = ''.join(f'<div class="pin" style="left:{x:.0f}px;top:{y:.0f}px;background:{col(r)};width:64px;height:64px;margin:-32px 0 0 -32px;font-size:36px;line-height:54px">{k}</div>'
+                   for k, (r, (x, y)) in enumerate(zip(rs, pts), 1))
+    head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:{INK}">'
+            f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">{esc(lab)}</div>'
+            f'<div class="s" style="font-size:{150 if not tt else 160}px;line-height:.88;margin-top:16px">{esc(title)}</div>'
+            f'<div style="font:600 40px/1.25 I,sans-serif;margin-top:20px">{len(rs)} course{"s" if len(rs) > 1 else ""} à La Réunion</div></div>')
+    arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:{INK};display:grid;place-items:center">'
+             '<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
+    return page(P, CH.decor(P, 'matin', .5) + world(kf, M['W'] / 2, M['H'] / 2, W / 2, cy, sea=False) + pins + head + chrome(P, 1, n) + arrow)
+
+
 def cover(P, n, rs, ref, title, lab):
     M = MAP(); W, H = P['W'], P['H']
     tt = H > 1500
@@ -166,6 +192,24 @@ def cover(P, n, rs, ref, title, lab):
 
 
 # ------------------------------------------------------------------ programme (more than 8 races)
+def programme_site(P, i, n, rs, ref):
+    """the list of the week-end (numbers of the cover), on the site landscape"""
+    W = P['W']; top = P['T'] + 40; tt = P['H'] > 1500
+    col = lambda r: STC[status(r, ref)[0]] if status(r, ref)[0] in ('complet', 'clot') else TCOL.get(r['_type'], TEAL)
+    rws = ''
+    for k, r in enumerate(rs, 1):
+        code, sl = stat(r, ref)
+        h = (r.get('_h') or '').replace('h00', 'h').lstrip('0')
+        rws += (f'<div class="lrow" style="grid-template-columns:52px 1fr auto"><b class="s" style="width:52px;height:52px;border-radius:50%;background:{col(r)};color:#fff;font-size:30px;line-height:52px;text-align:center">{k}</b>'
+                f'<div style="min-width:0"><div class="s" style="font-size:34px;line-height:1">{esc(r["nom"])}</div>'
+                f'<div style="font-size:22px;color:{MUTED};margin-top:5px">{esc(JOURS_C[r["_d"].weekday()].capitalize())} {r["_d"].day} {MOIS_C[r["_d"].month - 1]}{" · " + esc(h) if h else ""} · {esc(r["commune"])}</div></div>'
+                f'<span class="st" style="background:{STC[code]}">{esc(sl if code != "ouvert" else "Ouvert")}</span></div>')
+    right = (P['R'] - 40) if tt else 36
+    body = (CH.decor(P, 'matin', .3) + f'<div class="abs" style="left:{P["L"] - 30}px;top:{P["T"] - 22}px"><div class="tag" style="font-size:40px;padding:6px 20px 9px;border-radius:13px">Le programme</div></div>'
+            f'<div class="card" style="left:36px;right:{right}px;top:{top + 70}px;padding:14px 30px 10px">{rws.replace("border-top:2px solid", "border-top:2px solid", 1)}</div>')
+    return page(P, body + chrome(P, i, n))
+
+
 def programme(P, i, n, rs, ref):
     W = P['W']; top = P['T'] + 40
     rws = ''
@@ -269,11 +313,15 @@ def build(ref, data, races):
     shown = [r for r in rs if status(r, ref)[0] != 'complet'][:15]   # one slide per race still open (validé le 15/11/2026)
     pages = {}
     for fmt, P in CH.LAYOUT.items():
-        extra = 0 if len(rs) <= 8 else 1
-        n = 1 + extra + len(shown) + 1
-        sl = [cover(P, n, rs, ref, 'Ce week-end', lab)]
-        if extra:
-            sl.append(programme(P, 2, n, rs, ref))
+        if SITE:   # teaser cover, then the programme, then one slide per open race
+            n = 2 + len(shown) + 1
+            sl = [teaser(P, n, rs, ref, 'Ce week-end', lab.upper()), programme_site(P, 2, n, rs, ref)]
+        else:
+            extra = 0 if len(rs) <= 8 else 1
+            n = 1 + extra + len(shown) + 1
+            sl = [cover(P, n, rs, ref, 'Ce week-end', lab)]
+            if extra:
+                sl.append(programme(P, 2, n, rs, ref))
         for r in shown:
             sl.append(race(P, len(sl) + 1, n, r, ref))
         sl.append(fin(P, n))
