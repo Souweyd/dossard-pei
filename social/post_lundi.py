@@ -428,7 +428,7 @@ def build(ref, data, races):
             last = [r for r in rs if status(r, ref)[0] == 'clot']
             n = 2 + (1 if last else 0) + len(shown) + 1
             rt = by_type(rs)
-            sl = [teaser(P, n, rt, ref, 'Ce week-end', lab.upper(), sea=True, mood='matin'), programme_types(P, 2, n, rt, ref)]
+            sl = [cover_weekend_v2(P, n, rt, ref, lab.upper()), programme_types(P, 2, n, rt, ref)]   # couverture resserrée sur les courses (16/11/2026)
             if last:
                 sl.append(derniere(P, 3, n, last, ref))
             # one slide per open race, in the order of the programme, with its number
@@ -761,3 +761,71 @@ def cover_theme_v2(P, n, th, rs, ref):
     arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
     return page(P, bg + head + panel + chrome(P, 1, n) + arrow)
+
+# ------------------------------------------------------------------ Monday cover (16/11/2026)
+def cover_weekend_v2(P, n, rs, ref, lab):
+    """morning cover for the weekend : the island framed on the races (not the whole island when they are close),
+    numbered pins (numbers of the programme and of the race slides), commune and day under each group of pins"""
+    M = MAP(); W, H = P['W'], P['H']; tt = H > 1500
+    top = P['T'] + (56 if not tt else 40)
+    size = int(min(170 if not tt else 178, (W - 2 * P['L']) / (0.44 * len('Ce week-end'))))
+    head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:#fff">'
+            f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">{esc(lab)}</div>'
+            f'<div>{titlefill("Ce week-end", "matin", size)}</div>'
+            f'<div style="font:600 36px/1.25 I,sans-serif;margin-top:24px">{len(rs)} course{"s" if len(rs) > 1 else ""} à La Réunion</div></div>')
+    y0 = top + 28 + size * .92 + 8 + 24 + 46 + 50
+    y1 = H - P['B'] - 130
+    pts = [P_xy(*r['ll']) for r in rs]
+    xs = [p[0] for p in pts]; ys = [p[1] for p in pts]
+    # frame : the races with a margin, never smaller than a third of the island (a lone race keeps its surroundings)
+    minw, minh = M['W'] * .34, M['H'] * .30
+    cx, cy = (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2
+    bw = max(minw, (max(xs) - min(xs)) * 1.45 + 80); bh = max(minh, (max(ys) - min(ys)) * 1.45 + 80)
+    kf = min((W - (2 * P['L'] if not tt else 40)) / bw, (y1 - y0) / bh, (W - 300) / M['W'] * 3.4)
+    kf = max(kf, min((W - 300) / M['W'], (y1 - y0) / M['H']))          # never smaller than the whole island
+    sy = (y0 + y1) / 2
+    scr = [[W / 2 + (x - cx) * kf, sy + (y - cy) * kf] for x, y in pts]
+    big = 64
+    for i in range(len(scr)):
+        x0, yy, k = scr[i][0], scr[i][1], 0
+        while any((scr[i][0] - scr[j][0]) ** 2 + (scr[i][1] - scr[j][1]) ** 2 < (big + 6) ** 2 for j in range(i)) and k < 14:
+            k += 1; scr[i] = [x0 + (-1) ** k * (big + 8) * ((k + 1) // 2), yy] if k <= 4 else [x0 + (k - 6) * big / 2, yy + big + 8]
+    pins = ''.join(f'<div class="pin" style="left:{x:.0f}px;top:{y:.0f}px;background:{TCOL.get(r["_type"], TEAL)};width:{big}px;height:{big}px;margin:-{big / 2:.0f}px 0 0 -{big / 2:.0f}px;font-size:{big * .55:.0f}px;line-height:{big - 12}px;border-width:6px">{k}</div>'
+                   for k, (r, (x, y)) in enumerate(zip(rs, scr), 1))
+    labs = ''; placed = []
+    for com in dict.fromkeys(r['commune'] for r in rs):
+        ii = [i for i, r in enumerate(rs) if r['commune'] == com]
+        days = sorted({rs[i]['_d'] for i in ii})
+        dtxt = ' · '.join(f"{JOURS_C[d.weekday()]} {d.day}" for d in days)
+        gx = sum(scr[i][0] for i in ii) / len(ii); gy = sum(scr[i][1] for i in ii) / len(ii)
+        lw, lh = max(len(com) * 15, len(dtxt) * 10) + 32, 60
+        # outwards from the island's centre : coastal towns get their label on the sea, where there is room
+        icx, icy = W / 2 + (M['W'] / 2 - cx) * kf, sy + (M['H'] / 2 - cy) * kf
+        dx, dy = gx - icx, gy - icy
+        half = max(abs(scr[i][0] - gx) for i in ii) + big / 2 + 10
+        if abs(dx) > abs(dy) * 1.2 and len(ii) == 1:
+            x = gx + (1 if dx > 0 else -1) * (half + lw / 2); y = gy - lh / 2
+        elif dy < 0:
+            x, y = gx, min(scr[i][1] for i in ii) - big / 2 - 8 - lh
+        else:
+            x, y = gx, max(scr[i][1] for i in ii) + big / 2 + 8
+        if y < y0 - 20:      # never over the title : below the pins instead
+            y = max(scr[i][1] for i in ii) + big / 2 + 8
+        x = min(max(x, lw / 2 + 24), W - lw / 2 - 24)
+        def hit(x, y):
+            return (sum(abs(x - a) < (lw + b) / 2 + 6 and abs(y - c) < lh + 6 for a, c, b in placed) * 3
+                    + sum(abs(px - x) < lw / 2 + big / 2 and y - big / 2 < py < y + lh + big / 2 for px, py in scr)
+                    + (x - lw / 2 < 20 or x + lw / 2 > W - 20) * 5 + (y < y0 - 20) * 9)
+        if hit(x, y):      # crowded : the place with the fewest overlaps (above, below, sideways)
+            ytop = min(scr[i][1] for i in ii) - big / 2 - 8 - lh
+            cands = [(x, y), (x, ytop), (x, y + lh + 10), (x - lw / 2 - 44, y - lh / 2 - 20), (x + lw / 2 + 44, y - lh / 2 - 20),
+                     (x + lw / 2 + 44, y + 10), (x - lw / 2 - 44, y + 10), (x, ytop - lh - 10)]
+            x, y = min(cands, key=lambda c: hit(*c))
+        placed.append((x, y, lw))
+        labs += (f'<div class="abs" style="left:{x:.0f}px;top:{y:.0f}px;transform:translateX(-50%);white-space:nowrap;text-align:center;background:{INK};color:#fff;'
+                 f'padding:5px 14px 7px;border-radius:10px;box-shadow:0 6px 14px rgba(0,0,0,.35)"><div style="font:800 30px/1 S,sans-serif">{esc(com)}</div>'
+                 f'<div style="font:700 20px/1.1 I,sans-serif;color:#ffd400;margin-top:3px">{esc(dtxt)}</div></div>')
+    arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
+             f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
+    fade = f'<div class="abs" style="left:0;right:0;top:0;height:{y0 + 20:.0f}px;background:linear-gradient(180deg,{SEA} 0,{SEA} calc(100% - 90px),rgba(8,59,90,0))"></div>'
+    return page(P, world(kf, cx, cy, W / 2, sy) + fade + labs + pins + head + chrome(P, 1, n) + arrow)
