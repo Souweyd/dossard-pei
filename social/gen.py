@@ -262,6 +262,12 @@ def cover_map(i, n, P, kicker, big, sub, races, ref, highlight=None, relief=Fals
 
 
 def build_lundi(ref, data, races):
+    """Nouveau modèle (15/11/2026) : voir post_lundi.py."""
+    import post_lundi
+    return post_lundi.build(ref, data, races)
+
+
+def build_lundi_ancien(ref, data, races):
     """Ce week-end (charte : ambiance matin) : couverture île + liste + 4 courses au plus (ouvertes d'abord) + fin."""
     sat = ref + D.timedelta(days=5)
     days = [ref + D.timedelta(days=k) for k in (4, 5, 6)]

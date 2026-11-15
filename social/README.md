@@ -6,7 +6,7 @@ et de captures du site en ligne.
 | Jour | Contenu | Fonction du site mise en avant |
 |---|---|---|
 | 1er du mois | Les courses du mois | Calendrier |
-| Lundi | Les courses du week-end (avec les clôtures) | Calendrier / « Ce week-end » |
+| Lundi | Les courses du week-end (`post_lundi.py`, style des stories : île et cadres reliés aux courses, une slide par course encore ouverte) | Calendrier / « Ce week-end » |
 | Mercredi | Un thème (rotation : première course, relais, gros D+…) | Filtres |
 | Vendredi | Une région (rotation : Ouest, Sud, Est, Nord) | Carte |
 | Vendredi soir | Story vidéo « Météo des courses » du week-end (`meteo.py`) | Météo des fiches |
