@@ -96,7 +96,7 @@ def stat(r, ref):
 
 
 def dh(r):
-    d = r['_d']; h = (r.get('_h') or '').replace('h00', 'h').lstrip('0')
+    d = r['_d']; h = re.sub(r'^0(?=\d)', '', (r.get('_h') or '').replace('h00', 'h'))   # 00h01 -> 0h01, 06h -> 6h
     return f"{JOURS_C[d.weekday()].capitalize()} {d.day} {MOIS_C[d.month - 1]}" + (f" · {h}" if h else '')
 
 
@@ -215,7 +215,7 @@ def programme_types(P, i, n, rs, ref):
             out += (f'<div style="display:flex;align-items:center;gap:12px;margin:{18 if out else 6}px 0 4px"><span class="chip" style="background:{TCOL.get(t, TEAL)};padding:7px 14px;border-radius:9px">{esc(TPLUR.get(t, "Courses"))}</span>'
                     f'<span style="font:700 20px I,sans-serif;color:{MUTED}">{cnt} course{"s" if cnt > 1 else ""}</span></div>')
         code, sl = stat(r, ref)
-        h = (r.get('_h') or '').replace('h00', 'h').lstrip('0')
+        h = re.sub(r'^0(?=\d)', '', (r.get('_h') or '').replace('h00', 'h'))
         out += (f'<div class="lrow" style="grid-template-columns:48px 1fr auto;padding:{rp}px 0"><b class="s" style="width:48px;height:48px;border-radius:50%;background:{TCOL.get(t, TEAL)};color:#fff;font-size:28px;line-height:48px;text-align:center">{k}</b>'
                 f'<div style="min-width:0"><div class="s" style="font-size:{fs}px;line-height:1">{esc(r["nom"])}</div>'
                 f'<div style="font-size:{sub}px;color:{MUTED};margin-top:4px">{esc(JOURS_C[r["_d"].weekday()].capitalize())} {r["_d"].day} {MOIS_C[r["_d"].month - 1]}{" · " + esc(h) if h else ""} · {esc(r["commune"])}</div></div>'
@@ -235,7 +235,7 @@ def programme_site(P, i, n, rs, ref, sea=False):
     rws = ''
     for k, r in enumerate(rs, 1):
         code, sl = stat(r, ref)
-        h = (r.get('_h') or '').replace('h00', 'h').lstrip('0')
+        h = re.sub(r'^0(?=\d)', '', (r.get('_h') or '').replace('h00', 'h'))
         rws += (f'<div class="lrow" style="grid-template-columns:52px 1fr auto"><b class="s" style="width:52px;height:52px;border-radius:50%;background:{col(r)};color:#fff;font-size:30px;line-height:52px;text-align:center">{k}</b>'
                 f'<div style="min-width:0"><div class="s" style="font-size:34px;line-height:1">{esc(r["nom"])}</div>'
                 f'<div style="font-size:22px;color:{MUTED};margin-top:5px">{esc(JOURS_C[r["_d"].weekday()].capitalize())} {r["_d"].day} {MOIS_C[r["_d"].month - 1]}{" · " + esc(h) if h else ""} · {esc(r["commune"])}</div></div>'
@@ -294,7 +294,7 @@ def race(P, i, n, r, ref, num=None):
     pw = 330 if tt else 290
     d = r['_d']
     date = f"{JOURS[d.weekday()].capitalize()} {d.day} {MOIS[d.month - 1]}"
-    hh = (r.get('_h') or '').replace('h00', 'h').lstrip('0')
+    hh = re.sub(r'^0(?=\d)', '', (r.get('_h') or '').replace('h00', 'h'))
     right = (P['R'] - 40) if tt else 36
     pin = (f'<div class="abs" style="left:{W / 2}px;top:{pin_y}px"><svg class="abs" style="left:-26px;top:-72px" width="52" height="72" viewBox="0 0 60 82">'
            f'<path d="M30 80C30 80 4 48 4 28a26 26 0 0 1 52 0c0 20-26 52-26 52z" fill="{TEAL}" stroke="#fff" stroke-width="5"/><circle cx="30" cy="28" r="10" fill="#fff"/></svg>'
@@ -487,17 +487,21 @@ def cover_v2(P, n, kicker, title, sub, mood, rs, ref, communes=None, numbered=Fa
     return page(P, world(kf, cx, cy0, W / 2, sy) + fade + pins + head + chrome(P, 1, n) + arrow)
 
 
-def list_v2(P, i0, n, tag, rs, ref, numbered=False):
+def list_v2(P, i0, n, tag, rs, ref, numbered=False, grouped=True):
     """the races as rows on cards (several slides when there are many)"""
     W = P['W']; tt = P['H'] > 1500; top = P['T'] + 40
-    per = 10 if tt else 9
+    per = _per(P, len(rs))        # rows per slide (room left for the discipline headers)
     right = (P['R'] - 40) if tt else 36
     out = []
     for p0 in range(0, len(rs), per):
-        rws = ''
+        rws, cur = '', None
         for k, r in enumerate(rs[p0:p0 + per], p0 + 1):
+            if grouped and r['_type'] != cur:     # discipline header (repeated at the top of a following slide)
+                cur = r['_type']; cnt = sum(1 for x in rs if x['_type'] == cur)
+                rws += (f'<div style="display:flex;align-items:center;gap:12px;margin:{14 if rws else 6}px 0 2px"><span class="chip" style="background:{TCOL.get(cur, TEAL)};padding:7px 14px;border-radius:9px">{esc(TPLUR.get(cur, "Courses"))}</span>'
+                        f'<span style="font:700 20px I,sans-serif;color:{MUTED}">{cnt} course{"s" if cnt > 1 else ""}</span></div>')
             code, sl = stat(r, ref)
-            h = (r.get('_h') or '').replace('h00', 'h').lstrip('0')
+            h = re.sub(r'^0(?=\d)', '', (r.get('_h') or '').replace('h00', 'h'))
             num = (f'<b class="s" style="width:46px;height:46px;border-radius:50%;background:{TCOL.get(r["_type"], TEAL)};color:#fff;font-size:27px;line-height:46px;text-align:center">{k}</b>' if numbered
                    else f'<span style="width:16px;height:16px;border-radius:50%;background:{TCOL.get(r["_type"], TEAL)};margin:0 15px"></span>')
             rws += (f'<div class="lrow" style="grid-template-columns:46px 1fr auto;padding:10px 0">{num}'
@@ -510,8 +514,13 @@ def list_v2(P, i0, n, tag, rs, ref, numbered=False):
     return out
 
 
+def _per(P, n):
+    per = 9 if P['H'] > 1500 else 8
+    return per + 1 if n % per == 1 and n > 1 else per    # never a slide with a single race left over
+
+
 def n_list_v2(P, rs):
-    per = 10 if P['H'] > 1500 else 9
+    per = _per(P, len(rs))
     return (len(rs) + per - 1) // per
 
 

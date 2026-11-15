@@ -327,9 +327,10 @@ def build_mardi(ref, data, races):
     import post_lundi as PL
     for fmt, P in CH.LAYOUT.items():
         if PL.V2:   # same style as the Monday post (proposition of 15/11): sunset mood in the title
-            n = 1 + PL.n_list_v2(P, sel) + (1 if shot_p else 0) + 1
-            sl = [PL.cover_v2(P, n, 'Ces 10 prochaines semaines', th['title'], th['sub'], 'couchant', sel, ref)]
-            sl += PL.list_v2(P, 2, n, th['short'], sel, ref)
+            st = PL.by_type(sel)      # grouped by discipline, as on Monday
+            n = 1 + PL.n_list_v2(P, st) + (1 if shot_p else 0) + 1
+            sl = [PL.cover_v2(P, n, 'Ces 10 prochaines semaines', th['title'], th['sub'], 'couchant', st, ref)]
+            sl += PL.list_v2(P, 2, n, th['short'], st, ref)
             if shot_p:
                 def shot(mw, mh, info=info):
                     b = info['box']
@@ -384,9 +385,10 @@ def build_jeudi(ref, data, races):
     import post_lundi as PL
     for fmt, P in CH.LAYOUT.items():
         if PL.V2:   # same style as the Monday post (proposition of 15/11): lagoon mood in the title
-            n = 1 + PL.n_list_v2(P, sel) + (1 if shot_p else 0) + 1
-            sl = [PL.cover_v2(P, n, 'Près de chez toi', f'Courir dans<br>{name}', f"{len(sel)} courses {endlab}", 'lagon', sel, ref, communes=communes, numbered=True)]
-            sl += PL.list_v2(P, 2, n, name[0].upper() + name[1:], sel, ref, numbered=True)
+            st = PL.by_type(sel)      # grouped by discipline, as on Monday (the numbers follow)
+            n = 1 + PL.n_list_v2(P, st) + (1 if shot_p else 0) + 1
+            sl = [PL.cover_v2(P, n, 'Près de chez toi', f'Courir dans<br>{name}', f"{len(sel)} courses {endlab}", 'lagon', st, ref, communes=communes, numbered=True)]
+            sl += PL.list_v2(P, 2, n, name[0].upper() + name[1:], st, ref, numbered=True)
             if shot_p:
                 def shot(mw, mh, info=info):
                     ile = info['ile']; pop = info['pop']

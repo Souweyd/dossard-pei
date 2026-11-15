@@ -8,7 +8,7 @@
 - Listes, calendrier, captures : sur des cartes blanches. Pas d'emoji dans les visuels.
 - L'étiquette bleu marine soulignée de jaune est réservée aux stories (nouveau.py, meteo.py).
 """
-import html, calendar, pathlib
+import html, calendar, pathlib, re
 from core import ROOT, status, poster_path, art_path, island_svg, dist_label, TYPE_LAB, JOURS_C, MOIS, MOIS_C
 
 FONTS = (ROOT / 'social' / 'fonts').as_uri()
@@ -103,7 +103,7 @@ def stchip(r, ref):
 def dlabel(dd): return f"{JOURS_C[dd.weekday()]} {dd.day} {MOIS_C[dd.month - 1]}"
 
 
-def hfmt(h): return (h or '').replace('h00', 'h').lstrip('0')
+def hfmt(h): return re.sub(r'^0(?=\d)', '', (h or '').replace('h00', 'h'))
 
 
 def pin_col(r, ref): return RED if status(r, ref)[0] == 'complet' else TYPE_COL.get(r['_type'], MUTED)

@@ -6,7 +6,7 @@ Cadres au-dessus de l'île pour les courses du nord, en dessous pour celles du s
 (au-delà : 7 + « + N autres courses »). Une course sur deux jours n'a qu'un cadre (son premier jour).
 Usage (depuis la racine du dépôt) : python3 social/meteo.py <date du vendredi>   ex. python3 social/meteo.py 2026-11-13
 Sortie : social/out/meteo/story-meteo-<vendredi>.mp4 ; « rien » s'il n'y a pas de course avec météo samedi / dimanche."""
-import sys, json, pathlib, datetime as D
+import sys, json, pathlib, re, datetime as D
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from core import load, MAP, P_xy, ROOT, JOURS, JOURS_C, MOIS
 from nouveau import island, INK, TEAL, SURF, esc
@@ -128,7 +128,7 @@ def page(friday):
         lines.append(f'<line class="ln anim" style="animation-delay:{t + .15:.2f}s" x1="{px:.0f}" y1="{py:.0f}" x2="{cx:.0f}" y2="{ey:.0f}" pathLength="1"/>')
         pins.append(f'<div class="pin anim" style="left:{px:.0f}px;top:{py:.0f}px;animation-delay:{t:.2f}s;--c:{g[1]}"></div>')
         d = D.date.fromisoformat(ds)
-        hh = (x.get('h') or '').replace('h00', 'h').lstrip('0')
+        hh = re.sub(r'^0(?=\d)', '', (x.get('h') or '').replace('h00', 'h'))
         temp = f"{w['tmin']}–{w['tmax']}°" if w['tmin'] != w['tmax'] else f"{w['tmin']}°"
         txt = WXT.get(x['start']['sym'].replace('andthunder', ''), 'Orages' if kd == 'storm' else '')
         extra = f'<div class="wet">{svg(SMALL["wet"], 18, "#fff", 2)}Terrain glissant</div>' if x.get('veille') else ''
