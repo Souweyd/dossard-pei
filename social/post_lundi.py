@@ -15,6 +15,7 @@ INK, TEAL, SURF, MUTED, SEA, LINE = '#1d2523', '#0d6b67', '#fffcf7', '#6b625a', 
 OCEAN = (ROOT / 'ocean.webp').as_uri()
 F = (ROOT / 'social' / 'fonts').as_uri()
 LOGO = (ROOT / 'social' / 'assets' / 'logo-512.png').as_uri()
+SITE = False   # (proposition du 15/11, en attente de validation) the site's drawn landscape (sky, mountains, cream ground) behind the slides, as on the site
 TAGS = ['#trail', '#run', '#iledelareunion', '#reunionisland']
 STC = {'complet': '#c62828', 'clot': '#d2481e', 'bientot': TEAL, 'ouvert': '#2e7d32'}
 
@@ -69,12 +70,12 @@ def page(P, body):
     return f'<!doctype html><html><head><meta charset="utf-8"><style>{CSS}html,body{{width:{P["W"]}px;height:{P["H"]}px}}</style></head><body>{body}</body></html>'
 
 
-def world(k, cx, cy, sx, sy, extra=''):
+def world(k, cx, cy, sx, sy, extra='', sea=True):
     """the island (sea picture + relief + commune borders) with map point (cx, cy) at screen (sx, sy), zoom k"""
     M = MAP()
     allc = ''.join(f'<path vector-effect="non-scaling-stroke" d="{c["d"]}"/>' for c in M['communes'])
     return (f'<div class="world" style="width:{M["W"]}px;height:{M["H"]}px;transform:translate({sx - cx * k:.1f}px,{sy - cy * k:.1f}px) scale({k:.4f})">'
-            f'<img src="{OCEAN}" style="width:{M["W"]}px;height:{M["H"]}px"><img src="{island()}" style="width:{M["W"]}px;height:{M["H"]}px">'
+            + (f'<img src="{OCEAN}" style="width:{M["W"]}px;height:{M["H"]}px">' if sea else '') + f'<img src="{island()}" style="width:{M["W"]}px;height:{M["H"]}px">'
             f'<svg width="{M["W"]}" height="{M["H"]}" viewBox="0 0 {M["W"]} {M["H"]}"><g fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.5">{allc}</g>{extra}</svg></div>')
 
 
@@ -160,7 +161,8 @@ def cover(P, n, rs, ref, title, lab):
     svg = f'<svg class="abs" style="left:0;top:0" width="{W}" height="{H}"><g stroke="#fff" stroke-width="4" stroke-linecap="round" style="filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))">{lines}</g></svg>'
     head = (f'<div class="abs" style="left:0;right:0;top:{TOP_T}px;display:flex;flex-direction:column;align-items:center;gap:14px">'
             f'<div class="tag">{esc(title)}</div><div class="sub">{esc(lab)}</div></div>')
-    return page(P, world(kf, M['W'] / 2, M['H'] / 2, W / 2, cy) + svg + pins + cards + head + chrome(P, 1, n))
+    bg = CH.decor(P, 'matin', .42) + world(kf, M['W'] / 2, M['H'] / 2, W / 2, cy, sea=False) if SITE else world(kf, M['W'] / 2, M['H'] / 2, W / 2, cy)
+    return page(P, bg + svg + pins + cards + head + chrome(P, 1, n))
 
 
 # ------------------------------------------------------------------ programme (more than 8 races)
@@ -225,12 +227,21 @@ def race(P, i, n, r, ref):
    <div class="ln">{PINI}<span>{esc(r['commune'])}{f'<small>{esc(lieu)}</small>' if lieu else ''}</span></div>
    <div class="bd" style="background:{STC[code]}">{esc(bl[0])}{f'<small>{esc(bl[1])}</small>' if bl[1] else ''}</div></div></div>
  <div class="ph">{esc(head)}</div>{rows_html}</div>'''
+    if SITE:   # the site's drawn landscape, the map in a rounded window at the top, the card under it
+        wt, wh = P['T'] + 40, (430 if tt else 330)
+        win = (f'<div class="abs" style="left:36px;right:{right}px;top:{wt}px;height:{wh}px;border-radius:30px;overflow:hidden;border:6px solid #fff;box-shadow:0 16px 36px rgba(29,37,35,.25)">'
+               f'<div class="abs" style="inset:0;background:{SEA}">{world(k, px, py, (W - 36 - right) / 2 - 6, wh * .58)}</div>'
+               + pin.replace(f'left:{W / 2}px;top:{pin_y}px', f'left:{(W - 36 - right) / 2 - 6:.0f}px;top:{wh * .58:.0f}px') + '</div>')
+        card = card.replace(f'bottom:{card_bottom}px', f'top:{wt + wh + 26}px')
+        return page(P, CH.decor(P, 'matin', .3) + win + tag + card + chrome(P, i, n))
     shade = '<div class="abs" style="left:0;right:0;bottom:0;height:45%;background:linear-gradient(180deg,rgba(8,59,90,0),rgba(8,59,90,.85) 50%)"></div>'
     return page(P, world(k, px, py, W / 2, pin_y) + shade + pin + tag + card + chrome(P, i, n))
 
 
 # ------------------------------------------------------------------ 3. end
 def fin(P, n):
+    if SITE:
+        return CH.fin(P, 'matin').replace('</body>', f'<div class="cnt" style="position:absolute;right:{P["R"] - 30}px;top:{P["T"] - 20}px;background:rgba(29,37,35,.55);color:#fff;font:700 24px/1 sans-serif;padding:9px 16px;border-radius:999px">{n}/{n}</div></body>')
     M = MAP(); W, H = P['W'], P['H']
     body = (f'<div class="abs" style="inset:0;filter:blur(14px) saturate(.85)">{world(1000 / M["W"], M["W"] / 2, M["H"] / 2, W / 2, H / 2)}</div>'
             '<div class="abs" style="inset:0;background:rgba(8,59,90,.35)"></div>'
