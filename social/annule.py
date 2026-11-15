@@ -1,5 +1,5 @@
-"""Story 1080x1920 « Course annulée » : même gabarit que « Nouveau dossard » (ciel bleu, étiquette
-bleu marine soulignée de jaune, pastille logo), affiche passée en gris avec un tampon ANNULÉE.
+"""Story 1080x1920 « Course annulée », nouvelle DA « mer et île » (15/11/2026) : île floutée sous un voile bleu,
+étiquette turquoise, nom sur panneau crème, affiche passée en gris avec un tampon ANNULÉE, pastille logo.
 
 Usage (depuis la racine du dépôt) :
   python3 social/annule.py --a-annoncer   → courses annulées à venir absentes de state/annules.json
@@ -10,6 +10,8 @@ Sortie : social/out/annule/<id>.jpg ; affiche le texte du post.
 import sys, asyncio, json, datetime as D
 from core import ROOT, SOC, poster_path, art_path
 import nouveau as N
+from core import MAP
+import post_lundi as PL
 
 OUT = SOC / 'out' / 'annule'
 RED = '#b3261e'
@@ -39,35 +41,43 @@ def source_txt(r):
 
 def html_story(r, motif='', info=''):
     poster = poster_path(r)
+    if poster and 'utoi-logo' in str(poster):
+        poster = None
     img = (poster or art_path(r)).as_uri()
     src = source_txt(r)
-    nm = r['nom']; fs = 80 if len(nm) <= 22 else (66 if len(nm) <= 32 else 56)
-    E = N.esc
+    nm = r['nom']; fs = 84 if len(nm) <= 20 else (70 if len(nm) <= 30 else 58)
+    E = N.esc; M = MAP(); F = N.F
+    bg = PL.world(1000 / M['W'], M['W'] / 2, M['H'] / 2, N.W / 2, N.H / 2)
+    extra = ''.join([
+        f'<div style="font-size:34px;font-weight:600;margin-top:16px">{E(motif)}</div>' if motif else '',
+        f'<div style="font-size:30px;font-weight:600;color:{N.MUTED};margin-top:12px">{E(src)}</div>' if src else '',
+        f'<div style="display:inline-block;margin-top:20px;font-weight:700;font-size:32px;color:#fff;background:{RED};border-radius:16px;padding:10px 26px">{E(info)}</div>' if info else ''])
     return f'''<!doctype html><html><head><meta charset="utf-8"><style>
-@font-face{{font-family:S;font-weight:800;src:url('{N.F}/SairaCondensed-800.woff2')}}
-@font-face{{font-family:S;font-weight:700;src:url('{N.F}/SairaCondensed-700.woff2')}}
-@font-face{{font-family:I;font-weight:400 700;src:url('{N.F}/InstrumentSans.woff2')}}
-*{{box-sizing:border-box;margin:0;padding:0}} html,body{{width:{N.W}px;height:{N.H}px;overflow:hidden}}
-body{{font-family:I,sans-serif;color:{N.INK};position:relative;background:{N.CREAM}}} .s{{font-family:S,sans-serif}}
-</style></head><body>{N.scene()}
-<div style="position:absolute;left:0;right:0;top:200px;display:flex;justify-content:center">
-  <div class="s" style="background:{N.NAVY};color:#fff;font-weight:800;font-size:46px;letter-spacing:1px;padding:8px 30px;border-radius:14px;border:5px solid {N.INK};border-bottom:8px solid {N.SUN};transform:rotate(-2deg);box-shadow:0 12px 24px rgba(29,37,35,.25)">Course annulée</div></div>
-<div style="position:absolute;left:150px;right:150px;top:340px;height:860px;display:flex;align-items:center;justify-content:center">
+@font-face{{font-family:S;font-weight:800;src:url('{F}/SairaCondensed-800.woff2')}}
+@font-face{{font-family:I;font-weight:400;src:url('{F}/inter-latin-400-normal.woff2')}}
+@font-face{{font-family:I;font-weight:600;src:url('{F}/inter-latin-600-normal.woff2')}}
+@font-face{{font-family:I;font-weight:700;src:url('{F}/inter-latin-700-normal.woff2')}}
+*{{box-sizing:border-box;margin:0;padding:0}} html,body{{width:{N.W}px;height:{N.H}px;overflow:hidden;background:#083b5a}}
+body{{font-family:I,sans-serif;color:{N.INK};position:relative}} .s{{font-family:S,sans-serif;font-weight:800}} .abs{{position:absolute}}
+.world{{position:absolute;left:0;top:0;transform-origin:0 0}} .world img,.world svg{{position:absolute;left:0;top:0}}
+</style></head><body>
+<div class="abs" style="inset:0;filter:blur(14px) saturate(.85)">{bg}</div>
+<div class="abs" style="inset:0;background:rgba(8,59,90,.35)"></div>
+<div class="abs" style="left:0;right:0;top:210px;display:flex;flex-direction:column;align-items:center;gap:20px">
+  <div class="s" style="background:{N.TEAL};color:#fff;font-size:64px;letter-spacing:1px;padding:8px 36px 12px;border-radius:20px;box-shadow:0 18px 40px rgba(13,60,58,.35);line-height:1">Course annulée</div>
+  <div class="s" style="max-width:940px;background:{N.SURF};font-size:{fs}px;line-height:.98;text-align:center;padding:14px 40px 18px;border-radius:22px;box-shadow:0 18px 40px rgba(29,37,35,.3)">{E(nm)}</div></div>
+<div class="abs" style="left:150px;right:150px;top:{560 if len(nm) <= 30 else 620}px;height:640px;display:flex;align-items:center;justify-content:center">
   <div style="position:relative;display:inline-block">
-    <img src="{img}" style="max-width:780px;max-height:860px;border-radius:26px;border:8px solid #fff;box-shadow:0 30px 60px rgba(29,37,35,.35);display:block;filter:grayscale(1) contrast(.9) brightness(1.08)">
-    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
-      <div class="s" style="transform:rotate(-14deg);color:{RED};background:rgba(255,255,255,.88);border:10px solid {RED};border-radius:18px;padding:4px 34px;font-weight:800;font-size:118px;letter-spacing:6px;line-height:1.05;box-shadow:0 14px 30px rgba(29,37,35,.3)">ANNULÉE</div></div></div></div>
-<div style="position:absolute;left:64px;right:64px;top:1236px;text-align:center">
-  <div class="s" style="font-weight:800;font-size:{fs}px;line-height:.95">{E(nm)}</div>
-  <div style="font-size:40px;font-weight:600;margin-top:14px">{E(N.when(r))} · {E(r['commune'])}</div>
-  {f'<div style="font-size:38px;font-weight:600;margin-top:12px">{E(motif)}</div>' if motif else ''}
-  {f'<div style="font-size:34px;font-weight:600;margin-top:10px">{E(src)}</div>' if src else ''}
-  {f'<div style="display:inline-block;margin-top:18px;font-weight:700;font-size:34px;color:#fff;background:{RED};border-radius:999px;padding:8px 28px">{E(info)}</div>' if info else ''}</div>
-<div style="position:absolute;left:0;right:0;top:1620px;display:flex;justify-content:center">
-  <div style="display:flex;align-items:center;gap:22px;background:#fff;border:6px solid {N.INK};border-radius:999px;padding:14px 40px 14px 18px;box-shadow:0 16px 30px rgba(29,37,35,.22)">
-    <img src="{N.LOGO}" style="width:110px;display:block">
-    <div><div class="s" style="font-weight:800;font-size:54px;line-height:.95">Dossard Péi</div>
-    <div style="font-weight:700;font-size:30px;color:{N.TEAL};margin-top:4px">dossardpei.re</div></div></div></div>
+    <img src="{img}" style="max-width:700px;max-height:640px;border-radius:22px;box-shadow:0 26px 54px rgba(4,20,30,.45);display:block;filter:grayscale(1) contrast(.9) brightness(1.08)">
+    <div class="abs" style="inset:0;display:flex;align-items:center;justify-content:center">
+      <div class="s" style="transform:rotate(-14deg);color:{RED};background:rgba(255,255,255,.9);border:10px solid {RED};border-radius:18px;padding:4px 34px;font-size:112px;letter-spacing:6px;line-height:1.05;box-shadow:0 14px 30px rgba(29,37,35,.3)">ANNULÉE</div></div></div></div>
+<div class="abs" style="left:72px;right:72px;top:1290px;background:{N.SURF};border-radius:32px;box-shadow:0 24px 50px rgba(4,20,30,.35);padding:30px 40px 34px;text-align:center">
+  <div style="font-size:40px;font-weight:700">{E(N.when(r))} · {E(r['commune'])}</div>{extra}</div>
+<div class="abs" style="left:0;right:0;top:1660px;display:flex;justify-content:center">
+  <div style="display:flex;align-items:center;gap:20px;background:#fff;border:5px solid {N.INK};border-radius:999px;padding:12px 38px 12px 16px;box-shadow:0 16px 30px rgba(4,20,30,.3)">
+    <img src="{N.LOGO}" style="width:96px;display:block">
+    <div><div class="s" style="font-size:50px;line-height:.95">Dossard Péi</div>
+    <div style="font-weight:700;font-size:28px;color:{N.TEAL};margin-top:4px">dossardpei.re</div></div></div></div>
 </body></html>'''
 
 
@@ -80,6 +90,7 @@ def post_text(r, motif='', info=''):
     if source_txt(r):
         lines.append(f"ℹ️ {source_txt(r)}")
     lines.append('Toutes les autres courses 👉 dossardpei.re')
+    lines.append('#trail #run #iledelareunion #reunionisland')
     return '\n'.join(lines)
 
 

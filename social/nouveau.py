@@ -268,20 +268,14 @@ def hashtag(s):
 
 
 def post_text(r):
-    """Titre, une ligne d'infos, les hashtags (format validé le 14/11/2026)."""
+    """Titre, une ligne d'infos, les 4 hashtags communs à tous les posts (règle du 15/11/2026)."""
     emo = TYPE_EMO.get(r['_type'], '🏅')
     code, lab = status(r, D.date.today())
     d = when_c(r); d = d[0].upper() + d[1:]
     f = formats(r)
     insc = {'complet': 'Complet', 'bientot': lab}.get(code, 'Inscriptions ouvertes')
     line = f"{d} à {r['commune']}" + (f" : {f}" if f else '') + f". {insc} 👉 dossardpei.re"
-    tags = []
-    for e in sorted(r.get('epreuves', []), key=lambda e: -(e.get('km') or 0)):
-        t = TAG.get(e.get('type') or 'autre')
-        if t and t not in tags:
-            tags.append(t)
-    tags = tags[:3] + [hashtag(r['commune']), '#lareunion', '#974', '#dossardpei']
-    return '\n'.join([f"{emo} Nouveau dossard : {r['nom']}", line, ' '.join(tags)])
+    return '\n'.join([f"{emo} Nouveau dossard : {r['nom']}", line, '#trail #run #iledelareunion #reunionisland'])
 
 
 
