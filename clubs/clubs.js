@@ -162,10 +162,9 @@
       '<div class="fin"><h2>' + esc(c.nom) + '</h2>' + (c.complet ? '<p class="meta">' + esc(c.complet) + '</p>' : '') +
       '<p class="meta">' + esc(c.type) + ' · ' + esc(c.commune) + ' · ' + esc(c.secteur) + '</p>' +
       '<div class="acts" style="margin-top:14px">' + links + '</div>' +
-      '<h3>Infos pratiques</h3>' + (pr ? '<div class="prat">' + pr + '</div><p class="note">Coordonnées publiées par le club (page Facebook, site ou annuaire de la FFA).</p>' : '<p class="none">Pas encore de coordonnées pour ce club. Tu les connais ? <button type="button" class="link" data-fix="' + esc(c.id) + '">Envoie-les nous</button></p>') +
+      '<h3>Infos pratiques</h3>' + (pr ? '<div class="prat">' + pr + '</div><p class="note">Coordonnées publiées par le club (page Facebook, site ou annuaire de la FFA).</p>' : '<p class="none">Pas encore de coordonnées pour ce club. Tu les connais ? <button type="button" class="link" data-maj="' + esc(c.id) + '">Envoie-les nous</button></p>') +
       (rl ? '<h3>Courses organisées</h3><ul class="races">' + rl + '</ul>' : '') +
-      '<div class="claim"><p><b>C’est votre club ?</b> Mettez la fiche à jour : horaires, contacts, logo, courses…</p><button type="button" class="cta" data-maj="' + esc(c.id) + '">Mettre à jour la fiche</button></div>' +
-      '<p style="margin-top:14px"><button type="button" class="link" data-fix="' + esc(c.id) + '">Une info à corriger ?</button></p></div></div>';
+      '<div class="claim"><p><b>C’est votre club, ou une info est fausse ?</b> Mettez la fiche à jour : horaires, contacts, logo, courses…</p><button type="button" class="cta" data-maj="' + esc(c.id) + '">Mettre à jour la fiche</button></div></div></div>';
     var d = $('#dclub'); if (!d.open) d.showModal();
     document.title = c.nom + ' – Clubs péi – Dossard Péi';
     if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: '/clubs/' + c.id, title: c.nom, event: false });
@@ -203,7 +202,7 @@
     PRE = null;
     if (mode === 'maj' && c) {
       var rz = function (t) { var x = c.reseaux.filter(function (r) { return r.t === t; })[0]; return x ? x.url : ''; }, other = c.reseaux.filter(function (r) { return r.t !== 'fb' && r.t !== 'ig'; })[0], q = c.commune.match(/\((.*)\)/);
-      PRE = { 'Nom complet': c.complet || c.nom, 'Nom usuel': c.nom, 'Type': c.type, 'FFA': c.ffa ? 'Oui' : 'Non', 'Courses organisées': c.courses.join(', '), 'Commune': baseCommune(c.commune), 'Quartier': q ? q[1] : '', 'Adresse': c.adresse, 'Entraînement': c.entrainement, 'E-mail club': c.mail, 'Téléphone club': c.tel, 'Site': c.site, 'Facebook': rz('fb'), 'Instagram': rz('ig'), 'Autre réseau': other ? other.url : '', 'Expéditeur': 'Membre ou dirigeant du club' };
+      PRE = { 'Nom complet': c.complet || c.nom, 'Nom usuel': c.nom, 'Type': c.type, 'FFA': c.ffa ? 'Oui' : 'Non', 'Courses organisées': c.courses.join(', '), 'Commune': baseCommune(c.commune), 'Quartier': q ? q[1] : '', 'Adresse': c.adresse, 'Entraînement': c.entrainement, 'E-mail club': c.mail, 'Téléphone club': c.tel, 'Site': c.site, 'Facebook': rz('fb'), 'Instagram': rz('ig'), 'Autre réseau': other ? other.url : ''};
     }
     if (mode === 'add' || mode === 'maj') {
       body = '<p class="hint" style="margin:0">' + (mode === 'maj' ? 'La fiche actuelle est déjà remplie : change ce qui doit l’être et ajoute ce qui manque (horaires d’entraînement, section jeunes, logo…).' : 'Un champ par info : remplis ce que tu connais, seuls les champs avec * sont obligatoires.') + '</p>' +
