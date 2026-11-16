@@ -172,3 +172,26 @@ header.top .brand{pointer-events:auto}
 .legend{position:relative;z-index:1;margin-top:18px}
 header.top .topr{opacity:1!important}
 @media (max-width:640px){.hero2{padding-top:62px!important}}
+
+/* logo qui glisse (comme l'accueil) */
+.bghost{position:fixed;z-index:46;margin:0;pointer-events:none;will-change:transform}
+/* liste / carte (comme l'accueil) */
+.vbar2{margin-top:14px;display:flex;justify-content:center}
+.switch{display:inline-flex;background:var(--surface);border-radius:999px;padding:4px;gap:2px}
+.switch button{border:0;background:none;border-radius:999px;padding:8px 22px;font:inherit;font-weight:600;color:var(--fg);cursor:pointer;min-height:40px}
+.switch button[aria-pressed=true]{background:var(--accent);color:var(--on-accent)}
+#mapview{margin-top:14px}
+.mapbox{position:relative;max-width:900px;margin:0 auto;background:#073a59;border-radius:24px;overflow:hidden}
+#cmap{display:block;width:100%;height:auto}
+.cbord path{fill:none;stroke:rgba(255,255,255,.45);stroke-width:1.2;vector-effect:non-scaling-stroke}
+.pin{cursor:pointer}
+.pin .hit{fill:transparent}
+.pin circle.core{fill:#111113;stroke:#fff;stroke-width:1.5;vector-effect:non-scaling-stroke}
+.pin circle.seg{fill:none}
+.pin text{font-family:var(--display);font-weight:700;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.pin text.n{fill:#fff}
+.pin text.lbl{fill:#111113;text-anchor:start;font-weight:600;paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+.pin.on circle.core{fill:var(--hot)}
+.pin:focus-visible{outline:none}.pin:focus-visible circle.core{stroke:var(--accent);stroke-width:3}
+.maphint{text-align:center;margin:10px 0 0;font-size:.9rem;color:var(--soft)}
+#mapsel .grp{margin-top:10px}

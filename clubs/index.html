@@ -19,10 +19,10 @@
 <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0d1626" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="site-hero.css?v=1">
-<link rel="stylesheet" href="clubs.css?v=4">
+<link rel="stylesheet" href="clubs.css?v=5">
 <script src="mood.js?v=1"></script>
 <script data-goatcounter="https://dossardpei.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-<script src="clubs.js?v=2" defer></script>
+<script src="clubs.js?v=4" defer></script>
 </head>
 <body>
 <div class="wrap">
@@ -53,6 +53,12 @@
     <span><i style="background:#66bb6a"></i>Trail</span>
     <span><i style="background:#e0a458"></i>Trail + rando</span>
     <span><i style="background:#4fb0f0"></i>Multisport</span>
+  </div>
+  <div class="vbar2"><div class="switch" role="group" aria-label="Affichage"><button type="button" id="v-liste" aria-pressed="true">Liste</button><button type="button" id="v-carte" aria-pressed="false">Carte</button></div></div>
+  <div id="mapview" hidden>
+    <div class="mapbox"><svg id="cmap" viewBox="0 0 1100 1013" role="group" aria-label="Carte des clubs par commune"></svg></div>
+    <p class="maphint" id="maphint">Touche une commune pour voir ses clubs.</p>
+    <div id="mapsel"></div>
   </div>
   <div id="list"><p class="empty">Chargement des clubs…</p></div>
 

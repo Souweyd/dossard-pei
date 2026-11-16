@@ -114,6 +114,7 @@
     $('#state').innerHTML = s;
     $('#fshow').textContent = 'Voir ' + list.length + (list.length > 1 ? ' clubs' : ' club');
     $('#near').setAttribute('aria-pressed', st.near ? 'true' : 'false');
+    if (view === 'carte') drawMap();
   }
 
   /* ---------- filtres ---------- */
@@ -219,11 +220,61 @@
       .catch(function () { btn.disabled = false; btn.textContent = 'Envoyer'; err.hidden = false; err.innerHTML = 'L’envoi n’a pas marché. Réessaie, ou écris-nous à <a href="mailto:contact@dossardpei.re">contact@dossardpei.re</a>.'; });
   }
 
-  /* barre du haut : apparaît quand le grand logo sort de l'écran (comme l'accueil) */
+  /* barre du haut + logo qui glisse jusqu'à la barre en défilant (repris de l'accueil) */
+  function brandGhost(img) {
+    var g = document.createElement('div'); g.className = 'bghost'; g.setAttribute('aria-hidden', 'true');
+    g.style.cssText = 'display:flex;align-items:center;transform-origin:0 50%';
+    var n = img.cloneNode(true); n.removeAttribute('id'); n.setAttribute('class', ''); n.style.cssText = 'width:' + img.getBoundingClientRect().width + 'px;height:auto;display:block;flex:none';
+    g.appendChild(n); return g;
+  }
   function topbar() {
-    var t = $('#topbar'), big = $('#bigbrand'); if (!t || !big) return;
-    var tick = false, f = function () { tick = false; var r = big.getBoundingClientRect(), d = Math.max(0, Math.min(1, scrollY / Math.max(80, r.bottom + scrollY - 40))); t.style.setProperty('--hp', d.toFixed(3)); t.classList.toggle('on', r.bottom < 0); };
-    addEventListener('scroll', function () { if (!tick) { tick = true; requestAnimationFrame(f); } }, { passive: true }); f();
+    var big = $('#bigbrand'), t = $('#topbar'); if (!big || !t) return;
+    var logo = big.querySelector('.biglogo'), busy = false, ghost = null;
+    var reduced = function () { return matchMedia('(prefers-reduced-motion: reduce)').matches; };
+    var f = function () {
+      busy = false;
+      if (reduced() || !logo) { var u = big.getBoundingClientRect().bottom < 0; t.classList.toggle('on', u); t.style.setProperty('--hp', u ? '1' : '0'); return; }
+      logo.style.visibility = '';
+      var r = logo.getBoundingClientRect(), L = { left: r.left, cy: r.top + r.height / 2 + scrollY, w: r.width }, c = { left: Math.max(16, (innerWidth - 1320) / 2), cy: 30, w: 36 };
+      var d = Math.max(0, Math.min(1, scrollY / Math.max(80, L.cy - c.cy - 20)));
+      t.style.setProperty('--hp', d.toFixed(3)); t.classList.toggle('on', d >= 1);
+      if (d > 0 && d < 1) {
+        if (!ghost) { ghost = brandGhost(logo); document.body.appendChild(ghost); }
+        ghost.style.display = 'flex';
+        var hgt = ghost.offsetHeight;
+        ghost.style.left = L.left + 'px'; ghost.style.top = (L.cy - hgt / 2) + 'px';
+        ghost.style.transform = 'translate(' + ((c.left - L.left) * d) + 'px,' + ((c.cy - L.cy) * d) + 'px) scale(' + (1 + (c.w / L.w - 1) * d) + ')';
+        logo.style.visibility = 'hidden';
+      } else { if (ghost) ghost.style.display = 'none'; logo.style.visibility = d >= 1 ? 'hidden' : ''; }
+    };
+    addEventListener('scroll', function () { if (!busy) { busy = true; requestAnimationFrame(f); } }, { passive: true });
+    addEventListener('resize', f); requestAnimationFrame(f);
+  }
+
+  /* ---------- carte ---------- */
+  var MAPB = [55.205, 55.845, -21.405, -20.855], MW = 1100, MH = 1013, NS = 'http://www.w3.org/2000/svg', COMMUNES = null, view = 'liste', selCom = '';
+  function proj(ll) { return [(ll[1] - MAPB[0]) / (MAPB[1] - MAPB[0]) * MW, (MAPB[3] - ll[0]) / (MAPB[3] - MAPB[2]) * MH]; }
+  function drawMap() {
+    var svg = $('#cmap'), list = filtered(), by = {}, W = svg.clientWidth || 900, K = Math.min(2.4, Math.max(1, 900 / W)), small = W < 600;
+    list.forEach(function (c) { var b = baseCommune(c.commune); (by[b] = by[b] || []).push(c); });
+    var h = '<image href="/ocean_sm.webp" x="0" y="0" width="' + MW + '" height="' + MH + '" preserveAspectRatio="none"/><image href="/relief_sm.webp" x="0" y="0" width="' + MW + '" height="' + MH + '" preserveAspectRatio="none"/>';
+    if (COMMUNES) h += '<g class="cbord">' + COMMUNES.map(function (k) { return '<path d="' + k.d + '"/>'; }).join('') + '</g>';
+    h += '<g class="pins">';
+    Object.keys(by).sort(function (a, b) { return by[a].length - by[b].length; }).forEach(function (k) {
+      var p = CO[k]; if (!p) return; var xy = proj(p), cs = by[k], n = cs.length, R = n > 9 ? 17 : n > 1 ? 15 : 12, sw = 4, g = R - sw / 2, P = 2 * Math.PI * g, off = 0, seg = '', cnt = {};
+      cs.forEach(function (c) { cnt[c.type] = (cnt[c.type] || 0) + 1; });
+      TYPES.forEach(function (ty) { if (!cnt[ty]) return; var l = P * cnt[ty] / n; seg += '<circle r="' + g + '" class="seg" stroke="' + COL[ty] + '" stroke-width="' + sw + '" stroke-dasharray="' + l + ' ' + (P - l) + '" stroke-dashoffset="' + (-off) + '" transform="rotate(-90)"/>'; off += l; });
+      h += '<g class="pin' + (selCom === k ? ' on' : '') + '" transform="translate(' + xy[0].toFixed(1) + ',' + xy[1].toFixed(1) + ') scale(' + K.toFixed(2) + ')" tabindex="0" role="button" data-com="' + esc(k) + '" aria-label="' + esc(k + ' : ' + n + (n > 1 ? ' clubs' : ' club')) + '"><circle r="26" class="hit"/><circle r="' + R + '" class="core"/>' + seg + '<text class="n" font-size="' + (n > 9 ? 15 : 14) + '">' + n + '</text>' + (small && selCom !== k ? '' : '<text class="lbl" ' + (xy[0] > 900 ? 'x="0" y="' + (R + 18) + '" style="text-anchor:middle"' : 'x="' + (R + 6) + '"') + ' font-size="17">' + esc(k) + '</text>') + '</g>';
+    });
+    svg.innerHTML = h + '</g>';
+    var sel = selCom && by[selCom];
+    $('#maphint').hidden = !!sel;
+    $('#mapsel').innerHTML = sel ? '<section class="grp"><h2>' + esc(selCom) + ' <small>' + sel.length + (sel.length > 1 ? ' clubs' : ' club') + '</small></h2><div class="grid">' + sel.sort(function (a, b) { return a.nom.localeCompare(b.nom, 'fr'); }).map(card).join('') + '</div></section>' : '';
+  }
+  function setView(v) {
+    view = v; $('#v-liste').setAttribute('aria-pressed', v === 'liste'); $('#v-carte').setAttribute('aria-pressed', v === 'carte');
+    $('#mapview').hidden = v !== 'carte'; $('#list').hidden = v === 'carte';
+    if (v === 'carte') { if (!COMMUNES) fetch('communes.json?v=1').then(function (r) { return r.json(); }).then(function (d) { COMMUNES = d; drawMap(); }).catch(function () {}); drawMap(); }
   }
 
   /* ---------- événements ---------- */
@@ -251,6 +302,11 @@
       if (gb) { var mm = gb.nextElementSibling; mm.hidden = !mm.hidden; gb.setAttribute('aria-expanded', String(!mm.hidden)); }
     });
     $('#openadd').addEventListener('click', function () { openForm('add'); });
+    $('#v-liste').addEventListener('click', function () { setView('liste'); });
+    $('#v-carte').addEventListener('click', function () { setView('carte'); });
+    var pick = function (e) { var p = e.target.closest('.pin'); if (!p) return; selCom = selCom === p.dataset.com ? '' : p.dataset.com; drawMap(); if (selCom) { var s = $('#mapsel'); setTimeout(function () { s.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); }, 50); } };
+    $('#cmap').addEventListener('click', pick);
+    $('#cmap').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(e); } });
     $('#formbox').addEventListener('submit', sendForm);
     $('#dclub').addEventListener('close', function () { document.title = 'Clubs péi : les clubs de course et de trail de La Réunion – Dossard Péi'; if (location.hash && location.hash !== '#ajouter') history.replaceState(null, '', location.pathname + location.search); });
     [$('#dclub'), $('#dform'), $('#dfilters')].forEach(function (d) { d.addEventListener('click', function (e) { if (e.target === d) closeDlg(d); }); d.addEventListener('cancel', function (e) { e.preventDefault(); closeDlg(d); }); });
@@ -259,7 +315,7 @@
 
   fetch('clubs.json?v=1').then(function (r) { return r.json(); }).then(function (j) {
     DATA = j; POS = j.sprite.pos;
-    fillCommunes(); bind(); render(); topbar();
+    fillCommunes(); bind(); render(); topbar(); var rz; addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(function () { if (view === 'carte') drawMap(); }, 200); });
     if (location.hash === '#ajouter') openForm('add'); else onHash();
   }).catch(function () { $('#list').innerHTML = '<p class="empty">Impossible de charger les clubs. Recharge la page.</p>'; });
 })();
