@@ -333,3 +333,4 @@ body.mapfull .maptools{top:calc(10px + env(safe-area-inset-top))}
 .mpop-m{display:block;font-size:.8rem;color:var(--soft);margin-top:2px}
 @media (min-aspect-ratio:5/4) and (min-width:600px){body.mapfull .mpop{inset:64px 12px auto auto;width:min(380px,38%);max-height:calc(100% - 76px);border-radius:16px}}
 .szlink .dpjeu-new{font-size:.68em;margin-left:2px;padding:2px 7px}
+.hfind .qchips{justify-content:center}
