@@ -193,6 +193,17 @@
     setTimeout(function () { d.classList.remove('out'); d.close(); if (then) then(); }, 220);
   }
   function closeClub() { closeDlg($('#dclub')); }
+  /* glisser vers le bas pour fermer (tiroir sur mobile), comme les fiches courses */
+  function sheetSwipe(d) {
+    var y0 = null, dy = 0, sc = function () { return d.firstElementChild; };
+    d.addEventListener('touchstart', function (e) { var s = sc(); y0 = matchMedia('(max-width: 640px)').matches && (!s || s.scrollTop <= 0) && !e.target.closest('input,textarea,select') ? e.touches[0].clientY : null; dy = 0; }, { passive: true });
+    d.addEventListener('touchmove', function (e) { if (y0 == null) return; var s = sc(); dy = e.touches[0].clientY - y0; if (dy > 0 && (!s || s.scrollTop <= 0)) { d.style.transition = 'none'; d.style.transform = 'translateY(' + dy + 'px)'; } }, { passive: true });
+    d.addEventListener('touchend', function () {
+      if (y0 == null) return; y0 = null; d.style.transition = '';
+      if (dy > 110) { d.style.transform = 'translateY(100%)'; d.style.transition = 'transform .22s ease-in'; closeDlg(d); setTimeout(function () { d.style.transform = ''; d.style.transition = ''; }, 260); }
+      else d.style.transform = '';
+    });
+  }
   function pathId() { var m = location.pathname.match(/^\/clubs\/([a-z0-9-]+)\/?$/); return m ? m[1] : ''; }
   function go(id) { var u = id ? '/clubs/' + id + '/' : '/clubs/'; if (location.pathname !== u) history.pushState(null, '', u); }
   function route() { var id = pathId(); ROUTING = true; if (id && DATA.clubs.some(function (x) { return x.id === id; })) openClub(id); else closeClub(); ROUTING = false; }
@@ -359,7 +370,7 @@
     $('#cmap').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(e); } });
     $('#formbox').addEventListener('submit', sendForm);
     $('#dclub').addEventListener('close', function () { document.title = 'Clubs péi : les clubs de course et de trail de La Réunion – Dossard Péi'; if (!ROUTING && pathId()) go(''); });
-    [$('#dclub'), $('#dform'), $('#dfilters')].forEach(function (d) { d.addEventListener('click', function (e) { if (e.target === d) closeDlg(d); }); d.addEventListener('cancel', function (e) { e.preventDefault(); closeDlg(d); }); });
+    [$('#dclub'), $('#dform'), $('#dfilters')].forEach(function (d) { sheetSwipe(d); d.addEventListener('click', function (e) { if (e.target === d) closeDlg(d); }); d.addEventListener('cancel', function (e) { e.preventDefault(); closeDlg(d); }); });
     window.addEventListener('hashchange', onHash);
     window.addEventListener('popstate', route);
   }
