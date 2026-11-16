@@ -660,5 +660,13 @@
 "id": "villele",
 "nom": "Trail de Villèle",
 "date": "2026-11-29"
+},
+{
+"at": "2026-11-16T19:43+04:00",
+"t": "heure",
+"id": "3villages",
+"nom": "Les Foulées des 3 Villages – Rando de la Crête",
+"de": "07h45",
+"a": "08h00"
 }
 ]

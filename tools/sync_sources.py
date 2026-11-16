@@ -560,6 +560,15 @@ def ad_njuko(u):
         deb, fin = (c.get("startDateRegistrations") or "")[:16], (c.get("endDateRegistrations") or "")[:16]
         prices = [x for x in c.get("prices") or [] if x.get("enabled") and (not x.get("end") or x["end"][:16] > now)]
         sold = bool(prices) and all(x.get("soldOutAt") or (x.get("participantLimit") and (x.get("reservedCount") or 0) >= x["participantLimit"]) for x in prices)
+        if not sold and c.get("placeLimit") and c.get("_id"):
+            # places left: the counter the registration page itself reads (« Complet », waiting list) — 2026-11-16, Transvolcano
+            try:
+                rem = json.load(net.urlopen(urllib.request.Request(f"https://front-api.njuko.com/competition/remaining/{c['_id']}",
+                                                                    data=b"", method="POST",   # empty POST, as the page sends it (a read)
+                                                                    headers={**UA, "Accept": "application/json"}), timeout=30))
+                sold = isinstance(rem.get("remaining"), int) and rem["remaining"] <= 0
+            except Exception:
+                pass
         if d.get("status") != "OPEN" or (fin and fin < now):
             etat = "clos"
         elif deb and deb > now:
