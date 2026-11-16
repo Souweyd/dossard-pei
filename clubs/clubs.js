@@ -181,7 +181,7 @@
       (dl ? '<div class="sec"><h3>Coordonnées</h3><dl>' + dl + '</dl></div>' : '<div class="sec"><h3>Coordonnées</h3><p class="oth">Pas encore de coordonnées pour ce club. Tu les connais ? <button type="button" class="lnk" data-maj="' + esc(c.id) + '">Envoie-les nous</button></p></div>') +
       (c.jeunes && c.jeunes.length ? '<div class="sec"><h3>Section jeunes <span>· annuaire FFA</span></h3><div class="kids">' + c.jeunes.map(function (k) { return '<span>' + JL[k] + '</span>'; }).join('') + '</div></div>' : '') +
       courses +
-      '<p class="foot">' + (dl ? 'Infos publiées par le club (Facebook, site ou annuaire FFA). ' : '') + 'C’est votre club, ou une info est fausse ? <button type="button" class="lnk" data-maj="' + esc(c.id) + '">Mettre à jour la fiche</button></p></div>';
+      '<p class="foot"><button type="button" class="lnk" data-maj="' + esc(c.id) + '">Mettre à jour la fiche</button></p></div>';
     var d = $('#dclub'); if (!d.open) d.showModal();
     document.title = c.nom + ' – Clubs péi – Dossard Péi';
     if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: '/clubs/' + c.id, title: c.nom, event: false });
