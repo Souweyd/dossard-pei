@@ -107,7 +107,7 @@
     }
     $('#list').innerHTML = html || '<p class="empty">Aucun club ne correspond. Essaie un autre nom ou une autre commune.</p>';
     var nf = (st.sect ? 1 : 0) + (st.type ? 1 : 0) + (st.commune ? 1 : 0) + (st.ffa !== '' ? 1 : 0);
-    var b = $('#fcount'); b.hidden = !nf; b.textContent = nf;
+    var b = $('#f-count'); b.hidden = !nf; b.textContent = nf;
     var s = '<span class="pill">' + list.length + (list.length > 1 ? ' clubs' : ' club') + '</span>';
     if (st.commune) s += '<button type="button" class="pill" data-clear="commune">' + esc(st.commune) + ' <span aria-hidden="true">✕</span><span class="sr">Retirer ce filtre</span></button>';
     if (nf || st.q || st.near) s += '<button type="button" class="clear" data-clear="all">✕ Effacer les filtres</button>';
@@ -219,6 +219,13 @@
       .catch(function () { btn.disabled = false; btn.textContent = 'Envoyer'; err.hidden = false; err.innerHTML = 'L’envoi n’a pas marché. Réessaie, ou écris-nous à <a href="mailto:contact@dossardpei.re">contact@dossardpei.re</a>.'; });
   }
 
+  /* barre du haut : apparaît quand le grand logo sort de l'écran (comme l'accueil) */
+  function topbar() {
+    var t = $('#topbar'), big = $('#bigbrand'); if (!t || !big) return;
+    var tick = false, f = function () { tick = false; var r = big.getBoundingClientRect(), d = Math.max(0, Math.min(1, scrollY / Math.max(80, r.bottom + scrollY - 40))); t.style.setProperty('--hp', d.toFixed(3)); t.classList.toggle('on', r.bottom < 0); };
+    addEventListener('scroll', function () { if (!tick) { tick = true; requestAnimationFrame(f); } }, { passive: true }); f();
+  }
+
   /* ---------- événements ---------- */
   function bind() {
     var t; $('#q').addEventListener('input', function (e) { clearTimeout(t); t = setTimeout(function () { st.q = e.target.value; render(); }, 120); });
@@ -252,7 +259,7 @@
 
   fetch('clubs.json?v=1').then(function (r) { return r.json(); }).then(function (j) {
     DATA = j; POS = j.sprite.pos;
-    fillCommunes(); bind(); render();
+    fillCommunes(); bind(); render(); topbar();
     if (location.hash === '#ajouter') openForm('add'); else onHash();
   }).catch(function () { $('#list').innerHTML = '<p class="empty">Impossible de charger les clubs. Recharge la page.</p>'; });
 })();

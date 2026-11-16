@@ -9,19 +9,6 @@ button,input,select,textarea{font:inherit;color:inherit}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-.hero{position:relative;background:linear-gradient(180deg,var(--hero1) 0%,var(--hero2) 55%,var(--bg) 100%);padding-top:env(safe-area-inset-top,0px)}
-.back{position:absolute;top:calc(6px + env(safe-area-inset-top,0px));left:12px;min-height:44px;display:inline-flex;align-items:center;text-decoration:none}
-.back span{padding:6px 12px;border-radius:99px;background:rgba(255,255,255,.88);color:#1d2523;font-size:.85rem;font-weight:600}
-.hin{max-width:1180px;margin:0 auto;padding:64px 20px 26px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
-.ttl{display:flex;align-items:center;gap:14px}
-.plate{display:inline-flex;align-items:center;justify-content:center;width:64px;height:44px;border-radius:6px;background:#fff;border:3px solid #1d2523;color:#1d2523;font-weight:800;font-size:20px}
-h1{margin:0;font-weight:800;font-size:clamp(32px,6vw,40px);line-height:1.1;letter-spacing:-.03em}
-.tag{margin:0;font-size:17px;font-weight:600}
-.sub{margin:2px 0 0;max-width:620px;font-size:15px;color:var(--muted)}
-.search{margin-top:14px;width:100%;max-width:560px;min-height:52px;display:flex;align-items:center;gap:10px;padding:0 8px 0 16px;border-radius:99px;background:var(--surface);border:1px solid var(--line);color:var(--muted)}
-.search input{flex:1;min-width:0;height:48px;border:0;outline:none;background:transparent;color:var(--fg);font-size:16px}
-.search input::placeholder{color:var(--muted)}
-.fbtn{min-height:38px;display:inline-flex;align-items:center;gap:6px;padding:0 14px;border-radius:99px;border:0;background:var(--soft2);color:var(--fg);font-size:14px;font-weight:600;cursor:pointer}
 .badge{min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:var(--accent);color:var(--on-accent);font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
 .row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px}
 .chip{min-height:36px;display:inline-flex;align-items:center;gap:6px;padding:0 14px;border-radius:99px;border:1px solid var(--line);background:var(--surface);color:var(--fg);font-size:14px;font-weight:600;cursor:pointer}
@@ -114,7 +101,7 @@ textarea{padding:10px 14px;resize:vertical}
 .done{padding:28px 24px;text-align:center}
 .done h2{margin:0;font-size:22px}
 .done p{margin:8px 0 0;color:var(--muted)}
-@media (max-width:560px){.hin{padding-top:58px}.grid{grid-template-columns:1fr}.fin,.fform,.dlgin{padding-left:18px;padding-right:18px}}
+@media (max-width:560px){.grid{grid-template-columns:1fr}.fin,.fform,.dlgin{padding-left:18px;padding-right:18px}}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 /* mêmes animations que les fenêtres du site (app.css : dlgIn, popIn, sheetIn) */
 @keyframes dlgIn{0%{opacity:0}to{opacity:1}}
@@ -167,3 +154,21 @@ input::placeholder,textarea::placeholder{color:var(--soft);opacity:1}
 
 /* comme le site : plus de gris pour le texte (--muted = texte) */
 :root{--muted:var(--fg)}
+
+/* en-tête comme l'accueil */
+:root{--display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--hot:#ff6a45}
+body{padding:14px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));-webkit-font-smoothing:antialiased}
+.wrap{max-width:1320px;margin:0 auto}
+.wrap main{max-width:none;padding:4px 0 56px}
+.homel{pointer-events:auto;font-size:.88rem;font-weight:600;color:var(--fg);text-decoration:none;padding:8px 12px;border-radius:99px;background:color-mix(in srgb,var(--surface) 80%,transparent)}
+header.top .brand{pointer-events:auto}
+#f-count{margin-left:6px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:var(--fg);color:var(--bg);font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.qchips button[aria-pressed=true]{background:var(--fg);color:var(--bg)}
+.qchips .ico{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.2;vertical-align:-2px;margin-right:5px}
+#state{margin-top:2px}
+.hero2 h1{color:var(--fg)}
+.foot{margin:0 -16px}
+.grp h2{top:60px}
+.legend{position:relative;z-index:1;margin-top:18px}
+header.top .topr{opacity:1!important}
+@media (max-width:640px){.hero2{padding-top:62px!important}}
