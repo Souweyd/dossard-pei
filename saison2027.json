@@ -123,10 +123,11 @@
 "date": "2027-02-20"
 },
 {
-"nom": "Bois-d'Olives Urbain Trail",
+"nom": "Bois d'Olives Urban Trail",
 "nature": "Route",
 "club": "Willtrail 974",
-"date": "2027-02-20"
+"date": "2027-02-20",
+"id": "bois-d-olives-urban-trail-2027-02"
 },
 {
 "nom": "Trail des Anglais",
