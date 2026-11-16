@@ -58,12 +58,24 @@ def date_fr(s):
     return f"{d} {MOIS[m - 1]} {y}"
 
 
+KIND = {"Athlétisme": "club d’athlétisme", "Athlé + trail": "club d’athlétisme et de trail", "Trail": "club de trail",
+        "Trail + rando": "club de trail et de randonnée", "Multisport": "club multisport"}
+
+
+def a_lieu(commune):
+    b = re.sub(r"\s*\(.*$", "", commune)
+    for art, rep in (("Le ", "au "), ("Les ", "aux ")):
+        if b.startswith(art): return rep + b[len(art):]
+    return "à " + b
+
+
 def club_page(tpl, c, lk):
     url = f"{SITE}/clubs/{c['id']}/"
     full = c.get("complet") or ""
-    title = f"{c['nom']}{' (' + full + ')' if full and fold(full) != fold(c['nom']) else ''} : club de {c['type'].lower()} à {c['commune']} – Clubs péi"
+    kind = KIND.get(c["type"], "club")
+    title = f"{c['nom']}{' (' + full + ')' if full and fold(full) != fold(c['nom']) else ''} : {kind} {a_lieu(c['commune'])} – Clubs péi"
     bits = [x for x in ("adresse" if c.get("adresse") or c.get("entrainement") else "", "contact" if c.get("tel") or c.get("mail") else "", "site" if c.get("site") else "") if x]
-    desc = f"{c['nom']}, club de {c['type'].lower()} à {c['commune']} ({c['secteur']}, La Réunion)"
+    desc = f"{c['nom']}, {kind} {a_lieu(c['commune'])} ({c['secteur']}, La Réunion)"
     desc += (" : " + ", ".join(bits) + (" et courses organisées." if lk else ".")) if bits else (" : courses organisées et infos du club." if lk else ".")
     same = [x for x in [c.get("site")] + [r["url"] for r in c.get("reseaux", [])] if x]
     ld = {"@context": "https://schema.org", "@type": "SportsClub", "name": c["nom"], "url": url,

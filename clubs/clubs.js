@@ -184,7 +184,7 @@
   function dateFr(s) { var p = s.split('-'); return +p[2] + ' ' + ['janv.', 'févr.', 'mars', 'avril', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'][+p[1] - 1] + ' ' + p[0]; }
   function share(id) {
     var c = DATA.clubs.filter(function (x) { return x.id === id; })[0], url = 'https://dossardpei.re/clubs/' + id + '/';
-    if (navigator.share) { navigator.share({ title: c.nom + ' – Clubs péi', text: c.nom + ', club de ' + c.type.toLowerCase() + ' à ' + c.commune, url: url }).catch(function () {}); return; }
+    if (navigator.share) { navigator.share({ title: c.nom + ' – Clubs péi', text: c.nom + ' – ' + c.type + ' · ' + c.commune, url: url }).catch(function () {}); return; }
     var done = function () { toast('Lien de la fiche copié'); };
     if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, function () { prompt('Lien de la fiche :', url); }); else prompt('Lien de la fiche :', url);
   }
