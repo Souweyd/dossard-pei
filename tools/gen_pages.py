@@ -337,7 +337,7 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
 <div>
 <p class="when">{esc(dl)}</p>
 <h1>{esc(r['nom'])}</h1>
-<p class="where">{esc(r.get('commune', ''))}{' · ' + esc(lieu) if lieu else ''}{' · organisé par ' + esc(r['org']) if r.get('org') else ''}</p>
+<p class="where">{esc(r.get('commune', ''))}{' · ' + esc(lieu) if lieu else ''}{' · organisé par ' + esc(r['org']) if r.get('org') else ''}{''.join(f' · <a href="/clubs/{esc(c)}/">fiche du club {esc(CLUBNAME.get(c, c))}</a>' for c in CLUBS.get('courses', {}).get(r['id'], []))}</p>
 <ul class="tags">{''.join(tags)}</ul>
 <div class="cta">{f'<a class="btn main" href="{esc(r["inscription"])}" rel="noopener" data-goatcounter-click="inscription/{esc(rid)}" data-goatcounter-title="Clic S’inscrire (page course)">{"Page d’inscription" if not_yet else "S’inscrire"}</a>' if r.get('inscription') and can_reg else ''}<a class="btn map" href="/#c-{esc(rid)}">{'Carte et parcours' if has_trk else 'Voir sur la carte'} →</a></div>
 {f'<div class="tbl"><table><thead><tr><th>Épreuve</th><th>Dist.</th><th>D+</th><th>Type</th><th>Départ</th><th>Tarif</th></tr></thead><tbody>{rows}</tbody></table></div>' if rows else ''}
@@ -458,8 +458,19 @@ def app_page(idx, static_doc, rid):
     return head + (f"<noscript>{m.group(0)}</noscript>\n" if m else "") + body
 
 
+CLUBS, CLUBNAME = {}, {}
+
+
 def main():
     data = json.load(open("data.json", encoding="utf-8"))
+    global CLUBS, CLUBNAME
+    try:   # Clubs péi: race <-> club links and the static club pages (tools/gen_clubs.py)
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import gen_clubs
+        CLUBS = gen_clubs.main(data)
+        CLUBNAME = {c["id"]: c["nom"] for c in json.load(open("clubs/clubs.json", encoding="utf-8"))["clubs"]}
+    except Exception as e:
+        print(f"clubs : {e}", file=sys.stderr)
     global FIRST
     fs = "tools/first_seen.json"   # date a race first appeared on the site (stable "validFrom" for Google)
     FIRST = json.load(open(fs)) if os.path.exists(fs) else {}
@@ -564,6 +575,8 @@ def main():
     urls = [f"<url><loc>{SITE}/</loc><lastmod>{lastmod}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>",
             f"<url><loc>{SITE}/jeu/</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq></url>",
             f"<url><loc>{SITE}/clubs/</loc><lastmod>2026-11-16</lastmod><changefreq>monthly</changefreq></url>"]
+    for cid in CLUBS.get("ids", []):
+        urls.append(f"<url><loc>{SITE}/clubs/{cid}/</loc><lastmod>2026-11-17</lastmod><changefreq>monthly</changefreq></url>")
     for r in sorted(races, key=lambda r: r["date"]):
         urls.append(f"<url><loc>{SITE}/course/{r['id']}/</loc><lastmod>{lastmod}</lastmod><changefreq>weekly</changefreq></url>")
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "\n".join(urls) + "\n</urlset>\n"

@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   var WEB3_KEY = '2b5c040f-3abd-4227-b2db-786027df41b1';
-  var SPRITE = 'logos.webp?v=1';
+  var SPRITE = '/clubs/logos.webp?v=1';
   var TYPES = ['Athlétisme', 'Athlé + trail', 'Trail', 'Trail + rando', 'Multisport'];
   var COL = { 'Athlétisme': '#9fb0c0', 'Athlé + trail': '#a98bf0', 'Trail': '#66bb6a', 'Trail + rando': '#e0a458', 'Multisport': '#4fb0f0' };
   var KEYT = { 'Athlétisme': 'X', 'Athlé + trail': 'A', 'Trail': 'T', 'Trail + rando': 'H', 'Multisport': 'M' };
@@ -29,8 +29,8 @@
   var ARROW = '<svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7"/><path d="M9 7h8v8"/></svg>';
 
   var $ = function (s) { return document.querySelector(s); };
-  var DATA = null, POS = {};
-  var st = { q: '', sect: '', type: '', commune: '', ffa: '', near: null };
+  var DATA = null, POS = {}, LIENS = { courses: {}, clubs: {} }, ROUTING = false;
+  var st = { q: '', sect: '', type: '', commune: '', ffa: '', jeunes: '', near: null };
 
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function fold(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
@@ -53,6 +53,7 @@
       if (st.type && c.type !== st.type) return false;
       if (st.commune && baseCommune(c.commune) !== st.commune) return false;
       if (st.ffa !== '' && String(+c.ffa) !== st.ffa) return false;
+      if (st.jeunes && !(c.jeunes && c.jeunes.length)) return false;
       if (q && fold([c.nom, c.complet, c.commune, c.type, c.courses.join(' ')].join(' ')).indexOf(q) < 0) return false;
       return true;
     });
@@ -87,7 +88,7 @@
     var i = ind(c);
     return '<article class="card" style="--c:' + COL[c.type] + '">' + banner(c) +
       '<div class="medrow">' + medal(c, 72) + '<span>' + d + (c.ffa ? ' <span class="tagffa">FFA</span>' : '') + '</span></div>' +
-      '<div class="body"><h3><a href="#' + esc(c.id) + '">' + esc(c.nom) + '</a></h3>' +
+      '<div class="body"><h3><a href="/clubs/' + esc(c.id) + '/" data-club="' + esc(c.id) + '">' + esc(c.nom) + '</a></h3>' +
       (c.complet ? '<p class="full">' + esc(c.complet) + '</p>' : '') +
       '<p class="com">' + esc(c.commune) + '</p>' +
       '<div class="inds">' + (i ? '<span class="sr">Dans la fiche : </span>' + i : '<span class="none">Contact à venir</span>') + '</div></div></article>';
@@ -106,7 +107,7 @@
       html = groups.map(function (g) { return '<section class="grp" aria-label="Clubs en ' + g.l + '"><h2>' + g.l + ' <small>' + g.c.length + (g.c.length > 1 ? ' clubs' : ' club') + '</small></h2><div class="grid">' + g.c.map(card).join('') + '</div></section>'; }).join('');
     }
     $('#list').innerHTML = html || '<p class="empty">Aucun club ne correspond. Essaie un autre nom ou une autre commune.</p>';
-    var nf = (st.sect ? 1 : 0) + (st.type ? 1 : 0) + (st.commune ? 1 : 0) + (st.ffa !== '' ? 1 : 0);
+    var nf = (st.sect ? 1 : 0) + (st.type ? 1 : 0) + (st.commune ? 1 : 0) + (st.ffa !== '' ? 1 : 0) + (st.jeunes ? 1 : 0);
     var b = $('#f-count'); b.hidden = !nf; b.textContent = nf;
     var s = '<span class="pill">' + list.length + (list.length > 1 ? ' clubs' : ' club') + '</span>';
     if (st.commune) s += '<button type="button" class="pill" data-clear="commune">' + esc(st.commune) + ' <span aria-hidden="true">✕</span><span class="sr">Retirer ce filtre</span></button>';
@@ -123,7 +124,7 @@
   }
   function syncFilters() {
     chipsFor($('#fsect'), SECTS, 'sect'); chipsFor($('#ftype'), TYPES, 'type');
-    $('#fcommune').value = st.commune; $('#fffa').value = st.ffa;
+    $('#fcommune').value = st.commune; $('#fffa').value = st.ffa; $('#fjeunes').value = st.jeunes;
   }
   function fillCommunes() {
     var counts = {};
@@ -146,18 +147,25 @@
     var pr = '';
     if (c.adresse) pr += row('Adresse du club', c.adresse, '', PIN, ARR, itin(c.adresse + ', La Réunion'));
     if (c.entrainement) pr += row('Lieu d’entraînement', c.entrainement, '', '<ellipse cx="12" cy="12" rx="9" ry="5.5"/><ellipse cx="12" cy="12" rx="4.5" ry="2"/>', ARR, itin(c.entrainement + ', ' + baseCommune(c.commune) + ', La Réunion'));
+    var JL = { u7: 'moins de 7 ans', u11: '7 à 10 ans', u15: '11 à 14 ans' };
+    if (c.jeunes && c.jeunes.length) pr += '<div class="go"><div class="go-b static"><svg class="pin" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="2.6"/><path d="M4.5 20v-3.5a4.5 4.5 0 0 1 9 0V20"/><circle cx="17" cy="10" r="2"/><path d="M14.6 20v-2.4a2.6 2.6 0 0 1 5.2 0V20"/></svg><span class="go-l"><small>Section jeunes (annuaire FFA)</small><b>' + c.jeunes.map(function (k) { return JL[k]; }).join(' · ') + '</b></span></div></div>';
     if (c.mail) pr += row('E-mail', c.mail, 'mailto:' + esc(c.mail), '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6.5L20.5 7"/>', { st: 1, p: '<rect x="4" y="6.5" width="16" height="11" rx="1.5"/><path d="M4.5 8l7.5 5.5L19.5 8"/>' });
     if (c.tel) pr += row('Téléphone', c.tel, telHref(c.tel), '<path d="M6.6 3.5h2.6l1.5 4-2 1.3a11 11 0 0 0 6.5 6.5l1.3-2 4 1.5v2.6c0 1.1-.9 2-2 2A16.5 16.5 0 0 1 4.6 5.5c0-1.1.9-2 2-2z"/>', { st: 1, p: '<path d="M7.2 4.5h2.2l1.3 3.4-1.7 1.1a9.3 9.3 0 0 0 5.5 5.5l1.1-1.7 3.4 1.3v2.2c0 .9-.8 1.7-1.7 1.7A14 14 0 0 1 5.5 6.2c0-.9.8-1.7 1.7-1.7z"/>' });
-    var links = (c.site ? '<a class="site" href="' + esc(c.site) + '" target="_blank" rel="noopener">' + (c.siteLabel === 'Site' ? 'Site du club' : esc(c.siteLabel)) + ARROW + '</a>' : '') + c.reseaux.map(function (r) { var n = NET[r.t] || NET.web; return '<a class="net' + (n.b ? ' brand' : '') + '" href="' + esc(r.url) + '" target="_blank" rel="noopener" aria-label="' + esc(n.l) + '" title="' + esc(n.l) + '">' + n.s + '</a>'; }).join('');
+    var SHR = '<button type="button" class="net shr" data-share="' + esc(c.id) + '" aria-label="Partager la fiche" title="Partager"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3.5M7.5 8 12 3.5 16.5 8"/><path d="M5 12.5V19a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-6.5"/></svg></button>';
+    var lk = LIENS.clubs[c.id], rl = '';
+    if (lk) rl = lk.r.map(function (r) { return '<li><a href="/course/' + esc(r[0]) + '/">' + esc(r[1]) + '</a> <span class="rd">' + esc(dateFr(r[2])) + '</span></li>'; }).join('') + lk.autres.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('');
+    else rl = c.courses.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('');
+    var links = (c.site ? '<a class="site" href="' + esc(c.site) + '" target="_blank" rel="noopener">' + (c.siteLabel === 'Site' ? 'Site du club' : esc(c.siteLabel)) + ARROW + '</a>' : '') + c.reseaux.map(function (r) { var n = NET[r.t] || NET.web; return '<a class="net' + (n.b ? ' brand' : '') + '" href="' + esc(r.url) + '" target="_blank" rel="noopener" aria-label="' + esc(n.l) + '" title="' + esc(n.l) + '">' + n.s + '</a>'; }).join('') + SHR;
     $('#club').innerHTML = '<div class="fiche" style="--c:' + COL[c.type] + ';position:relative">' +
       '<button type="button" class="x fx" data-close aria-label="Fermer">✕</button>' + banner(c) +
       '<div class="medrow">' + medal(c, 88) + (c.ffa ? '<span class="tagffa">Affilié FFA</span>' : '<span></span>') + '</div>' +
       '<div class="fin"><h2>' + esc(c.nom) + '</h2>' + (c.complet ? '<p class="meta">' + esc(c.complet) + '</p>' : '') +
       '<p class="meta">' + esc(c.type) + ' · ' + esc(c.commune) + ' · ' + esc(c.secteur) + '</p>' +
-      (links ? '<div class="acts" style="margin-top:14px">' + links + '</div>' : '') +
+      '<div class="acts" style="margin-top:14px">' + links + '</div>' +
       '<h3>Infos pratiques</h3>' + (pr ? '<div class="prat">' + pr + '</div><p class="note">Coordonnées publiées par le club (page Facebook, site ou annuaire de la FFA).</p>' : '<p class="none">Pas encore de coordonnées pour ce club. Tu les connais ? <button type="button" class="link" data-fix="' + esc(c.id) + '">Envoie-les nous</button></p>') +
-      (c.courses.length ? '<h3>Courses organisées</h3><ul class="races">' + c.courses.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul>' : '') +
-      '<p style="margin-top:18px"><button type="button" class="link" data-fix="' + esc(c.id) + '">Une info à corriger ?</button></p></div></div>';
+      (rl ? '<h3>Courses organisées</h3><ul class="races">' + rl + '</ul>' : '') +
+      '<div class="claim"><p><b>C’est votre club ?</b> Mettez la fiche à jour : horaires, contacts, logo, courses…</p><button type="button" class="cta" data-maj="' + esc(c.id) + '">Mettre à jour la fiche</button></div>' +
+      '<p style="margin-top:14px"><button type="button" class="link" data-fix="' + esc(c.id) + '">Une info à corriger ?</button></p></div></div>';
     var d = $('#dclub'); if (!d.open) d.showModal();
     document.title = c.nom + ' – Clubs péi – Dossard Péi';
     if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: '/clubs/' + c.id, title: c.nom, event: false });
@@ -169,18 +177,36 @@
     setTimeout(function () { d.classList.remove('out'); d.close(); if (then) then(); }, 220);
   }
   function closeClub() { closeDlg($('#dclub')); }
-  function onHash() { var id = decodeURIComponent(location.hash.slice(1)); if (id && id !== 'ajouter') openClub(id); else closeClub(); }
+  function pathId() { var m = location.pathname.match(/^\/clubs\/([a-z0-9-]+)\/?$/); return m ? m[1] : ''; }
+  function go(id) { var u = id ? '/clubs/' + id + '/' : '/clubs/'; if (location.pathname !== u) history.pushState(null, '', u); }
+  function route() { var id = pathId(); ROUTING = true; if (id && DATA.clubs.some(function (x) { return x.id === id; })) openClub(id); else closeClub(); ROUTING = false; }
+  function onHash() { var id = decodeURIComponent(location.hash.slice(1)); if (id === 'ajouter') return; if (id && DATA.clubs.some(function (x) { return x.id === id; })) { history.replaceState(null, '', '/clubs/' + id + '/'); route(); } }
+  function dateFr(s) { var p = s.split('-'); return +p[2] + ' ' + ['janv.', 'févr.', 'mars', 'avril', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'][+p[1] - 1] + ' ' + p[0]; }
+  function share(id) {
+    var c = DATA.clubs.filter(function (x) { return x.id === id; })[0], url = 'https://dossardpei.re/clubs/' + id + '/';
+    if (navigator.share) { navigator.share({ title: c.nom + ' – Clubs péi', text: c.nom + ', club de ' + c.type.toLowerCase() + ' à ' + c.commune, url: url }).catch(function () {}); return; }
+    var done = function () { toast('Lien de la fiche copié'); };
+    if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, function () { prompt('Lien de la fiche :', url); }); else prompt('Lien de la fiche :', url);
+  }
+  function toast(t) { var e = document.createElement('div'); e.className = 'toast'; e.setAttribute('role', 'status'); e.textContent = t; (document.querySelector('dialog[open]') || document.body).appendChild(e); setTimeout(function () { e.classList.add('out'); }, 1800); setTimeout(function () { e.remove(); }, 2200); }
 
   /* ---------- formulaires ---------- */
-  function f(id, label, type, ph, req, hint) { return '<div class="f"><label for="' + id + '">' + label + (req ? ' *' : '') + '</label><input id="' + id + '" name="' + id + '" type="' + (type || 'text') + '" placeholder="' + esc(ph || '') + '"' + (req ? ' required' : '') + '>' + (hint ? '<span class="hint">' + hint + '</span>' : '') + '</div>'; }
-  function s(id, label, opts, req) { return '<div class="f"><label for="' + id + '">' + label + (req ? ' *' : '') + '</label><select id="' + id + '" name="' + id + '"' + (req ? ' required' : '') + '><option value="">Choisir…</option>' + opts.map(function (o) { return '<option>' + esc(o) + '</option>'; }).join('') + '</select></div>'; }
+  var PRE = null;
+  function pv(id) { return PRE && PRE[id] != null ? PRE[id] : ''; }
+  function f(id, label, type, ph, req, hint) { return '<div class="f"><label for="' + id + '">' + label + (req ? ' *' : '') + '</label><input id="' + id + '" name="' + id + '" type="' + (type || 'text') + '" placeholder="' + esc(ph || '') + '"' + (req ? ' required' : '') + (pv(id) ? ' value="' + esc(pv(id)) + '"' : '') + ' data-init="' + esc(pv(id)) + '">' + (hint ? '<span class="hint">' + hint + '</span>' : '') + '</div>'; }
+  function s(id, label, opts, req) { return '<div class="f"><label for="' + id + '">' + label + (req ? ' *' : '') + '</label><select id="' + id + '" name="' + id + '"' + (req ? ' required' : '') + '><option value="">Choisir…</option>' + opts.map(function (o) { return '<option' + (pv(id) === o ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select></div>'; }
   function two(a, b) { return '<div class="two">' + a + b + '</div>'; }
   function openForm(mode, club) {
     var c = club && DATA.clubs.filter(function (x) { return x.id === club; })[0];
-    var title = mode === 'add' ? 'Ajouter un club' : 'Corriger une info';
+    var title = mode === 'add' ? 'Ajouter un club' : mode === 'maj' ? 'Mettre à jour la fiche' : 'Corriger une info';
     var body;
-    if (mode === 'add') {
-      body = '<p class="hint" style="margin:0">Un champ par info : remplis ce que tu connais, seuls les champs avec * sont obligatoires.</p>' +
+    PRE = null;
+    if (mode === 'maj' && c) {
+      var rz = function (t) { var x = c.reseaux.filter(function (r) { return r.t === t; })[0]; return x ? x.url : ''; }, other = c.reseaux.filter(function (r) { return r.t !== 'fb' && r.t !== 'ig'; })[0], q = c.commune.match(/\((.*)\)/);
+      PRE = { 'Nom complet': c.complet || c.nom, 'Nom usuel': c.nom, 'Type': c.type, 'FFA': c.ffa ? 'Oui' : 'Non', 'Courses organisées': c.courses.join(', '), 'Commune': baseCommune(c.commune), 'Quartier': q ? q[1] : '', 'Adresse': c.adresse, 'Entraînement': c.entrainement, 'E-mail club': c.mail, 'Téléphone club': c.tel, 'Site': c.site, 'Facebook': rz('fb'), 'Instagram': rz('ig'), 'Autre réseau': other ? other.url : '', 'Expéditeur': 'Membre ou dirigeant du club' };
+    }
+    if (mode === 'add' || mode === 'maj') {
+      body = '<p class="hint" style="margin:0">' + (mode === 'maj' ? 'La fiche actuelle est déjà remplie : change ce qui doit l’être et ajoute ce qui manque (horaires d’entraînement, section jeunes, logo…).' : 'Un champ par info : remplis ce que tu connais, seuls les champs avec * sont obligatoires.') + '</p>' +
         '<p class="sec">Le club</p>' + f('Nom complet', 'Nom complet du club', 'text', 'Ex. : Athlétique Club de Saint-Paul', 1) + f('Nom usuel', 'Nom usuel ou sigle', 'text', 'Ex. : AC Saint-Paul') +
         two(s('Type', 'Type de club', TYPES, 1), s('FFA', 'Affilié à la FFA ?', ['Oui', 'Non', 'Je ne sais pas'])) +
         f('Courses organisées', 'Courses organisées par le club', 'text', 'Ex. : Trail des Goyaviers, Boucle du Piton', 0, 'Sépare-les par une virgule.') +
@@ -190,6 +216,7 @@
         '<p class="sec">En ligne</p>' + f('Site', 'Site internet', 'url', 'https://') + two(f('Facebook', 'Page Facebook', 'url', 'https://facebook.com/…'), f('Instagram', 'Instagram', 'url', 'https://instagram.com/…')) +
         f('Autre réseau', 'Autre réseau (Strava, WhatsApp, TikTok…)', 'url', 'https://') +
         f('Logo', 'Lien vers le logo', 'url', 'https://…', 0, 'Le lien d’une image du logo (ou envoie-la à contact@dossardpei.re).') +
+        (mode === 'maj' ? '<div class="f"><label for="Horaires">Jours et horaires d’entraînement</label><textarea id="Horaires" name="Horaires" rows="2" placeholder="Ex. : mardi et jeudi 18 h, dimanche 7 h en sortie trail" data-init=""></textarea></div><div class="f"><label for="Message">Autre chose à nous dire ?</label><textarea id="Message" name="Message" rows="2" data-init=""></textarea></div>' : '') +
         '<p class="sec">Toi</p>' + two(s('Expéditeur', 'Tu es…', ['Membre ou dirigeant du club', 'Coureur, ami du club', 'Autre']), f('email', 'Ton e-mail (pour te répondre)', 'email', 'prenom@exemple.re'));
     } else {
       body = '<div class="f"><label for="Club">Club</label><input id="Club" name="Club" type="text" value="' + esc(c ? c.nom : '') + '"></div>' +
@@ -210,9 +237,10 @@
     fd.forEach(function (v, k) { if (v !== '' && k !== 'botcheck') o[k] = v; });
     if (fd.get('botcheck')) return;
     o.access_key = WEB3_KEY;
-    o.subject = d.dataset.mode === 'add' ? 'Clubs péi : nouveau club – ' + (o['Nom complet'] || '') : 'Clubs péi : correction – ' + (o.Club || d.dataset.club);
+    if (d.dataset.mode === 'maj') { var ch = []; form.querySelectorAll('[data-init]').forEach(function (x) { if ((x.value || '') !== x.dataset.init) ch.push(x.name); }); o['Champs modifiés'] = ch.length ? ch.join(', ') : 'aucun'; }
+    o.subject = d.dataset.mode === 'add' ? 'Clubs péi : nouveau club – ' + (o['Nom complet'] || '') : d.dataset.mode === 'maj' ? 'Clubs péi : mise à jour par le club – ' + (o['Nom usuel'] || d.dataset.club) : 'Clubs péi : correction – ' + (o.Club || d.dataset.club);
     o.from_name = 'Clubs péi (dossardpei.re/clubs)';
-    if (d.dataset.club) o['Fiche'] = 'https://dossardpei.re/clubs/#' + d.dataset.club;
+    if (d.dataset.club) o['Fiche'] = 'https://dossardpei.re/clubs/' + d.dataset.club + '/';
     var btn = form.querySelector('[type=submit]'); btn.disabled = true; btn.textContent = 'Envoi…';
     fetch('https://api.web3forms.com/submit', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(o) })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok || j.success === false) throw new Error(); }); })
@@ -271,10 +299,12 @@
     $('#maphint').hidden = !!sel;
     $('#mapsel').innerHTML = sel ? '<section class="grp"><h2>' + esc(selCom) + ' <small>' + sel.length + (sel.length > 1 ? ' clubs' : ' club') + '</small></h2><div class="grid">' + sel.sort(function (a, b) { return a.nom.localeCompare(b.nom, 'fr'); }).map(card).join('') + '</div></section>' : '';
   }
+  function nearestCom() { var best = '', bd = 1e9, seen = {}; filtered().forEach(function (c) { var b = baseCommune(c.commune); if (seen[b] || !CO[b]) return; seen[b] = 1; var dd = km(st.near, CO[b]); if (dd < bd) { bd = dd; best = b; } }); return best; }
+  function showSel() { var s = $('#mapsel'); setTimeout(function () { var y = s.getBoundingClientRect().top + scrollY - Math.max(72, innerHeight * 0.4); if (y > scrollY) scrollTo({ top: y, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }, 50); }
   function setView(v) {
     view = v; $('#v-liste').setAttribute('aria-pressed', v === 'liste'); $('#v-carte').setAttribute('aria-pressed', v === 'carte');
     $('#mapview').hidden = v !== 'carte'; $('#list').hidden = v === 'carte';
-    if (v === 'carte') { if (!COMMUNES) fetch('communes.json?v=1').then(function (r) { return r.json(); }).then(function (d) { COMMUNES = d; drawMap(); }).catch(function () {}); drawMap(); }
+    if (v === 'carte') { if (st.near && !selCom) selCom = nearestCom(); if (!COMMUNES) fetch('/clubs/communes.json?v=1').then(function (r) { return r.json(); }).then(function (d) { COMMUNES = d; drawMap(); }).catch(function () {}); drawMap(); }
   }
 
   /* ---------- événements ---------- */
@@ -286,17 +316,21 @@
     });
     $('#fcommune').addEventListener('change', function (e) { st.commune = e.target.value; render(); });
     $('#fffa').addEventListener('change', function (e) { st.ffa = e.target.value; render(); });
-    $('#fclear').addEventListener('click', function () { st.sect = st.type = st.commune = st.ffa = ''; syncFilters(); render(); });
+    $('#fjeunes').addEventListener('change', function (e) { st.jeunes = e.target.value; render(); });
+    $('#fclear').addEventListener('click', function () { st.sect = st.type = st.commune = st.ffa = st.jeunes = ''; syncFilters(); render(); });
     $('#near').addEventListener('click', function () {
       if (st.near) { st.near = null; render(); return; }
       if (!navigator.geolocation) return;
       var b = $('#near'); b.disabled = true;
-      navigator.geolocation.getCurrentPosition(function (p) { b.disabled = false; st.near = [p.coords.latitude, p.coords.longitude]; render(); scrollTo({ top: $('#main').offsetTop - 8, behavior: 'smooth' }); },
+      navigator.geolocation.getCurrentPosition(function (p) { b.disabled = false; st.near = [p.coords.latitude, p.coords.longitude]; if (view === 'carte') { selCom = nearestCom(); render(); showSel(); } else { render(); scrollTo({ top: $('#main').offsetTop - 8, behavior: 'smooth' }); } },
         function () { b.disabled = false; alert('Position indisponible. Choisis plutôt ta commune dans Filtres.'); }, { timeout: 10000, maximumAge: 600000 });
     });
     document.addEventListener('click', function (e) {
-      var c = e.target.closest('[data-clear]'); if (c) { if (c.dataset.clear === 'commune') st.commune = ''; else { st = { q: '', sect: '', type: '', commune: '', ffa: '', near: null }; $('#q').value = ''; } render(); }
+      var c = e.target.closest('[data-clear]'); if (c) { if (c.dataset.clear === 'commune') st.commune = ''; else { st = { q: '', sect: '', type: '', commune: '', ffa: '', jeunes: '', near: null }; $('#q').value = ''; } render(); }
       var fx = e.target.closest('[data-fix]'); if (fx) { e.preventDefault(); openForm('fix', fx.dataset.fix); }
+      var mj = e.target.closest('[data-maj]'); if (mj) { e.preventDefault(); openForm('maj', mj.dataset.maj); }
+      var sh = e.target.closest('[data-share]'); if (sh) { e.preventDefault(); share(sh.dataset.share); }
+      var ca = e.target.closest('a[data-club]'); if (ca && !e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0) { e.preventDefault(); go(ca.dataset.club); openClub(ca.dataset.club); }
       var cl = e.target.closest('[data-close]'); if (cl) { var dl = cl.closest('dialog'); if (dl) closeDlg(dl); }
       var gb = e.target.closest('.go-b[aria-haspopup]'); document.querySelectorAll('.go-m:not([hidden])').forEach(function (m) { if (!gb || m !== gb.nextElementSibling) { m.hidden = true; m.previousElementSibling.setAttribute('aria-expanded', 'false'); } });
       if (gb) { var mm = gb.nextElementSibling; mm.hidden = !mm.hidden; gb.setAttribute('aria-expanded', String(!mm.hidden)); }
@@ -304,18 +338,19 @@
     $('#openadd').addEventListener('click', function () { openForm('add'); });
     $('#v-liste').addEventListener('click', function () { setView('liste'); });
     $('#v-carte').addEventListener('click', function () { setView('carte'); });
-    var pick = function (e) { var p = e.target.closest('.pin'); if (!p) return; selCom = selCom === p.dataset.com ? '' : p.dataset.com; drawMap(); if (selCom) { var s = $('#mapsel'); setTimeout(function () { var y = s.getBoundingClientRect().top + scrollY - Math.max(72, innerHeight * 0.4); if (y > scrollY) scrollTo({ top: y, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }, 50); } };
+    var pick = function (e) { var p = e.target.closest('.pin'); if (!p) return; selCom = selCom === p.dataset.com ? '' : p.dataset.com; drawMap(); if (selCom) showSel(); };
     $('#cmap').addEventListener('click', pick);
     $('#cmap').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(e); } });
     $('#formbox').addEventListener('submit', sendForm);
-    $('#dclub').addEventListener('close', function () { document.title = 'Clubs péi : les clubs de course et de trail de La Réunion – Dossard Péi'; if (location.hash && location.hash !== '#ajouter') history.replaceState(null, '', location.pathname + location.search); });
+    $('#dclub').addEventListener('close', function () { document.title = 'Clubs péi : les clubs de course et de trail de La Réunion – Dossard Péi'; if (!ROUTING && pathId()) go(''); });
     [$('#dclub'), $('#dform'), $('#dfilters')].forEach(function (d) { d.addEventListener('click', function (e) { if (e.target === d) closeDlg(d); }); d.addEventListener('cancel', function (e) { e.preventDefault(); closeDlg(d); }); });
     window.addEventListener('hashchange', onHash);
+    window.addEventListener('popstate', route);
   }
 
-  fetch('clubs.json?v=1').then(function (r) { return r.json(); }).then(function (j) {
+  fetch('/clubs/liens.json').then(function (r) { return r.json(); }).then(function (l) { LIENS = l; }).catch(function () {}).then(function () { return fetch('/clubs/clubs.json?v=2'); }).then(function (r) { return r.json(); }).then(function (j) {
     DATA = j; POS = j.sprite.pos;
     fillCommunes(); bind(); render(); topbar(); var mo = new MutationObserver(function () { document.documentElement.classList.toggle('noscroll', !!document.querySelector('dialog[open]')); }); document.querySelectorAll('dialog').forEach(function (d) { mo.observe(d, { attributes: true, attributeFilter: ['open'] }); }); var rz; addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(function () { if (view === 'carte') drawMap(); }, 200); });
-    if (location.hash === '#ajouter') openForm('add'); else onHash();
+    if (location.hash === '#ajouter') openForm('add'); else if (location.hash.length > 1) onHash(); else if (pathId()) route();
   }).catch(function () { $('#list').innerHTML = '<p class="empty">Impossible de charger les clubs. Recharge la page.</p>'; });
 })();

@@ -54,6 +54,9 @@ def main():
     # entrées vers le jeu « Une histoire de dossard » (pastille, carte du Scroll, pied de page) : jeu/promo.js
     if "/jeu/promo.js" not in page:
         page = page.rstrip("\n") + '\n<script src="/jeu/promo.js" defer></script>\n'
+    # lien « Fiche du club » sur la fiche d'une course (Clubs péi) : clubs/lien.js
+    if "/clubs/lien.js" not in page:
+        page = page.rstrip("\n") + '\n<script src="/clubs/lien.js" defer></script>\n'
     os.makedirs("assets", exist_ok=True)
     used = set()
 
