@@ -4,7 +4,7 @@
   var WEB3_KEY = '2b5c040f-3abd-4227-b2db-786027df41b1';
   var SPRITE = 'logos.webp?v=1';
   var TYPES = ['Athlétisme', 'Athlé + trail', 'Trail', 'Trail + rando', 'Multisport'];
-  var COL = { 'Athlétisme': '#9fb0c0', 'Athlé + trail': '#5fbfb0', 'Trail': '#66bb6a', 'Trail + rando': '#b8b98a', 'Multisport': '#4fb0f0' };
+  var COL = { 'Athlétisme': '#9fb0c0', 'Athlé + trail': '#a98bf0', 'Trail': '#66bb6a', 'Trail + rando': '#e0a458', 'Multisport': '#4fb0f0' };
   var KEYT = { 'Athlétisme': 'X', 'Athlé + trail': 'A', 'Trail': 'T', 'Trail + rando': 'H', 'Multisport': 'M' };
   var SECTS = ['Nord', 'Est', 'Ouest', 'Sud'];
   var CO = { 'Saint-Denis': [-20.88, 55.45], 'Sainte-Marie': [-20.90, 55.53], 'Sainte-Suzanne': [-20.91, 55.60], 'Saint-André': [-20.96, 55.65], 'Bras-Panon': [-21.00, 55.68], 'Saint-Benoît': [-21.03, 55.71], 'La Plaine-des-Palmistes': [-21.13, 55.63], 'Salazie': [-21.03, 55.54], 'Saint-Paul': [-21.01, 55.27], 'Le Port': [-20.94, 55.30], 'La Possession': [-20.93, 55.34], 'Saint-Leu': [-21.17, 55.29], 'Les Trois-Bassins': [-21.10, 55.31], 'Les Avirons': [-21.24, 55.34], "L'Étang-Salé": [-21.27, 55.37], 'Saint-Louis': [-21.29, 55.42], 'Saint-Pierre': [-21.33, 55.48], 'Le Tampon': [-21.24, 55.55], 'Entre-Deux': [-21.23, 55.47], 'Petite-Île': [-21.35, 55.56], 'Saint-Joseph': [-21.37, 55.62], 'Saint-Philippe': [-21.36, 55.77], 'Sainte-Rose': [-21.13, 55.79], 'Cilaos': [-21.13, 55.47] };

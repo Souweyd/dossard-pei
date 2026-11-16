@@ -39,8 +39,8 @@ main{max-width:1180px;margin:0 auto;padding:4px 20px 56px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
 .empty{margin-top:32px;color:var(--muted);text-align:center}
 
-.card{position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:18px;background:color-mix(in srgb,var(--c) 16%,var(--surface));cursor:pointer;transition:transform .12s,box-shadow .12s}
-.card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.18)}
+.card{position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:18px;background:color-mix(in srgb,var(--c) 24%,var(--surface));box-shadow:inset 0 -4px 0 var(--c);cursor:pointer;transition:transform .12s,box-shadow .12s}
+.card:hover{transform:translateY(-2px);box-shadow:inset 0 -4px 0 var(--c),0 8px 22px rgba(0,0,0,.18)}
 .inds{margin-top:auto;padding-top:12px;min-height:30px;display:flex;align-items:center;gap:12px;color:var(--muted)}
 .ind svg{width:18px;height:18px;display:block}
 .ban{position:relative;overflow:hidden;height:64px;background:linear-gradient(120deg,var(--c),color-mix(in srgb,var(--c) 45%,var(--surface)))}
@@ -49,7 +49,7 @@ main{max-width:1180px;margin:0 auto;padding:4px 20px 56px}
 .ban.haslogo{background:#fff}
 .ban.haslogo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,22,38,0) 40%,rgba(13,22,38,.35))}
 .medrow{position:relative;z-index:1;margin-top:-38px;padding:0 16px;display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
-.med{width:72px;height:72px;flex:none;border-radius:50%;border:4px solid color-mix(in srgb,var(--c) 16%,var(--surface));background:var(--c) no-repeat;display:flex;align-items:center;justify-content:center}
+.med{width:72px;height:72px;flex:none;border-radius:50%;border:4px solid var(--c);background:var(--c) no-repeat;display:flex;align-items:center;justify-content:center}
 .med svg{width:36px;height:36px}
 .med.logo{background-color:#fff}
 .tagffa{margin-bottom:4px;display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:99px;background:var(--soft2);font-size:.78rem;font-weight:600}
