@@ -182,8 +182,8 @@
       (c.jeunes && c.jeunes.length ? '<div class="sec"><h3>Section jeunes <span>· annuaire FFA</span></h3><div class="kids">' + c.jeunes.map(function (k) { return '<span>' + JL[k] + '</span>'; }).join('') + '</div></div>' : '') +
       courses +
       '<p class="foot"><button type="button" class="lnk" data-maj="' + esc(c.id) + '">Mettre à jour la fiche</button></p></div>';
-    $('#fbt').textContent = c.nom; $('#club').scrollTop = 0; fiche();
-    var d = $('#dclub'); if (!d.open) d.showModal(); fades($('#club'));
+    $('#fbt').textContent = c.nom; $('#dclub .fbar').style.setProperty('--tp', '0');
+    var d = $('#dclub'); if (!d.open) d.showModal(); $('#club').scrollTop = 0; fiche(); fades($('#club'));
     document.title = c.nom + ' – Clubs péi – Dossard Péi';
     if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: '/clubs/' + c.id, title: c.nom, event: false });
   }
@@ -196,7 +196,7 @@
   function closeClub() { closeDlg($('#dclub')); }
   /* fondu en haut / en bas de ce qui défile, et barre de titre de la fiche (comme les fiches courses) */
   function fades(s) { if (!s) return; var top = s.scrollTop, rest = s.scrollHeight - s.clientHeight - top; s.style.setProperty('--ft', (s.id === 'club' ? 0 : Math.min(24, Math.max(0, top))) + 'px'); s.style.setProperty('--fb', Math.min(28, Math.max(0, rest)) + 'px'); }
-  function fiche() { var s = $('#club'), h = s.querySelector('h2'), bar = $('#dclub .fbar'); if (!h) return; var tp = Math.max(0, Math.min(1, (s.scrollTop - (h.offsetTop + h.offsetHeight - 56)) / 24)); bar.style.setProperty('--tp', tp.toFixed(2)); }
+  function fiche() { var s = $('#club'), h = s.querySelector('h2'), bar = $('#dclub .fbar'); if (!h || !h.offsetHeight || s.scrollTop <= 0) { bar.style.setProperty('--tp', '0'); return; } var tp = Math.max(0, Math.min(1, (s.scrollTop - (h.offsetTop + h.offsetHeight - 56)) / 24)); bar.style.setProperty('--tp', tp.toFixed(2)); }
   /* glisser vers le bas pour fermer (tiroir sur mobile), comme les fiches courses */
   function sheetSwipe(d) {
     var y0 = null, dy = 0, sc = function () { return d.lastElementChild; };
