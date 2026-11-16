@@ -162,3 +162,5 @@ input::placeholder,textarea::placeholder{color:var(--soft);opacity:1}
 .go-m a{padding:10px 12px;border-radius:9px;color:var(--fg);font-weight:600;font-size:.92rem;text-decoration:none}
 .go-m a:hover,.go-m a:focus-visible{background:color-mix(in srgb,var(--accent) 14%,transparent)}
 .tagffa{background:var(--soft2);color:var(--fg)}
+.fiche .link[data-fix]{min-height:36px;font-size:.85rem;font-weight:400;color:var(--soft)}
+.fiche .none .link[data-fix]{font-size:inherit;color:var(--accent-ink);font-weight:600}
