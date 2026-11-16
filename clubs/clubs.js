@@ -73,16 +73,24 @@
     if (c.logo && POS[c.logo]) return '<span class="med logo" aria-hidden="true" style="' + spriteStyle(c.logo, size - 8) + ';background-origin:padding-box"></span>';
     return '<span class="med" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#10201a" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">' + ICO[KEYT[c.type]] + '</svg></span>';
   }
+  function ind(c) {
+    var h = '', soc = c.reseaux.some(function (r) { return r.t !== 'web'; }), web = c.site || c.reseaux.some(function (r) { return r.t === 'web'; });
+    if (web) h += '<span class="ind" title="Site">' + NET.web.s + '</span>';
+    if (soc) h += '<span class="ind" title="Réseaux"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/></svg></span>';
+    if (c.tel) h += '<span class="ind" title="Téléphone">' + NET.tel.s + '</span>';
+    if (c.mail) h += '<span class="ind" title="E-mail">' + NET.mail.s + '</span>';
+    if (c.adresse || c.entrainement) h += '<span class="ind" title="Adresse">' + NET.pin.s + '</span>';
+    return h;
+  }
   function card(c) {
     var d = st.near && c._d != null ? '<span class="dist">' + (c._d < 1 ? 'moins d’1 km' : Math.round(c._d) + ' km') + '</span>' : '';
-    var acts = (c.site ? '<a class="site" href="' + esc(c.site) + '" target="_blank" rel="noopener">' + esc(c.siteLabel === 'Site' ? 'Site' : c.siteLabel) + ARROW + '</a>' : '') + nets(c);
+    var i = ind(c);
     return '<article class="card" style="--c:' + COL[c.type] + '">' + banner(c) +
       '<div class="medrow">' + medal(c, 72) + '<span>' + d + (c.ffa ? ' <span class="tagffa">FFA</span>' : '') + '</span></div>' +
       '<div class="body"><h3><a href="#' + esc(c.id) + '">' + esc(c.nom) + '</a></h3>' +
       (c.complet ? '<p class="full">' + esc(c.complet) + '</p>' : '') +
       '<p class="com">' + esc(c.commune) + '</p>' +
-      '<div class="acts">' + (acts || '<span class="none">Contact à venir</span>') + '</div>' +
-      '<button type="button" class="fix" data-fix="' + esc(c.id) + '">Une info à corriger ?</button></div></article>';
+      '<div class="inds">' + (i ? '<span class="sr">Dans la fiche : </span>' + i : '<span class="none">Contact à venir</span>') + '</div></div></article>';
   }
   function render() {
     var list = filtered();

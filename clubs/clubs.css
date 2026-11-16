@@ -39,7 +39,10 @@ main{max-width:1180px;margin:0 auto;padding:4px 20px 56px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
 .empty{margin-top:32px;color:var(--muted);text-align:center}
 
-.card{position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:18px;background:color-mix(in srgb,var(--c) 16%,var(--surface))}
+.card{position:relative;overflow:hidden;display:flex;flex-direction:column;border-radius:18px;background:color-mix(in srgb,var(--c) 16%,var(--surface));cursor:pointer;transition:transform .12s,box-shadow .12s}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.18)}
+.inds{margin-top:auto;padding-top:12px;min-height:30px;display:flex;align-items:center;gap:12px;color:var(--muted)}
+.ind svg{width:18px;height:18px;display:block}
 .ban{position:relative;overflow:hidden;height:64px;background:linear-gradient(120deg,var(--c),color-mix(in srgb,var(--c) 45%,var(--surface)))}
 .ban .ico{position:absolute;right:12px;top:4px;width:56px;height:56px;opacity:.3}
 .ban .blur{position:absolute;left:50%;top:50%;width:340px;height:340px;margin:-170px 0 0 -170px;background-repeat:no-repeat;filter:blur(16px) saturate(1.3);transform:scale(1.1)}
@@ -51,7 +54,7 @@ main{max-width:1180px;margin:0 auto;padding:4px 20px 56px}
 .med.logo{background-color:#fff}
 .tagffa{margin-bottom:4px;display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:99px;background:var(--soft2);font-size:.78rem;font-weight:600}
 .dist{margin-bottom:4px;font-size:.8rem;font-weight:600;color:var(--muted)}
-.body{flex:1;display:flex;flex-direction:column;gap:2px;padding:8px 16px 10px}
+.body{flex:1;display:flex;flex-direction:column;gap:2px;padding:8px 16px 14px}
 .body h3{margin:0;font-size:18px;font-weight:800;line-height:1.25}
 .body h3 a{color:var(--fg);text-decoration:none}
 .body h3 a::after{content:"";position:absolute;inset:0}
