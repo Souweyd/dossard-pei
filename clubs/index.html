@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://gc.zgo.at; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self' https://dossardpei.goatcounter.com https://api.web3forms.com; form-action https://api.web3forms.com; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
+<title>Clubs péi : les clubs de course et de trail de La Réunion – Dossard Péi</title>
+<meta name="description" content="L'annuaire des clubs de course et de trail de La Réunion : trail, athlétisme, multisport. Adresse, contact, site et réseaux de chaque club, commune par commune.">
+<link rel="canonical" href="https://dossardpei.re/clubs/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Dossard Péi">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://dossardpei.re/clubs/">
+<meta property="og:title" content="Clubs péi : les clubs de course et de trail de La Réunion">
+<meta property="og:description" content="Trouve un club près de chez toi : adresse, contact, site et réseaux de chaque club.">
+<meta property="og:image" content="https://dossardpei.re/og/home.jpg?v=3">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d1626" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="clubs.css?v=1">
+<script data-goatcounter="https://dossardpei.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script src="clubs.js?v=1" defer></script>
+</head>
+<body>
+<header class="hero">
+  <a class="back" href="/"><span>‹ dossardpei.re</span></a>
+  <div class="hin">
+    <div class="ttl"><span class="plate" aria-hidden="true">974</span><h1>Clubs péi</h1></div>
+    <p class="tag">L'annuaire des clubs de course et de trail de La Réunion</p>
+    <p class="sub">Trail, athlé, multisport : partout dans l'île, sans mise en avant payante.</p>
+    <div class="search">
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <label for="q" class="sr">Chercher un club ou une commune</label>
+      <input id="q" type="search" placeholder="Club, commune…" autocomplete="off">
+      <button type="button" id="openf" class="fbtn">Filtres <span id="fcount" class="badge" hidden></span></button>
+    </div>
+    <div class="row"><button type="button" id="near" class="chip" aria-pressed="false"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Près de moi</button></div>
+    <div class="row" id="state" aria-live="polite"></div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="legend" aria-label="Légende des couleurs">
+    <span><i style="background:#9fb0c0"></i>Athlétisme</span>
+    <span><i style="background:#a98bf0"></i>Athlé + trail</span>
+    <span><i style="background:#66bb6a"></i>Trail</span>
+    <span><i style="background:#e0a458"></i>Trail + rando</span>
+    <span><i style="background:#4fb0f0"></i>Multisport</span>
+  </div>
+  <div id="list"><p class="empty">Chargement des clubs…</p></div>
+
+  <section class="missing" id="ajouter">
+    <h2>Ton club manque ?</h2>
+    <p>Remplis sa fiche : nom, commune, type, et ce que tu sais de plus (adresse, contact, réseaux). On l'ajoute gratuitement.</p>
+    <button type="button" id="openadd" class="cta">Ajouter un club</button>
+  </section>
+  <p class="src">Sources : annuaire de la FFA, pages publiques et sites des clubs, organisateurs de courses. Seules les coordonnées publiées par les clubs sont affichées.</p>
+</main>
+
+<footer class="foot"><a href="/">Toutes les courses de La Réunion</a> · <a href="/jeu/">Le jeu</a> · <a href="mailto:contact@dossardpei.re">contact@dossardpei.re</a></footer>
+
+<dialog id="dfilters" class="dlg" aria-labelledby="ftitle">
+  <form method="dialog" class="dlgin">
+    <div class="dhead"><h2 id="ftitle">Filtres</h2><button type="button" class="x" data-close aria-label="Fermer">✕</button></div>
+    <label class="lab" for="fcommune">Commune</label>
+    <select id="fcommune"><option value="">Toutes les communes</option></select>
+    <p class="lab">Secteur</p><div class="chips" id="fsect"></div>
+    <p class="lab">Type de club</p><div class="chips" id="ftype"></div>
+    <label class="lab" for="fffa">Affiliation FFA</label>
+    <select id="fffa"><option value="">Tous les clubs</option><option value="1">Affiliés FFA</option><option value="0">Non affiliés</option></select>
+    <div class="dfoot"><button type="button" id="fclear" class="link">Tout effacer</button><button type="button" class="cta" data-close id="fshow">Voir les clubs</button></div>
+  </form>
+</dialog>
+
+<dialog id="dclub" class="dlg wide" aria-label="Fiche du club"><div id="club"></div></dialog>
+
+<dialog id="dform" class="dlg" aria-labelledby="formtitle"><div id="formbox"></div></dialog>
+</body>
+</html>
