@@ -195,7 +195,7 @@
   }
   function closeClub() { closeDlg($('#dclub')); }
   /* fondu en haut / en bas de ce qui défile, et barre de titre de la fiche (comme les fiches courses) */
-  function fades(s) { if (!s) return; var top = s.scrollTop, rest = s.scrollHeight - s.clientHeight - top; s.style.setProperty('--ft', (s.id === 'club' ? 0 : Math.min(24, Math.max(0, top))) + 'px'); s.style.setProperty('--fb', Math.min(28, Math.max(0, rest)) + 'px'); }
+  function fades(s) { if (!s) return; var top = s.scrollTop, rest = s.scrollHeight - s.clientHeight - top; var d = s.parentElement; d.style.setProperty('--ft', (s.id === 'club' ? 0 : Math.min(24, Math.max(0, top))) + 'px'); d.style.setProperty('--fb', Math.min(28, Math.max(0, rest)) + 'px'); }
   function fiche() { var s = $('#club'), h = s.querySelector('h2'), bar = $('#dclub .fbar'); if (!h || !h.offsetHeight || s.scrollTop <= 0) { bar.style.setProperty('--tp', '0'); return; } var tp = Math.max(0, Math.min(1, (s.scrollTop - (h.offsetTop + h.offsetHeight - 56)) / 24)); bar.style.setProperty('--tp', tp.toFixed(2)); }
   /* glisser vers le bas pour fermer (tiroir sur mobile), comme les fiches courses */
   function sheetSwipe(d) {

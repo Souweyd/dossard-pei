@@ -196,10 +196,6 @@ header.top .brand{pointer-events:auto}
 /* fiches : défilement interne, barre fine en retrait comme les fiches courses */
 .dlg[open]{display:flex;flex-direction:column;overflow:hidden}
 .dlg>*{position:relative;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}
-.dlg>*::-webkit-scrollbar{width:10px}
-.dlg>*::-webkit-scrollbar-track{background:transparent;margin:24px 0}
-.dlg>*::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--fg) 22%,transparent);border-radius:10px;border:3px solid transparent;background-clip:padding-box}
-@supports (-moz-appearance:none){.dlg>*{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--fg) 22%,transparent) transparent}}
 html.noscroll{overflow:hidden}
 #mapsel{scroll-margin-top:72px}
 /* partage, courses reliées, « C'est votre club ? », section jeunes */
@@ -269,7 +265,6 @@ noscript .static{max-width:760px;margin:90px auto 0;padding:0 20px}
 .dlg .x{font-size:1.6rem;line-height:1;display:grid;place-items:center;padding:0;font-weight:400}
 .fbar .fbx{position:absolute;right:8px;top:8px;pointer-events:auto;min-width:40px}
 /* fondu en haut et en bas de ce qui défile */
-.dlg>*:not(.fbar){--ft:0px;--fb:0px;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 var(--ft),#000 calc(100% - var(--fb)),transparent 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 var(--ft),#000 calc(100% - var(--fb)),transparent 100%)}
 /* pastille « Le jeu » jaune, comme l'accueil */
 .szlink.jeu{background:#ffd400;color:#1d2523}
 .szlink.jeu svg{width:18px;height:18px;flex:none}
@@ -346,3 +341,13 @@ body.mapfull .maptools{top:calc(10px + env(safe-area-inset-top))}
 .topsoc .socb{width:32px;height:32px}
 .topsoc .socb svg{width:16px;height:16px}
 @media (max-width:420px){.topsoc{gap:5px}.topsoc .socb{width:30px;height:30px}.topsoc .socb svg{width:15px;height:15px}}
+/* barre de défilement des fiches : mêmes règles que .dlg-panel des fiches courses */
+.dlg>*::-webkit-scrollbar{width:12px}
+.dlg>*::-webkit-scrollbar-track{background:transparent;margin:22px 0}
+.dlg>*::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--fg) 22%,transparent);border-radius:99px;border:4px solid transparent;background-clip:padding-box;min-height:40px}
+.dlg>*::-webkit-scrollbar-thumb:hover{background-color:color-mix(in srgb,var(--fg) 38%,transparent)}
+.dlg>*::-webkit-scrollbar-corner{background:transparent}
+/* fondu haut / bas posé par-dessus le contenu (sans toucher la barre de défilement) */
+.dlg::before,.dlg::after{content:"";position:absolute;left:0;right:12px;z-index:4;pointer-events:none}
+.dlg::before{top:0;height:var(--ft,0px);background:linear-gradient(var(--surface),transparent)}
+.dlg::after{bottom:0;height:var(--fb,0px);background:linear-gradient(transparent,var(--surface))}
