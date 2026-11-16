@@ -195,3 +195,12 @@ header.top .topr{opacity:1!important}
 .pin:focus-visible{outline:none}.pin:focus-visible circle.core{stroke:var(--accent);stroke-width:3}
 .maphint{text-align:center;margin:10px 0 0;font-size:.9rem;color:var(--soft)}
 #mapsel .grp{margin-top:10px}
+/* fiches : défilement interne, barre fine en retrait comme les fiches courses */
+.dlg[open]{display:flex;flex-direction:column;overflow:hidden}
+.dlg>*{position:relative;flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.dlg>*::-webkit-scrollbar{width:10px}
+.dlg>*::-webkit-scrollbar-track{background:transparent;margin:24px 0}
+.dlg>*::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--fg) 22%,transparent);border-radius:10px;border:3px solid transparent;background-clip:padding-box}
+@supports (-moz-appearance:none){.dlg>*{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--fg) 22%,transparent) transparent}}
+html.noscroll{overflow:hidden}
+#mapsel{scroll-margin-top:72px}

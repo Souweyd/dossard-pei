@@ -304,7 +304,7 @@
     $('#openadd').addEventListener('click', function () { openForm('add'); });
     $('#v-liste').addEventListener('click', function () { setView('liste'); });
     $('#v-carte').addEventListener('click', function () { setView('carte'); });
-    var pick = function (e) { var p = e.target.closest('.pin'); if (!p) return; selCom = selCom === p.dataset.com ? '' : p.dataset.com; drawMap(); if (selCom) { var s = $('#mapsel'); setTimeout(function () { s.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); }, 50); } };
+    var pick = function (e) { var p = e.target.closest('.pin'); if (!p) return; selCom = selCom === p.dataset.com ? '' : p.dataset.com; drawMap(); if (selCom) { var s = $('#mapsel'); setTimeout(function () { var y = s.getBoundingClientRect().top + scrollY - Math.max(72, innerHeight * 0.4); if (y > scrollY) scrollTo({ top: y, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }, 50); } };
     $('#cmap').addEventListener('click', pick);
     $('#cmap').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(e); } });
     $('#formbox').addEventListener('submit', sendForm);
@@ -315,7 +315,7 @@
 
   fetch('clubs.json?v=1').then(function (r) { return r.json(); }).then(function (j) {
     DATA = j; POS = j.sprite.pos;
-    fillCommunes(); bind(); render(); topbar(); var rz; addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(function () { if (view === 'carte') drawMap(); }, 200); });
+    fillCommunes(); bind(); render(); topbar(); var mo = new MutationObserver(function () { document.documentElement.classList.toggle('noscroll', !!document.querySelector('dialog[open]')); }); document.querySelectorAll('dialog').forEach(function (d) { mo.observe(d, { attributes: true, attributeFilter: ['open'] }); }); var rz; addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(function () { if (view === 'carte') drawMap(); }, 200); });
     if (location.hash === '#ajouter') openForm('add'); else onHash();
   }).catch(function () { $('#list').innerHTML = '<p class="empty">Impossible de charger les clubs. Recharge la page.</p>'; });
 })();
