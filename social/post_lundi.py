@@ -781,7 +781,7 @@ def cover_theme_v2(P, n, th, rs, ref):
 
 # ------------------------------------------------------------------ Monday cover (16/11/2026)
 def cover_weekend_v2(P, n, rs, ref, lab):
-    """morning cover for the weekend : the island framed on the races (not the whole island when they are close),
+    """morning cover for the weekend : the whole island,
     numbered pins (numbers of the programme and of the race slides), commune and day under each group of pins"""
     M = MAP(); W, H = P['W'], P['H']; tt = H > 1500
     top = P['T'] + (56 if not tt else 40)
@@ -794,12 +794,10 @@ def cover_weekend_v2(P, n, rs, ref, lab):
     y1 = H - P['B'] - 130
     pts = [P_xy(*r['ll']) for r in rs]
     xs = [p[0] for p in pts]; ys = [p[1] for p in pts]
-    # frame : the races with a margin, never smaller than a third of the island (a lone race keeps its surroundings)
-    minw, minh = M['W'] * .34, M['H'] * .30
-    cx, cy = (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2
-    bw = max(minw, (max(xs) - min(xs)) * 1.45 + 80); bh = max(minh, (max(ys) - min(ys)) * 1.45 + 80)
-    kf = min((W - (2 * P['L'] if not tt else 40)) / bw, (y1 - y0) / bh, (W - 300) / M['W'] * 3.4)
-    kf = max(kf, min((W - 300) / M['W'], (y1 - y0) / M['H']))          # never smaller than the whole island
+    # frame : always the whole island (decided on 16/11/2026 : the weekend post keeps the same island every week,
+    # the tight zoom is kept for the region post so the two covers do not look alike)
+    cx, cy = M['W'] / 2, M['H'] / 2
+    kf = min((W - (2 * P['L'] if not tt else 40)) / M['W'], (y1 - y0) / M['H'])
     sy = (y0 + y1) / 2
     scr = [[W / 2 + (x - cx) * kf, sy + (y - cy) * kf] for x, y in pts]
     big = 64
@@ -811,10 +809,10 @@ def cover_weekend_v2(P, n, rs, ref, lab):
                    for k, (r, (x, y)) in enumerate(zip(rs, scr), 1))
     icx, icy = W / 2 + (M['W'] / 2 - cx) * kf, sy + (M['H'] / 2 - cy) * kf
     dsub = lambda com, ii: ' · '.join(f"{JOURS_C[d.weekday()]} {d.day}" for d in sorted({rs[i]['_d'] for i in ii}))
-    leaders, labs = place_labels(rs, scr, big, W, y0 - 10, H - P['B'] - 100, (icx, icy), dsub, land_fn(kf, cx, cy, W, sy))
+    leaders, labs = place_labels(rs, scr, big, W, y0 - 40, H - P['B'] - 100, (icx, icy), dsub, land_fn(kf, cx, cy, W, sy))
     arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
-    fade = ambiance(P, "matin")   # the post's sky, fading into the sea and the island
+    fade = ambiance(P, "matin", 620 if not tt else 900)   # the post's sky, ending above the island
     return page(P, world(kf, cx, cy, W / 2, sy) + fade + leaders + pins + labs + head + chrome(P, 1, n) + arrow)
 
 _LAND = {}
