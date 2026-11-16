@@ -3,7 +3,7 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.4 var(--body);letter-spacing:-.005em}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 var(--body)}
 a{color:var(--accent-ink)}
 button,input,select,textarea{font:inherit;color:inherit}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -157,7 +157,7 @@ input::placeholder,textarea::placeholder{color:var(--soft);opacity:1}
 
 /* en-tête comme l'accueil */
 :root{--display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;--hot:#ff6a45}
-body{padding:14px max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));-webkit-font-smoothing:antialiased}
+body{padding:22px max(24px,env(safe-area-inset-right,0px)) 0 max(24px,env(safe-area-inset-left,0px));-webkit-font-smoothing:antialiased}
 .wrap{max-width:1320px;margin:0 auto}
 .wrap main{max-width:none;padding:4px 0 56px}
 .homel{pointer-events:auto;font-size:.88rem;font-weight:600;color:var(--fg);text-decoration:none;padding:8px 12px;border-radius:99px;background:color-mix(in srgb,var(--surface) 80%,transparent)}
@@ -170,8 +170,6 @@ header.top .brand{pointer-events:auto}
 .foot{margin:0 -16px}
 .grp h2{top:60px}
 .legend{position:relative;z-index:1;margin-top:18px}
-header.top .topr{opacity:1!important}
-@media (max-width:640px){.hero2{padding-top:62px!important}}
 
 /* logo qui glisse (comme l'accueil) */
 .bghost{position:fixed;z-index:46;margin:0;pointer-events:none;will-change:transform}
@@ -256,3 +254,10 @@ noscript .static{max-width:760px;margin:90px auto 0;padding:0 20px}
 .fa .foot{margin:24px 20px 24px;padding-top:14px;border-top:1px solid var(--line);font-size:.86rem;color:var(--soft);line-height:1.45}
 .fa .lnk{all:unset;cursor:pointer;color:var(--fg);font-weight:600;text-decoration:underline;text-underline-offset:2px}
 @media (min-width:641px){.fa .bar{grid-template-columns:repeat(auto-fill,108px)}.fa dl{grid-template-columns:150px 1fr}.fa .bar,.fa .id,.fa .top{padding-left:28px;padding-right:28px}.fa .sec,.fa .foot{margin-left:28px;margin-right:28px}}
+/* rangée de pastilles comme « Calendrier 2027 » de l'accueil */
+.szrow{display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:8px;margin-top:10px}
+.szlink{display:inline-flex;align-items:center;gap:6px;line-height:1.2;white-space:nowrap;font-weight:700;font-size:.84rem;padding:8px 11px;border-radius:99px;background:#00807a;color:#fff;text-decoration:none;box-shadow:0 4px 14px #0000001f}
+.szlink .ico{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.szlink span{margin-left:2px;font-size:1.1em}
+@media (min-width:761px){.szrow>*{padding:9px 13px;font-size:.9rem}}
+#state .pill{background:color-mix(in srgb,#fff 75%,transparent);color:#111113;padding:4px 12px;border-radius:99px;font-size:.95rem;font-weight:600;border:0;box-shadow:none}
