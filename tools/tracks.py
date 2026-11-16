@@ -7,7 +7,10 @@ inscription and the épreuves' links) are searched for a public track:
     points as JSON objects {"lon":X,"lat":Y,…,"y":altitude} in Web Mercator (EPSG:3857);
   - Openrunner: openrunner.com/embed/<code> or embed.html?code=<code>: the embedded-routes API
     gives a Google polyline (precision 5) and the altitudes as a 1-D delta polyline every
-    `interval` metres.
+    `interval` metres;
+  - a .gpx file linked from the page (trkpt / rtept).
+Every page of the race is read: a track linked from another épreuve's page (a rando's own page…) is added
+to the tracks already on the site, named after that épreuve.
 WeRun is never used (its tracks were withdrawn at its request, 2026-10-30): its pages are never fetched.
 Points outside La Réunion are dropped; each track gets its measured km / D+ and the name of the
 épreuve of the closest distance; at most 600 points per track. Writes gpx/<id>.json
@@ -30,6 +33,7 @@ UA = {"User-Agent": "Mozilla/5.0 (DossardPei sync; +https://dossardpei.re)", "Ac
 TZ = dt.timezone(dt.timedelta(hours=4))
 TDT = re.compile(r"tracedetrail\.fr/(?:[a-z]{2}/)?(iframe|trace)/(\d+)")
 ORN = re.compile(r"openrunner\.com/(?:route-embed/|embed/|embed\.html\?code=)([0-9a-zA-Z]+)")
+GPXF = re.compile(r"""https?://[^\s"'<>]+?\.gpx\b""", re.I)   # a GPX file put online by the organiser (2026-11-16)
 NOSRC = re.compile(r"werun\.world", re.I)   # sources whose tracks must never be taken
 WRP = re.compile(r"https?://(?:www\.)?werun\.world/course/[a-z0-9-]+/?")   # a WeRun race page (link only)
 
@@ -38,6 +42,24 @@ def get(u, ref=None):
     h = dict(UA, **({"Referer": ref} if ref else {}))
     with net.urlopen(urllib.request.Request(u, headers=h), timeout=30) as r:
         return r.read().decode("utf-8", "replace")
+
+
+def gpxfile(u, ref):
+    """points of a GPX file linked from an organiser page (trkpt, else rtept)"""
+    h = get(u, ref)
+    if "<gpx" not in h[:2000]:
+        return []
+    out = []
+    for trk in re.findall(r"<trk\b.*?</trk>", h, re.S) or [h]:
+        pts = [[float(m.group(1)), float(m.group(2)), float(m.group(3) or 0)]
+               for m in re.finditer(r'<(?:trkpt|rtept)\s+lat="(-?[\d.]+)"\s+lon="(-?[\d.]+)"[^>]*>(?:\s*<ele>(-?[\d.]+)</ele>)?', trk)]
+        if not pts:   # lon before lat
+            pts = [[float(m.group(2)), float(m.group(1)), float(m.group(3) or 0)]
+                   for m in re.finditer(r'<(?:trkpt|rtept)\s+lon="(-?[\d.]+)"\s+lat="(-?[\d.]+)"[^>]*>(?:\s*<ele>(-?[\d.]+)</ele>)?', trk)]
+        n = re.search(r"<name>(?:<!\[CDATA\[)?([^<\]]+)", trk)
+        if len(pts) > 10:
+            out.append({"nom": n.group(1).strip() if n else "", "pts": pts, "src": u})
+    return out
 
 
 def merc(x, y):
@@ -103,7 +125,9 @@ def thin(pts, n=600):
 
 
 def srckey(u):
-    """one key per track source, whatever the form of its link (embed / route-details / iframe / trace)"""
+    """one key per track source, whatever the form of its link (embed / route-details / iframe / trace / .gpx file)"""
+    if GPXF.match(u or ""):
+        return "gpx:" + u.split("/")[-1].lower()
     m = TDT.search(u or "")
     if m:
         return "tdt:" + m.group(2)
@@ -167,9 +191,10 @@ def main(now):
         rid = r["id"]
         if r.get("hidden") or (r.get("fin") or r["date"]) < today or rid in manual or r.get("manual"):
             continue
-        if rid in gpx and (not recheck or gpx[rid].get("manuel")):
+        part = rid in gpx and gpx[rid].get("partiel")   # only the start of a file read in part: the full track replaces it
+        if rid in gpx and not part and (not recheck or gpx[rid].get("manuel")):
             continue
-        if rid not in gpx and tried.get(rid, "") > (now - dt.timedelta(hours=24)).isoformat():
+        if (rid not in gpx or part) and tried.get(rid, "") > (now - dt.timedelta(hours=24)).isoformat():
             continue
         if rid not in gpx:
             tried[rid] = now.isoformat(timespec="minutes")
@@ -181,17 +206,27 @@ def main(now):
                 h = get(u)
             except Exception:
                 continue
+            n0 = len(found)
             for kind, n in dict.fromkeys(TDT.findall(h)):
                 try:
                     found += tracedetrail(kind, n)
                 except Exception as e:
                     print(f"tracé {rid} tracedetrail {n} : {e.__class__.__name__}")
             wr_links += WRP.findall(h)
+            for g in dict.fromkeys(GPXF.findall(h.replace("\\/", "/"))):
+                if NOSRC.search(g):
+                    continue
+                try:
+                    found += gpxfile(g, u)
+                except Exception as e:
+                    print(f"tracé {rid} gpx : {e.__class__.__name__}")
             for c in dict.fromkeys(ORN.findall(h)):
                 try:
                     found += openrunner(c, u)
                 except Exception as e:
                     print(f"tracé {rid} openrunner : {e.__class__.__name__}")
+            for t in found[n0:]:
+                t.setdefault("page", u)   # the page that linked it (an épreuve's own page names the track)
         tracks, seen = [], set()
         for t in found:
             pts = [[round(p[0], 5), round(p[1], 5), round(p[2])] for p in t["pts"] if -21.5 < p[0] < -20.8 and 55.1 < p[1] < 55.9]
@@ -202,7 +237,8 @@ def main(now):
                 continue
             seen.add((km, dp))
             eps = [e for e in r.get("epreuves", []) if e.get("km")]
-            best = min(eps, key=lambda e: abs(float(e["km"]) - km)) if eps else None
+            own = [e for e in eps if e.get("url") == t.get("page") and abs(float(e["km"]) - km) <= max(2, 0.15 * km)]
+            best = own[0] if own else (min(eps, key=lambda e: abs(float(e["km"]) - km)) if eps else None)
             nom = best["nom"] if best and abs(float(best["km"]) - km) <= max(2, 0.15 * km) else (t["nom"] or f"{km:g} km")
             tracks.append({"nom": nom, "km": km, "dp": dp, "pts": thin(pts), "src": t["src"]})
         if not tracks:
@@ -213,8 +249,31 @@ def main(now):
                 linked.append(r["nom"])
             continue
         tracks.sort(key=lambda t: -t["km"])
-        old = gpx.get(rid)
+        old = None if part else gpx.get(rid)
+        merged = False
         if old:
+            oldkeys = {srckey(x) for x in [old.get("src", "")] + old.get("srcs", [])} - {""}
+            # a track linked from ANOTHER page of the race (e.g. the rando's own épreuve page, 2026-11-16 Trail des Ananas)
+            # is added to the ones already on the site instead of being ignored
+            extra = [t for t in tracks if srckey(t["src"]) not in oldkeys
+                     and not any(abs(t["km"] - o["km"]) <= .3 for o in old.get("tracks", []))]
+            if extra and any(srckey(u) in oldkeys or any(k in srckey(u) or srckey(u) in k for k in oldkeys) for u in pages + [t["src"] for t in tracks] if srckey(u)):
+                try:
+                    keep = json.load(open(f"gpx/{rid}.json"))["tracks"]
+                except Exception:
+                    keep = []
+                if keep:
+                    eps = [e for e in r.get("epreuves", []) if e.get("km")]
+                    ep = lambda km: min(eps, key=lambda e: abs(float(e["km"]) - km))["nom"] if eps else None
+                    again = [t for t in tracks if srckey(t["src"]) in oldkeys]
+                    for t in keep:
+                        t["src"] = old.get("src", "")
+                    # an old track no longer given by its own link, for the same épreuve as a new one: the new one replaces it
+                    keep = [t for t in keep if any(abs(t["km"] - x["km"]) <= .3 for x in again) or not again
+                            or ep(t["km"]) not in {ep(x["km"]) for x in extra}]
+                    tracks = sorted(keep + extra, key=lambda t: -t["km"])
+                    merged = True
+        if old and not merged:
             # the same link still on the page: only its own route counts (another track linked elsewhere is not a change);
             # fewer tracks than before from the same link is a reading limit, not a change
             same = [t for t in tracks if srckey(t["src"]) == srckey(old.get("src", ""))]
@@ -238,15 +297,18 @@ def main(now):
             continue
         pending.pop(rid, None)
         src = tracks[0]["src"]
+        srcs = list(dict.fromkeys(([old.get("src", "")] + old.get("srcs", []) if merged else []) + [t["src"] for t in tracks]))
         json.dump({"src": src, "tracks": [{k: t[k] for k in ("nom", "km", "dp", "pts")} for t in tracks]},
                   open(f"gpx/{rid}.json", "w"), ensure_ascii=False, separators=(",", ":"))
         gpx[rid] = {"file": f"gpx/{rid}.json", "src": src, "tracks": [{k: t[k] for k in ("nom", "km", "dp")} for t in tracks]}
+        if len(srcs) > 1:
+            gpx[rid]["srcs"] = srcs   # one link per page that gave a track
         if any(NOSRC.search(x.get("url", "")) for x in r.get("traces", [])):   # the organisers' own track replaces the WeRun link
             r["traces"] = [x for x in r["traces"] if not NOSRC.search(x.get("url", ""))]
             if not r["traces"]:
                 r.pop("traces")
         tried.pop(rid, None)
-        added.append(f"{r['nom']} ({len(tracks)}{', remplacé' if old else ''})")
+        added.append(f"{r['nom']} ({len(tracks)}{', complété' if merged else ', remplacé' if old else ''})")
     tried = {k: v for k, v in tried.items() if v > (now - dt.timedelta(days=7)).isoformat()}
     json.dump(tried, open("state/tracks.json", "w"), ensure_ascii=False, indent=0, sort_keys=True)
     json.dump(pending, open("state/tracks_pending.json", "w"), ensure_ascii=False, indent=1, sort_keys=True)
