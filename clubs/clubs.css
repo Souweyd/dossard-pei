@@ -116,3 +116,14 @@ textarea{padding:10px 14px;resize:vertical}
 .done p{margin:8px 0 0;color:var(--muted)}
 @media (max-width:560px){.hin{padding-top:58px}.grid{grid-template-columns:1fr}.fin,.fform,.dlgin{padding-left:18px;padding-right:18px}}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+/* mêmes animations que les fenêtres du site (app.css : dlgIn, popIn, sheetIn) */
+@keyframes dlgIn{0%{opacity:0}to{opacity:1}}
+@keyframes popIn{0%{opacity:0;transform:scale(.97) translateY(8px)}to{opacity:1;transform:none}}
+@keyframes sheetIn{0%{transform:translateY(100%)}to{transform:none}}
+.dlg[open]{animation:popIn .26s cubic-bezier(.2,.8,.2,1)}
+.dlg[open]::backdrop{animation:dlgIn .22s ease-out}
+@media (max-width:640px){
+  .dlg,.dlg.wide{width:100%;max-width:100%;margin:auto 0 0;max-height:92dvh;border-radius:16px 16px 0 0;border-bottom:0;padding-bottom:env(safe-area-inset-bottom,0px)}
+  .dlg[open]{animation:sheetIn .32s cubic-bezier(.2,.8,.2,1)}
+}
+@media (prefers-reduced-motion:reduce){.dlg[open],.dlg[open]::backdrop{animation:none}}
