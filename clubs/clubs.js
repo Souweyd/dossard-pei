@@ -134,11 +134,19 @@
   function openClub(id) {
     var c = DATA.clubs.filter(function (x) { return x.id === id; })[0];
     if (!c) return;
+    var IOS = /iP(hone|ad|od)/.test(navigator.userAgent);
+    function row(label, val, href, icon, go, menu) {
+      var inner = '<svg class="pin" viewBox="0 0 24 24" aria-hidden="true">' + icon + '</svg><span class="go-l"><small>' + label + '</small><b>' + esc(val) + '</b></span><span class="go-go' + (go.st ? ' st' : '') + '" aria-hidden="true"><svg viewBox="0 0 24 24">' + go.p + '</svg></span>';
+      if (menu) return '<div class="go"><button type="button" class="go-b" aria-haspopup="true" aria-expanded="false" aria-label="Itinéraire : ' + esc(val) + '">' + inner + '</button><div class="go-m" hidden>' + menu.map(function (m) { return '<a href="' + m[1] + '" target="_blank" rel="noopener">' + m[0] + '</a>'; }).join('') + '</div></div>';
+      return '<div class="go"><a class="go-b" href="' + href + '">' + inner + '</a></div>';
+    }
+    function itin(q) { var e = encodeURIComponent(q), m = [['Google Maps', 'https://www.google.com/maps/dir/?api=1&destination=' + e], ['Waze', 'https://waze.com/ul?q=' + e + '&navigate=yes']]; if (IOS) m.unshift(['Plans (Apple)', 'https://maps.apple.com/?daddr=' + e]); return m; }
+    var PIN = '<path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.6"/>', ARR = { p: '<path d="M3 11 21 3l-8 18-2-8z"/>' };
     var pr = '';
-    if (c.adresse) pr += '<a class="pr" href="' + maps(c.adresse) + '" target="_blank" rel="noopener"><span class="pi">' + NET.pin.s + '</span><span><small>Adresse</small>' + esc(c.adresse) + '</span></a>';
-    if (c.entrainement) pr += '<a class="pr" href="' + maps(c.entrainement + ', ' + baseCommune(c.commune) + ', La Réunion') + '" target="_blank" rel="noopener"><span class="pi">' + NET.run.s + '</span><span><small>Lieu d’entraînement</small>' + esc(c.entrainement) + '</span></a>';
-    if (c.mail) pr += '<a class="pr" href="mailto:' + esc(c.mail) + '"><span class="pi">' + NET.mail.s.replace('<svg ', '<svg width="18" height="18" ') + '</span><span><small>E-mail</small>' + esc(c.mail) + '</span></a>';
-    if (c.tel) pr += '<a class="pr" href="' + telHref(c.tel) + '"><span class="pi">' + NET.tel.s.replace('<svg ', '<svg width="18" height="18" ') + '</span><span><small>Téléphone</small>' + esc(c.tel) + '</span></a>';
+    if (c.adresse) pr += row('Adresse du club', c.adresse, '', PIN, ARR, itin(c.adresse + ', La Réunion'));
+    if (c.entrainement) pr += row('Lieu d’entraînement', c.entrainement, '', '<ellipse cx="12" cy="12" rx="9" ry="5.5"/><ellipse cx="12" cy="12" rx="4.5" ry="2"/>', ARR, itin(c.entrainement + ', ' + baseCommune(c.commune) + ', La Réunion'));
+    if (c.mail) pr += row('E-mail', c.mail, 'mailto:' + esc(c.mail), '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6.5L20.5 7"/>', { st: 1, p: '<rect x="4" y="6.5" width="16" height="11" rx="1.5"/><path d="M4.5 8l7.5 5.5L19.5 8"/>' });
+    if (c.tel) pr += row('Téléphone', c.tel, telHref(c.tel), '<path d="M6.6 3.5h2.6l1.5 4-2 1.3a11 11 0 0 0 6.5 6.5l1.3-2 4 1.5v2.6c0 1.1-.9 2-2 2A16.5 16.5 0 0 1 4.6 5.5c0-1.1.9-2 2-2z"/>', { st: 1, p: '<path d="M7.2 4.5h2.2l1.3 3.4-1.7 1.1a9.3 9.3 0 0 0 5.5 5.5l1.1-1.7 3.4 1.3v2.2c0 .9-.8 1.7-1.7 1.7A14 14 0 0 1 5.5 6.2c0-.9.8-1.7 1.7-1.7z"/>' });
     var links = (c.site ? '<a class="site" href="' + esc(c.site) + '" target="_blank" rel="noopener">' + (c.siteLabel === 'Site' ? 'Site du club' : esc(c.siteLabel)) + ARROW + '</a>' : '') + c.reseaux.map(function (r) { var n = NET[r.t] || NET.web; return '<a class="net' + (n.b ? ' brand' : '') + '" href="' + esc(r.url) + '" target="_blank" rel="noopener" aria-label="' + esc(n.l) + '" title="' + esc(n.l) + '">' + n.s + '</a>'; }).join('');
     $('#club').innerHTML = '<div class="fiche" style="--c:' + COL[c.type] + ';position:relative">' +
       '<button type="button" class="x fx" data-close aria-label="Fermer">✕</button>' + banner(c) +
@@ -153,7 +161,13 @@
     document.title = c.nom + ' – Clubs péi – Dossard Péi';
     if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: '/clubs/' + c.id, title: c.nom, event: false });
   }
-  function closeClub() { var d = $('#dclub'); if (d.open) d.close(); }
+  function closeDlg(d, then) {
+    if (!d.open || d.classList.contains('out')) return;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { d.close(); if (then) then(); return; }
+    d.classList.add('out');
+    setTimeout(function () { d.classList.remove('out'); d.close(); if (then) then(); }, 220);
+  }
+  function closeClub() { closeDlg($('#dclub')); }
   function onHash() { var id = decodeURIComponent(location.hash.slice(1)); if (id && id !== 'ajouter') openClub(id); else closeClub(); }
 
   /* ---------- formulaires ---------- */
@@ -211,7 +225,6 @@
     $('#openf').addEventListener('click', function () { syncFilters(); $('#dfilters').showModal(); });
     $('#dfilters').addEventListener('click', function (e) {
       var b = e.target.closest('[data-k]'); if (b) { var k = b.dataset.k; st[k] = st[k] === b.dataset.v ? '' : b.dataset.v; syncFilters(); render(); }
-      if (e.target === e.currentTarget) e.currentTarget.close();
     });
     $('#fcommune').addEventListener('change', function (e) { st.commune = e.target.value; render(); });
     $('#fffa').addEventListener('change', function (e) { st.ffa = e.target.value; render(); });
@@ -226,12 +239,14 @@
     document.addEventListener('click', function (e) {
       var c = e.target.closest('[data-clear]'); if (c) { if (c.dataset.clear === 'commune') st.commune = ''; else { st = { q: '', sect: '', type: '', commune: '', ffa: '', near: null }; $('#q').value = ''; } render(); }
       var fx = e.target.closest('[data-fix]'); if (fx) { e.preventDefault(); openForm('fix', fx.dataset.fix); }
-      var cl = e.target.closest('[data-close]'); if (cl) { var dl = cl.closest('dialog'); if (dl) dl.close(); }
+      var cl = e.target.closest('[data-close]'); if (cl) { var dl = cl.closest('dialog'); if (dl) closeDlg(dl); }
+      var gb = e.target.closest('.go-b[aria-haspopup]'); document.querySelectorAll('.go-m:not([hidden])').forEach(function (m) { if (!gb || m !== gb.nextElementSibling) { m.hidden = true; m.previousElementSibling.setAttribute('aria-expanded', 'false'); } });
+      if (gb) { var mm = gb.nextElementSibling; mm.hidden = !mm.hidden; gb.setAttribute('aria-expanded', String(!mm.hidden)); }
     });
     $('#openadd').addEventListener('click', function () { openForm('add'); });
     $('#formbox').addEventListener('submit', sendForm);
     $('#dclub').addEventListener('close', function () { document.title = 'Clubs péi : les clubs de course et de trail de La Réunion – Dossard Péi'; if (location.hash && location.hash !== '#ajouter') history.replaceState(null, '', location.pathname + location.search); });
-    [$('#dclub'), $('#dform')].forEach(function (d) { d.addEventListener('click', function (e) { if (e.target === d) d.close(); }); });
+    [$('#dclub'), $('#dform'), $('#dfilters')].forEach(function (d) { d.addEventListener('click', function (e) { if (e.target === d) closeDlg(d); }); d.addEventListener('cancel', function (e) { e.preventDefault(); closeDlg(d); }); });
     window.addEventListener('hashchange', onHash);
   }
 

@@ -62,14 +62,14 @@
 
 <dialog id="dfilters" class="dlg" aria-labelledby="ftitle">
   <form method="dialog" class="dlgin">
-    <div class="dhead"><h2 id="ftitle">Filtres</h2><button class="x" value="close" aria-label="Fermer">✕</button></div>
+    <div class="dhead"><h2 id="ftitle">Filtres</h2><button type="button" class="x" data-close aria-label="Fermer">✕</button></div>
     <label class="lab" for="fcommune">Commune</label>
     <select id="fcommune"><option value="">Toutes les communes</option></select>
     <p class="lab">Secteur</p><div class="chips" id="fsect"></div>
     <p class="lab">Type de club</p><div class="chips" id="ftype"></div>
     <label class="lab" for="fffa">Affiliation FFA</label>
     <select id="fffa"><option value="">Tous les clubs</option><option value="1">Affiliés FFA</option><option value="0">Non affiliés</option></select>
-    <div class="dfoot"><button type="button" id="fclear" class="link">Tout effacer</button><button class="cta" value="close" id="fshow">Voir les clubs</button></div>
+    <div class="dfoot"><button type="button" id="fclear" class="link">Tout effacer</button><button type="button" class="cta" data-close id="fshow">Voir les clubs</button></div>
   </form>
 </dialog>
 
