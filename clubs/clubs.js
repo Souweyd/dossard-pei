@@ -137,34 +137,51 @@
     var c = DATA.clubs.filter(function (x) { return x.id === id; })[0];
     if (!c) return;
     var IOS = /iP(hone|ad|od)/.test(navigator.userAgent);
-    function row(label, val, href, icon, go, menu) {
-      var inner = '<svg class="pin" viewBox="0 0 24 24" aria-hidden="true">' + icon + '</svg><span class="go-l"><small>' + label + '</small><b>' + esc(val) + '</b></span><span class="go-go' + (go.st ? ' st' : '') + '" aria-hidden="true"><svg viewBox="0 0 24 24">' + go.p + '</svg></span>';
-      if (menu) return '<div class="go"><button type="button" class="go-b" aria-haspopup="true" aria-expanded="false" aria-label="Itinéraire : ' + esc(val) + '">' + inner + '</button><div class="go-m" hidden>' + menu.map(function (m) { return '<a href="' + m[1] + '" target="_blank" rel="noopener">' + m[0] + '</a>'; }).join('') + '</div></div>';
-      return '<div class="go"><a class="go-b" href="' + href + '">' + inner + '</a></div>';
-    }
+    function svg(p, cl) { return '<svg class="' + (cl || 'i') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>'; }
+    var P = {
+      tel: '<path d="M6.6 3.5h2.6l1.5 4-2 1.3a11 11 0 0 0 6.5 6.5l1.3-2 4 1.5v2.6c0 1.1-.9 2-2 2A16.5 16.5 0 0 1 4.6 5.5c0-1.1.9-2 2-2z"/>',
+      mail: '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6.5L20.5 7"/>',
+      pin: '<path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.6"/>',
+      web: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9c-2.5-2.6-3.7-5.6-3.7-9S9.5 5.6 12 3z"/>',
+      shr: '<path d="M12 15V3.5M7.5 8 12 3.5 16.5 8"/><path d="M5 12.5V19a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-6.5"/>',
+      chev: '<path d="M9 6l6 6-6 6"/>'
+    };
     function itin(q) { var e = encodeURIComponent(q), m = [['Google Maps', 'https://www.google.com/maps/dir/?api=1&destination=' + e], ['Waze', 'https://waze.com/ul?q=' + e + '&navigate=yes']]; if (IOS) m.unshift(['Plans (Apple)', 'https://maps.apple.com/?daddr=' + e]); return m; }
-    var PIN = '<path d="M12 22s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="10" r="2.6"/>', ARR = { p: '<path d="M3 11 21 3l-8 18-2-8z"/>' };
-    var pr = '';
-    if (c.adresse) pr += row('Adresse du club', c.adresse, '', PIN, ARR, itin(c.adresse + ', La Réunion'));
-    if (c.entrainement) pr += row('Lieu d’entraînement', c.entrainement, '', '<ellipse cx="12" cy="12" rx="9" ry="5.5"/><ellipse cx="12" cy="12" rx="4.5" ry="2"/>', ARR, itin(c.entrainement + ', ' + baseCommune(c.commune) + ', La Réunion'));
-    var JL = { u7: 'moins de 7 ans', u11: '7 à 10 ans', u15: '11 à 14 ans' };
-    if (c.jeunes && c.jeunes.length) pr += '<div class="go"><div class="go-b static"><svg class="pin" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="2.6"/><path d="M4.5 20v-3.5a4.5 4.5 0 0 1 9 0V20"/><circle cx="17" cy="10" r="2"/><path d="M14.6 20v-2.4a2.6 2.6 0 0 1 5.2 0V20"/></svg><span class="go-l"><small>Section jeunes (annuaire FFA)</small><b>' + c.jeunes.map(function (k) { return JL[k]; }).join(' · ') + '</b></span></div></div>';
-    if (c.mail) pr += row('E-mail', c.mail, 'mailto:' + esc(c.mail), '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6.5L20.5 7"/>', { st: 1, p: '<rect x="4" y="6.5" width="16" height="11" rx="1.5"/><path d="M4.5 8l7.5 5.5L19.5 8"/>' });
-    if (c.tel) pr += row('Téléphone', c.tel, telHref(c.tel), '<path d="M6.6 3.5h2.6l1.5 4-2 1.3a11 11 0 0 0 6.5 6.5l1.3-2 4 1.5v2.6c0 1.1-.9 2-2 2A16.5 16.5 0 0 1 4.6 5.5c0-1.1.9-2 2-2z"/>', { st: 1, p: '<path d="M7.2 4.5h2.2l1.3 3.4-1.7 1.1a9.3 9.3 0 0 0 5.5 5.5l1.1-1.7 3.4 1.3v2.2c0 .9-.8 1.7-1.7 1.7A14 14 0 0 1 5.5 6.2c0-.9.8-1.7 1.7-1.7z"/>' });
-    var SHR = '<button type="button" class="net shr" data-share="' + esc(c.id) + '" aria-label="Partager la fiche" title="Partager"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15V3.5M7.5 8 12 3.5 16.5 8"/><path d="M5 12.5V19a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19v-6.5"/></svg></button>';
-    var lk = LIENS.clubs[c.id], rl = '';
-    if (lk) rl = lk.r.map(function (r) { return '<li><a href="/course/' + esc(r[0]) + '/">' + esc(r[1]) + '</a> <span class="rd">' + esc(dateFr(r[2])) + '</span></li>'; }).join('') + lk.autres.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('');
-    else rl = c.courses.map(function (r) { return '<li>' + esc(r) + '</li>'; }).join('');
-    var links = (c.site ? '<a class="site" href="' + esc(c.site) + '" target="_blank" rel="noopener">' + (c.siteLabel === 'Site' ? 'Site du club' : esc(c.siteLabel)) + ARROW + '</a>' : '') + c.reseaux.map(function (r) { var n = NET[r.t] || NET.web; return '<a class="net' + (n.b ? ' brand' : '') + '" href="' + esc(r.url) + '" target="_blank" rel="noopener" aria-label="' + esc(n.l) + '" title="' + esc(n.l) + '">' + n.s + '</a>'; }).join('') + SHR;
-    $('#club').innerHTML = '<div class="fiche" style="--c:' + COL[c.type] + ';position:relative">' +
+    var tel1 = c.tel ? String(c.tel).split('/')[0].trim() : '';
+    var dest = c.adresse ? c.adresse + ', La Réunion' : c.entrainement ? c.entrainement + ', ' + baseCommune(c.commune) + ', La Réunion' : '';
+    var host = function (u) { return u.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''); };
+    // barre d'actions
+    var bar = '';
+    if (tel1) bar += '<a class="ab" href="' + telHref(tel1) + '">' + svg(P.tel) + 'Appeler</a>';
+    if (c.mail) bar += '<a class="ab" href="mailto:' + esc(c.mail) + '">' + svg(P.mail) + 'E-mail</a>';
+    if (dest) bar += '<div class="go abw"><button type="button" class="go-b ab" aria-haspopup="true" aria-expanded="false">' + svg(P.pin) + 'Itinéraire</button><div class="go-m" hidden>' + itin(dest).map(function (m) { return '<a href="' + m[1] + '" target="_blank" rel="noopener">' + m[0] + '</a>'; }).join('') + '</div></div>';
+    if (c.site) bar += '<a class="ab" href="' + esc(c.site) + '" target="_blank" rel="noopener">' + svg(P.web) + 'Site</a>';
+    bar += '<button type="button" class="ab" data-share="' + esc(c.id) + '">' + svg(P.shr) + 'Partager</button>';
+    // coordonnées
+    var dl = '';
+    function row(l, v) { dl += '<dt>' + l + '</dt><dd>' + v + '</dd>'; }
+    if (c.adresse) row('Adresse', esc(c.adresse));
+    if (c.entrainement) row('Entraînement', esc(c.entrainement));
+    if (c.tel) row('Téléphone', String(c.tel).split('/').map(function (t) { t = t.trim(); return '<a href="' + telHref(t) + '">' + esc(t) + '</a>'; }).join(' / '));
+    if (c.mail) row('E-mail', '<a href="mailto:' + esc(c.mail) + '">' + esc(c.mail) + '</a>');
+    if (c.site) row(c.siteLabel && c.siteLabel !== 'Site' ? esc(c.siteLabel) : 'Site', '<a href="' + esc(c.site) + '" target="_blank" rel="noopener">' + esc(host(c.site)) + '</a>');
+    if (c.reseaux.length) row('Réseaux', '<span class="nets">' + c.reseaux.map(function (r) { var n = NET[r.t] || NET.web; return '<a class="net' + (n.b ? ' brand' : '') + '" href="' + esc(r.url) + '" target="_blank" rel="noopener" aria-label="' + esc(n.l) + '" title="' + esc(n.l) + '">' + n.s + '</a>'; }).join('') + '</span>');
+    var JL = { u7: 'Moins de 7 ans', u11: '7 à 10 ans', u15: '11 à 14 ans' };
+    // courses
+    var lk = LIENS.clubs[c.id], M = ['JANV', 'FÉVR', 'MARS', 'AVR', 'MAI', 'JUIN', 'JUIL', 'AOÛT', 'SEPT', 'OCT', 'NOV', 'DÉC'];
+    var rc = lk ? lk.r.map(function (r) { var p = r[2].split('-'); return '<a class="rc" href="/course/' + esc(r[0]) + '/"><span class="dt"><b>' + (+p[2]) + '</b><small>' + M[+p[1] - 1] + '</small></span><span class="n">' + esc(r[1]) + '</span>' + svg(P.chev) + '</a>'; }).join('') : '';
+    var oth = lk ? lk.autres : c.courses;
+    var courses = rc || oth.length ? '<div class="sec"><h3>Courses organisées</h3>' + rc + (oth.length ? '<p class="oth">' + (rc ? 'Aussi : ' : '') + oth.map(esc).join(', ') + '</p>' : '') + '</div>' : '';
+    $('#club').innerHTML = '<div class="fiche fa" style="--c:' + COL[c.type] + ';position:relative">' +
       '<button type="button" class="x fx" data-close aria-label="Fermer">✕</button>' + banner(c) +
-      '<div class="medrow">' + medal(c, 88) + (c.ffa ? '<span class="tagffa">Affilié FFA</span>' : '<span></span>') + '</div>' +
-      '<div class="fin"><h2>' + esc(c.nom) + '</h2>' + (c.complet ? '<p class="meta">' + esc(c.complet) + '</p>' : '') +
-      '<p class="meta">' + esc(c.type) + ' · ' + esc(c.commune) + ' · ' + esc(c.secteur) + '</p>' +
-      '<div class="acts" style="margin-top:14px">' + links + '</div>' +
-      '<h3>Infos pratiques</h3>' + (pr ? '<div class="prat">' + pr + '</div><p class="note">Coordonnées publiées par le club (page Facebook, site ou annuaire de la FFA).</p>' : '<p class="none">Pas encore de coordonnées pour ce club. Tu les connais ? <button type="button" class="link" data-maj="' + esc(c.id) + '">Envoie-les nous</button></p>') +
-      (rl ? '<h3>Courses organisées</h3><ul class="races">' + rl + '</ul>' : '') +
-      '<div class="claim"><p><b>C’est votre club, ou une info est fausse ?</b> Mettez la fiche à jour : horaires, contacts, logo, courses…</p><button type="button" class="cta" data-maj="' + esc(c.id) + '">Mettre à jour la fiche</button></div></div></div>';
+      '<div class="top">' + medal(c, 80) + '</div>' +
+      '<div class="id"><h2>' + esc(c.nom) + '</h2>' + (c.complet ? '<p class="sub">' + esc(c.complet) + '</p>' : '') +
+      '<div class="chips"><span>' + esc(c.type) + '</span><span>' + esc(c.commune) + '</span>' + (c.ffa ? '<span>Affilié FFA</span>' : '') + '</div></div>' +
+      '<div class="bar">' + bar + '</div>' +
+      (dl ? '<div class="sec"><h3>Coordonnées</h3><dl>' + dl + '</dl></div>' : '<div class="sec"><h3>Coordonnées</h3><p class="oth">Pas encore de coordonnées pour ce club. Tu les connais ? <button type="button" class="lnk" data-maj="' + esc(c.id) + '">Envoie-les nous</button></p></div>') +
+      (c.jeunes && c.jeunes.length ? '<div class="sec"><h3>Section jeunes <span>· annuaire FFA</span></h3><div class="kids">' + c.jeunes.map(function (k) { return '<span>' + JL[k] + '</span>'; }).join('') + '</div></div>' : '') +
+      courses +
+      '<p class="foot">' + (dl ? 'Infos publiées par le club (Facebook, site ou annuaire FFA). ' : '') + 'C’est votre club, ou une info est fausse ? <button type="button" class="lnk" data-maj="' + esc(c.id) + '">Mettre à jour la fiche</button></p></div>';
     var d = $('#dclub'); if (!d.open) d.showModal();
     document.title = c.nom + ' – Clubs péi – Dossard Péi';
     if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: '/clubs/' + c.id, title: c.nom, event: false });
