@@ -164,3 +164,6 @@ input::placeholder,textarea::placeholder{color:var(--soft);opacity:1}
 .tagffa{background:var(--soft2);color:var(--fg)}
 .fiche .link[data-fix]{min-height:36px;font-size:.85rem;font-weight:400;color:var(--soft)}
 .fiche .none .link[data-fix]{font-size:inherit;color:var(--accent-ink);font-weight:600}
+
+/* comme le site : plus de gris pour le texte (--muted = texte) */
+:root{--muted:var(--fg)}
