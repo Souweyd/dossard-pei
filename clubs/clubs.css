@@ -127,3 +127,6 @@ textarea{padding:10px 14px;resize:vertical}
   .dlg[open]{animation:sheetIn .32s cubic-bezier(.2,.8,.2,1)}
 }
 @media (prefers-reduced-motion:reduce){.dlg[open],.dlg[open]::backdrop{animation:none}}
+/* textes des cartes et des fiches : blanc (sombre) / noir (clair), hiérarchie par taille et graisse */
+.card .full,.card .com,.card .inds,.card .none,.card .dist,.fiche .meta,.fiche .pr small,.fiche .note,.fiche .none{color:var(--fg)}
+.card .com{font-weight:600}
