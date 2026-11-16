@@ -197,6 +197,15 @@
     "page"
    ],
    "hidden": false
+  },
+  "course-inclusive-maladies-rares-2026-11": {
+   "fields": [
+    "complet",
+    "epreuves",
+    "lieu",
+    "ll"
+   ],
+   "hidden": false
   }
  },
  "manual": [
