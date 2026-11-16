@@ -173,7 +173,7 @@
     var oth = lk ? lk.autres : c.courses;
     var courses = rc || oth.length ? '<div class="sec"><h3>Courses organisées</h3>' + rc + (oth.length ? '<p class="oth">' + (rc ? 'Aussi : ' : '') + oth.map(esc).join(', ') + '</p>' : '') + '</div>' : '';
     $('#club').innerHTML = '<div class="fiche fa" style="--c:' + COL[c.type] + ';position:relative">' +
-      '<button type="button" class="x fx" data-close aria-label="Fermer">✕</button>' + banner(c) +
+      banner(c) +
       '<div class="top">' + medal(c, 80) + '</div>' +
       '<div class="id"><h2>' + esc(c.nom) + '</h2>' + (c.complet ? '<p class="sub">' + esc(c.complet) + '</p>' : '') +
       '<div class="chips"><span>' + esc(c.type) + '</span><span>' + esc(c.commune) + '</span>' + (c.ffa ? '<span>Affilié FFA</span>' : '') + '</div></div>' +
@@ -182,7 +182,8 @@
       (c.jeunes && c.jeunes.length ? '<div class="sec"><h3>Section jeunes <span>· annuaire FFA</span></h3><div class="kids">' + c.jeunes.map(function (k) { return '<span>' + JL[k] + '</span>'; }).join('') + '</div></div>' : '') +
       courses +
       '<p class="foot"><button type="button" class="lnk" data-maj="' + esc(c.id) + '">Mettre à jour la fiche</button></p></div>';
-    var d = $('#dclub'); if (!d.open) d.showModal();
+    $('#fbt').textContent = c.nom; $('#club').scrollTop = 0; fiche();
+    var d = $('#dclub'); if (!d.open) d.showModal(); fades($('#club'));
     document.title = c.nom + ' – Clubs péi – Dossard Péi';
     if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: '/clubs/' + c.id, title: c.nom, event: false });
   }
@@ -193,9 +194,12 @@
     setTimeout(function () { d.classList.remove('out'); d.close(); if (then) then(); }, 220);
   }
   function closeClub() { closeDlg($('#dclub')); }
+  /* fondu en haut / en bas de ce qui défile, et barre de titre de la fiche (comme les fiches courses) */
+  function fades(s) { if (!s) return; var top = s.scrollTop, rest = s.scrollHeight - s.clientHeight - top; s.style.setProperty('--ft', (s.id === 'club' ? 0 : Math.min(24, Math.max(0, top))) + 'px'); s.style.setProperty('--fb', Math.min(28, Math.max(0, rest)) + 'px'); }
+  function fiche() { var s = $('#club'), h = s.querySelector('h2'), bar = $('#dclub .fbar'); if (!h) return; var tp = Math.max(0, Math.min(1, (s.scrollTop - (h.offsetTop + h.offsetHeight - 56)) / 24)); bar.style.setProperty('--tp', tp.toFixed(2)); }
   /* glisser vers le bas pour fermer (tiroir sur mobile), comme les fiches courses */
   function sheetSwipe(d) {
-    var y0 = null, dy = 0, sc = function () { return d.firstElementChild; };
+    var y0 = null, dy = 0, sc = function () { return d.lastElementChild; };
     d.addEventListener('touchstart', function (e) { var s = sc(); y0 = matchMedia('(max-width: 640px)').matches && (!s || s.scrollTop <= 0) && !e.target.closest('input,textarea,select') ? e.touches[0].clientY : null; dy = 0; }, { passive: true });
     d.addEventListener('touchmove', function (e) { if (y0 == null) return; var s = sc(); dy = e.touches[0].clientY - y0; if (dy > 0 && (!s || s.scrollTop <= 0)) { d.style.transition = 'none'; d.style.transform = 'translateY(' + dy + 'px)'; } }, { passive: true });
     d.addEventListener('touchend', function () {
@@ -250,7 +254,7 @@
         '<div class="f"><label for="Correction">Qu’est-ce qui est faux ou manquant ? *</label><textarea id="Correction" name="Correction" rows="4" required placeholder="Ex. : nouvelle adresse, autre numéro, logo à changer…"></textarea></div>' +
         f('email', 'Ton e-mail (facultatif, pour te répondre)', 'email', 'prenom@exemple.re');
     }
-    $('#formbox').innerHTML = '<form class="fform" id="theform" novalidate><div class="dhead"><h2 id="formtitle">' + title + '</h2><button type="button" class="x" data-close aria-label="Fermer">✕</button></div>' + body +
+    $('#formbox').innerHTML = '<form class="fform" id="theform" novalidate><div class="dhead"><h2 id="formtitle">' + title + '</h2><button type="button" class="x" data-close aria-label="Fermer">×</button></div>' + body +
       '<input type="checkbox" name="botcheck" style="display:none" tabindex="-1" autocomplete="off"><p class="err" id="ferr" hidden></p><button type="submit" class="cta" style="align-self:flex-start">Envoyer</button></form>';
     var d = $('#dform'); d.dataset.mode = mode; d.dataset.club = c ? c.id : '';
     if ($('#dclub').open) $('#dclub').close();
@@ -307,31 +311,108 @@
   }
 
   /* ---------- carte ---------- */
-  var MAPB = [55.205, 55.845, -21.405, -20.855], MW = 1100, MH = 1013, NS = 'http://www.w3.org/2000/svg', COMMUNES = null, view = 'liste', selCom = '';
+  var MAPB = [55.205, 55.845, -21.405, -20.855], MW = 1100, MH = 1013, COMMUNES = null, view = 'liste', selCom = '', VB = [0, 0, MW, MH], BASE = false;
   function proj(ll) { return [(ll[1] - MAPB[0]) / (MAPB[1] - MAPB[0]) * MW, (MAPB[3] - ll[0]) / (MAPB[3] - MAPB[2]) * MH]; }
-  function drawMap() {
-    var svg = $('#cmap'), list = filtered(), by = {}, W = svg.clientWidth || 900, K = Math.min(2.4, Math.max(1, 900 / W)), small = W < 600;
-    list.forEach(function (c) { var b = baseCommune(c.commune); (by[b] = by[b] || []).push(c); });
-    var h = '<image href="/ocean_sm.webp" x="0" y="0" width="' + MW + '" height="' + MH + '" preserveAspectRatio="none"/><image href="/relief_sm.webp" x="0" y="0" width="' + MW + '" height="' + MH + '" preserveAspectRatio="none"/>';
+  function full() { return document.body.classList.contains('mapfull'); }
+  function setVB(v) {
+    var w = Math.max(MW / 6, Math.min(MW, v[2])), h = w * MH / MW;
+    var x = Math.max(-w * 0.25, Math.min(MW - w * 0.75, v[0])), y = Math.max(-h * 0.25, Math.min(MH - h * 0.75, v[1]));
+    if (w >= MW) { x = 0; y = 0; }
+    VB = [x, y, w, h]; $('#cmap').setAttribute('viewBox', VB.map(function (n) { return n.toFixed(1); }).join(' '));
+    $('#z-all').hidden = w >= MW; $('#cmap').classList.toggle('zoomed', w < MW);
+    pins();
+  }
+  function zoomAt(f, cx, cy) { var w = VB[2] / f, h = w * MH / MW; if (cx == null) { cx = VB[0] + VB[2] / 2; cy = VB[1] + VB[3] / 2; } setVB([cx - (cx - VB[0]) / f, cy - (cy - VB[1]) / f, w, h]); }
+  function toMap(px, py) { var r = $('#cmap').getBoundingClientRect(), s = Math.max(VB[2] / r.width, VB[3] / r.height), ox = (r.width * s - VB[2]) / 2, oy = (r.height * s - VB[3]) / 2; return [VB[0] - ox + (px - r.left) * s, VB[1] - oy + (py - r.top) * s]; }
+  function base() {
+    if (BASE && COMMUNES) return;
+    var h = '<image href="/ocean_sm.webp" x="-400" y="-400" width="' + (MW + 800) + '" height="' + (MH + 800) + '" preserveAspectRatio="none"/><image href="/relief_sm.webp" x="0" y="0" width="' + MW + '" height="' + MH + '" preserveAspectRatio="none"/>';
     if (COMMUNES) h += '<g class="cbord">' + COMMUNES.map(function (k) { return '<path d="' + k.d + '"/>'; }).join('') + '</g>';
-    h += '<g class="pins">';
+    $('#mbase').innerHTML = h; BASE = !!COMMUNES;
+  }
+  function byCommune() { var by = {}; filtered().forEach(function (c) { var b = baseCommune(c.commune); (by[b] = by[b] || []).push(c); }); return by; }
+  function pins() {
+    var svg = $('#cmap'), by = byCommune(), r = svg.getBoundingClientRect(), W = r.width || 900, z = MW / VB[2];
+    var K = Math.min(2.4, Math.max(1, 900 / W)) / Math.pow(z, 0.85), small = W / z * 1.0 < 600 && z < 2.2;
+    var h = '';
     Object.keys(by).sort(function (a, b) { return by[a].length - by[b].length; }).forEach(function (k) {
       var p = CO[k]; if (!p) return; var xy = proj(p), cs = by[k], n = cs.length, R = n > 9 ? 17 : n > 1 ? 15 : 12, sw = 4, g = R - sw / 2, P = 2 * Math.PI * g, off = 0, seg = '', cnt = {};
       cs.forEach(function (c) { cnt[c.type] = (cnt[c.type] || 0) + 1; });
       TYPES.forEach(function (ty) { if (!cnt[ty]) return; var l = P * cnt[ty] / n; seg += '<circle r="' + g + '" class="seg" stroke="' + COL[ty] + '" stroke-width="' + sw + '" stroke-dasharray="' + l + ' ' + (P - l) + '" stroke-dashoffset="' + (-off) + '" transform="rotate(-90)"/>'; off += l; });
-      h += '<g class="pin' + (selCom === k ? ' on' : '') + '" transform="translate(' + xy[0].toFixed(1) + ',' + xy[1].toFixed(1) + ') scale(' + K.toFixed(2) + ')" tabindex="0" role="button" data-com="' + esc(k) + '" aria-label="' + esc(k + ' : ' + n + (n > 1 ? ' clubs' : ' club')) + '"><circle r="26" class="hit"/><circle r="' + R + '" class="core"/>' + seg + '<text class="n" font-size="' + (n > 9 ? 15 : 14) + '">' + n + '</text>' + (small && selCom !== k ? '' : '<text class="lbl" ' + (xy[0] > 900 ? 'x="0" y="' + (R + 18) + '" style="text-anchor:middle"' : 'x="' + (R + 6) + '"') + ' font-size="17">' + esc(k) + '</text>') + '</g>';
+      var east = xy[0] > 900;
+      h += '<g class="pin' + (selCom === k ? ' on' : '') + '" transform="translate(' + xy[0].toFixed(1) + ',' + xy[1].toFixed(1) + ') scale(' + K.toFixed(3) + ')" tabindex="0" role="button" data-com="' + esc(k) + '" aria-label="' + esc(k + ' : ' + n + (n > 1 ? ' clubs' : ' club')) + '"><circle r="26" class="hit"/><circle r="' + R + '" class="core"/>' + seg + '<text class="n" font-size="' + (n > 9 ? 15 : 14) + '">' + n + '</text>' + (small && selCom !== k ? '' : '<text class="lbl" ' + (east ? 'x="0" y="' + (R + 18) + '" style="text-anchor:middle"' : 'x="' + (R + 6) + '"') + ' font-size="17">' + esc(k) + '</text>') + '</g>';
     });
-    svg.innerHTML = h + '</g>';
-    var sel = selCom && by[selCom];
+    $('#mpins').innerHTML = h;
+  }
+  function drawMap() {
+    base(); pins();
+    var by = byCommune(), sel = selCom && by[selCom];
     $('#maphint').hidden = !!sel;
     $('#mapsel').innerHTML = sel ? '<section class="grp"><h2>' + esc(selCom) + ' <small>' + sel.length + (sel.length > 1 ? ' clubs' : ' club') + '</small></h2><div class="grid">' + sel.sort(function (a, b) { return a.nom.localeCompare(b.nom, 'fr'); }).map(card).join('') + '</div></section>' : '';
+    var mp = $('#mpop');
+    if (sel && full()) {
+      mp.innerHTML = '<div class="mpop-h"><div><b>' + esc(selCom) + '</b> <span>' + sel.length + (sel.length > 1 ? ' clubs' : ' club') + '</span></div><button type="button" class="mpop-x" aria-label="Fermer">×</button></div><div class="mpop-l">' +
+        sel.map(function (c) { return '<a class="mpop-i" style="--c:' + COL[c.type] + '" href="/clubs/' + esc(c.id) + '/" data-club="' + esc(c.id) + '">' + medal(c, 44) + '<span><span class="mpop-n">' + esc(c.nom) + '</span><span class="mpop-m">' + esc(c.type) + (c.ffa ? ' · FFA' : '') + '</span></span></a>'; }).join('') + '</div>';
+      mp.hidden = false;
+    } else mp.hidden = true;
+  }
+  function setFull(on) {
+    document.body.classList.toggle('mapfull', on); $('#map-full').hidden = on; $('#map-fullx').hidden = !on;
+    document.documentElement.classList.toggle('noscroll', on || !!document.querySelector('dialog[open]'));
+    drawMap();
   }
   function nearestCom() { var best = '', bd = 1e9, seen = {}; filtered().forEach(function (c) { var b = baseCommune(c.commune); if (seen[b] || !CO[b]) return; seen[b] = 1; var dd = km(st.near, CO[b]); if (dd < bd) { bd = dd; best = b; } }); return best; }
-  function showSel() { var s = $('#mapsel'); setTimeout(function () { var y = s.getBoundingClientRect().top + scrollY - Math.max(72, innerHeight * 0.4); if (y > scrollY) scrollTo({ top: y, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }, 50); }
+  function showSel() { if (full()) return; var s = $('#mapsel'); setTimeout(function () { var y = s.getBoundingClientRect().top + scrollY - Math.max(72, innerHeight * 0.4); if (y > scrollY) scrollTo({ top: y, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }, 50); }
+  function syncTabs() {
+    document.querySelectorAll('#tabbar [data-tab]').forEach(function (b) { if (b.dataset.tab === view) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    var a = document.querySelector('#tabbar [aria-current="page"]'); if (a) $('#tbpill .tbcur').innerHTML = a.querySelector('svg').outerHTML + '<span class="tbl">' + a.textContent.trim() + '</span>';
+  }
   function setView(v) {
     view = v; $('#v-liste').setAttribute('aria-pressed', v === 'liste'); $('#v-carte').setAttribute('aria-pressed', v === 'carte');
-    $('#mapview').hidden = v !== 'carte'; $('#list').hidden = v === 'carte';
-    if (v === 'carte') { if (st.near && !selCom) selCom = nearestCom(); if (!COMMUNES) fetch('/clubs/communes.json?v=1').then(function (r) { return r.json(); }).then(function (d) { COMMUNES = d; drawMap(); }).catch(function () {}); drawMap(); }
+    $('#mapview').hidden = v !== 'carte'; $('#list').hidden = v === 'carte'; syncTabs();
+    if (v !== 'carte' && full()) setFull(false);
+    if (v === 'carte') { if (st.near && !selCom) selCom = nearestCom(); if (!COMMUNES) fetch('/clubs/communes.json?v=1').then(function (r) { return r.json(); }).then(function (d) { COMMUNES = d; drawMap(); }).catch(function () {}); requestAnimationFrame(drawMap); }
+  }
+  function mapGestures() {
+    var svg = $('#cmap'), drag = null, moved = false, pinch = null;
+    svg.addEventListener('pointerdown', function (e) { if (e.pointerType === 'touch' && VB[2] >= MW && !full()) return; drag = { x: e.clientX, y: e.clientY, vb: VB.slice(), id: e.pointerId }; moved = false; });
+    addEventListener('pointermove', function (e) {
+      if (!drag || pinch || e.pointerId !== drag.id) return;
+      var dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (!moved && Math.abs(dx) + Math.abs(dy) < 6) return;
+      moved = true; svg.classList.add('dragging');
+      var r = svg.getBoundingClientRect(), s = Math.max(VB[2] / r.width, VB[3] / r.height);
+      setVB([drag.vb[0] - dx * s, drag.vb[1] - dy * s, drag.vb[2], drag.vb[3]]);
+    });
+    addEventListener('pointerup', function () { if (drag && moved) { svg.dataset.dragged = '1'; setTimeout(function () { delete svg.dataset.dragged; }, 60); } drag = null; svg.classList.remove('dragging'); });
+    svg.addEventListener('click', function (e) { if (svg.dataset.dragged) { e.stopPropagation(); e.preventDefault(); } }, true);
+    svg.addEventListener('wheel', function (e) { if (!full() && !e.ctrlKey && !e.metaKey) return; e.preventDefault(); var m = toMap(e.clientX, e.clientY); zoomAt(e.deltaY < 0 ? 1.25 : 0.8, m[0], m[1]); }, { passive: false });
+    svg.addEventListener('dblclick', function (e) { var m = toMap(e.clientX, e.clientY); zoomAt(2, m[0], m[1]); });
+    svg.addEventListener('touchstart', function (e) { if (e.touches.length !== 2) { pinch = null; return; } var a = e.touches[0], b = e.touches[1]; drag = null; pinch = { d: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), m: toMap((a.clientX + b.clientX) / 2, (a.clientY + b.clientY) / 2), w: VB[2] }; }, { passive: true });
+    svg.addEventListener('touchmove', function (e) {
+      if (!pinch || e.touches.length !== 2) return; e.preventDefault();
+      var a = e.touches[0], b = e.touches[1], d = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY), cx = (a.clientX + b.clientX) / 2, cy = (a.clientY + b.clientY) / 2;
+      var w = Math.max(MW / 6, Math.min(MW, pinch.w * pinch.d / d)), h = w * MH / MW, r = svg.getBoundingClientRect();
+      setVB([pinch.m[0] - (cx - r.left) / r.width * w, pinch.m[1] - (cy - r.top) / r.height * h, w, h]);
+    }, { passive: false });
+    svg.addEventListener('touchend', function (e) { if (e.touches.length < 2) pinch = null; });
+    $('#z-in').addEventListener('click', function () { zoomAt(1.6); });
+    $('#z-out').addEventListener('click', function () { zoomAt(1 / 1.6); });
+    $('#z-all').addEventListener('click', function () { setVB([0, 0, MW, MH]); });
+    $('#map-full').addEventListener('click', function () { setFull(true); });
+    $('#map-fullx').addEventListener('click', function () { setFull(false); });
+    $('#mpop').addEventListener('click', function (e) { if (e.target.closest('.mpop-x')) { selCom = ''; drawMap(); } });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && full() && !document.querySelector('dialog[open]')) setFull(false); });
+  }
+  function tabMenu() {
+    var tb = $('#tabbar'), pill = $('#tbpill'), dim = $('#tbdim');
+    var menu = function (on) { if (on === undefined) on = !tb.classList.contains('open'); tb.classList.toggle('open', on); dim.classList.toggle('on', on); pill.setAttribute('aria-expanded', on ? 'true' : 'false'); if (on) { var c = tb.querySelector('[aria-current="page"]'); if (c) c.focus({ preventScroll: true }); } };
+    pill.addEventListener('click', function () { menu(); });
+    dim.addEventListener('click', function () { menu(false); });
+    tb.addEventListener('click', function (e) { var b = e.target.closest('[data-tab]'); if (!b) return; menu(false); if (b.dataset.tab !== view) { setView(b.dataset.tab); scrollTo({ top: $('#main').offsetTop - 70, behavior: 'auto' }); } });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && tb.classList.contains('open')) menu(false); });
+    var last = scrollY, t;
+    addEventListener('scroll', function () { if (tb.classList.contains('open')) return; var y = scrollY; if (y > last + 2 && y > 40) pill.classList.add('mini'); else if (y < last - 2) pill.classList.remove('mini'); last = y; clearTimeout(t); t = setTimeout(function () { pill.classList.remove('mini'); }, 700); }, { passive: true });
+    syncTabs();
   }
 
   /* ---------- événements ---------- */
@@ -370,14 +451,15 @@
     $('#cmap').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(e); } });
     $('#formbox').addEventListener('submit', sendForm);
     $('#dclub').addEventListener('close', function () { document.title = 'Clubs péi : les clubs de course et de trail de La Réunion – Dossard Péi'; if (!ROUTING && pathId()) go(''); });
-    [$('#dclub'), $('#dform'), $('#dfilters')].forEach(function (d) { sheetSwipe(d); d.addEventListener('click', function (e) { if (e.target === d) closeDlg(d); }); d.addEventListener('cancel', function (e) { e.preventDefault(); closeDlg(d); }); });
+    $('#club').addEventListener('scroll', fiche, { passive: true });
+    [$('#dclub'), $('#dform'), $('#dfilters')].forEach(function (d) { sheetSwipe(d); d.lastElementChild.addEventListener('scroll', function (e) { fades(e.currentTarget); }, { passive: true }); d.addEventListener('click', function (e) { if (e.target === d) closeDlg(d); }); d.addEventListener('cancel', function (e) { e.preventDefault(); closeDlg(d); }); });
     window.addEventListener('hashchange', onHash);
     window.addEventListener('popstate', route);
   }
 
   fetch('/clubs/liens.json').then(function (r) { return r.json(); }).then(function (l) { LIENS = l; }).catch(function () {}).then(function () { return fetch('/clubs/clubs.json?v=2'); }).then(function (r) { return r.json(); }).then(function (j) {
     DATA = j; POS = j.sprite.pos;
-    fillCommunes(); bind(); render(); topbar(); var mo = new MutationObserver(function () { document.documentElement.classList.toggle('noscroll', !!document.querySelector('dialog[open]')); }); document.querySelectorAll('dialog').forEach(function (d) { mo.observe(d, { attributes: true, attributeFilter: ['open'] }); }); var rz; addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(function () { if (view === 'carte') drawMap(); }, 200); });
+    fillCommunes(); bind(); mapGestures(); tabMenu(); render(); topbar(); var mo = new MutationObserver(function () { document.documentElement.classList.toggle('noscroll', !!document.querySelector('dialog[open]') || full()); document.querySelectorAll('dialog[open]').forEach(function (d) { setTimeout(function () { fades(d.lastElementChild); }, 30); }); }); document.querySelectorAll('dialog').forEach(function (d) { mo.observe(d, { attributes: true, attributeFilter: ['open'] }); }); var rz; addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(function () { if (view === 'carte') drawMap(); }, 200); });
     if (location.hash === '#ajouter') openForm('add'); else if (location.hash.length > 1) onHash(); else if (pathId()) route();
   }).catch(function () { $('#list').innerHTML = '<p class="empty">Impossible de charger les clubs. Recharge la page.</p>'; });
 })();

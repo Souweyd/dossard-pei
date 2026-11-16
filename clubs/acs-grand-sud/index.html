@@ -19,10 +19,10 @@
 <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0d1626" media="(prefers-color-scheme: dark)">
 <link rel="stylesheet" href="/clubs/site-hero.css?v=1">
-<link rel="stylesheet" href="/clubs/clubs.css?v=12">
+<link rel="stylesheet" href="/clubs/clubs.css?v=14">
 <script src="/clubs/mood.js?v=1"></script>
 <script data-goatcounter="https://dossardpei.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-<script src="/clubs/clubs.js?v=12" defer></script>
+<script src="/clubs/clubs.js?v=13" defer></script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SportsClub", "name": "ACS Grand Sud", "url": "https://dossardpei.re/clubs/acs-grand-sud/", "sport": "Athlétisme et trail", "address": {"@type": "PostalAddress", "addressLocality": "Saint-Joseph", "addressRegion": "La Réunion", "addressCountry": "FR"}, "alternateName": "ACS du Grand Sud", "sameAs": ["https://www.facebook.com/ACSGS974"], "telephone": "0692 10 65 94", "email": "acsgs.direction@gmail.com", "memberOf": {"@type": "SportsOrganization", "name": "Fédération française d'athlétisme"}}</script>
 <!-- page club (tools/gen_clubs.py) -->
 </head>
@@ -45,7 +45,7 @@
     </div>
     <div class="qchips" role="group" aria-label="Raccourcis"><button type="button" id="near" aria-pressed="false"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Près de moi</button></div>
     <div class="row" id="state" aria-live="polite"></div>
-    <div class="szrow"><a class="szlink" href="/"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Toutes les courses <span aria-hidden="true">›</span></a></div>
+    <div class="szrow"><a class="szlink" href="/"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Toutes les courses <span aria-hidden="true">›</span></a><a class="szlink jeu" href="/jeu/?ref=clubs"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5" fill="#fff" stroke="#1d2523" stroke-width="2"/><path d="M4.2 6.2h15.6v3.3H4.2z" fill="#1d4f9c"/><path d="M4 9.5h16" stroke="#1d2523" stroke-width="2"/><circle cx="6.5" cy="12.5" r="1" fill="#1d2523"/><circle cx="17.5" cy="12.5" r="1" fill="#1d2523"/></svg>Le jeu <span class="dpjeu-new">Nouveau</span></a></div>
     </div>
   </section>
 
@@ -60,7 +60,7 @@
   </div>
   <div class="vbar2"><div class="switch" role="group" aria-label="Affichage"><button type="button" id="v-liste" aria-pressed="true">Liste</button><button type="button" id="v-carte" aria-pressed="false">Carte</button></div></div>
   <div id="mapview" hidden>
-    <div class="mapbox"><svg id="cmap" viewBox="0 0 1100 1013" role="group" aria-label="Carte des clubs par commune"></svg></div>
+    <div class="mapbox"><svg id="cmap" viewBox="0 0 1100 1013" role="group" aria-label="Carte des clubs par commune"><g id="mbase"></g><g id="mpins"></g></svg><div class="maptools"><span class="zbtns"><button type="button" class="toolbtn" id="z-in" aria-label="Zoomer">+</button><button type="button" class="toolbtn" id="z-out" aria-label="Dézoomer">−</button></span><span class="mtr"><button type="button" class="toolbtn" id="z-all" hidden>Toute l’île</button><button type="button" class="toolbtn mfull" id="map-full" aria-label="Carte en plein écran" title="Plein écran"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" class="toolbtn mfullx" id="map-fullx" aria-label="Fermer la carte plein écran" hidden>×</button></span></div><div class="mpop" id="mpop" hidden></div></div>
     <p class="maphint" id="maphint">Touche une commune pour voir ses clubs.</p>
     <div id="mapsel"></div>
   </div>
@@ -79,7 +79,7 @@
 
 <dialog id="dfilters" class="dlg" aria-labelledby="ftitle">
   <form method="dialog" class="dlgin">
-    <div class="dhead"><h2 id="ftitle">Filtres</h2><button type="button" class="x" data-close aria-label="Fermer">✕</button></div>
+    <div class="dhead"><h2 id="ftitle">Filtres</h2><button type="button" class="x" data-close aria-label="Fermer">×</button></div>
     <label class="lab" for="fcommune">Commune</label>
     <select id="fcommune"><option value="">Toutes les communes</option></select>
     <p class="lab">Secteur</p><div class="chips" id="fsect"></div>
@@ -92,8 +92,14 @@
   </form>
 </dialog>
 
-<dialog id="dclub" class="dlg wide" aria-label="Fiche du club"><div id="club"></div></dialog>
+<dialog id="dclub" class="dlg wide" aria-label="Fiche du club"><div class="fbar"><span id="fbt"></span><button type="button" class="x fbx" data-close aria-label="Fermer">×</button></div><div id="club"></div></dialog>
 
 <dialog id="dform" class="dlg" aria-labelledby="formtitle"><div id="formbox"></div></dialog>
+<div class="tbdim" id="tbdim"></div>
+<nav class="tabbar" id="tabbar" aria-label="Affichage des clubs">
+  <button type="button" data-tab="liste" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>Liste</button>
+  <button type="button" data-tab="carte"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></svg>Carte</button>
+</nav>
+<button type="button" class="tbpill" id="tbpill" aria-haspopup="true" aria-expanded="false" aria-controls="tabbar" aria-label="Changer d'affichage"><span class="tbcur"></span><svg class="car" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
 </body>
 </html>
