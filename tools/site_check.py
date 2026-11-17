@@ -21,7 +21,8 @@ def site_problems():
     pb = []
     today = dt.datetime.now(dt.timezone(dt.timedelta(hours=4))).date().isoformat()
     data = json.load(open("data.json"))
-    want = sum(1 for r in data["races"] if not r.get("hidden") and (r.get("fin") or r["date"]) >= today)
+    # cancelled races (hidden + annule) stay listed on the site until their date, with « Annulée »
+    want = sum(1 for r in data["races"] if (not r.get("hidden") or r.get("annule")) and (r.get("fin") or r["date"]) >= today)
     with sync_playwright() as p:
         b = p.chromium.launch()
         page = b.new_page(viewport={"width": 1366, "height": 900})
