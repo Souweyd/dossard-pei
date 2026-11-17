@@ -703,5 +703,12 @@
 "id": "maloya",
 "nom": "Maloya Trail",
 "date": "2026-12-12"
+},
+{
+"at": "2026-11-18T00:01+04:00",
+"t": "clos",
+"id": "villele",
+"nom": "Trail de Villèle",
+"date": "2026-11-29"
 }
 ]
