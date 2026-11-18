@@ -1,0 +1,46 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Trophée des champions sur route – Finale
+BEGIN:VEVENT
+UID:trophee-champions-route-finale-2026-12-course@dossardpei.re
+DTSTAMP:20261219T000000Z
+SUMMARY:Trophée des champions sur route – Finale
+DTSTART:20261219T140000Z
+DURATION:PT5H
+LOCATION:Aire de pique-nique du littoral (arrivée au Barachois)\, Sainte-
+ Marie\, La Réunion
+URL:https://dossardpei.re/course/trophee-champions-route-finale-2026-12/
+DESCRIPTION:Formats :\n- 15 km : 18h00\n- 10 km : 18h20\n- 5 km : 18h30\n\
+ nFiche : https://dossardpei.re/course/trophee-champions-route-finale-2026
+ -12/\nInscription : https://utoi-inscriptions.com/evenements/finale-troph
+ ee-des-champions-sur-route-19-12-2026
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Trophée des champions sur route – Finale dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:trophee-champions-route-finale-2026-12-cloture@dossardpei.re
+DTSTAMP:20261219T000000Z
+SUMMARY:Clôture des inscriptions : Trophée des champions sur route – F
+ inale
+DTSTART;VALUE=DATE:20261130
+DTEND;VALUE=DATE:20261201
+URL:https://utoi-inscriptions.com/evenements/finale-trophee-des-champions-
+ sur-route-19-12-2026
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://utoi-inscriptions.com/evenements/finale-trophee-des-cham
+ pions-sur-route-19-12-2026\nFiche : https://dossardpei.re/course/trophee-
+ champions-route-finale-2026-12/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Trophée des champions sur route – Finale : cl
+ ôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

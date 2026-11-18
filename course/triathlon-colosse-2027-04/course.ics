@@ -1,0 +1,25 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Triathlon / Duathlon du Colosse
+BEGIN:VEVENT
+UID:triathlon-colosse-2027-04-course@dossardpei.re
+DTSTAMP:20270425T000000Z
+SUMMARY:Triathlon / Duathlon du Colosse
+DTSTART:20270425T040000Z
+DURATION:PT5H
+LOCATION:Parc du Colosse\, Saint-André\, La Réunion
+URL:https://dossardpei.re/course/triathlon-colosse-2027-04/
+DESCRIPTION:Formats :\n- Triathlon M : 08h00\n- Duathlon M : 08h00\n- Tria
+ thlon XS : 10h45\n\nFiche : https://dossardpei.re/course/triathlon-coloss
+ e-2027-04/\nInscription : https://www.tcsa-974.fr/evenements/2027/04/25/t
+ riathlonduathlon-du-colosse-2027-2565375
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Triathlon / Duathlon du Colosse dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,40 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Leu Trail des Musées
+BEGIN:VEVENT
+UID:musees-course@dossardpei.re
+DTSTAMP:20261206T000000Z
+SUMMARY:Leu Trail des Musées
+DTSTART:20261206T020000Z
+DURATION:PT5H
+LOCATION:Saint-Leu\, Saint-Leu\, La Réunion
+URL:https://dossardpei.re/course/musees/
+DESCRIPTION:Formats :\n- Leu Trail des Musées : 06h00\n\nFiche : https://
+ dossardpei.re/course/musees/\nInscription : https://chronometrage.com/eve
+ nts/leutraildesmusees
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Leu Trail des Musées dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:musees-cloture@dossardpei.re
+DTSTAMP:20261206T000000Z
+SUMMARY:Clôture des inscriptions : Leu Trail des Musées
+DTSTART;VALUE=DATE:20261125
+DTEND;VALUE=DATE:20261126
+URL:https://chronometrage.com/events/leutraildesmusees
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://chronometrage.com/events/leutraildesmusees\nFiche : http
+ s://dossardpei.re/course/musees/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Leu Trail des Musées : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

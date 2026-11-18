@@ -1,0 +1,25 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Les Foulées des 3 Villages
+BEGIN:VEVENT
+UID:3villages-course@dossardpei.re
+DTSTAMP:20261122T000000Z
+SUMMARY:Les Foulées des 3 Villages
+DTSTART:20261122T020000Z
+DURATION:PT5H
+LOCATION:Vincendo / la Crête\, Saint-Joseph\, La Réunion
+URL:https://dossardpei.re/course/3villages/
+DESCRIPTION:Formats :\n- Foulées 32 km de la Crête : 06h00\n- Foulées 1
+ 1 km de la Crête : 07h30\n- Rando de la Crête : 08h00\n\nFiche : https:
+ //dossardpei.re/course/3villages/\nInscription : https://chronometrage.co
+ m/events/lesfouleesdes3villages
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Les Foulées des 3 Villages dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

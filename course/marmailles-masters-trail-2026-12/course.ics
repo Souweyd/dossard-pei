@@ -1,0 +1,40 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Marmailles Masters Trail
+BEGIN:VEVENT
+UID:marmailles-masters-trail-2026-12-course@dossardpei.re
+DTSTAMP:20261213T000000Z
+SUMMARY:Marmailles Masters Trail
+DTSTART:20261213T020000Z
+DURATION:PT5H
+LOCATION:Stade des Makes\, Saint-Louis\, La Réunion
+URL:https://dossardpei.re/course/marmailles-masters-trail-2026-12/
+DESCRIPTION:Formats :\n- Trail des Masters : 06h00\n\nFiche : https://doss
+ ardpei.re/course/marmailles-masters-trail-2026-12/\nInscription : https:/
+ /chronometrage.com/events/marmaillesmasterstrail2026
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Marmailles Masters Trail dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:marmailles-masters-trail-2026-12-cloture@dossardpei.re
+DTSTAMP:20261213T000000Z
+SUMMARY:Clôture des inscriptions : Marmailles Masters Trail
+DTSTART;VALUE=DATE:20261206
+DTEND;VALUE=DATE:20261207
+URL:https://chronometrage.com/events/marmaillesmasterstrail2026
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://chronometrage.com/events/marmaillesmasterstrail2026\nFic
+ he : https://dossardpei.re/course/marmailles-masters-trail-2026-12/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Marmailles Masters Trail : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,25 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Leu Oxygène Trail
+BEGIN:VEVENT
+UID:leu-oxygene-trail-2027-07-course@dossardpei.re
+DTSTAMP:20270730T000000Z
+SUMMARY:Leu Oxygène Trail
+DTSTART;VALUE=DATE:20270730
+DTEND;VALUE=DATE:20270801
+LOCATION:La Chaloupe Saint-Leu\, Saint-Leu\, La Réunion
+URL:https://dossardpei.re/course/leu-oxygene-trail-2027-07/
+DESCRIPTION:Formats :\n- Traversée vers l'Ouest : 21h00\n- Ascension de l
+ 'Ouest : 05h00\n- Sakikour : 07h30\n- Randoxygène : 08h00\n\nFiche : htt
+ ps://dossardpei.re/course/leu-oxygene-trail-2027-07/\nInscription : https
+ ://www.canneenfleur.org/leuoxygenetrail
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1DT6H
+DESCRIPTION:Leu Oxygène Trail dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

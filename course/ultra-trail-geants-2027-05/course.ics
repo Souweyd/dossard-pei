@@ -1,0 +1,47 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Ultra Trail des Géants
+BEGIN:VEVENT
+UID:ultra-trail-geants-2027-05-course@dossardpei.re
+DTSTAMP:20270506T000000Z
+SUMMARY:Ultra Trail des Géants
+DTSTART;VALUE=DATE:20270506
+DTEND;VALUE=DATE:20270510
+LOCATION:Stade de Basse-Vallée (arrivée La Redoute\, Saint-Denis)\, Sain
+ t-Philippe\, La Réunion
+URL:https://dossardpei.re/course/ultra-trail-geants-2027-05/
+DESCRIPTION:Formats :\n- Ultra Terrestre : 06h00\n- Ultra Trail des Géant
+ s : 12h00\n- Ultra Trail des Géants relais : 12h00\n- Speed'Goat solo : 
+ 14h00\n- Speed'Goat duo : 14h00\n- Mega Trail de l'Ouest : 05h00\n- Mega 
+ Trail de l'Ouest relais : 05h00\n- Trail des Pétrels : 07h00\n- Trail du
+  Colorado : 07h00\n\nFiche : https://dossardpei.re/course/ultra-trail-gea
+ nts-2027-05/\nInscription : https://utoi-inscriptions.com/evenements/ultr
+ a-trail-des-geants?annee=2027
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1DT6H
+DESCRIPTION:Ultra Trail des Géants dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:ultra-trail-geants-2027-05-cloture@dossardpei.re
+DTSTAMP:20270506T000000Z
+SUMMARY:Clôture des inscriptions : Ultra Trail des Géants
+DTSTART;VALUE=DATE:20261130
+DTEND;VALUE=DATE:20261201
+URL:https://utoi-inscriptions.com/evenements/ultra-trail-des-geants?annee=
+ 2027
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://utoi-inscriptions.com/evenements/ultra-trail-des-geants?
+ annee=2027\nFiche : https://dossardpei.re/course/ultra-trail-geants-2027-
+ 05/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Ultra Trail des Géants : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

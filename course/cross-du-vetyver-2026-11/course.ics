@@ -1,0 +1,43 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Cross du Vétyver
+BEGIN:VEVENT
+UID:cross-du-vetyver-2026-11-course@dossardpei.re
+DTSTAMP:20261122T000000Z
+SUMMARY:Cross du Vétyver
+DTSTART:20261122T040000Z
+DURATION:PT5H
+LOCATION:Domaine du Relais\, Petite-Île\, La Réunion
+URL:https://dossardpei.re/course/cross-du-vetyver-2026-11/
+DESCRIPTION:Formats :\n- Cross long ES à MA hommes : 08h00\n- Cross 5\,5 
+ km : 08h45\n- Benjamines : 09h45\n- Benjamins et minimes filles : 10h00\n
+ - Minimes garçons et cadettes : 10h20\n- Cadets et juniors filles : 10h5
+ 0\n- Cross court\, handisport et sport adapté : 11h20\n\nFiche : https:/
+ /dossardpei.re/course/cross-du-vetyver-2026-11/\nInscription : https://ch
+ ronorun974.re/cross-du-vetyver-2026/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Cross du Vétyver dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:cross-du-vetyver-2026-11-cloture@dossardpei.re
+DTSTAMP:20261122T000000Z
+SUMMARY:Clôture des inscriptions : Cross du Vétyver
+DTSTART;VALUE=DATE:20261119
+DTEND;VALUE=DATE:20261120
+URL:https://chronorun974.re/cross-du-vetyver-2026/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://chronorun974.re/cross-du-vetyver-2026/\nFiche : https://
+ dossardpei.re/course/cross-du-vetyver-2026-11/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Cross du Vétyver : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

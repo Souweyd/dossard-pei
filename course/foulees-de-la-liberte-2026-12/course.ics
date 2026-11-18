@@ -1,0 +1,41 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Foulées de la Liberté
+BEGIN:VEVENT
+UID:foulees-de-la-liberte-2026-12-course@dossardpei.re
+DTSTAMP:20261212T000000Z
+SUMMARY:Foulées de la Liberté
+DTSTART:20261212T140000Z
+DURATION:PT5H
+LOCATION:Stade de La Redoute\, Saint-Denis\, La Réunion
+URL:https://dossardpei.re/course/foulees-de-la-liberte-2026-12/
+DESCRIPTION:Formats :\n- Les Foulées de la Liberté : 18h00\n- Handisport
+  – Les Foulées de la Liberté : 18h00\n\nFiche : https://dossardpei.re
+ /course/foulees-de-la-liberte-2026-12/\nInscription : https://www.sportpr
+ o.re/courses/02185-foulees-de-la-liberte/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Foulées de la Liberté dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:foulees-de-la-liberte-2026-12-cloture@dossardpei.re
+DTSTAMP:20261212T000000Z
+SUMMARY:Clôture des inscriptions : Foulées de la Liberté
+DTSTART;VALUE=DATE:20261208
+DTEND;VALUE=DATE:20261209
+URL:https://www.sportpro.re/courses/02185-foulees-de-la-liberte/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://www.sportpro.re/courses/02185-foulees-de-la-liberte/\nFi
+ che : https://dossardpei.re/course/foulees-de-la-liberte-2026-12/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Foulées de la Liberté : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

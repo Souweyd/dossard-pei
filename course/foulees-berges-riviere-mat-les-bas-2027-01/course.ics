@@ -1,0 +1,47 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Les Foulées des Berges de la Rivière du Mât Les Bas
+BEGIN:VEVENT
+UID:foulees-berges-riviere-mat-les-bas-2027-01-course@dossardpei.re
+DTSTAMP:20270131T000000Z
+SUMMARY:Les Foulées des Berges de la Rivière du Mât Les Bas
+DTSTART:20270131T030000Z
+DURATION:PT5H
+LOCATION:Case Rivière du Mât Les Bas\, Saint-André\, La Réunion
+URL:https://dossardpei.re/course/foulees-berges-riviere-mat-les-bas-2027-0
+ 1/
+DESCRIPTION:Formats :\n- Les Foulées des Berges : 07h00\n\nFiche : https:
+ //dossardpei.re/course/foulees-berges-riviere-mat-les-bas-2027-01/\nInscr
+ iption : https://www.sportpro.re/courses/02204-les-foulees-des-berges-de-
+ la-riviere-du-mat-les-bas/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Les Foulées des Berges de la Rivière du Mât Les Bas dans 2 
+ jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:foulees-berges-riviere-mat-les-bas-2027-01-cloture@dossardpei.re
+DTSTAMP:20270131T000000Z
+SUMMARY:Clôture des inscriptions : Les Foulées des Berges de la Rivière
+  du Mât Les Bas
+DTSTART;VALUE=DATE:20261228
+DTEND;VALUE=DATE:20261229
+URL:https://www.sportpro.re/courses/02204-les-foulees-des-berges-de-la-riv
+ iere-du-mat-les-bas/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://www.sportpro.re/courses/02204-les-foulees-des-berges-de-
+ la-riviere-du-mat-les-bas/\nFiche : https://dossardpei.re/course/foulees-
+ berges-riviere-mat-les-bas-2027-01/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Les Foulées des Berges de la Rivière du Mât Le
+ s Bas : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

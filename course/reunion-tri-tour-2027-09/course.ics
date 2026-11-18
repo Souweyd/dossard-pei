@@ -1,0 +1,43 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Réunion Tri Tour
+BEGIN:VEVENT
+UID:reunion-tri-tour-2027-09-course@dossardpei.re
+DTSTAMP:20270925T000000Z
+SUMMARY:Réunion Tri Tour
+DTSTART:20270925T023000Z
+DURATION:PT5H
+LOCATION:Plage de Saint-Leu\, Saint-Leu\, La Réunion
+URL:https://dossardpei.re/course/reunion-tri-tour-2027-09/
+DESCRIPTION:Formats :\n- Triathlon XXL : 06h30\n- Triathlon XXL relais : 0
+ 6h30\n- Duathlon XXL : 06h40\n- Duathlon XXL relais : 06h40\n- BikeRun XX
+ L\n- Triathlon M : 08h00\n- Triathlon M relais : 08h00\n- BikeRun M : 08h
+ 00\n- Triathlon XS : 13h30\n\nFiche : https://dossardpei.re/course/reunio
+ n-tri-tour-2027-09/\nInscription : https://www.finishers.com/course/reuni
+ on-tri-tour
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Réunion Tri Tour dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:reunion-tri-tour-2027-09-cloture@dossardpei.re
+DTSTAMP:20270925T000000Z
+SUMMARY:Clôture des inscriptions : Réunion Tri Tour
+DTSTART;VALUE=DATE:20270923
+DTEND;VALUE=DATE:20270924
+URL:https://www.finishers.com/course/reunion-tri-tour
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://www.finishers.com/course/reunion-tri-tour\nFiche : https
+ ://dossardpei.re/course/reunion-tri-tour-2027-09/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Réunion Tri Tour : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

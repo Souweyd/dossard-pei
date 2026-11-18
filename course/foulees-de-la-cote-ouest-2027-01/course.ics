@@ -1,0 +1,43 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Foulées de la Côte Ouest
+BEGIN:VEVENT
+UID:foulees-de-la-cote-ouest-2027-01-course@dossardpei.re
+DTSTAMP:20270123T000000Z
+SUMMARY:Foulées de la Côte Ouest
+DTSTART:20270123T130000Z
+DURATION:PT5H
+LOCATION:Stade de Carosse\, La Saline\, Saint-Paul\, La Réunion
+URL:https://dossardpei.re/course/foulees-de-la-cote-ouest-2027-01/
+DESCRIPTION:Formats :\n- Foulées de la côte ouest (trail) : 18h00\n- Cou
+ rse cadets et juniors (2008-2011) : 17h00\n- Rando de la côte ouest : 17
+ h00\n\nFiche : https://dossardpei.re/course/foulees-de-la-cote-ouest-2027
+ -01/\nInscription : https://www.sportpro.re/courses/02198-foulees-de-la-c
+ ote-ouest-2027/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Foulées de la Côte Ouest dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:foulees-de-la-cote-ouest-2027-01-cloture@dossardpei.re
+DTSTAMP:20270123T000000Z
+SUMMARY:Clôture des inscriptions : Foulées de la Côte Ouest
+DTSTART;VALUE=DATE:20270117
+DTEND;VALUE=DATE:20270118
+URL:https://www.sportpro.re/courses/02198-foulees-de-la-cote-ouest-2027/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://www.sportpro.re/courses/02198-foulees-de-la-cote-ouest-2
+ 027/\nFiche : https://dossardpei.re/course/foulees-de-la-cote-ouest-2027-
+ 01/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Foulées de la Côte Ouest : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

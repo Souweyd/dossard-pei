@@ -1,0 +1,40 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Festi Trail de Saint-Leu
+BEGIN:VEVENT
+UID:festi-trail-saint-leu-2027-02-course@dossardpei.re
+DTSTAMP:20270207T000000Z
+SUMMARY:Festi Trail de Saint-Leu
+DTSTART:20270207T020000Z
+DURATION:PT5H
+LOCATION:Mairie de Saint-Leu\, Saint-Leu\, La Réunion
+URL:https://dossardpei.re/course/festi-trail-saint-leu-2027-02/
+DESCRIPTION:Formats :\n- Festi Trail de Saint-Leu : 06h00\n\nFiche : https
+ ://dossardpei.re/course/festi-trail-saint-leu-2027-02/\nInscription : htt
+ ps://www.sportpro.re/courses/02191-festi-trail-de-saint-leu/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Festi Trail de Saint-Leu dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:festi-trail-saint-leu-2027-02-cloture@dossardpei.re
+DTSTAMP:20270207T000000Z
+SUMMARY:Clôture des inscriptions : Festi Trail de Saint-Leu
+DTSTART;VALUE=DATE:20270131
+DTEND;VALUE=DATE:20270201
+URL:https://www.sportpro.re/courses/02191-festi-trail-de-saint-leu/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://www.sportpro.re/courses/02191-festi-trail-de-saint-leu/\
+ nFiche : https://dossardpei.re/course/festi-trail-saint-leu-2027-02/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Festi Trail de Saint-Leu : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

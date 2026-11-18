@@ -1,0 +1,23 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Trail Boucle Pic Adam
+BEGIN:VEVENT
+UID:boucle-pic-adam-2027-08-course@dossardpei.re
+DTSTAMP:20270807T000000Z
+SUMMARY:Trail Boucle Pic Adam
+DTSTART;VALUE=DATE:20270807
+DTEND;VALUE=DATE:20270808
+LOCATION:Stade du Moufia\, Saint-Denis\, La Réunion
+URL:https://dossardpei.re/course/boucle-pic-adam-2027-08/
+DESCRIPTION:Formats :\n- Trail 25 km\n- Randonnée 8 km\n\nFiche : https:/
+ /dossardpei.re/course/boucle-pic-adam-2027-08/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1DT6H
+DESCRIPTION:Trail Boucle Pic Adam dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

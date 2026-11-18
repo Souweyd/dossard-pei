@@ -1,0 +1,25 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Relais Trail le Vieux Saint-Paul
+BEGIN:VEVENT
+UID:relais-trail-vieux-saint-paul-2026-12-course@dossardpei.re
+DTSTAMP:20261213T000000Z
+SUMMARY:Relais Trail le Vieux Saint-Paul
+DTSTART:20261213T034500Z
+DURATION:PT5H
+LOCATION:Bassin Vital\, Rivière des Galets\, Saint-Paul\, La Réunion
+URL:https://dossardpei.re/course/relais-trail-vieux-saint-paul-2026-12/
+DESCRIPTION:Formats :\n- Relais 5 × 3\,7 km : 07h45\n\nFiche : https://do
+ ssardpei.re/course/relais-trail-vieux-saint-paul-2026-12/\nInscription : 
+ https://www.topchrono.run/evenements/relai-trail-le-vieux-saint-paul-2026
+ /
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Relais Trail le Vieux Saint-Paul dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

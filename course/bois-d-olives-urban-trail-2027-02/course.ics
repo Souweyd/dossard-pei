@@ -1,0 +1,42 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Bois d'Olives Urban Trail
+BEGIN:VEVENT
+UID:bois-d-olives-urban-trail-2027-02-course@dossardpei.re
+DTSTAMP:20270220T000000Z
+SUMMARY:Bois d'Olives Urban Trail
+DTSTART:20270220T130000Z
+DURATION:PT5H
+LOCATION:Stade du Lycée de Bois d'Olives\, Saint-Pierre\, La Réunion
+URL:https://dossardpei.re/course/bois-d-olives-urban-trail-2027-02/
+DESCRIPTION:Formats :\n- Trail 19 km : 17h30\n- Trail 5 km : 17h15\n- Rand
+ o 10 km : 17h00\n\nFiche : https://dossardpei.re/course/bois-d-olives-urb
+ an-trail-2027-02/\nInscription : https://www.sportpro.re/courses/02203-bo
+ is-dolives-urban-trail-2027-/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Bois d'Olives Urban Trail dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:bois-d-olives-urban-trail-2027-02-cloture@dossardpei.re
+DTSTAMP:20270220T000000Z
+SUMMARY:Clôture des inscriptions : Bois d'Olives Urban Trail
+DTSTART;VALUE=DATE:20270214
+DTEND;VALUE=DATE:20270215
+URL:https://www.sportpro.re/courses/02203-bois-dolives-urban-trail-2027-/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://www.sportpro.re/courses/02203-bois-dolives-urban-trail-2
+ 027-/\nFiche : https://dossardpei.re/course/bois-d-olives-urban-trail-202
+ 7-02/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Bois d'Olives Urban Trail : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

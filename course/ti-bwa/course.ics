@@ -1,0 +1,24 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Kours Ti Bwa
+BEGIN:VEVENT
+UID:ti-bwa-course@dossardpei.re
+DTSTAMP:20261206T000000Z
+SUMMARY:Kours Ti Bwa
+DTSTART:20261206T030000Z
+DURATION:PT5H
+LOCATION:Saint-Paul\, Saint-Paul\, La Réunion
+URL:https://dossardpei.re/course/ti-bwa/
+DESCRIPTION:Formats :\n- Kours Ti Bwa : 07h00\n- Rando Ti Bwa : 07h15\n\nF
+ iche : https://dossardpei.re/course/ti-bwa/\nInscription : https://www.sp
+ ortpro.re/courses/02164-kours-ti-bwa-/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Kours Ti Bwa dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

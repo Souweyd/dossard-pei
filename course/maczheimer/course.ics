@@ -1,0 +1,24 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Les Foulées de la Mac'Zheimer
+BEGIN:VEVENT
+UID:maczheimer-course@dossardpei.re
+DTSTAMP:20261122T000000Z
+SUMMARY:Les Foulées de la Mac'Zheimer
+DTSTART:20261122T033000Z
+DURATION:PT5H
+LOCATION:Les Makes\, Saint-Louis\, La Réunion
+URL:https://dossardpei.re/course/maczheimer/
+DESCRIPTION:Formats :\n- 10 km : 07h30\n- 5 km : 07h45\n- Marche 5 km : 08
+ h00\n\nFiche : https://dossardpei.re/course/maczheimer/\nInscription : ht
+ tps://www.sportpro.re/courses/02182-les-foulees-de-la-maczheimer/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Les Foulées de la Mac'Zheimer dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

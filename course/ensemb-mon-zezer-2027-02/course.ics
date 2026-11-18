@@ -1,0 +1,40 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Ensemb mon zézèr
+BEGIN:VEVENT
+UID:ensemb-mon-zezer-2027-02-course@dossardpei.re
+DTSTAMP:20270214T000000Z
+SUMMARY:Ensemb mon zézèr
+DTSTART:20270214T040000Z
+DURATION:PT5H
+LOCATION:Esplanade de Saint-Benoît\, Saint-Benoît\, La Réunion
+URL:https://dossardpei.re/course/ensemb-mon-zezer-2027-02/
+DESCRIPTION:Formats :\n- Ensemb mon zézèr (en duo) : 08h00\n\nFiche : ht
+ tps://dossardpei.re/course/ensemb-mon-zezer-2027-02/\nInscription : https
+ ://www.sportpro.re/courses/02200-ensemb-mon-zezer/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Ensemb mon zézèr dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:ensemb-mon-zezer-2027-02-cloture@dossardpei.re
+DTSTAMP:20270214T000000Z
+SUMMARY:Clôture des inscriptions : Ensemb mon zézèr
+DTSTART;VALUE=DATE:20270115
+DTEND;VALUE=DATE:20270116
+URL:https://www.sportpro.re/courses/02200-ensemb-mon-zezer/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://www.sportpro.re/courses/02200-ensemb-mon-zezer/\nFiche :
+  https://dossardpei.re/course/ensemb-mon-zezer-2027-02/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Ensemb mon zézèr : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

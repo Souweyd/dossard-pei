@@ -1,0 +1,24 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Les Foulées de la Cité du Volcan
+BEGIN:VEVENT
+UID:foulees-cite-volcan-2026-12-course@dossardpei.re
+DTSTAMP:20261220T000000Z
+SUMMARY:Les Foulées de la Cité du Volcan
+DTSTART:20261220T050000Z
+DURATION:PT5H
+LOCATION:Plaine des Cafres\, Le Tampon\, La Réunion
+URL:https://dossardpei.re/course/foulees-cite-volcan-2026-12/
+DESCRIPTION:Formats :\n- Course : 09h00\n\nFiche : https://dossardpei.re/c
+ ourse/foulees-cite-volcan-2026-12/\nInscription : https://in.njuko.com/le
+ s-foulees-de-la-cite-du-volcan1786614431476
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Les Foulées de la Cité du Volcan dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

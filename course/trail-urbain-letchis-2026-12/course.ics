@@ -1,0 +1,40 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Trail Urbain des Letchis
+BEGIN:VEVENT
+UID:trail-urbain-letchis-2026-12-course@dossardpei.re
+DTSTAMP:20261219T000000Z
+SUMMARY:Trail Urbain des Letchis
+DTSTART:20261219T120000Z
+DURATION:PT5H
+LOCATION:Esplanade de Saint-Benoît\, Saint-Benoît\, La Réunion
+URL:https://dossardpei.re/course/trail-urbain-letchis-2026-12/
+DESCRIPTION:Formats :\n- 14 km : 16h00\n\nFiche : https://dossardpei.re/co
+ urse/trail-urbain-letchis-2026-12/\nInscription : https://www.sportpro.re
+ /courses/02186-trail-urbain-des-letchis/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Trail Urbain des Letchis dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:trail-urbain-letchis-2026-12-cloture@dossardpei.re
+DTSTAMP:20261219T000000Z
+SUMMARY:Clôture des inscriptions : Trail Urbain des Letchis
+DTSTART;VALUE=DATE:20261215
+DTEND;VALUE=DATE:20261216
+URL:https://www.sportpro.re/courses/02186-trail-urbain-des-letchis/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://www.sportpro.re/courses/02186-trail-urbain-des-letchis/\
+ nFiche : https://dossardpei.re/course/trail-urbain-letchis-2026-12/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Trail Urbain des Letchis : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

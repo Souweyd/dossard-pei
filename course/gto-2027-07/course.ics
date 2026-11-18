@@ -1,0 +1,24 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Grand Trail de l'Ouest (GTO)
+BEGIN:VEVENT
+UID:gto-2027-07-course@dossardpei.re
+DTSTAMP:20270702T000000Z
+SUMMARY:Grand Trail de l'Ouest (GTO)
+DTSTART;VALUE=DATE:20270702
+DTEND;VALUE=DATE:20270705
+LOCATION:Saint-Paul\, Saint-Paul\, La Réunion
+URL:https://dossardpei.re/course/gto-2027-07/
+DESCRIPTION:Formats :\n- L'Ultra Givré\n- Relais L'Ultra Givré (équipe 
+ de 3)\n- La Demi Givré\n- Le Dégivré\n\nFiche : https://dossardpei.re/
+ course/gto-2027-07/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1DT6H
+DESCRIPTION:Grand Trail de l'Ouest (GTO) dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

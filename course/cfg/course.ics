@@ -1,0 +1,41 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Les Foulées du CFG
+BEGIN:VEVENT
+UID:cfg-course@dossardpei.re
+DTSTAMP:20270130T000000Z
+SUMMARY:Les Foulées du CFG
+DTSTART:20270130T153000Z
+DURATION:PT5H
+LOCATION:Complexe Félix Guichard\, Sainte-Anne\, Saint-Benoît\, La Réun
+ ion
+URL:https://dossardpei.re/course/cfg/
+DESCRIPTION:Formats :\n- 10 km : 19h30\n\nFiche : https://dossardpei.re/co
+ urse/cfg/\nInscription : https://www.sportpro.re/courses/02181-les-foulee
+ s-du-cfg/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Les Foulées du CFG dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:cfg-cloture@dossardpei.re
+DTSTAMP:20270130T000000Z
+SUMMARY:Clôture des inscriptions : Les Foulées du CFG
+DTSTART;VALUE=DATE:20270126
+DTEND;VALUE=DATE:20270127
+URL:https://www.sportpro.re/courses/02181-les-foulees-du-cfg/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://www.sportpro.re/courses/02181-les-foulees-du-cfg/\nFiche
+  : https://dossardpei.re/course/cfg/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Les Foulées du CFG : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,40 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Trail des Anglais
+BEGIN:VEVENT
+UID:trail-anglais-2027-02-course@dossardpei.re
+DTSTAMP:20270228T000000Z
+SUMMARY:Trail des Anglais
+DTSTART:20270228T013000Z
+DURATION:PT5H
+LOCATION:Gymnase COTUR\, Lycée Jean Hinglo\, Le Port\, La Réunion
+URL:https://dossardpei.re/course/trail-anglais-2027-02/
+DESCRIPTION:Formats :\n- Trail des Anglais : 05h30\n\nFiche : https://doss
+ ardpei.re/course/trail-anglais-2027-02/\nInscription : https://traildesan
+ glais.re/inscriptions/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Trail des Anglais dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:trail-anglais-2027-02-cloture@dossardpei.re
+DTSTAMP:20270228T000000Z
+SUMMARY:Clôture des inscriptions : Trail des Anglais
+DTSTART;VALUE=DATE:20270207
+DTEND;VALUE=DATE:20270208
+URL:https://traildesanglais.re/inscriptions/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://traildesanglais.re/inscriptions/\nFiche : https://dossar
+ dpei.re/course/trail-anglais-2027-02/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Trail des Anglais : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

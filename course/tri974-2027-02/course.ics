@@ -1,0 +1,25 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:TRI97.4
+BEGIN:VEVENT
+UID:tri974-2027-02-course@dossardpei.re
+DTSTAMP:20270214T000000Z
+SUMMARY:TRI97.4
+DTSTART:20270214T023000Z
+DURATION:PT5H
+LOCATION:Lagon de Saint-Leu\, Saint-Leu\, La Réunion
+URL:https://dossardpei.re/course/tri974-2027-02/
+DESCRIPTION:Formats :\n- Triathlon : 06h30\n- Duathlon : 06h30\n- Triathlo
+ n relais (2 ou 3 personnes) : 06h30\n- Duathlon relais (2 personnes) : 06
+ h30\n- Triathlon XS\n\nFiche : https://dossardpei.re/course/tri974-2027-0
+ 2/\nInscription : https://in.inscriptions-tiel.com/t9741792683083707
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:TRI97.4 dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

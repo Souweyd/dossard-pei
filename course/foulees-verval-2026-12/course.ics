@@ -1,0 +1,25 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Les Foulées du Verval
+BEGIN:VEVENT
+UID:foulees-verval-2026-12-course@dossardpei.re
+DTSTAMP:20261219T000000Z
+SUMMARY:Les Foulées du Verval
+DTSTART:20261219T023000Z
+DURATION:PT5H
+LOCATION:Plateau sportif du Verval\, La Rivière\, Saint-Louis\, La Réuni
+ on
+URL:https://dossardpei.re/course/foulees-verval-2026-12/
+DESCRIPTION:Formats :\n- Trail 10 km : 06h30\n\nFiche : https://dossardpei
+ .re/course/foulees-verval-2026-12/\nInscription : https://www.topchrono.r
+ un/evenements/les-foulees-du-verval-2026/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Les Foulées du Verval dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,25 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Trail Urbain de Saint-Pierre
+BEGIN:VEVENT
+UID:trail-urbain-saint-pierre-2026-11-course@dossardpei.re
+DTSTAMP:20261128T000000Z
+SUMMARY:Trail Urbain de Saint-Pierre
+DTSTART:20261128T140000Z
+DURATION:PT5H
+LOCATION:Parc Salahin\, Saint-Pierre\, La Réunion
+URL:https://dossardpei.re/course/trail-urbain-saint-pierre-2026-11/
+DESCRIPTION:Formats :\n- Trail urbain 21 km : 18h00\n- Trail urbain 7 km :
+  18h15\n\nFiche : https://dossardpei.re/course/trail-urbain-saint-pierre-
+ 2026-11/\nInscription : https://www.topchrono.run/evenements/trail-urbain
+ -de-saint-pierre-2026/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Trail Urbain de Saint-Pierre dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,27 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Eden Rox Challenge
+BEGIN:VEVENT
+UID:eden-rox-challenge-2027-03-course@dossardpei.re
+DTSTAMP:20270320T000000Z
+SUMMARY:Eden Rox Challenge
+DTSTART;VALUE=DATE:20270320
+DTEND;VALUE=DATE:20270322
+LOCATION:Jardin d'Eden\, L'Hermitage-les-Bains\, Saint-Paul\, La Réunion
+URL:https://dossardpei.re/course/eden-rox-challenge-2027-03/
+DESCRIPTION:Formats :\n- Solo Open 1000 (8 boucles de 1 km + 8 ateliers) :
+  14h10\n- Duo Open 1000 : 08h00\n- Team Fun4 : 13h40\n- Solo 500 (8 boucl
+ es de 500 m + 8 ateliers) : 14h20\n- Duo 500 : 09h00\n\nFiche : https://d
+ ossardpei.re/course/eden-rox-challenge-2027-03/\nInscription : https://ww
+ w.klikego.com/inscription/eden-rox-challenge-2027/running-course-a-pied/1
+ 699481084702-16
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1DT6H
+DESCRIPTION:Eden Rox Challenge dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

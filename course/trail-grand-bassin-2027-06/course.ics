@@ -1,0 +1,26 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Trail Grand Bassin Mollaret
+BEGIN:VEVENT
+UID:trail-grand-bassin-2027-06-course@dossardpei.re
+DTSTAMP:20270619T000000Z
+SUMMARY:Trail Grand Bassin Mollaret
+DTSTART:20270619T030000Z
+DURATION:PT5H
+LOCATION:Belvédère de Grand Bassin\, Bois Court\, Le Tampon\, La Réunio
+ n
+URL:https://dossardpei.re/course/trail-grand-bassin-2027-06/
+DESCRIPTION:Formats :\n- Trail du Grand-Bassin/Mollaret : 07h00\n- Foulée
+ s du Grand-Bassin : 07h30\n\nFiche : https://dossardpei.re/course/trail-g
+ rand-bassin-2027-06/\nInscription : https://www.aajm.re/courses/trail-gra
+ nd-bassin/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Trail Grand Bassin Mollaret dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

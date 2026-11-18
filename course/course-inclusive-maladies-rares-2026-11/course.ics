@@ -1,0 +1,27 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Course inclusive des maladies rares
+BEGIN:VEVENT
+UID:course-inclusive-maladies-rares-2026-11-course@dossardpei.re
+DTSTAMP:20261129T000000Z
+SUMMARY:Course inclusive des maladies rares
+DTSTART:20261129T060000Z
+DURATION:PT5H
+LOCATION:Esplanade du Front de mer\, Saint-Benoît\, Saint-Benoît\, La R
+ éunion
+URL:https://dossardpei.re/course/course-inclusive-maladies-rares-2026-11/
+DESCRIPTION:Formats :\n- Boucle de 3\,5 km (course\, marche\, fauteuil) : 
+ 10h00\n\nFiche : https://dossardpei.re/course/course-inclusive-maladies-r
+ ares-2026-11/\nInscription : https://www.helloasso.com/associations/colle
+ ctif-maladies-rares-ocean-indien/evenements/course-inclusive-pour-les-mal
+ adies-rares
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Course inclusive des maladies rares dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

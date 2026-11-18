@@ -1,0 +1,24 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Trans Dimitile
+BEGIN:VEVENT
+UID:dimitile-course@dossardpei.re
+DTSTAMP:20261206T000000Z
+SUMMARY:Trans Dimitile
+DTSTART:20261206T020000Z
+DURATION:PT5H
+LOCATION:Stade Victorien Carian\, Entre-Deux\, La Réunion
+URL:https://dossardpei.re/course/dimitile/
+DESCRIPTION:Formats :\n- Trans Dimitile : 06h00\n- Rando Dimitile : 06h30\
+ n\nFiche : https://dossardpei.re/course/dimitile/\nInscription : https://
+ www.sportpro.re/courses/02178-trans-dimitile/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Trans Dimitile dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

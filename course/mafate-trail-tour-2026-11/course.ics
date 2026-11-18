@@ -1,0 +1,24 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Mafate Trail Tour (MTT)
+BEGIN:VEVENT
+UID:mafate-trail-tour-2026-11-course@dossardpei.re
+DTSTAMP:20261128T000000Z
+SUMMARY:Mafate Trail Tour (MTT)
+DTSTART:20261127T210000Z
+DURATION:PT5H
+LOCATION:Case de Grand-Îlet (Mafate)\, Salazie\, La Réunion
+URL:https://dossardpei.re/course/mafate-trail-tour-2026-11/
+DESCRIPTION:Formats :\n- Ultra MTT : 01h00\n- MTT : 03h00\n- MT : 05h00\n\
+ nFiche : https://dossardpei.re/course/mafate-trail-tour-2026-11/\nInscrip
+ tion : https://chronometrage.com/events/mafatetrailtour2026
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Mafate Trail Tour (MTT) dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

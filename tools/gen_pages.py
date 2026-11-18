@@ -461,6 +461,70 @@ def app_page(idx, static_doc, rid):
 CLUBS, CLUBNAME = {}, {}
 
 
+
+def ics(r, today=None):
+    """Calendar file of a race (course/<id>/course.ics): the race with a reminder 2 days before, the closing of
+    registrations with a reminder the day before at 18:00, their opening when it is announced. Times are local
+    (La Réunion, UTC+4, no summer time) written in UTC; whole days are floating dates."""
+    today = today or date.today().isoformat()
+    rid = r["id"]; url = f"{SITE}/course/{rid}/"
+    def tx(v):
+        return str(v or "").replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\n", "\\n")
+    def fold(line):
+        b = line.encode("utf-8"); out = []
+        while len(b) > 74:
+            cut = 74
+            while cut and (b[cut] & 0xC0) == 0x80: cut -= 1
+            out.append(b[:cut].decode("utf-8")); b = b" " + b[cut:]
+        out.append(b.decode("utf-8")); return "\r\n".join(out)
+    def hm(h):
+        m = re.match(r"\s*(\d{1,2})\s*[hH:]\s*(\d{2})?", str(h or ""))
+        return (int(m.group(1)), int(m.group(2) or 0)) if m and int(m.group(1)) < 24 else None
+    def utc(d, h, m):
+        x = dt_mod.datetime(*map(int, d.split("-")), h, m) - dt_mod.timedelta(hours=4)
+        return x.strftime("%Y%m%dT%H%M00Z")
+    def day(d, plus=0):
+        return (date(*map(int, d.split("-"))) + dt_mod.timedelta(days=plus)).strftime("%Y%m%d")
+    eps = [e for e in r.get("epreuves", []) if e.get("type") != "jeunes"] or r.get("epreuves", [])
+    lieu = ", ".join(x for x in (r.get("lieu"), r.get("commune"), "La Réunion") if x)
+    fmts = "\n".join(f"- {e.get('nom', '')}" + (f" : {e['h']}" if e.get("h") else "") for e in eps[:12])
+    stamp = day(r["date"]) + "T000000Z"
+    ev = []
+    # the race
+    times = [hm(e.get("h")) for e in eps if (e.get("date") or r["date"]) == r["date"] and hm(e.get("h"))]
+    a = ["BEGIN:VEVENT", f"UID:{rid}-course@dossardpei.re", f"DTSTAMP:{stamp}", f"SUMMARY:{tx(r['nom'])}"]
+    if r.get("fin") and r["fin"] != r["date"]:
+        a += [f"DTSTART;VALUE=DATE:{day(r['date'])}", f"DTEND;VALUE=DATE:{day(r['fin'], 1)}"]; trig = "-P1DT6H"
+    elif times:
+        h, m = min(times); a += [f"DTSTART:{utc(r['date'], h, m)}", "DURATION:PT5H"]; trig = "-P2D"
+    else:
+        a += [f"DTSTART;VALUE=DATE:{day(r['date'])}", f"DTEND;VALUE=DATE:{day(r['date'], 1)}"]; trig = "-P1DT6H"
+    a += [f"LOCATION:{tx(lieu)}", f"URL:{url}",
+          f"DESCRIPTION:{tx(('Formats :' + chr(10) + fmts + chr(10) + chr(10) if fmts else '') + 'Fiche : ' + url + (chr(10) + 'Inscription : ' + r['inscription'] if r.get('inscription') else ''))}",
+          "BEGIN:VALARM", "ACTION:DISPLAY", f"TRIGGER:{trig}", f"DESCRIPTION:{tx(r['nom'])} dans 2 jours", "END:VALARM", "END:VEVENT"]
+    ev.append(a)
+    # closing of registrations (the earliest one still to come, on a format that is not full)
+    if not r.get("complet") and r.get("inscription"):
+        lims = [x for x in [r.get("limite")] + [e.get("limite") for e in eps if not e.get("complet") and not e.get("clos")] if x and str(x)[:10] >= today]
+        if lims:
+            d = min(str(x)[:10] for x in lims)
+            ev.append(["BEGIN:VEVENT", f"UID:{rid}-cloture@dossardpei.re", f"DTSTAMP:{stamp}", f"SUMMARY:{tx('Clôture des inscriptions : ' + r['nom'])}",
+                       f"DTSTART;VALUE=DATE:{day(d)}", f"DTEND;VALUE=DATE:{day(d, 1)}", f"URL:{r['inscription']}",
+                       f"DESCRIPTION:{tx('Dernier jour pour s’inscrire (selon l’organisateur). Inscription : ' + r['inscription'] + chr(10) + 'Fiche : ' + url)}",
+                       "BEGIN:VALARM", "ACTION:DISPLAY", "TRIGGER:-PT6H", f"DESCRIPTION:{tx('Inscriptions ' + r['nom'] + ' : clôture demain')}", "END:VALARM", "END:VEVENT"])
+    # opening of registrations, when the organiser has announced it
+    o = str(r.get("ouverture") or "")
+    if re.match(r"\d{4}-\d{2}-\d{2}", o) and o[:10] >= today:
+        t = hm(o[11:16].replace(":", "h")) if len(o) > 10 else None
+        b = ["BEGIN:VEVENT", f"UID:{rid}-ouverture@dossardpei.re", f"DTSTAMP:{stamp}", f"SUMMARY:{tx('Ouverture des inscriptions : ' + r['nom'])}"]
+        b += [f"DTSTART:{utc(o[:10], *t)}", "DURATION:PT30M"] if t else [f"DTSTART;VALUE=DATE:{day(o[:10])}", f"DTEND;VALUE=DATE:{day(o[:10], 1)}"]
+        b += [f"URL:{r.get('inscription') or url}", "BEGIN:VALARM", "ACTION:DISPLAY", f"TRIGGER:{'-PT15M' if t else '-PT6H'}",
+              f"DESCRIPTION:{tx('Inscriptions ' + r['nom'] + ' : ouverture')}", "END:VALARM", "END:VEVENT"]
+        ev.append(b)
+    lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Dossard Pei//dossardpei.re//FR", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+             f"X-WR-CALNAME:{tx(r['nom'])}"] + [l for e in ev for l in e] + ["END:VCALENDAR"]
+    return "\r\n".join(fold(l) for l in lines) + "\r\n"
+
 def main():
     data = json.load(open("data.json", encoding="utf-8"))
     global CLUBS, CLUBNAME
@@ -511,6 +575,10 @@ def main():
             p = f"course/{rid}/index.html"
             if not os.path.exists(p) or open(p, encoding="utf-8").read() != out:
                 open(p, "w", encoding="utf-8").write(out)
+            if not r.get("approx"):   # calendar file (reminders of the race and of the closing of registrations)
+                ci, cp = ics(r), f"course/{rid}/course.ics"
+                if not os.path.exists(cp) or open(cp, encoding="utf-8", newline="").read() != ci:
+                    open(cp, "w", encoding="utf-8", newline="").write(ci)
         except Exception as e:
             print(f"page {rid} non générée ({e.__class__.__name__}: {e})")
     # races merged into an event ("alias": old id -> event id) keep a page that redirects to the event,

@@ -1,0 +1,43 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Hybrid Challenge
+BEGIN:VEVENT
+UID:hybrid-challenge-2027-02-course@dossardpei.re
+DTSTAMP:20270212T000000Z
+SUMMARY:Hybrid Challenge
+DTSTART;VALUE=DATE:20270212
+DTEND;VALUE=DATE:20270215
+LOCATION:Stade de l'Est (Jean Ivoula)\, Sainte-Clotilde\, Saint-Denis\, La
+  Réunion
+URL:https://dossardpei.re/course/hybrid-challenge-2027-02/
+DESCRIPTION:Formats :\n- Solo 1000 (femme / homme)\n- Solo 500 (femme / ho
+ mme)\n- Duo femmes 1000\n- Duo femmes 500\n- Team Fun (4 personnes)\n- Du
+ o hommes 1000\n- Duo hommes 500\n- Duo mixte 1000\n- Duo mixte 500\n\nFic
+ he : https://dossardpei.re/course/hybrid-challenge-2027-02/\nInscription 
+ : https://competitioncorner.net/events/22662/details
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1DT6H
+DESCRIPTION:Hybrid Challenge dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:hybrid-challenge-2027-02-cloture@dossardpei.re
+DTSTAMP:20270212T000000Z
+SUMMARY:Clôture des inscriptions : Hybrid Challenge
+DTSTART;VALUE=DATE:20270110
+DTEND;VALUE=DATE:20270111
+URL:https://competitioncorner.net/events/22662/details
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://competitioncorner.net/events/22662/details\nFiche : http
+ s://dossardpei.re/course/hybrid-challenge-2027-02/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Hybrid Challenge : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

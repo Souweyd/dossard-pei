@@ -1,0 +1,25 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Foulées nocturnes de Saint-Louis
+BEGIN:VEVENT
+UID:foulees-nocturnes-saint-louis-2026-12-course@dossardpei.re
+DTSTAMP:20261212T000000Z
+SUMMARY:Foulées nocturnes de Saint-Louis
+DTSTART:20261212T160000Z
+DURATION:PT5H
+LOCATION:Devant la mairie de Saint-Louis\, Saint-Louis\, La Réunion
+URL:https://dossardpei.re/course/foulees-nocturnes-saint-louis-2026-12/
+DESCRIPTION:Formats :\n- 10 km nocturne (2 boucles) : 20h00\n- Marche 5 km
+  : 20h00\n\nFiche : https://dossardpei.re/course/foulees-nocturnes-saint-
+ louis-2026-12/\nInscription : https://www.topchrono.run/evenements/foulee
+ s-nocturnes-de-saint-louis-2026/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Foulées nocturnes de Saint-Louis dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

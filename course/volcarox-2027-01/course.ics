@@ -1,0 +1,28 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:VolcaroX
+BEGIN:VEVENT
+UID:volcarox-2027-01-course@dossardpei.re
+DTSTAMP:20270130T000000Z
+SUMMARY:VolcaroX
+DTSTART;VALUE=DATE:20270130
+DTEND;VALUE=DATE:20270201
+LOCATION:Gymnase Jean Max Fontaine\, 23e km\, Plaine-des-Cafres\, Le Tampo
+ n\, La Réunion
+URL:https://dossardpei.re/course/volcarox-2027-01/
+DESCRIPTION:Formats :\n- Duo Family (parent + enfant 7-14 ans)\n- Indiv Sc
+ aled (femme / homme)\n- Duo Scaled (femme / homme / mixte)\n- Indiv Open 
+ (femme / homme)\n- Duo Open (femme / homme / mixte)\n- Team Fun (4 person
+ nes)\n\nFiche : https://dossardpei.re/course/volcarox-2027-01/\nInscripti
+ on : https://www.helloasso.com/associations/walkyrie-sports-events/evenem
+ ents/volcarox-2
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1DT6H
+DESCRIPTION:VolcaroX dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

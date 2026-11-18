@@ -1,0 +1,40 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Foulées Nature Niagara
+BEGIN:VEVENT
+UID:niagara-course@dossardpei.re
+DTSTAMP:20261129T000000Z
+SUMMARY:Foulées Nature Niagara
+DTSTART:20261129T023000Z
+DURATION:PT5H
+LOCATION:Sainte-Suzanne\, Sainte-Suzanne\, La Réunion
+URL:https://dossardpei.re/course/niagara/
+DESCRIPTION:Formats :\n- Foulées Nature Niagara : 06h30\n\nFiche : https:
+ //dossardpei.re/course/niagara/\nInscription : https://www.sportpro.re/co
+ urses/02103-foulees-nature-niagara/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Foulées Nature Niagara dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:niagara-cloture@dossardpei.re
+DTSTAMP:20261129T000000Z
+SUMMARY:Clôture des inscriptions : Foulées Nature Niagara
+DTSTART;VALUE=DATE:20261125
+DTEND;VALUE=DATE:20261126
+URL:https://www.sportpro.re/courses/02103-foulees-nature-niagara/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://www.sportpro.re/courses/02103-foulees-nature-niagara/\nF
+ iche : https://dossardpei.re/course/niagara/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Foulées Nature Niagara : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

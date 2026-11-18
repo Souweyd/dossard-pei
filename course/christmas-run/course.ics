@@ -1,0 +1,24 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Christmas Run
+BEGIN:VEVENT
+UID:christmas-run-course@dossardpei.re
+DTSTAMP:20261212T000000Z
+SUMMARY:Christmas Run
+DTSTART:20261212T133000Z
+DURATION:PT5H
+LOCATION:Stade Lucien Simone\, Saint-Benoît\, La Réunion
+URL:https://dossardpei.re/course/christmas-run/
+DESCRIPTION:Formats :\n- Course et marche 5 km : 17h30\n\nFiche : https://
+ dossardpei.re/course/christmas-run/\nInscription : https://www.sportpro.r
+ e/courses/02177-christmas-run/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Christmas Run dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

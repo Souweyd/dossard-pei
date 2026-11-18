@@ -1,0 +1,24 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:L'Austral
+BEGIN:VEVENT
+UID:laustral-2027-06-course@dossardpei.re
+DTSTAMP:20270606T000000Z
+SUMMARY:L'Austral
+DTSTART;VALUE=DATE:20270606
+DTEND;VALUE=DATE:20270607
+LOCATION:Site de Langevin\, Saint-Joseph\, La Réunion
+URL:https://dossardpei.re/course/laustral-2027-06/
+DESCRIPTION:Formats :\n- L'Austral Trail\n- Les Foulées Australes\n- La R
+ ando Australe\n\nFiche : https://dossardpei.re/course/laustral-2027-06/\n
+ Inscription : https://chronorun974.re/laustral/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1DT6H
+DESCRIPTION:L'Austral dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

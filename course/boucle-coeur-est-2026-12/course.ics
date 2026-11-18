@@ -1,0 +1,25 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Boucle du Cœur de l'Est
+BEGIN:VEVENT
+UID:boucle-coeur-est-2026-12-course@dossardpei.re
+DTSTAMP:20261205T000000Z
+SUMMARY:Boucle du Cœur de l'Est
+DTSTART:20261204T210000Z
+DURATION:PT5H
+LOCATION:Champ de Foire d'Hell-Bourg\, Salazie\, La Réunion
+URL:https://dossardpei.re/course/boucle-coeur-est-2026-12/
+DESCRIPTION:Formats :\n- 65 km solo : 01h00\n- 65 km relais à 3 : 01h00\n
+ - 45 km solo : 05h00\n- 45 km en duo : 05h00\n- 19 km : 07h30\n\nFiche : 
+ https://dossardpei.re/course/boucle-coeur-est-2026-12/\nInscription : htt
+ ps://utoi.re/product-category/saison-2026/boucle-du-coeur-de-lest-2026/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Boucle du Cœur de l'Est dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

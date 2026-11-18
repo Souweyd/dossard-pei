@@ -1,0 +1,24 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Grand Raid de La Réunion
+BEGIN:VEVENT
+UID:grand-raid-2027-10-course@dossardpei.re
+DTSTAMP:20271014T000000Z
+SUMMARY:Grand Raid de La Réunion
+DTSTART;VALUE=DATE:20271014
+DTEND;VALUE=DATE:20271018
+LOCATION:Ravine Blanche\, Saint-Pierre\, La Réunion
+URL:https://dossardpei.re/course/grand-raid-2027-10/
+DESCRIPTION:Formats :\n- La Diagonale des Fous\n- Le Trail de Bourbon\n- L
+ a Mascareignes\n- Le Métis Trail\n- Le Zembrocal Trail (relais)\n\nFiche
+  : https://dossardpei.re/course/grand-raid-2027-10/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P1DT6H
+DESCRIPTION:Grand Raid de La Réunion dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

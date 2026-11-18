@@ -1,0 +1,24 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Les Foulées de la Possession
+BEGIN:VEVENT
+UID:possession-course@dossardpei.re
+DTSTAMP:20261129T000000Z
+SUMMARY:Les Foulées de la Possession
+DTSTART:20261129T030000Z
+DURATION:PT5H
+LOCATION:La Possession\, La Possession\, La Réunion
+URL:https://dossardpei.re/course/possession/
+DESCRIPTION:Formats :\n- 10 km : 07h00\n\nFiche : https://dossardpei.re/co
+ urse/possession/\nInscription : https://www.sportpro.re/courses/02180-les
+ -foulees-de-la-possession/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Les Foulées de la Possession dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR

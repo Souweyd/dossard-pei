@@ -1,0 +1,24 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Ultra Marathon des Cirques
+BEGIN:VEVENT
+UID:ultra-marathon-cirques-2027-06-course@dossardpei.re
+DTSTAMP:20270619T000000Z
+SUMMARY:Ultra Marathon des Cirques
+DTSTART:20270618T233000Z
+DURATION:PT5H
+LOCATION:Stade de Cilaos\, Cilaos\, La Réunion
+URL:https://dossardpei.re/course/ultra-marathon-cirques-2027-06/
+DESCRIPTION:Formats :\n- Solo 64 km : 03h30\n- Relais à deux : 03h30\n\nF
+ iche : https://dossardpei.re/course/ultra-marathon-cirques-2027-06/\nInsc
+ ription : https://ultramarathondescirques.re/#umc-inscriptions
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Ultra Marathon des Cirques dans 2 jours
+END:VALARM
+END:VEVENT
+END:VCALENDAR
