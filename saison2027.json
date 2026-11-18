@@ -59,10 +59,11 @@
 "date": "2027-01-31"
 },
 {
-"nom": "Foulées nocturnes des Berges de la Rivière du Mât-les-Bas",
+"nom": "Les Foulées des Berges de la Rivière du Mât Les Bas",
 "nature": "Route",
 "club": "Ass.Team Zumbazones",
-"date": "2027-01-31"
+"date": "2027-01-31",
+"id": "foulees-berges-riviere-mat-les-bas-2027-01"
 },
 {
 "nom": "Nocturne de L'Entre-Deux",
