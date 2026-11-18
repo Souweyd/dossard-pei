@@ -710,5 +710,12 @@
 "id": "villele",
 "nom": "Trail de Villèle",
 "date": "2026-11-29"
+},
+{
+"at": "2026-11-18T12:08+04:00",
+"t": "ajout",
+"id": "foulees-berges-riviere-mat-les-bas-2027-01",
+"nom": "Les Foulées des Berges de la Rivière du Mât Les Bas",
+"date": "2027-01-31"
 }
 ]
