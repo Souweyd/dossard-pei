@@ -207,6 +207,7 @@ h1{font-size:clamp(1.9rem,4.5vw,2.8rem);line-height:1.05;letter-spacing:-.03em;m
 .tags{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px;padding:0;list-style:none}
 .tags li{border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:.88rem;font-weight:600}
 .tags .st{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.annul{margin:12px 0 0;padding:10px 14px;border-radius:10px;background:#1d1d1f;color:#fff}.annul a{color:inherit}
 .cta{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 22px}
 .btn{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:11px 20px;font-weight:700;text-decoration:none;border:1px solid var(--line);color:var(--fg);background:var(--surface)}
 .btn.main{background:var(--hot);border-color:var(--hot);color:#fff}
@@ -236,10 +237,12 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
     s = summary(r)
     a = d_of(r["date"]); b = d_of(r.get("fin") or r["date"])
     when = f"{a.day} {MOIS[a.month - 1]}" if a == b else (f"{a.day}–{b.day} {MOIS[b.month - 1]}" if a.month == b.month else f"{a.day} {MOIS[a.month - 1]} – {b.day} {MOIS[b.month - 1]}")
-    title = f"{r['nom']} {a.year} · {when} · {r.get('commune', '')} | Dossard Péi"
+    title = f"{r['nom']} {a.year}{' · course annulée' if r.get('annule') else ''} · {when} · {r.get('commune', '')} | Dossard Péi"
     desc = f"{r['nom']} : {DISC[disc].lower()} {'le ' if not r.get('fin') or r['fin'] == r['date'] else ''}{dl} à {r.get('commune', '')}, La Réunion."
-    if s: desc += f" {s}."
-    desc += " Horaires, tarifs, parcours et lien d'inscription."
+    if r.get("annule"): desc = f"Course annulée. {desc}"
+    else:
+        if s: desc += f" {s}."
+        desc += " Horaires, tarifs, parcours et lien d'inscription."
     img = f"{SITE}/og/{rid}.jpg" if has_og else f"{SITE}/og/home.jpg"
     poster = r.get("poster_lg") or r.get("poster")
     lieu = r.get("lieu") if r.get("lieu") and r.get("lieu") != r.get("commune") else ""
@@ -248,7 +251,8 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
     past = (r.get("fin") or r["date"]) < today
     not_yet = bool(r.get("ouverture") and r["ouverture"] > now_reu)
     can_reg = False
-    if past: st = "Course passée"
+    if r.get("annule"): st = "Course annulée"
+    elif past: st = "Course passée"
     elif r.get("complet"): st = "Complet"
     elif r.get("clos") or (r.get("limite") and r["limite"] < today): st = "Inscriptions closes"
     elif r.get("avenir") and not r.get("ouverture"): st = "Inscriptions à venir"
@@ -260,7 +264,7 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
 
     # JSON-LD
     ev = {"@context": "https://schema.org", "@type": "SportsEvent", "name": r["nom"], "startDate": r["date"], "endDate": r.get("fin") or r["date"],
-          "eventStatus": "https://schema.org/EventScheduled", "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+          "eventStatus": "https://schema.org/EventCancelled" if r.get("annule") else "https://schema.org/EventScheduled", "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
           "sport": SPORT[disc], "url": url, "description": desc,
           "location": {"@type": "Place", "name": lieu or r.get("commune", ""),
                        "address": {"@type": "PostalAddress", "addressLocality": r.get("commune", ""), "addressRegion": "La Réunion", "addressCountry": "RE"}}}
@@ -286,7 +290,7 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
         if e.get("url") or reg: o["url"] = e.get("url") or reg
         if e.get("limite") or r.get("limite"): o["validThrough"] = e.get("limite") or r.get("limite")
         offs.append(o)
-    if offs:
+    if offs and not r.get("annule"):
         ps = [o["price"] for o in offs]
         if len(offs) == 1:
             ev["offers"] = offs[0]
@@ -339,6 +343,7 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
 <h1>{esc(r['nom'])}</h1>
 <p class="where">{esc(r.get('commune', ''))}{' · ' + esc(lieu) if lieu else ''}{' · organisé par ' + esc(r['org']) if r.get('org') else ''}{''.join(f' · <a href="/clubs/{esc(c)}/">fiche du club {esc(CLUBNAME.get(c, c))}</a>' for c in CLUBS.get('courses', {}).get(r['id'], []))}</p>
 <ul class="tags">{''.join(tags)}</ul>
+{f'<p class="annul"><b>Course annulée</b> · information de {esc(((r.get("annule_source") or {}).get("nom")) or r.get("_srcnom") or "l’organisateur")}{(" · <a href=" + chr(34) + esc(r["page"]) + chr(34) + " rel=noopener>voir l’annonce</a>") if r.get("page") else ""}</p>' if r.get("annule") else ''}
 <div class="cta">{f'<a class="btn main" href="{esc(r["inscription"])}" rel="noopener" data-goatcounter-click="inscription/{esc(rid)}" data-goatcounter-title="Clic S’inscrire (page course)">{"Page d’inscription" if not_yet else "S’inscrire"}</a>' if r.get('inscription') and can_reg else ''}<a class="btn map" href="/#c-{esc(rid)}">{'Carte et parcours' if has_trk else 'Voir sur la carte'} →</a></div>
 {f'<div class="tbl"><table><thead><tr><th>Épreuve</th><th>Dist.</th><th>D+</th><th>Type</th><th>Départ</th><th>Tarif</th></tr></thead><tbody>{rows}</tbody></table></div>' if rows else ''}
 <p class="src">Informations reprises des sources officielles, à vérifier auprès de l’organisateur avant de vous inscrire.{(' · ' + ' · '.join(links)) if links else ''} · <a href="/#contact-{esc(rid)}">Signaler une erreur</a></p>
@@ -437,6 +442,24 @@ ul.up span{{color:#636368;font-size:.92rem}} h2{{font-size:1.15rem;margin:26px 0
 </body></html>
 """
 
+
+
+def all_races_block(races, today):
+    """Plain HTML list of every race to come, at the bottom of the home page (and so of every race page): a link to each
+    race page that search engines see without running the script (until now they only found the pages through the sitemap)."""
+    up = sorted([r for r in races if (r.get("fin") or r["date"]) >= today], key=lambda r: (r["date"], r["nom"]))
+    by = {}
+    for r in up: by.setdefault(r["date"][:7], []).append(r)
+    parts = []
+    for ym, rs in by.items():
+        y, m = ym.split("-")
+        li = "".join(f'<li><a href="/course/{esc(r["id"])}/">{esc(r["nom"])}</a> <span>{d_of(r["date"]).day}'
+                     f'{"–" + str(d_of(r["fin"]).day) if r.get("fin") and r["fin"] != r["date"] and r["fin"][:7] == ym else ""}'
+                     f' · {esc(r.get("commune", ""))}{" · annulée" if r.get("annule") else ""}</span></li>' for r in rs)
+        parts.append(f'<div><h3>{MOIS[int(m) - 1].capitalize()} {y}</h3><ul>{li}</ul></div>')
+    # folded by default (the list above already shows them); the links are in the page either way
+    return (f'<!--toutes-courses--><details class="allr"><summary><h2>Toutes les courses à venir <span>({len(up)})</span></h2></summary>'
+            f'<div class="allr-g">{"".join(parts)}</div></details><!--/toutes-courses-->')
 
 def app_page(idx, static_doc, rid):
     """The page of a race = the full site (same as a click on the race: list behind, race open in the
@@ -541,7 +564,11 @@ def main():
     for r in data.get("races", []):
         if r.get("id") and r["id"] not in FIRST: FIRST[r["id"]] = reu_today().isoformat()
     json.dump(FIRST, open(fs, "w"), indent=0, sort_keys=True)
-    races = [r for r in data.get("races", []) if r.get("id") and r.get("date") and not r.get("hidden") and re.fullmatch(r"[a-z0-9-]+", r["id"])]
+    # cancelled races (annule + hidden) keep a « Course annulée » page until their date, as the site shows them (not a 404)
+    races = [r for r in data.get("races", []) if r.get("id") and r.get("date") and re.fullmatch(r"[a-z0-9-]+", r["id"])
+             and (not r.get("hidden") or (r.get("annule") and (r.get("fin") or r["date"]) >= reu_today().isoformat()))]
+    srcn = {x.get("id"): x.get("nom") for x in data.get("sources", [])}
+    races = [{**r, "_srcnom": srcn.get(r.get("source"))} if r.get("annule") else r for r in races]
     idx = open("index.html", encoding="utf-8").read()
     # keep the data snapshot embedded in the home page (and so in every course page) equal to data.json:
     # the page shows it at once, before its fresh fetch of data.json
@@ -551,6 +578,10 @@ def main():
     try: same = old and {k: v for k, v in json.loads(old.group(1).replace("<\\/", "</")).items() if k not in ("updatedAt", "checkedAt")} == {k: v for k, v in data.items() if k not in ("updatedAt", "checkedAt")}
     except ValueError: same = False
     idx2 = idx if same or not old else idx[:old.start(1)] + snap + idx[old.end(1):]
+    # list of all races to come, in plain HTML, just before the footer (rebuilt at each run)
+    blk = all_races_block(races, reu_today().isoformat())
+    idx2 = re.sub(r'<!--toutes-courses-->.*?<!--/toutes-courses-->', '', idx2, flags=re.S)
+    if '<footer class="sitefoot">' in idx2: idx2 = idx2.replace('<footer class="sitefoot">', blk + '<footer class="sitefoot">', 1)
     if idx2 != idx:
         open("index.html", "w", encoding="utf-8").write(idx2); idx = idx2
     m = re.search(r'<svg class="logo biglogo".*?</svg>', idx, re.S)
@@ -575,7 +606,7 @@ def main():
             p = f"course/{rid}/index.html"
             if not os.path.exists(p) or open(p, encoding="utf-8").read() != out:
                 open(p, "w", encoding="utf-8").write(out)
-            if not r.get("approx"):   # calendar file (reminders of the race and of the closing of registrations)
+            if not r.get("approx") and not r.get("annule"):   # calendar file (reminders of the race and of the closing of registrations)
                 ci, cp = ics(r), f"course/{rid}/course.ics"
                 if not os.path.exists(cp) or open(cp, encoding="utf-8", newline="").read() != ci:
                     open(cp, "w", encoding="utf-8", newline="").write(ci)
