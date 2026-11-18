@@ -354,3 +354,6 @@ body.mapfull .maptools{top:calc(10px + env(safe-area-inset-top))}
 
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .card{background:color-mix(in srgb,var(--c) 22%,var(--surface))}}
 :root[data-theme="dark"] .card{background:color-mix(in srgb,var(--c) 22%,var(--surface))}
+.fa .none{font-weight:400;opacity:.55}
+.dlg .x{font-size:0!important;display:grid;place-items:center;padding:0}.dlg .x::before{content:"";position:absolute;inset:0;margin:auto;width:19px;height:19px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E") center / contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E") center / contain no-repeat}
+.dlg .x:not(.fbx){position:relative}

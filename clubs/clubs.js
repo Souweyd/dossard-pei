@@ -159,27 +159,28 @@
     bar += '<button type="button" class="ab" data-share="' + esc(c.id) + '">' + svg(P.shr) + 'Partager</button>';
     // coordonnées
     var dl = '';
-    function row(l, v) { dl += '<dt>' + l + '</dt><dd>' + v + '</dd>'; }
-    if (c.adresse) row('Adresse', esc(c.adresse));
-    if (c.entrainement) row('Entraînement', esc(c.entrainement));
-    if (c.tel) row('Téléphone', String(c.tel).split('/').map(function (t) { t = t.trim(); return '<a href="' + telHref(t) + '">' + esc(t) + '</a>'; }).join(' / '));
-    if (c.mail) row('E-mail', '<a href="mailto:' + esc(c.mail) + '">' + esc(c.mail) + '</a>');
-    if (c.site) row(c.siteLabel && c.siteLabel !== 'Site' ? esc(c.siteLabel) : 'Site', '<a href="' + esc(c.site) + '" target="_blank" rel="noopener">' + esc(host(c.site)) + '</a>');
-    if (c.reseaux.length) row('Réseaux', '<span class="nets">' + c.reseaux.map(function (r) { var n = NET[r.t] || NET.web; return '<a class="net' + (n.b ? ' brand' : '') + '" href="' + esc(r.url) + '" target="_blank" rel="noopener" aria-label="' + esc(n.l) + '" title="' + esc(n.l) + '">' + n.s + '</a>'; }).join('') + '</span>');
+    var NONE = '<span class="none" aria-label="non renseigné">–</span>';
+    function row(l, v) { dl += '<dt>' + l + '</dt><dd>' + (v || NONE) + '</dd>'; }
+    row('Adresse', c.adresse && esc(c.adresse));
+    row('Entraînement', c.entrainement && esc(c.entrainement));
+    row('Téléphone', c.tel && String(c.tel).split('/').map(function (t) { t = t.trim(); return '<a href="' + telHref(t) + '">' + esc(t) + '</a>'; }).join(' / '));
+    row('E-mail', c.mail && '<a href="mailto:' + esc(c.mail) + '">' + esc(c.mail) + '</a>');
+    row(c.site && c.siteLabel && c.siteLabel !== 'Site' ? esc(c.siteLabel) : 'Site', c.site && '<a href="' + esc(c.site) + '" target="_blank" rel="noopener">' + esc(host(c.site)) + '</a>');
+    row('Réseaux', c.reseaux.length && '<span class="nets">' + c.reseaux.map(function (r) { var n = NET[r.t] || NET.web; return '<a class="net' + (n.b ? ' brand' : '') + '" href="' + esc(r.url) + '" target="_blank" rel="noopener" aria-label="' + esc(n.l) + '" title="' + esc(n.l) + '">' + n.s + '</a>'; }).join('') + '</span>');
     var JL = { u7: 'Moins de 7 ans', u11: '7 à 10 ans', u15: '11 à 14 ans' };
     // courses
     var lk = LIENS.clubs[c.id], M = ['JANV', 'FÉVR', 'MARS', 'AVR', 'MAI', 'JUIN', 'JUIL', 'AOÛT', 'SEPT', 'OCT', 'NOV', 'DÉC'];
     var rc = lk ? lk.r.map(function (r) { var p = r[2].split('-'); return '<a class="rc" href="/course/' + esc(r[0]) + '/"><span class="dt"><b>' + (+p[2]) + '</b><small>' + M[+p[1] - 1] + '</small></span><span class="n">' + esc(r[1]) + '</span>' + svg(P.chev) + '</a>'; }).join('') : '';
     var oth = lk ? lk.autres : c.courses;
-    var courses = rc || oth.length ? '<div class="sec"><h3>Courses organisées</h3>' + rc + (oth.length ? '<p class="oth">' + (rc ? 'Aussi : ' : '') + oth.map(esc).join(', ') + '</p>' : '') + '</div>' : '';
+    var courses = '<div class="sec"><h3>Courses organisées</h3>' + (rc || oth.length ? rc + (oth.length ? '<p class="oth">' + (rc ? 'Aussi : ' : '') + oth.map(esc).join(', ') + '</p>' : '') : '<p class="oth">' + NONE + '</p>') + '</div>';
     $('#club').innerHTML = '<div class="fiche fa" style="--c:' + COL[c.type] + ';position:relative">' +
       banner(c) +
       '<div class="top">' + medal(c, 80) + '</div>' +
       '<div class="id"><h2>' + esc(c.nom) + '</h2>' + (c.complet ? '<p class="sub">' + esc(c.complet) + '</p>' : '') +
       '<div class="chips"><span>' + esc(c.type) + '</span><span>' + esc(c.commune) + '</span>' + (c.ffa ? '<span>Affilié FFA</span>' : '') + '</div></div>' +
       '<div class="bar">' + bar + '</div>' +
-      (dl ? '<div class="sec"><h3>Coordonnées</h3><dl>' + dl + '</dl></div>' : '<div class="sec"><h3>Coordonnées</h3><p class="oth">Pas encore de coordonnées pour ce club. Tu les connais ? <button type="button" class="lnk" data-maj="' + esc(c.id) + '">Envoie-les nous</button></p></div>') +
-      (c.jeunes && c.jeunes.length ? '<div class="sec"><h3>Section jeunes <span>· annuaire FFA</span></h3><div class="kids">' + c.jeunes.map(function (k) { return '<span>' + JL[k] + '</span>'; }).join('') + '</div></div>' : '') +
+      '<div class="sec"><h3>Coordonnées</h3><dl>' + dl + '</dl></div>' +
+      '<div class="sec"><h3>Section jeunes' + (c.jeunes && c.jeunes.length ? ' <span>· annuaire FFA</span>' : '') + '</h3>' + (c.jeunes && c.jeunes.length ? '<div class="kids">' + c.jeunes.map(function (k) { return '<span>' + JL[k] + '</span>'; }).join('') + '</div>' : '<p class="oth">' + NONE + '</p>') + '</div>' +
       courses +
       '<p class="foot"><button type="button" class="lnk" data-maj="' + esc(c.id) + '">Mettre à jour la fiche</button></p></div>';
     $('#fbt').textContent = c.nom; $('#dclub .fbar').style.setProperty('--tp', '0');
