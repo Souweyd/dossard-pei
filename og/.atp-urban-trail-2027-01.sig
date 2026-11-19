@@ -1,0 +1,1 @@
+["ATP Urban Trail", "2027-01-09", "La Plaine-des-Palmistes", [{"nom": "ATP Urban Trail", "km": 10, "type": "trail", "h": "17h00", "url": "https://www.sportpro.re/courses/02205-atp-urban-trail/", "limite": "2027-01-05", "note": "Trail urbain, à partir de la catégorie Cadet. Arrivée impasse des Écoles.", "complet": false, "prix": "20 €"}], null, null, "art1"]

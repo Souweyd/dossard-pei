@@ -738,5 +738,12 @@
 "id": "possession",
 "nom": "Les Foulées de la Possession",
 "date": "2026-11-29"
+},
+{
+"at": "2026-11-19T15:37+04:00",
+"t": "ajout",
+"id": "atp-urban-trail-2027-01",
+"nom": "ATP Urban Trail",
+"date": "2027-01-09"
 }
 ]

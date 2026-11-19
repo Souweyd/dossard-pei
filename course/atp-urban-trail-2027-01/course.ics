@@ -1,0 +1,41 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:ATP Urban Trail
+BEGIN:VEVENT
+UID:atp-urban-trail-2027-01-course@dossardpei.re
+DTSTAMP:20270109T000000Z
+SUMMARY:ATP Urban Trail
+DTSTART:20270109T130000Z
+DURATION:PT5H
+LOCATION:Kiosque des Goyaviers (près de la mairie)\, La Plaine-des-Palmis
+ tes\, La Réunion
+URL:https://dossardpei.re/course/atp-urban-trail-2027-01/
+DESCRIPTION:Formats :\n- ATP Urban Trail : 17h00\n\nFiche : https://dossar
+ dpei.re/course/atp-urban-trail-2027-01/\nInscription : https://www.sportp
+ ro.re/courses/02205-atp-urban-trail/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:ATP Urban Trail dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:atp-urban-trail-2027-01-cloture@dossardpei.re
+DTSTAMP:20270109T000000Z
+SUMMARY:Clôture des inscriptions : ATP Urban Trail
+DTSTART;VALUE=DATE:20270105
+DTEND;VALUE=DATE:20270106
+URL:https://www.sportpro.re/courses/02205-atp-urban-trail/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://www.sportpro.re/courses/02205-atp-urban-trail/\nFiche : 
+ https://dossardpei.re/course/atp-urban-trail-2027-01/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions ATP Urban Trail : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR
