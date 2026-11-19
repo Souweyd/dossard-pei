@@ -1,19 +1,8 @@
 {
- "at": "2026-11-19T06:06+04:00",
- "since": "2026-11-18T22:36:13+04:00",
- "rien": false,
- "sources": [
-  {
-   "id": "gotrail",
-   "url": "https://gotrail.run/calendrier-trails/reunion",
-   "changed": "2026-11-19T03:04+04:00"
-  },
-  {
-   "id": "grandraid",
-   "url": "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/",
-   "changed": "2026-11-19T02:03+04:00"
-  }
- ],
+ "at": "2026-11-19T08:03+04:00",
+ "since": "2026-11-19T07:36:26+04:00",
+ "rien": true,
+ "sources": [],
  "avenir": [],
  "illisibles": [
   {
@@ -30,6 +19,11 @@
    "id": "gto",
    "url": "https://www.grandtrail-ouest.re/",
    "erreur": "URLError"
+  },
+  {
+   "id": "laustral-2027-06",
+   "url": "https://chronorun974.re/laustral/",
+   "erreur": "TimeoutError"
   }
  ]
 }
