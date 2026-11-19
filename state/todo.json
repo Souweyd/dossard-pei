@@ -1,5 +1,5 @@
 {
- "at": "2026-11-19T08:03+04:00",
+ "at": "2026-11-19T09:04+04:00",
  "since": "2026-11-19T07:36:26+04:00",
  "rien": true,
  "sources": [],
@@ -19,11 +19,6 @@
    "id": "gto",
    "url": "https://www.grandtrail-ouest.re/",
    "erreur": "URLError"
-  },
-  {
-   "id": "laustral-2027-06",
-   "url": "https://chronorun974.re/laustral/",
-   "erreur": "TimeoutError"
   }
  ]
 }
