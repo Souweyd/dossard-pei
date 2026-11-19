@@ -745,5 +745,12 @@
 "id": "atp-urban-trail-2027-01",
 "nom": "ATP Urban Trail",
 "date": "2027-01-09"
+},
+{
+"at": "2026-11-19T17:01+04:00",
+"t": "complet",
+"id": "riviere-mat",
+"nom": "Trail des Berges de la Rivière du Mât Les Bas",
+"date": "2026-11-29"
 }
 ]
