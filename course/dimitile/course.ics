@@ -21,4 +21,20 @@ TRIGGER:-P2D
 DESCRIPTION:Trans Dimitile dans 2 jours
 END:VALARM
 END:VEVENT
+BEGIN:VEVENT
+UID:dimitile-cloture@dossardpei.re
+DTSTAMP:20261206T000000Z
+SUMMARY:Clôture des inscriptions : Trans Dimitile
+DTSTART;VALUE=DATE:20261123
+DTEND;VALUE=DATE:20261124
+URL:https://www.sportpro.re/courses/02178-trans-dimitile/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://www.sportpro.re/courses/02178-trans-dimitile/\nFiche : h
+ ttps://dossardpei.re/course/dimitile/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Trans Dimitile : clôture demain
+END:VALARM
+END:VEVENT
 END:VCALENDAR
