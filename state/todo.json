@@ -1,15 +1,26 @@
 {
- "at": "2026-11-20T07:46+04:00",
+ "at": "2026-11-20T08:03+04:00",
  "since": "2026-11-20T07:36:22+04:00",
  "rien": false,
  "sources": [
+  {
+   "id": "bancouliers",
+   "url": "https://case-des-bancouliers.webnode.fr/",
+   "changed": "2026-11-20T08:03+04:00"
+  },
   {
    "id": "grandraid",
    "url": "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/",
    "changed": "2026-11-20T07:46+04:00"
   }
  ],
- "avenir": [],
+ "avenir": [
+  {
+   "id": "boucle-pic-adam-2027-08",
+   "url": "https://case-des-bancouliers.webnode.fr/",
+   "changed": "2026-11-20T08:03+04:00"
+  }
+ ],
  "illisibles": [
   {
    "id": "saint-benoit",
