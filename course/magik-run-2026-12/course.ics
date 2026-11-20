@@ -1,0 +1,40 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Magik Run
+BEGIN:VEVENT
+UID:magik-run-2026-12-course@dossardpei.re
+DTSTAMP:20261209T000000Z
+SUMMARY:Magik Run
+DTSTART:20261209T123000Z
+DURATION:PT5H
+LOCATION:Champ de foire de Bras-Panon\, Bras-Panon\, La Réunion
+URL:https://dossardpei.re/course/magik-run-2026-12/
+DESCRIPTION:Formats :\n- Magik Run : 16h30\n\nFiche : https://dossardpei.r
+ e/course/magik-run-2026-12/\nInscription : https://www.sportpro.re/course
+ s/02206-magik-run/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Magik Run dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:magik-run-2026-12-cloture@dossardpei.re
+DTSTAMP:20261209T000000Z
+SUMMARY:Clôture des inscriptions : Magik Run
+DTSTART;VALUE=DATE:20261206
+DTEND;VALUE=DATE:20261207
+URL:https://www.sportpro.re/courses/02206-magik-run/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://www.sportpro.re/courses/02206-magik-run/\nFiche : https:
+ //dossardpei.re/course/magik-run-2026-12/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Magik Run : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

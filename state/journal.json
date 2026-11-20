@@ -773,5 +773,19 @@
 "id": "musees",
 "nom": "Leu Trail des Musées",
 "date": "2026-12-06"
+},
+{
+"at": "2026-11-20T19:38+04:00",
+"t": "réouvert",
+"id": "ti-bwa",
+"nom": "Kours Ti Bwa",
+"date": "2026-12-06"
+},
+{
+"at": "2026-11-20T19:38+04:00",
+"t": "ajout",
+"id": "magik-run-2026-12",
+"nom": "Magik Run",
+"date": "2026-12-09"
 }
 ]
