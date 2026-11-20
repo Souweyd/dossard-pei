@@ -24,20 +24,4 @@ TRIGGER:-P2D
 DESCRIPTION:Cross du Vétyver dans 2 jours
 END:VALARM
 END:VEVENT
-BEGIN:VEVENT
-UID:cross-du-vetyver-2026-11-cloture@dossardpei.re
-DTSTAMP:20261122T000000Z
-SUMMARY:Clôture des inscriptions : Cross du Vétyver
-DTSTART;VALUE=DATE:20261119
-DTEND;VALUE=DATE:20261120
-URL:https://chronorun974.re/cross-du-vetyver-2026/
-DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
- iption : https://chronorun974.re/cross-du-vetyver-2026/\nFiche : https://
- dossardpei.re/course/cross-du-vetyver-2026-11/
-BEGIN:VALARM
-ACTION:DISPLAY
-TRIGGER:-PT6H
-DESCRIPTION:Inscriptions Cross du Vétyver : clôture demain
-END:VALARM
-END:VEVENT
 END:VCALENDAR
