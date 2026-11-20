@@ -1,0 +1,42 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Trail Sclérose en Plaques
+BEGIN:VEVENT
+UID:trail-sclerose-en-plaques-2027-02-course@dossardpei.re
+DTSTAMP:20270213T000000Z
+SUMMARY:Trail Sclérose en Plaques
+DTSTART:20270213T030000Z
+DURATION:PT5H
+LOCATION:Plateau couvert Joseph Lacaille\, Le Tévelave\, Les Avirons\, La
+  Réunion
+URL:https://dossardpei.re/course/trail-sclerose-en-plaques-2027-02/
+DESCRIPTION:Formats :\n- Trail Sclérose en Plaques : 07h00\n- Rando 8 km 
+ : 07h30\n\nFiche : https://dossardpei.re/course/trail-sclerose-en-plaques
+ -2027-02/\nInscription : https://chronometrage.com/events/trailscleroseen
+ plaques-2
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Trail Sclérose en Plaques dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:trail-sclerose-en-plaques-2027-02-cloture@dossardpei.re
+DTSTAMP:20270213T000000Z
+SUMMARY:Clôture des inscriptions : Trail Sclérose en Plaques
+DTSTART;VALUE=DATE:20270207
+DTEND;VALUE=DATE:20270208
+URL:https://chronometrage.com/events/trailscleroseenplaques-2
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://chronometrage.com/events/trailscleroseenplaques-2\nFiche
+  : https://dossardpei.re/course/trail-sclerose-en-plaques-2027-02/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Trail Sclérose en Plaques : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR
