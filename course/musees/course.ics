@@ -21,20 +21,4 @@ TRIGGER:-P2D
 DESCRIPTION:Leu Trail des Musées dans 2 jours
 END:VALARM
 END:VEVENT
-BEGIN:VEVENT
-UID:musees-cloture@dossardpei.re
-DTSTAMP:20261206T000000Z
-SUMMARY:Clôture des inscriptions : Leu Trail des Musées
-DTSTART;VALUE=DATE:20261125
-DTEND;VALUE=DATE:20261126
-URL:https://chronometrage.com/events/leutraildesmusees
-DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
- iption : https://chronometrage.com/events/leutraildesmusees\nFiche : http
- s://dossardpei.re/course/musees/
-BEGIN:VALARM
-ACTION:DISPLAY
-TRIGGER:-PT6H
-DESCRIPTION:Inscriptions Leu Trail des Musées : clôture demain
-END:VALARM
-END:VEVENT
 END:VCALENDAR
