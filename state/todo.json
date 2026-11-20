@@ -1,5 +1,5 @@
 {
- "at": "2026-11-20T06:05+04:00",
+ "at": "2026-11-20T07:06+04:00",
  "since": "2026-11-19T22:36:21+04:00",
  "rien": false,
  "sources": [
@@ -30,11 +30,6 @@
    "id": "milesrepublic",
    "url": "https://fr.milesrepublic.com/run/la-reunion",
    "erreur": "HTTPError 429"
-  },
-  {
-   "id": "grandraid-inscriptions",
-   "url": "https://www.grandraid-reunion.com/fr/inscriptions/modalites-des-inscriptions/",
-   "erreur": "IncompleteRead"
   },
   {
    "id": "gto",
