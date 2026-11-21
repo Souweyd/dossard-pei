@@ -808,5 +808,12 @@
 "id": "ti-bwa",
 "nom": "Kours Ti Bwa",
 "date": "2026-12-06"
+},
+{
+"at": "2026-11-21T07:01+04:00",
+"t": "réouvert",
+"id": "championnat-trail-trans-volcano-2027-01",
+"nom": "Trails du Volcan : Tangue et Transvolcano",
+"date": "2027-01-23"
 }
 ]
