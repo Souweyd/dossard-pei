@@ -1,5 +1,5 @@
 {
- "at": "2026-11-21T17:02+04:00",
+ "at": "2026-11-21T18:05+04:00",
  "since": "2026-11-21T15:36:36+04:00",
  "rien": false,
  "sources": [
@@ -9,7 +9,13 @@
    "changed": "2026-11-21T17:02+04:00"
   }
  ],
- "avenir": [],
+ "avenir": [
+  {
+   "id": "laustral-2027-06",
+   "url": "https://chronorun974.re/laustral/",
+   "changed": "2026-11-21T18:05+04:00"
+  }
+ ],
  "illisibles": [
   {
    "id": "saint-benoit",
