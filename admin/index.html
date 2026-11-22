@@ -15,8 +15,9 @@ html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-u
 a{color:var(--teal)}
 button,input,select,textarea{font:inherit;color:inherit}
 .top{position:sticky;top:0;z-index:20;background:var(--teal);color:#fff;display:flex;align-items:center;gap:10px;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top))}
-.top b{font-size:17px}.top .tag{background:rgba(255,255,255,.2);border-radius:99px;padding:1px 9px;font-size:12px;font-weight:600}
+.top b{font-size:17px;white-space:nowrap}.top .tag{background:rgba(255,255,255,.2);border-radius:99px;padding:1px 9px;font-size:12px;font-weight:600}
 .top .sp{flex:1}.top a{color:#fff;font-size:13px;text-decoration:none;opacity:.9;white-space:nowrap}
+@media(max-width:600px){#who{display:none}}
 #who{font-size:12px;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:34vw}
 .tabs{position:sticky;top:46px;z-index:19;display:flex;gap:4px;overflow-x:auto;background:var(--card);border-bottom:1px solid var(--line);padding:6px 12px;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
@@ -37,7 +38,7 @@ h2{font-size:20px;margin:6px 0 12px}h3{font-size:15px;margin:18px 0 8px;color:va
 .row{display:flex;gap:11px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 11px;cursor:pointer;text-align:left;width:100%}
 .row:hover{border-color:var(--teal)}
 .row img,.row .ph{width:44px;height:44px;border-radius:8px;object-fit:cover;flex:none;background:var(--chip)}
-.row .t{flex:1;min-width:0}.row .n{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .t{flex:1;min-width:0;display:block}.row .n,.row .m{display:block}.row .n{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .row .m{font-size:13px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bd{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:1px 6px;margin-left:4px;vertical-align:1px;background:var(--chip);color:var(--ink2)}
 .bd.a{background:var(--bad-bg);color:var(--bad)}.bd.c{background:var(--warn-bg);color:var(--warn)}.bd.h{background:var(--chip);color:var(--mut)}.bd.l{background:var(--soft);color:var(--teal)}.bd.ok{background:var(--ok-bg);color:var(--ok)}
@@ -312,19 +313,19 @@ function posterHTML() {
 function bindRace() {
   const s = $("#sheet"), d = ED.d;
   $("#sx").onclick = $("#cancel").onclick = async () => { if (changedKeys().length || ED.upload) { if (!await confirmBox("Quitter sans enregistrer ?", "Tes modifications seront perdues.", "Quitter", "d")) return; } history.back(); };
-  s.addEventListener("input", e => {
+  s.oninput = e => {
     const t = e.target;
     if (t.dataset.b) { const k = t.dataset.b; if (t.value === "" && !(ED.orig && k in ED.orig && ED.orig[k] === "")) delete d[k]; else d[k] = t.value; }
     else if (t.dataset.ll) { const a = parseFloat($('[data-ll="0"]').value.replace(",", ".")), b = parseFloat($('[data-ll="1"]').value.replace(",", ".")); if (isFinite(a) && isFinite(b)) { d.ll = [+a.toFixed(4), +b.toFixed(4)]; ED.mk && ED.mk.setLatLng(d.ll); } }
     else return;
     refreshChg(t);
-  });
-  s.addEventListener("change", e => {
+  };
+  s.onchange = e => {
     const t = e.target;
     if (t.name === "st") { delete d.annule; delete d.hidden; if (t.value === "annulee") { d.annule = true; d.hidden = true; } if (t.value === "masquee") d.hidden = true; refreshChg(); }
     if (t.dataset.bb) { if (t.checked) d[t.dataset.bb] = true; else delete d[t.dataset.bb]; refreshChg(); }
-  });
-  s.addEventListener("click", async e => {
+  };
+  s.onclick = async e => {
     const u = e.target.closest("[data-unlock]"); if (!u) return;
     const k = u.dataset.unlock;
     if (!await confirmBox(`Rendre « ${lab(k)} » à la synchro ?`, "La synchro horaire pourra de nouveau mettre ce champ à jour depuis le site de l'organisateur. La valeur actuelle reste jusque-là.", "Rendre la main")) return;
@@ -336,7 +337,7 @@ function bindRace() {
       toast("C'est fait : la synchro reprend la main sur « " + lab(k) + " ».");
       drawRace();
     });
-  });
+  };
   $("#adde").onclick = () => { (d.epreuves = d.epreuves || []).push({ nom: "", type: "trail" }); drawEps(); refreshChg(); $$("#eps .ep").pop().scrollIntoView({ block: "center" }); };
   $("#addt").onclick = () => { (d.traces = d.traces || []).push({ nom: "", url: "" }); drawTraces(); refreshChg(); };
   $("#pf").onchange = e => pickPoster(e.target.files[0]);
@@ -437,7 +438,9 @@ function checkRace(d) {
   return pb;
 }
 async function saveRace(btn) {
-  const d = ED.d, keys = changedKeys();
+  const d = ED.d;
+  if (ED.upload) { delete d.affiche; delete d.affiche_capture; }   // l'adresse de l'ancienne affiche ne correspond plus
+  const keys = changedKeys();
   if (!keys.length && !ED.upload) { toast("Aucune modification."); return; }
   if (!d.epreuves || !d.epreuves.length) d.epreuves = [];
   const pb = checkRace(d);
@@ -653,13 +656,13 @@ function hbars(items, max) {
   return `<div class="hb">${items.map(x => `<span class="l" title="${esc(x.t || x.l)}"><i style="width:${(x.n / max * 100).toFixed(1)}%"></i>${esc(x.l)}</span><span class="c">${nf(x.n)}</span>`).join("")}</div>`;
 }
 function dayChart(days) {
-  const W = 700, H = 150, P = 18, n = days.length, max = Math.max(1, ...days.map(d => d.n)), bw = (W - 2) / n;
+  const W = 700, H = 140, P = 2, n = days.length, max = Math.max(1, ...days.map(d => d.n)), bw = (W - 2) / n;
   const tick = Math.pow(10, Math.floor(Math.log10(max))), top = Math.ceil(max / tick) * tick;
   const y = v => H - P - v / top * (H - P - 8);
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Visites par jour">
    <line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}"/><line x1="0" x2="${W}" y1="${y(top)}" y2="${y(top)}" stroke-dasharray="2 4"/>
    ${days.map((d, i) => { const h = Math.max(d.n ? 2 : 0, y(0) - y(d.n)); const x = i * bw + 1, w = Math.max(1, bw - 2); return `<rect data-tip="${fd(d.day)} : ${nf(d.n)} visite${d.n > 1 ? "s" : ""}" x="${x}" y="${y(0) - h}" width="${w}" height="${h}" rx="${Math.min(4, w / 2)}"/>`; }).join("")}
-   <text class="ax" x="2" y="${y(top) - 2}">${nf(top)}</text><text class="ax" x="2" y="${H - 3}">${fd(days[0]?.day)}</text><text class="ax" x="${W - 2}" y="${H - 3}" text-anchor="end">${fd(days[n - 1]?.day)}</text></svg>`;
+   </svg><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-top:2px"><span>${fd(days[0]?.day)}</span><span>max. ${nf(max)} / jour</span><span>${fd(days[n - 1]?.day)}</span></div>`;
 }
 document.addEventListener("mousemove", e => { const t = e.target.closest && e.target.closest("[data-tip]"); let tp = $(".tip"); if (!t) { tp && tp.remove(); return; } if (!tp) { tp = document.createElement("div"); tp.className = "tip"; document.body.append(tp); } tp.textContent = t.dataset.tip; tp.style.left = Math.min(innerWidth - tp.offsetWidth - 8, e.clientX + 12) + "px"; tp.style.top = e.clientY - 30 + "px"; });
 async function viewStats() {
@@ -691,7 +694,7 @@ async function viewStats() {
       <div class="card"><h3 style="margin-top:2px">Pages les plus vues</h3>${hbars(pages.slice(0, 15).map(h => ({ l: h.path === "/" ? "Accueil" : h.path, t: h.title, n: h.count })))}</div>
       <div class="card"><h3 style="margin-top:2px">Provenance</h3>${hbars((refs.stats || []).map(r => ({ l: r.name || "Accès direct", n: r.count })))}</div>
     </div>
-    ${modes.length ? `<div class="card"><h3 style="margin-top:2px">Liste ou Scroll ?</h3>${hbars(modes.sort((a, b) => b.n - a.n))}${(grp.arrivee || []).length ? `<p style="font-size:13px;color:var(--ink2);margin:10px 0 4px">Mode affiché à l'arrivée :</p>${hbars(grp.arrivee.sort((a, b) => b.n - a.n))}` : ""}</div>` : ""}
+    ${modes.length ? `<div class="card"><h3 style="margin-top:2px">Liste ou Scroll ?</h3>${hbars(modes.map(x => ({ ...x, l: x.l.charAt(0).toUpperCase() + x.l.slice(1) })).sort((a, b) => b.n - a.n))}${(grp.arrivee || []).length ? `<p style="font-size:13px;color:var(--ink2);margin:10px 0 4px">Mode affiché à l'arrivée :</p>${hbars(grp.arrivee.map(x => ({ ...x, l: x.l.charAt(0).toUpperCase() + x.l.slice(1) })).sort((a, b) => b.n - a.n))}` : ""}</div>` : ""}
     <div class="card"><h3 style="margin-top:2px">Clics suivis</h3>${Object.entries(grp).filter(([g]) => g !== "mode" && g !== "arrivee").sort((a, b) => sum(b[1]) - sum(a[1])).map(([g, it]) => `<details style="margin:4px 0"><summary style="cursor:pointer;display:flex;justify-content:space-between;gap:10px;padding:5px 0"><b style="font-weight:600">${esc(EVG[g] || g)}</b><span style="color:var(--ink2);font-variant-numeric:tabular-nums">${nf(sum(it))}</span></summary>${hbars(it.sort((a, b) => b.n - a.n).slice(0, 20))}</details>`).join("") || `<div class="empty">Aucun clic suivi sur la période</div>`}</div>
     <div class="two">
       <div class="card"><h3 style="margin-top:2px">Écrans</h3>${hbars((sizes.stats || []).map(s => ({ l: ({ phone: "Téléphone", largephone: "Grand téléphone", tablet: "Tablette", desktop: "Ordinateur", desktophd: "Grand écran", unknown: "Inconnu" })[s.id] || s.name, n: s.count })))}</div>
@@ -755,12 +758,11 @@ async function viewSante() {
     const D = F["data.json"].obj, Hh = F["state/health.json"]?.obj || {}, T = F["state/todo.json"]?.obj || {}, P = F["state/partiels.json"]?.obj || {}, J = F["state/journal.json"]?.obj || [];
     const up = races().filter(r => !r.hidden && (r.fin || r.date) >= TODAY);
     const ago = iso => { const m = Math.round((Date.now() - new Date(iso)) / 6e4); return m < 60 ? `il y a ${m} min` : m < 48 * 60 ? `il y a ${Math.round(m / 60)} h` : `il y a ${Math.round(m / 1440)} j`; };
-    const syncAge = (Date.now() - new Date(D.updatedAt)) / 36e5;
     const noPoster = up.filter(r => !r.poster), noLL = up.filter(r => !r.ll), noIns = up.filter(r => !r.inscription && !r.complet);
     const KJ = { ajout: "Ajout", date: "Date", heure: "Heure", distance: "Distance", "dénivelé": "D+", lieu: "Lieu", retrait: "Retrait", complet: "Complet", clos: "Clos", "réouvert": "Réouvert", ouverture: "Ouverture" };
     v.innerHTML = `<h2>Santé</h2>
     <div class="kpis">
-      <div class="kpi"><div class="k">Dernière synchro</div><div class="v" style="font-size:20px">${ago(D.updatedAt)}</div><div class="s">${syncAge > 3 ? `<span class="vit b">✕ en retard</span>` : `<span class="vit g">✓ à l'heure</span>`}</div></div>
+      <div class="kpi"><div class="k">Données modifiées</div><div class="v" style="font-size:20px">${ago(D.updatedAt)}</div><div class="s">${T.at ? `dernier contrôle des sources ${ago(T.at)}` : ""}</div></div>
       <div class="kpi"><div class="k">Courses à venir</div><div class="v">${up.length}</div><div class="s">${races().filter(r => r.annule).length} annulée(s) affichée(s)</div></div>
       <div class="kpi"><div class="k">Sans affiche</div><div class="v">${noPoster.length}</div><div class="s">courses visibles</div></div>
       <div class="kpi"><div class="k">Sources en erreur</div><div class="v">${Object.values(Hh).filter(x => x.etat !== "ok").length + (T.illisibles || []).length}</div><div class="s">sur ${Object.keys(Hh).length + (D.sources || []).length} suivies</div></div>
