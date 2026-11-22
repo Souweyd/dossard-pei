@@ -1,4 +1,32 @@
 {
+"3villages": {
+"commune": "Saint-Joseph",
+"date": "2026-11-22",
+"epreuves": [
+{
+"dp": 1574,
+"km": 32,
+"nom": "Foulées 32 km de la Crête",
+"type": "trail"
+},
+{
+"dp": 463,
+"km": 11,
+"nom": "Foulées 11 km de la Crête",
+"type": "trail"
+},
+{
+"km": 11,
+"nom": "Rando de la Crête",
+"type": "marche"
+}
+],
+"lieu": "Vincendo / la Crête",
+"nom": "Les Foulées des 3 Villages",
+"org": "CS Crête",
+"page": "https://chronorun974.re/les-foulees-des-3-villages/",
+"until": "2027-05-21"
+},
 "ail": {
 "commune": "Petite-Île",
 "date": "2026-10-25",
@@ -111,6 +139,56 @@
 "org": "Entente du Nord",
 "page": "https://www.sportpro.re/courses/02179-cross-city-sport/",
 "until": "2027-05-13"
+},
+"cross-du-vetyver-2026-11": {
+"commune": "Petite-Île",
+"date": "2026-11-22",
+"epreuves": [
+{
+"km": 8.2,
+"nom": "Cross long ES à MA hommes",
+"type": "cross"
+},
+{
+"km": 5.5,
+"nom": "Cross 5,5 km",
+"type": "cross"
+},
+{
+"nom": "Animation éveil et poussins",
+"type": "jeunes"
+},
+{
+"km": 1.8,
+"nom": "Benjamines",
+"type": "cross"
+},
+{
+"km": 2.8,
+"nom": "Benjamins et minimes filles",
+"type": "cross"
+},
+{
+"km": 3.6,
+"nom": "Minimes garçons et cadettes",
+"type": "cross"
+},
+{
+"km": 4.5,
+"nom": "Cadets et juniors filles",
+"type": "cross"
+},
+{
+"km": 3.5,
+"nom": "Cross court, handisport et sport adapté",
+"type": "cross"
+}
+],
+"lieu": "Domaine du Relais",
+"nom": "Cross du Vétyver",
+"org": "COSPI (Club Omnisport de Petite-Île)",
+"page": "https://cospi.re/",
+"until": "2027-05-21"
 },
 "curcuma": {
 "commune": "Saint-Joseph",
@@ -266,6 +344,32 @@
 "org": "Team Éclair",
 "page": "https://chronorun974.re/leu-urban-trail-des-eclairs-2026/",
 "until": "2027-04-22"
+},
+"maczheimer": {
+"commune": "Saint-Louis",
+"date": "2026-11-22",
+"epreuves": [
+{
+"km": 10,
+"nom": "10 km",
+"type": "route"
+},
+{
+"km": 5,
+"nom": "5 km",
+"type": "route"
+},
+{
+"km": 5,
+"nom": "Marche 5 km",
+"type": "marche"
+}
+],
+"lieu": "Les Makes",
+"nom": "Les Foulées de la Mac'Zheimer",
+"org": "Rotary Club Passeport Tampon Terre-Sainte",
+"page": "https://www.sportpro.re/courses/02182-les-foulees-de-la-maczheimer/",
+"until": "2027-05-21"
 },
 "marathon-relais-sb": {
 "commune": "Saint-Benoît",
