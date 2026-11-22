@@ -719,7 +719,7 @@ let SP = 30, ME = {};
 const STC = {};
 const gcGet = async (p, q) => { const u = new URLSearchParams(); for (const [a, b] of Object.entries(q)) [].concat(b).forEach(x => u.append(a, x)); const k = p + "?" + u; if (!STC[k]) STC[k] = api("gc/" + k).catch(e => { delete STC[k]; throw e; }); return STC[k]; };
 const range = days => { const e = new Date(Date.now() + 4 * 3600e3), s = new Date(e - (days - 1) * 864e5); return { start: s.toISOString().slice(0, 10), end: e.toISOString().slice(0, 10) }; };
-const EVG = { raccourci: "Raccourcis", favori: "Favoris", agenda: "Ajout à l'agenda", bandeau: "Bandeau « Nouveau »", sortie: "Clics vers les organisateurs", mode: "Mode choisi (Liste / Scroll…)", arrivee: "Arrivée sur le site par mode", "arrivee-partage": "Arrivées par un lien partagé" };
+const EVG = { raccourci: "Raccourcis", favori: "Favoris", agenda: "Ajout à l'agenda", bandeau: "Bandeau « Nouveau »", sortie: "Clics vers les organisateurs", mode: "Mode choisi (Liste / Scroll…)", arrivee: "Arrivée sur le site par mode", "arrivee-partage": "Arrivées par un lien partagé", scroll: "Actions en mode Scroll", webapp: "Appli sur l'écran d'accueil", saison2027: "Calendrier 2027", jeu: "Jeu", filtre: "Filtres", inscription: "Boutons « S'inscrire »", itineraire: "Itinéraire", contact: "Formulaire de contact", fiche: "Fiches ouvertes", carte: "Carte", partage: "Partages", vue3d: "Vue 3D" };
 function hbars(items, max) {
   max = max || Math.max(1, ...items.map(x => x.n));
   return `<div class="hb">${items.map(x => `<span class="l" title="${esc(x.t || x.l)}"><i style="width:${(x.n / max * 100).toFixed(1)}%"></i>${esc(x.l)}</span><span class="c">${nf(x.n)}</span>`).join("")}</div>`;
