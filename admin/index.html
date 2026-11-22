@@ -749,25 +749,27 @@ async function viewStats() {
     const sizes = await gcGet("stats/sizes", R).catch(() => ({})); await pause();
     const locs = await gcGet("stats/locations", { ...R, limit: 8 }).catch(() => ({})); await pause();
     // toutes les pages et tous les clics suivis : 100 par appel, les suivants en excluant ceux déjà reçus
-    const H = [];
-    let partial = false;
-    for (let i = 0; i < 20; i++) {
-      let h = null;
-      if (!H.length) h = await gcGet("stats/hits", { ...R, limit: 100 });
-      else {   // le compteur limite à 4 appels par seconde ; deux écritures possibles de la liste à exclure
+    const H = [], seen = new Set();
+    let partial = false, fmt = 0;   // façon d'écrire la liste à exclure qui marche : 1 = « 1,2,3 », 2 = répétée
+    const keep = h => { const n = (h.hits || []).filter(x => !seen.has(x.path_id)); n.forEach(x => seen.add(x.path_id)); H.push(...n); return n.length; };
+    let first = await gcGet("stats/hits", { ...R, limit: 100 });
+    keep(first);
+    for (let i = 0, more = first.more; more && i < 25; i++) {
+      let got = 0, h = null;
+      for (const f of fmt ? [fmt] : [1, 2]) {   // le compteur limite à 4 appels par seconde
         await new Promise(r => setTimeout(r, 350));
-        h = await gcGet("stats/hits", { ...R, limit: 100, exclude_paths: H.map(x => x.path_id).join(",") }).catch(() => null);
-        if (!h) { await new Promise(r => setTimeout(r, 350)); h = await gcGet("stats/hits", { ...R, limit: 100, exclude_paths: H.map(x => x.path_id) }).catch(() => null); }
-        if (!h) { partial = true; break; }
+        h = await gcGet("stats/hits", { ...R, limit: 100, exclude_paths: f === 1 ? [...seen].join(",") : [...seen] }).catch(() => null);
+        if (h && (got = keep(h))) { fmt = f; break; }
       }
-      H.push(...(h.hits || []));
-      if (!h.more || !(h.hits || []).length) break;
+      if (!got) { partial = true; break; }
+      more = h.more;
     }
-    // le total du compteur inclut les clics suivis : on les retire pour n'avoir que les visiteurs des pages
-    const evDay = {};
-    for (const h of H) if (h.event) for (const st of h.stats || []) evDay[st.day] = (evDay[st.day] || 0) + (st.daily || 0);
-    const days = (tot.stats || []).map(s => ({ day: s.day, n: Math.max(0, (s.daily ?? (s.hourly || []).reduce((a, b) => a + b, 0)) - (evDay[s.day] || 0)) }));
-    const visitors = Math.max(0, (tot.total || 0) - (tot.total_events || 0));
+    const pages0 = H.filter(h => !h.event);
+    // visiteurs des pages (sans les clics suivis), jour par jour : somme des pages
+    const byDay = {};
+    for (const h of pages0) for (const st of h.stats || []) byDay[st.day] = (byDay[st.day] || 0) + (st.daily || 0);
+    const days = (tot.stats || []).map(s => ({ day: s.day, n: byDay[s.day] || 0 }));
+    const visitors = partial ? Math.max(0, (tot.total || 0) - (tot.total_events || 0)) : pages0.reduce((a, h) => a + (h.count || 0), 0);
     const pages = H.filter(h => !h.event), evs = H.filter(h => h.event);
     const grp = {};
     for (const h of evs) { const p = h.path.replace(/^\//, ""); const g = p.startsWith("arrivee-partage") ? "arrivee-partage" : p.split("/")[0]; (grp[g] = grp[g] || []).push({ l: p.slice(g.length).replace(/^\//, "") || p, t: h.title, n: h.count }); }
@@ -777,7 +779,7 @@ async function viewStats() {
     gb.innerHTML = `<div class="kpis">
       <div class="kpi"><div class="k">Visiteurs</div><div class="v">${nf(visitors)}</div><div class="s">${nf(ret)} par jour en moyenne (une personne compte une fois par page et par jour)</div></div>
       <div class="kpi"><div class="k">Clics suivis</div><div class="v">${nf(tot.total_events ?? sum(evs.map(h => ({ n: h.count }))))}</div><div class="s">favoris, agenda, partages…</div></div>
-      <div class="kpi"><div class="k">Clics vers les organisateurs</div><div class="v">${nf(sum(grp.sortie || []))}</div><div class="s">inscriptions, pages officielles</div></div>
+      <div class="kpi"><div class="k">Personnes vers les organisateurs</div><div class="v">${nf(sum(grp.sortie || []))}</div><div class="s">inscriptions, pages officielles</div></div>
       <div class="kpi"><div class="k">Favoris ajoutés</div><div class="v">${nf(sum((grp.favori || []).filter(x => x.l.startsWith("ajout"))))}</div><div class="s">${nf(sum((grp.favori || []).filter(x => x.l.startsWith("retrait"))))} retirés</div></div>
     </div>
     <div class="card"><h3 style="margin-top:2px">Visiteurs par jour</h3>${days.length ? dayChart(days) : `<div class="empty">Pas de données</div>`}</div>
