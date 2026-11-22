@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin · Dossard Péi</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--teal:#00968f;--teal-d:#007a74;--ink:#15201f;--ink2:#4b5a58;--mut:#7d8b89;--bg:#f4f7f6;--card:#fff;--line:#dfe6e4;--soft:#e6f4f3;--warn:#b25e00;--warn-bg:#fff3e2;--bad:#c0392b;--bad-bg:#fdecea;--ok:#1e8a4c;--ok-bg:#e7f6ee;--chip:#eef2f1;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#e8efee;--ink2:#b5c3c1;--mut:#8a9997;--bg:#0f1716;--card:#18211f;--line:#2b3735;--soft:#123432;--warn:#f0a24a;--warn-bg:#3a2a12;--bad:#f07a6c;--bad-bg:#3b1d1a;--ok:#5fd193;--ok-bg:#15301f;--chip:#22302e;--teal:#22b5ad;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+a{color:var(--teal)}
+button,input,select,textarea{font:inherit;color:inherit}
+.top{position:sticky;top:0;z-index:20;background:var(--teal);color:#fff;display:flex;align-items:center;gap:10px;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top))}
+.top b{font-size:17px;white-space:nowrap}.top .tag{background:rgba(255,255,255,.2);border-radius:99px;padding:1px 9px;font-size:12px;font-weight:600}
+.top .sp{flex:1}.top a{color:#fff;font-size:13px;text-decoration:none;opacity:.9;white-space:nowrap}
+@media(max-width:600px){#who{display:none}}
+#who{font-size:12px;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:34vw}
+.tabs{position:sticky;top:46px;z-index:19;display:flex;gap:4px;overflow-x:auto;background:var(--card);border-bottom:1px solid var(--line);padding:6px 12px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{border:0;background:none;padding:8px 12px;border-radius:9px;font-weight:600;color:var(--ink2);white-space:nowrap;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--soft);color:var(--teal)}
+main{max-width:1060px;margin:0 auto;padding:14px 16px 90px}
+h2{font-size:20px;margin:6px 0 12px}h3{font-size:15px;margin:18px 0 8px;color:var(--ink2);text-transform:uppercase;letter-spacing:.04em}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.search{flex:1 1 220px;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px}
+.chips::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:5px 11px;font-size:13px;white-space:nowrap;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--teal);border-color:var(--teal);color:#fff}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer;background:var(--chip);white-space:nowrap}
+.btn.p{background:var(--teal);color:#fff}.btn.d{background:var(--bad-bg);color:var(--bad)}.btn.s{padding:6px 10px;font-size:13px;border-radius:8px}
+.btn:disabled{opacity:.5;cursor:default}
+.list{display:flex;flex-direction:column;gap:6px}
+.row{display:flex;gap:11px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 11px;cursor:pointer;text-align:left;width:100%}
+.row:hover{border-color:var(--teal)}
+.row img,.row .ph{width:44px;height:44px;border-radius:8px;object-fit:cover;flex:none;background:var(--chip)}
+.row .t{flex:1;min-width:0;display:block}.row .n,.row .m{display:block}.row .n{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .m{font-size:13px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bd{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:1px 6px;margin-left:4px;vertical-align:1px;background:var(--chip);color:var(--ink2)}
+.bd.a{background:var(--bad-bg);color:var(--bad)}.bd.c{background:var(--warn-bg);color:var(--warn)}.bd.h{background:var(--chip);color:var(--mut)}.bd.l{background:var(--soft);color:var(--teal)}.bd.ok{background:var(--ok-bg);color:var(--ok)}
+.empty{color:var(--mut);padding:24px;text-align:center}
+.note{font-size:13px;color:var(--ink2);background:var(--soft);border-radius:10px;padding:9px 12px;margin:8px 0}
+.note.w{background:var(--warn-bg);color:var(--warn)}
+/* éditeur */
+.sheet{position:fixed;inset:0;z-index:50;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.sheet[hidden]{display:none}
+.shead{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;background:var(--card);border-bottom:1px solid var(--line);padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top))}
+.shead .ti{flex:1;min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sbody{max-width:860px;margin:0 auto;padding:6px 16px 120px}
+.sfoot{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;gap:8px;justify-content:flex-end;align-items:center;background:var(--card);border-top:1px solid var(--line);padding:10px 16px;padding-bottom:max(10px,env(safe-area-inset-bottom))}
+.sfoot .ch{flex:1;font-size:13px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px 14px}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}.f.w{grid-column:1/-1}
+.f>label,.lab{font-size:12.5px;font-weight:600;color:var(--ink2);display:flex;align-items:center;gap:6px}
+.f input:not([type=checkbox]):not([type=radio]),.f select,.f textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg)}
+.f textarea{min-height:76px;resize:vertical}
+.f.chg input,.f.chg select,.f.chg textarea{border-color:var(--teal);box-shadow:0 0 0 2px var(--soft)}
+.ck{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer;padding:4px 0}
+.ck input{width:18px;height:18px;accent-color:var(--teal)}
+.lk{border:0;background:none;padding:0 2px;cursor:pointer;font-size:12px;color:var(--teal);font-weight:600}
+.lk.on::before{content:"🔒 ";}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg label{border:1px solid var(--line);border-radius:10px;padding:8px 11px;cursor:pointer;font-size:14px;background:var(--bg)}
+.seg input{display:none}.seg label:has(input:checked){border-color:var(--teal);background:var(--soft);color:var(--teal);font-weight:600}
+.ep{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0;background:var(--bg)}
+.ep .eh{display:flex;align-items:center;gap:6px;margin-bottom:8px}.ep .eh b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ep .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.mini{height:230px;border-radius:10px;border:1px solid var(--line);margin-top:6px}
+.poster{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.poster img{width:130px;border-radius:10px;border:1px solid var(--line);background:var(--chip)}
+details.adv summary{cursor:pointer;font-weight:600;color:var(--ink2);padding:6px 0}
+textarea.code{font:12px/1.4 ui-monospace,Menlo,monospace;min-height:260px;width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--bg)}
+.pair{display:flex;gap:6px;margin:4px 0}.pair input,.pair select{flex:1;min-width:0;padding:8px 9px;border:1px solid var(--line);border-radius:9px;background:var(--bg)}
+.pair select{flex:0 0 auto;width:auto}
+.x{border:0;background:var(--chip);border-radius:8px;width:34px;flex:none;cursor:pointer}
+/* stats */
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.kpi .v{font-size:26px;font-weight:700;letter-spacing:-.02em}.kpi .k{font-size:12.5px;color:var(--ink2);font-weight:600}
+.kpi .s{font-size:12px;color:var(--mut)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:760px){.two{grid-template-columns:1fr}}
+.hb{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;font-size:13.5px}
+.hb .l{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;position:relative;padding:3px 6px;z-index:0}
+.hb .l i{position:absolute;inset:1px auto 1px 0;background:var(--soft);border-radius:0 4px 4px 0;z-index:-1}
+.hb .c{font-variant-numeric:tabular-nums;color:var(--ink2);padding:3px 0;text-align:right}
+.chart{width:100%;height:150px;display:block}
+.chart rect{fill:var(--teal)}.chart rect:hover{fill:var(--teal-d)}.chart .ax{fill:var(--mut);font-size:10px}
+.chart line{stroke:var(--line)}
+.tip{position:fixed;z-index:80;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;border-radius:7px;padding:4px 8px;white-space:nowrap}
+.vit{display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:12px;border-radius:6px;padding:1px 7px}
+.vit.g{background:var(--ok-bg);color:var(--ok)}.vit.m{background:var(--warn-bg);color:var(--warn)}.vit.b{background:var(--bad-bg);color:var(--bad)}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th,table.t td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+table.t th{font-size:12px;color:var(--ink2)}
+table.t td.n{text-align:right;font-variant-numeric:tabular-nums}
+.ovw{overflow-x:auto}
+#toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);z-index:90;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;max-width:calc(100vw - 32px);box-shadow:0 6px 24px rgba(0,0,0,.25);display:none}
+#toast.e{background:var(--bad);color:#fff}
+.loading{padding:50px;text-align:center;color:var(--mut)}
+.dlg{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+.dlg>div{background:var(--card);border-radius:16px;max-width:520px;width:100%;padding:16px 18px;max-height:85vh;overflow:auto}
+.dlg ul{margin:8px 0;padding-left:20px;font-size:14px}.dlg .bt{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+</style>
+</head>
+<body>
+<header class="top"><b>Dossard Péi</b><span class="tag">admin</span><span class="sp"></span><span id="who"></span><a href="/" target="_blank" rel="noopener">Voir le site ↗</a></header>
+<nav class="tabs" id="tabs" role="tablist">
+  <button data-t="courses" aria-selected="true">Courses</button>
+  <button data-t="clubs">Clubs</button>
+  <button data-t="saison">Saison 2027</button>
+  <button data-t="stats">Stats</button>
+  <button data-t="sante">Santé</button>
+</nav>
+<main id="view"><div class="loading">Chargement…</div></main>
+<div class="sheet" id="sheet" hidden></div>
+<div id="toast"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+"use strict";
+/* ============ outils ============ */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const TODAY = new Date(Date.now() + 4 * 3600e3).toISOString().slice(0, 10);   // La Réunion
+const MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+const fd = d => { if (!d) return ""; const [y, m, j] = d.split("-"); return `${+j} ${MOIS[+m - 1]} ${y}`; };
+const slug = s => (s || "").normalize("NFKD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/œ/g, "oe").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const nf = n => (n ?? 0).toLocaleString("fr-FR");
+function toast(msg, err) { const t = $("#toast"); t.textContent = msg; t.className = err ? "e" : ""; t.style.display = "block"; clearTimeout(toast.h); toast.h = setTimeout(() => t.style.display = "none", err ? 7000 : 3500); }
+function dialog(html, buttons) {
+  return new Promise(res => {
+    const d = document.createElement("div"); d.className = "dlg";
+    d.innerHTML = `<div>${html}<div class="bt">${buttons.map((b, i) => `<button class="btn ${b.cls || ""}" data-i="${i}">${esc(b.label)}</button>`).join("")}</div></div>`;
+    d.addEventListener("click", e => { const b = e.target.closest("[data-i]"); if (b || e.target === d) { d.remove(); res(b ? buttons[+b.dataset.i].v : null); } });
+    document.body.append(d);
+  });
+}
+const confirmBox = (title, text, ok = "Confirmer", cls = "p") => dialog(`<h3 style="margin-top:0;text-transform:none;letter-spacing:0;color:var(--ink);font-size:17px">${esc(title)}</h3><p>${text}</p>`, [{ label: "Annuler", v: false }, { label: ok, v: true, cls }]);
+
+/* ============ accès aux données (service admin) ============ */
+const API = "/admin/api/";
+async function api(p, opt = {}) {
+  let r;
+  try { r = await fetch(API + p, { ...opt, credentials: "same-origin", headers: { "x-admin": "1", "content-type": "application/json" } }); }
+  catch (e) { throw Object.assign(new Error("Connexion impossible. Ta session a peut-être expiré : recharge la page."), { status: 0 }); }
+  let j = {}; try { j = await r.json(); } catch (e) { if (r.ok || r.status === 403) throw Object.assign(new Error("Session expirée : recharge la page pour te reconnecter."), { status: 401 }); }
+  if (!r.ok) throw Object.assign(new Error(j.error || `Erreur ${r.status}`), { status: r.status, body: j });
+  return j;
+}
+const F = {};   // chemin -> { sha, obj }
+const FMT = {
+  "data.json": o => JSON.stringify(o),
+  "clubs/clubs.json": o => JSON.stringify(o),
+  "state/overrides.json": o => JSON.stringify(o, null, 1),
+  "saison2027.json": o => JSON.stringify(o, null, 1).replace(/^ +/gm, ""),
+};
+async function load(paths) {
+  const j = await api("files?paths=" + paths.join(","));
+  for (const [p, v] of Object.entries(j.files)) if (!v.error) F[p] = { sha: v.sha, obj: JSON.parse(v.text) }; else if (!F[p]) F[p] = { error: v.error };
+}
+/* enregistre : relit les fichiers juste avant, applique la modification dessus (ce que la synchro a changé
+   entre-temps est gardé), envoie un seul commit ; recommence si la synchro est passée au même moment */
+async function save(label, paths, mutate, extra = []) {
+  for (let i = 0; i < 3; i++) {
+    await load(paths);
+    const objs = Object.fromEntries(paths.map(p => [p, clone(F[p].obj)]));
+    mutate(objs);
+    const files = paths.filter(p => FMT[p](objs[p]) !== FMT[p](F[p].obj)).map(p => ({ path: p, text: FMT[p](objs[p]) }));
+    if (!files.length && !extra.length) return false;
+    try {
+      await api("commit", { method: "POST", body: JSON.stringify({ message: label, base: Object.fromEntries(files.map(f => [f.path, F[f.path].sha])), files: [...files, ...extra] }) });
+      for (const f of files) F[f.path].obj = objs[f.path];
+      return true;
+    } catch (e) { if (e.status !== 409) throw e; await new Promise(r => setTimeout(r, 1500)); }
+  }
+  throw new Error("Les données changent en ce moment (synchro en cours). Réessaie dans une minute.");
+}
+async function run(btn, fn) {
+  const t = btn && btn.textContent; if (btn) { btn.disabled = true; btn.textContent = "Enregistrement…"; }
+  try { return await fn(); } catch (e) { toast(e.message, true); } finally { if (btn) { btn.disabled = false; btn.textContent = t; } }
+}
+
+/* ============ constantes métier ============ */
+const TYPES = ["trail", "route", "cross", "marche", "relais", "jeunes", "multisport", "autre"];
+const COMMUNES = ["Bras-Panon", "Cilaos", "Entre-Deux", "L'Étang-Salé", "La Plaine-des-Palmistes", "La Possession", "Le Port", "Le Tampon", "Les Avirons", "Les Trois-Bassins", "Petite-Île", "Saint-André", "Saint-Benoît", "Saint-Denis", "Saint-Joseph", "Saint-Leu", "Saint-Louis", "Saint-Paul", "Saint-Philippe", "Saint-Pierre", "Sainte-Marie", "Sainte-Rose", "Sainte-Suzanne", "Salazie"];
+const LABEL = { nom: "Nom", date: "Date", fin: "Date de fin", commune: "Commune", lieu: "Lieu de départ", ll: "Position", org: "Organisateur", source: "Source", page: "Page de l'organisateur", inscription: "Lien d'inscription", fiche: "Page de la course", limite: "Clôture des inscriptions", avenir: "Inscriptions pas encore ouvertes", info: "Infos pratiques", complet: "Complet", annule: "Annulée", hidden: "Masquée", epreuves: "Épreuves", traces: "Tracés", affiche: "Affiche", poster: "Affiche", poster_lg: "Affiche (grande)", poster_xs: "Vignette", paiement: "Paiement" };
+const EPL = { h: "heure", km: "distance", dp: "D+", prix: "prix", date: "date", limite: "clôture", url: "lien", note: "note", cat: "catégories", type: "type", complet: "complet", clos: "clos", ouverture: "ouverture" };
+const lab = k => k.startsWith("ep:") ? (([n, f]) => `${EPL[f] || f} de « ${n} »`)(k.slice(3).match(/^(.*):([^:]*)$/).slice(1)) : LABEL[k] || k;
+// verrou d'une info d'une épreuve : bouton 🔒 à côté de son libellé
+const epLock = (e, k) => !ED.isNew && !ED.d.manual && ED.orig && ovOf(ED.d.id).fields.includes(`ep:${e.nom}:${k}`) ? ` <button type="button" class="lk on" data-unlock="${esc(`ep:${e.nom}:${k}`)}" title="Corrigé à la main : toucher pour rendre la main à la synchro">verrouillé</button>` : "";
+
+/* ============ navigation ============ */
+let TAB = "courses";
+$("#tabs").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; TAB = b.dataset.t; $$("#tabs button").forEach(x => x.setAttribute("aria-selected", x === b)); try { localStorage.setItem("adm-tab", TAB); } catch (e) { } render(); });
+function render() { ({ courses: viewCourses, clubs: viewClubs, saison: viewSaison, stats: viewStats, sante: viewSante })[TAB](); }
+
+/* ============================================================
+   COURSES
+   ============================================================ */
+let CF = { q: "", f: "avenir" };
+const races = () => F["data.json"].obj.races;
+const ovOf = id => ((F["state/overrides.json"].obj.overrides || {})[id]) || { fields: [], hidden: false };
+function viewCourses() {
+  const v = $("#view");
+  const all = races();
+  const filters = [["avenir", "À venir"], ["toutes", "Toutes"], ["visibles", "Visibles"], ["annulees", "Annulées"], ["masquees", "Masquées"], ["complets", "Complètes"], ["main", "Ajoutées à la main"], ["verrous", "Corrigées à la main"], ["sansaffiche", "Sans affiche"]];
+  const test = {
+    avenir: r => (r.fin || r.date) >= TODAY, toutes: () => true, visibles: r => !r.hidden, annulees: r => r.annule, masquees: r => r.hidden && !r.annule,
+    complets: r => r.complet || (r.epreuves || []).length && r.epreuves.every(e => e.complet), main: r => r.manual, verrous: r => ovOf(r.id).fields.length, sansaffiche: r => !r.poster && !r.hidden,
+  };
+  const q = slug(CF.q);
+  const list = all.filter(test[CF.f]).filter(r => !q || slug(`${r.nom} ${r.commune} ${r.org || ""} ${r.id}`).includes(q)).sort((a, b) => a.date.localeCompare(b.date));
+  v.innerHTML = `<h2>Courses</h2>
+  <div class="bar"><input class="search" id="cq" type="search" placeholder="Chercher une course, une commune, un organisateur…" value="${esc(CF.q)}"><button class="btn p" id="addr">+ Ajouter une course</button></div>
+  <div class="chips">${filters.map(([k, l]) => `<button class="chip" data-f="${k}" aria-pressed="${CF.f === k}">${l} <span style="opacity:.7">${all.filter(test[k]).length}</span></button>`).join("")}</div>
+  <div class="list">${list.map(rowRace).join("") || `<div class="empty">Aucune course</div>`}</div>`;
+  $("#cq").addEventListener("input", e => { CF.q = e.target.value; const p = e.target.selectionStart; viewCourses(); const i = $("#cq"); i.focus(); i.setSelectionRange(p, p); });
+  $$(".chip", v).forEach(c => c.onclick = () => { CF.f = c.dataset.f; viewCourses(); });
+  $("#addr").onclick = () => editRace(null);
+  $$(".row[data-id]", v).forEach(r => r.onclick = () => editRace(r.dataset.id));
+}
+function rowRace(r) {
+  const ov = ovOf(r.id), n = ov.fields.length;
+  const b = [r.annule ? `<span class="bd a">Annulée</span>` : r.hidden ? `<span class="bd h">Masquée</span>` : "", r.complet ? `<span class="bd c">Complet</span>` : "", r.manual ? `<span class="bd l">À la main</span>` : n ? `<span class="bd l" title="${esc(ov.fields.map(lab).join(", "))}">🔒 ${n}</span>` : "", (r.fin || r.date) < TODAY ? `<span class="bd h">Passée</span>` : ""].join("");
+  const img = r.poster_xs || r.poster;
+  return `<button class="row" data-id="${esc(r.id)}">${img ? `<img src="/${esc(img)}" alt="" loading="lazy">` : `<span class="ph"></span>`}<span class="t"><span class="n">${esc(r.nom)}${b}</span><span class="m">${fd(r.date)}${r.fin && r.fin !== r.date ? " → " + fd(r.fin) : ""} · ${esc(r.commune)}${r.org ? " · " + esc(r.org) : ""}</span></span></button>`;
+}
+
+/* ---------- éditeur de course ---------- */
+let ED = null;   // { orig, d, isNew, unlock:Set, upload, map }
+function editRace(id) {
+  const orig = id ? clone(races().find(r => r.id === id)) : null;
+  const d = orig ? clone(orig) : { id: "", nom: "", date: "", commune: "", lieu: "", ll: null, source: "", page: "", epreuves: [], manual: true };
+  ED = { orig, d, isNew: !orig, upload: null };
+  const s = $("#sheet"); s.hidden = false; document.body.style.overflow = "hidden";
+  drawRace();
+  history.pushState({ sheet: 1 }, "");
+}
+function closeSheet() { const s = $("#sheet"); s.hidden = true; s.innerHTML = ""; document.body.style.overflow = ""; if (ED && ED.map) ED.map.remove(); ED = null; CED = null; render(); }
+window.addEventListener("popstate", () => { if (!$("#sheet").hidden) closeSheet(); });
+function changedKeys() {
+  const { orig, d } = ED, o = orig || {};
+  return [...new Set([...Object.keys(o), ...Object.keys(d)])].filter(k => !same(o[k], d[k]));
+}
+function fieldHTML(k, input, wide) {
+  const { orig, d } = ED, locked = !ED.isNew && !d.manual && ovOf(d.id).fields.includes(k);
+  const chg = !ED.isNew && orig && !same(orig[k], d[k]);
+  return `<div class="f${wide ? " w" : ""}${chg ? " chg" : ""}" data-k="${k}"><label>${esc(lab(k))}${locked ? ` <button type="button" class="lk on" data-unlock="${k}" title="Corrigé à la main : la synchro n'y touche plus. Toucher pour la laisser reprendre la main.">verrouillé</button>` : ""}</label>${input}</div>`;
+}
+const inp = (k, type = "text", attrs = "") => `<input type="${type}" data-b="${k}" value="${esc(ED.d[k] ?? "")}" ${attrs}>`;
+function drawRace() {
+  const { d, isNew } = ED, s = $("#sheet");
+  const status = d.annule ? "annulee" : d.hidden ? "masquee" : "visible";
+  const sources = (F["data.json"].obj.sources || []);
+  const communes = [...new Set([...COMMUNES, ...races().map(r => r.commune)])].sort((a, b) => a.localeCompare(b, "fr"));
+  s.innerHTML = `<div class="shead"><button class="btn s" id="sx">← Retour</button><span class="ti">${isNew ? "Nouvelle course" : esc(d.nom)}</span>${!isNew ? `<a class="btn s" href="/course/${esc(d.id)}/" target="_blank" rel="noopener">Voir ↗</a>` : ""}</div>
+  <div class="sbody">
+    ${isNew ? `<div class="note">Une course ajoutée ici est « à la main » : la synchro horaire ne la modifie jamais. Elle apparaît sur le site 1 à 2 minutes après l'enregistrement.</div>` : d.manual ? `<div class="note">Course ajoutée à la main : la synchro n'y touche pas.</div>` : `<div class="note">Chaque champ que tu modifies est <b>verrouillé</b> : la synchro horaire ne l'écrase plus. Le bouton 🔒 « verrouillé » à côté d'un champ rend la main à la synchro.</div>`}
+    <div class="card"><h3 style="margin-top:4px">Statut</h3>
+      <div class="seg" id="st">
+        <label><input type="radio" name="st" value="visible" ${status === "visible" ? "checked" : ""}>Visible</label>
+        <label><input type="radio" name="st" value="annulee" ${status === "annulee" ? "checked" : ""}>Annulée <small>(reste affichée avec le tampon)</small></label>
+        <label><input type="radio" name="st" value="masquee" ${status === "masquee" ? "checked" : ""}>Masquée <small>(retirée du site)</small></label>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:8px">
+        <label class="ck"><input type="checkbox" data-bb="complet" ${d.complet ? "checked" : ""}>Complet (toute la course)</label>
+        <label class="ck"><input type="checkbox" data-bb="avenir" ${d.avenir ? "checked" : ""}>Inscriptions pas encore ouvertes</label>
+      </div>
+    </div>
+    <div class="card"><h3 style="margin-top:4px">Général</h3><div class="grid">
+      ${fieldHTML("nom", inp("nom", "text", 'required'), true)}
+      ${fieldHTML("date", inp("date", "date"))}
+      ${fieldHTML("fin", inp("fin", "date"))}
+      ${fieldHTML("commune", `<input list="dlcom" data-b="commune" value="${esc(d.commune)}"><datalist id="dlcom">${communes.map(c => `<option value="${esc(c)}">`).join("")}</datalist>`)}
+      ${fieldHTML("lieu", inp("lieu"))}
+      ${fieldHTML("org", inp("org"))}
+      ${fieldHTML("source", `<select data-b="source"><option value="">Saisie à la main</option>${sources.map(x => `<option value="${esc(x.id)}" ${x.id === d.source ? "selected" : ""}>${esc(x.nom)}</option>`).join("")}${d.source && !sources.some(x => x.id === d.source) ? `<option selected>${esc(d.source)}</option>` : ""}</select>`)}
+      ${fieldHTML("ll", `<div class="pair"><input data-ll="0" inputmode="decimal" placeholder="Latitude" value="${d.ll ? d.ll[0] : ""}"><input data-ll="1" inputmode="decimal" placeholder="Longitude" value="${d.ll ? d.ll[1] : ""}"></div><div class="mini" id="mini"></div><small style="color:var(--mut)">Touche la carte ou déplace le point pour placer le départ.</small>`, true)}
+    </div></div>
+    <div class="card"><h3 style="margin-top:4px">Inscriptions et liens</h3><div class="grid">
+      ${fieldHTML("inscription", inp("inscription", "url"), true)}
+      ${fieldHTML("page", inp("page", "url"), true)}
+      ${fieldHTML("fiche", inp("fiche", "url"), true)}
+      ${fieldHTML("limite", inp("limite", "date"))}
+      ${fieldHTML("info", `<textarea data-b="info">${esc(d.info || "")}</textarea>`, true)}
+    </div></div>
+    <div class="card"><h3 style="margin-top:4px">Affiche</h3>${posterHTML()}</div>
+    <div class="card"><h3 style="margin-top:4px;display:flex;align-items:center;gap:8px">Épreuves ${!isNew && !d.manual && ovOf(d.id).fields.includes("epreuves") ? `<button type="button" class="lk on" data-unlock="epreuves">verrouillé</button>` : ""}</h3>
+      <div id="eps"></div><button class="btn s" id="adde">+ Ajouter une épreuve</button>
+      ${!isNew && !d.manual ? `<div class="note" style="margin-top:10px">Chaque info d'épreuve que tu modifies (heure, prix, complet…) est verrouillée <b>seule</b> : le reste suit toujours la plateforme. Ajouter, retirer, renommer ou déplacer une épreuve verrouille toute la liste.</div>` : ""}
+    </div>
+    <div class="card"><h3 style="margin-top:4px">Tracés</h3><div id="trs"></div><button class="btn s" id="addt">+ Ajouter un tracé</button></div>
+    <div class="card"><details class="adv"><summary>Avancé : toutes les données de la course (JSON)</summary>
+      <p style="font-size:13px;color:var(--ink2)">Pour un champ qui n'a pas de case ci-dessus. Modifie le texte puis « Appliquer ».</p>
+      <textarea class="code" id="json"></textarea><div style="margin-top:8px"><button class="btn s" id="japp">Appliquer</button></div></details></div>
+    ${!isNew ? `<div class="card"><h3 style="margin-top:4px">Supprimer</h3><p style="font-size:13.5px;color:var(--ink2)">${d.manual ? "Supprime définitivement cette course ajoutée à la main." : "Une course venant d'une source reviendrait à la prochaine synchro : pour la retirer du site, choisis plutôt « Masquée » en haut."}</p>${d.manual ? `<button class="btn d" id="del">Supprimer la course</button>` : ""}</div>` : ""}
+  </div>
+  <div class="sfoot"><span class="ch" id="chg"></span><button class="btn" id="cancel">Annuler</button><button class="btn p" id="ok">${isNew ? "Ajouter la course" : "Enregistrer"}</button></div>`;
+  drawEps(); drawTraces(); bindRace(); miniMap(); refreshChg();
+}
+function posterHTML() {
+  const { d } = ED;
+  const src = ED.upload ? ED.upload.url : d.poster_lg || d.poster ? "/" + (d.poster_lg || d.poster) : "";
+  return `<div class="poster">${src ? `<img src="${esc(src)}" alt="Affiche">` : `<div style="width:130px;height:170px;border-radius:10px;background:var(--chip);display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:13px">Pas d'affiche</div>`}
+   <div style="flex:1;min-width:200px"><p style="margin:0 0 8px;font-size:13.5px;color:var(--ink2)">${ED.upload ? "Nouvelle affiche prête : elle sera mise au format du site 1 à 3 minutes après l'enregistrement." : d.poster ? "Affiche actuelle. Une affiche déposée ici remplace celle trouvée par le robot." : "Dépose l'affiche (photo ou capture, JPEG ou PNG)."}</p>
+   <label class="btn s" style="display:inline-block">Choisir une image<input type="file" accept="image/*" id="pf" hidden></label>
+   ${d.poster || ED.upload ? ` <button class="btn s d" id="prm">Retirer l'affiche</button>` : ""}</div></div>`;
+}
+function bindRace() {
+  const s = $("#sheet"), d = ED.d;
+  $("#sx").onclick = $("#cancel").onclick = async () => { if (changedKeys().length || ED.upload) { if (!await confirmBox("Quitter sans enregistrer ?", "Tes modifications seront perdues.", "Quitter", "d")) return; } history.back(); };
+  s.oninput = e => {
+    const t = e.target;
+    if (t.dataset.b) { const k = t.dataset.b; if (t.value === "" && !(ED.orig && k in ED.orig && ED.orig[k] === "")) delete d[k]; else d[k] = t.value; }
+    else if (t.dataset.ll) { const a = parseFloat($('[data-ll="0"]').value.replace(",", ".")), b = parseFloat($('[data-ll="1"]').value.replace(",", ".")); if (isFinite(a) && isFinite(b)) { d.ll = [+a.toFixed(4), +b.toFixed(4)]; ED.mk && ED.mk.setLatLng(d.ll); } }
+    else return;
+    refreshChg(t);
+  };
+  s.onchange = e => {
+    const t = e.target;
+    if (t.name === "st") { delete d.annule; delete d.hidden; if (t.value === "annulee") { d.annule = true; d.hidden = true; } if (t.value === "masquee") d.hidden = true; refreshChg(); }
+    if (t.dataset.bb) { if (t.checked) d[t.dataset.bb] = true; else delete d[t.dataset.bb]; refreshChg(); }
+  };
+  s.onclick = async e => {
+    const u = e.target.closest("[data-unlock]"); if (!u) return;
+    const k = u.dataset.unlock;
+    if (!await confirmBox(`Rendre « ${lab(k)} » à la synchro ?`, "La synchro horaire pourra de nouveau mettre ce champ à jour depuis le site de l'organisateur. La valeur actuelle reste jusque-là.", "Rendre la main")) return;
+    await run(null, async () => {
+      await save(`${d.nom} : ${lab(k)} rendu à la synchro`, ["state/overrides.json"], o => {
+        const ov = o["state/overrides.json"].overrides || {}, e = ov[d.id]; if (!e) return;
+        e.fields = e.fields.filter(x => x !== k); if (!e.fields.length && !e.hidden) delete ov[d.id];
+      });
+      toast("C'est fait : la synchro reprend la main sur « " + lab(k) + " ».");
+      drawRace();
+    });
+  };
+  $("#adde").onclick = () => { (d.epreuves = d.epreuves || []).push({ nom: "", type: "trail" }); drawEps(); refreshChg(); $$("#eps .ep").pop().scrollIntoView({ block: "center" }); };
+  $("#addt").onclick = () => { (d.traces = d.traces || []).push({ nom: "", url: "" }); drawTraces(); refreshChg(); };
+  $("#pf").onchange = e => pickPoster(e.target.files[0]);
+  const prm = $("#prm"); if (prm) prm.onclick = () => { ED.upload = null; delete d.poster; delete d.poster_lg; delete d.poster_xs; delete d.affiche; delete d.affiche_capture; $(".card:has(#pf)").innerHTML = `<h3 style="margin-top:4px">Affiche</h3>` + posterHTML(); $("#pf").onchange = e => pickPoster(e.target.files[0]); refreshChg(); };
+  const det = $("details.adv"); det.addEventListener("toggle", () => { if (det.open) $("#json").value = JSON.stringify(d, null, 2); });
+  $("#japp").onclick = () => { try { const n = JSON.parse($("#json").value); if (!ED.isNew && n.id !== d.id) throw new Error("l'identifiant (id) ne peut pas changer"); ED.d = n; const up = ED.upload; drawRace(); ED.upload = up; toast("Appliqué. Vérifie puis enregistre."); } catch (e) { toast("JSON invalide : " + e.message, true); } };
+  $("#ok").onclick = e => saveRace(e.target);
+  const del = $("#del"); if (del) del.onclick = async () => {
+    if (!await confirmBox("Supprimer cette course ?", `« ${esc(d.nom)} » sera retirée du site et des données. Elle reste dans l'historique du dépôt.`, "Supprimer", "d")) return;
+    await run(del, async () => {
+      await save(`${d.nom} supprimée`, ["data.json", "state/overrides.json"], o => {
+        const D = o["data.json"]; D.races = D.races.filter(r => r.id !== d.id);
+        const O = o["state/overrides.json"]; O.manual = (O.manual || []).filter(x => x !== d.id); if (O.overrides) delete O.overrides[d.id];
+      });
+      toast("Course supprimée."); history.back();
+    });
+  };
+}
+function refreshChg(t) {
+  if (t) { const f = t.closest(".f[data-k]"); if (f && ED.orig) f.classList.toggle("chg", !same(ED.orig[f.dataset.k], ED.d[f.dataset.k])); }
+  const k = changedKeys(), n = k.length + (ED.upload ? 1 : 0);
+  $("#chg").textContent = ED.isNew ? "" : n ? `${n} modification${n > 1 ? "s" : ""} : ${[...k.map(lab), ...(ED.upload ? ["affiche"] : [])].filter((x, i, a) => a.indexOf(x) === i).join(", ")}` : "Aucune modification";
+}
+function epField(i, k, label, type = "text", attrs = "") { const e = ED.d.epreuves[i]; return `<div class="f"><label>${label}${epLock(e, k)}</label><input type="${type}" data-e="${i}" data-ek="${k}" value="${esc(e[k] ?? "")}" ${attrs}></div>`; }
+function drawEps() {
+  const d = ED.d, box = $("#eps");
+  box.innerHTML = (d.epreuves || []).map((e, i) => `<div class="ep" data-i="${i}">
+    <div class="eh"><b>${esc(e.nom || "Nouvelle épreuve")}${e.km ? ` · ${String(e.km).replace(".", ",")} km` : ""}</b>
+      <button class="btn s" data-mv="-1" ${i ? "" : "disabled"} title="Monter">↑</button><button class="btn s" data-mv="1" ${i < d.epreuves.length - 1 ? "" : "disabled"} title="Descendre">↓</button><button class="btn s d" data-rm title="Supprimer">✕</button></div>
+    <div class="grid">
+      <div class="f" style="grid-column:span 2">${'<label>Nom</label>'}<input data-e="${i}" data-ek="nom" value="${esc(e.nom)}"></div>
+      <div class="f"><label>Type${epLock(e, "type")}</label><select data-e="${i}" data-ek="type">${TYPES.map(t => `<option ${t === e.type ? "selected" : ""}>${t}</option>`).join("")}${e.type && !TYPES.includes(e.type) ? `<option selected>${esc(e.type)}</option>` : ""}</select></div>
+      ${epField(i, "km", "Distance (km)", "text", 'inputmode="decimal"')}${epField(i, "dp", "D+ (m)", "text", 'inputmode="numeric"')}
+      ${epField(i, "date", "Date (si différente)", "date")}${epField(i, "h", "Heure de départ", "text", 'placeholder="07h30"')}
+      ${epField(i, "prix", "Prix", "text", 'placeholder="25 €"')}${epField(i, "limite", "Clôture inscriptions", "date")}
+      <div class="f" style="grid-column:1/-1"><label>Lien d'inscription de l'épreuve${epLock(e, "url")}</label><input type="url" data-e="${i}" data-ek="url" value="${esc(e.url ?? "")}"></div>
+      ${epField(i, "cat", "Catégories")}
+      <div class="f" style="grid-column:1/-1"><label>Note${epLock(e, "note")}</label><input data-e="${i}" data-ek="note" value="${esc(e.note ?? "")}"></div>
+    </div>
+    <div style="display:flex;gap:18px;margin-top:4px"><label class="ck"><input type="checkbox" data-e="${i}" data-eb="complet" ${e.complet ? "checked" : ""}>Complet</label>${epLock(e, "complet")}<label class="ck"><input type="checkbox" data-e="${i}" data-eb="clos" ${e.clos ? "checked" : ""}>Inscriptions closes</label>${epLock(e, "clos")}</div>
+  </div>`).join("") || `<p style="color:var(--mut);font-size:14px">Aucune épreuve.</p>`;
+  box.oninput = box.onchange = ev => {
+    const t = ev.target, i = t.dataset.e; if (i == null) return; const e = d.epreuves[+i];
+    if (t.dataset.eb) { if (t.checked) e[t.dataset.eb] = true; else if (t.dataset.eb in e) e[t.dataset.eb] = false; }
+    else { const k = t.dataset.ek; let v = t.value; if (k === "km" || k === "dp") { v = v.replace(",", ".").trim(); v = v === "" ? null : +v; if (v !== null && !isFinite(v)) return; } if (v === "" || v === null) delete e[k]; else e[k] = v; if (k === "nom" || k === "km") { const b = t.closest(".ep").querySelector(".eh b"); b.textContent = (e.nom || "Nouvelle épreuve") + (e.km ? ` · ${String(e.km).replace(".", ",")} km` : ""); } }
+    refreshChg();
+  };
+  box.onclick = ev => {
+    const b = ev.target.closest("button"); if (!b) return; const i = +b.closest(".ep").dataset.i;
+    if (b.dataset.mv) { const j = i + +b.dataset.mv; [d.epreuves[i], d.epreuves[j]] = [d.epreuves[j], d.epreuves[i]]; }
+    if ("rm" in b.dataset) d.epreuves.splice(i, 1);
+    drawEps(); refreshChg();
+  };
+}
+function drawTraces() {
+  const d = ED.d, box = $("#trs");
+  box.innerHTML = (d.traces || []).map((t, i) => `<div class="pair"><input data-t="${i}" data-tk="nom" placeholder="Nom (ex. Format 32 km)" value="${esc(t.nom)}" style="flex:0 1 38%"><input type="url" data-t="${i}" data-tk="url" placeholder="Lien du tracé" value="${esc(t.url)}"><button class="x" data-trm="${i}" title="Retirer">✕</button></div>`).join("") || `<p style="color:var(--mut);font-size:14px">Aucun tracé.</p>`;
+  box.oninput = ev => { const t = ev.target; if (t.dataset.t == null) return; d.traces[+t.dataset.t][t.dataset.tk] = t.value; refreshChg(); };
+  box.onclick = ev => { const b = ev.target.closest("[data-trm]"); if (!b) return; d.traces.splice(+b.dataset.trm, 1); if (!d.traces.length) delete d.traces; drawTraces(); refreshChg(); };
+}
+function miniMap() {
+  if (!window.L) { $("#mini").remove(); return; }
+  const d = ED.d, c = d.ll || [-21.13, 55.53];
+  const m = ED.map = L.map("mini", { zoomControl: true, attributionControl: true }).setView(c, d.ll ? 13 : 9);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 18, attribution: "© OpenStreetMap" }).addTo(m);
+  const set = ll => { d.ll = [+ll.lat.toFixed(4), +ll.lng.toFixed(4)]; $('[data-ll="0"]').value = d.ll[0]; $('[data-ll="1"]').value = d.ll[1]; refreshChg($('[data-ll="0"]')); };
+  ED.mk = L.marker(c, { draggable: true, opacity: d.ll ? 1 : .45 }).addTo(m).on("dragend", e => { ED.mk.setOpacity(1); set(e.target.getLatLng()); });
+  m.on("click", e => { ED.mk.setLatLng(e.latlng).setOpacity(1); set(e.latlng); });
+  setTimeout(() => m.invalidateSize(), 60);
+}
+async function pickPoster(file) {
+  if (!file) return;
+  try {
+    const bmp = await createImageBitmap(file, { imageOrientation: "from-image" }).catch(() => null);
+    const img = bmp || await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(file); });
+    const w = img.width, h = img.height, k = Math.min(1, 1600 / Math.max(w, h));
+    if (Math.min(w, h) < 300) throw new Error("image trop petite (300 px minimum)");
+    const cv = document.createElement("canvas"); cv.width = Math.round(w * k); cv.height = Math.round(h * k);
+    const cx = cv.getContext("2d"); cx.fillStyle = "#fff"; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(img, 0, 0, cv.width, cv.height);
+    const url = cv.toDataURL("image/jpeg", .9);
+    ED.upload = { url, b64: url.split(",")[1] };
+    $(".card:has(#pf)").innerHTML = `<h3 style="margin-top:4px">Affiche</h3>` + posterHTML();
+    $("#pf").onchange = e => pickPoster(e.target.files[0]);
+    const prm = $("#prm"); if (prm) prm.onclick = () => { ED.upload = null; $(".card:has(#pf)").innerHTML = `<h3 style="margin-top:4px">Affiche</h3>` + posterHTML(); $("#pf").onchange = e => pickPoster(e.target.files[0]); refreshChg(); };
+    refreshChg();
+  } catch (e) { toast("Image illisible : " + (e.message || e), true); }
+}
+function checkRace(d) {
+  const pb = [];
+  if (!d.nom || !d.nom.trim()) pb.push("le nom est vide");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d.date || "")) pb.push("la date est vide");
+  if (d.fin && d.fin < d.date) pb.push("la date de fin est avant la date");
+  if (!d.commune) pb.push("la commune est vide");
+  if (d.ll && !(d.ll[0] < -20.8 && d.ll[0] > -21.45 && d.ll[1] > 55.15 && d.ll[1] < 55.9)) pb.push("la position n'est pas à La Réunion");
+  for (const k of ["page", "inscription", "fiche"]) if (d[k] && !/^https?:\/\/\S+$/.test(d[k])) pb.push(`le lien « ${lab(k)} » n'est pas une adresse web`);
+  (d.epreuves || []).forEach((e, i) => { if (!e.nom) pb.push(`l'épreuve ${i + 1} n'a pas de nom`); if (e.url && !/^https?:\/\/\S+$/.test(e.url)) pb.push(`le lien de l'épreuve ${i + 1} n'est pas une adresse web`); });
+  (d.traces || []).forEach((t, i) => { if (!/^https?:\/\/\S+$/.test(t.url || "")) pb.push(`le tracé ${i + 1} n'a pas de lien valide`); });
+  return pb;
+}
+async function saveRace(btn) {
+  const d = ED.d;
+  if (ED.upload) { delete d.affiche; delete d.affiche_capture; }   // l'adresse de l'ancienne affiche ne correspond plus
+  const keys = changedKeys();
+  if (!keys.length && !ED.upload) { toast("Aucune modification."); return; }
+  if (!d.epreuves || !d.epreuves.length) d.epreuves = [];
+  const pb = checkRace(d);
+  if (pb.length) { await dialog(`<h3 style="margin-top:0;text-transform:none;letter-spacing:0;color:var(--ink);font-size:17px">À corriger avant d'enregistrer</h3><ul>${pb.map(p => `<li>${esc(p)}</li>`).join("")}</ul>`, [{ label: "OK", v: 1, cls: "p" }]); return; }
+  if (ED.isNew) {
+    const base = slug(d.nom) + "-" + d.date.slice(0, 7);
+    let id = base, n = 2; while (races().some(r => r.id === id)) id = `${base}-${n++}`;
+    d.id = id; d.manual = true; if (!d.ll) delete d.ll;
+  }
+  // champs à verrouiller : ceux modifiés. Pour les épreuves, seulement l'info changée (« ep:<épreuve>:<info> »),
+  // sauf si la liste elle-même change (ajout, retrait, nom, ordre) : alors toute la liste.
+  const lock = new Set(keys.filter(k => !["poster_xs", "affiche_capture", "manual", "id"].includes(k)));
+  let fine = null;   // [[nom, info, valeur ou undefined]]
+  if (!ED.isNew && ED.orig && !d.manual && keys.includes("epreuves")) {
+    const O = ED.orig.epreuves || [], N = d.epreuves || [];
+    if (O.length === N.length && O.every((e, i) => e.nom === N[i].nom)) {
+      fine = [];
+      O.forEach((e, i) => { for (const k of new Set([...Object.keys(e), ...Object.keys(N[i])])) if (!same(e[k], N[i][k])) { fine.push([e.nom, k, N[i][k]]); lock.add(`ep:${e.nom}:${k}`); } });
+      lock.delete("epreuves");
+    }
+  }
+  if (ED.upload) ["poster", "poster_lg", "affiche"].forEach(k => lock.add(k));
+  const extra = ED.upload ? [{ path: `posters/in/${d.id}.jpg`, b64: ED.upload.b64 }] : [];
+  const label = ED.isNew ? `ajout de ${d.nom}` : `${d.nom} (${[...new Set([...keys.map(lab), ...(ED.upload ? ["affiche"] : [])])].join(", ")})`;
+  await run(btn, async () => {
+    const ok = await save(label, ["data.json", "state/overrides.json"], o => {
+      const D = o["data.json"], O = o["state/overrides.json"];
+      if (ED.isNew) { D.races.push(clone(d)); (O.manual = O.manual || []).includes(d.id) || O.manual.push(d.id); return; }
+      const r = D.races.find(x => x.id === d.id); if (!r) throw new Error("cette course n'est plus dans les données (passée ?)");
+      for (const k of keys) {
+        if (k === "epreuves" && fine) {   // seulement les infos changées, sur les épreuves telles qu'elles sont maintenant
+          for (const [nom, f, v] of fine) { const e = (r.epreuves || []).find(x => x.nom === nom); if (!e) throw new Error(`l'épreuve « ${nom} » a changé de nom entre-temps, recharge la page`); if (v === undefined) delete e[f]; else e[f] = clone(v); }
+          continue;
+        }
+        if (k in d) r[k] = clone(d[k]); else delete r[k];
+      }
+      if (!r.manual) {
+        const ov = O.overrides = O.overrides || {}, e = ov[d.id] = ov[d.id] || { fields: [], hidden: false };
+        e.fields = [...new Set([...e.fields, ...lock])].sort(); e.hidden = !!r.hidden;
+      }
+    }, extra);
+    if (ok === false) { toast("Aucune modification."); return; }
+    toast(ED.isNew ? "Course ajoutée : en ligne dans 1 à 2 minutes." : "Enregistré : en ligne dans 1 à 2 minutes.");
+    history.back();
+  });
+}
+
+/* ============================================================
+   CLUBS
+   ============================================================ */
+let KQ = "", CED = null;
+const clubs = () => F["clubs/clubs.json"].obj.clubs;
+function viewClubs() {
+  const v = $("#view"), q = slug(KQ);
+  const list = clubs().filter(c => !q || slug(`${c.nom} ${c.complet} ${c.commune} ${(c.alias || []).join(" ")}`).includes(q)).sort((a, b) => a.nom.localeCompare(b.nom, "fr"));
+  const sp = F["clubs/clubs.json"].obj.sprite;
+  v.innerHTML = `<h2>Clubs <span style="color:var(--mut);font-weight:500;font-size:15px">${clubs().length}</span></h2>
+  <div class="bar"><input class="search" id="kq" type="search" placeholder="Chercher un club, une commune…" value="${esc(KQ)}"><button class="btn p" id="addc">+ Ajouter un club</button></div>
+  <div class="list">${list.map(c => {
+    const p = c.logo && sp && sp.pos[c.logo], k = 44 / sp.tile;
+    const logo = p ? `<span class="ph" style="background:url(/clubs/logos.webp) -${p[0] * k}px -${p[1] * k}px/${sp.w * k}px ${sp.h * k}px;background-color:#fff"></span>` : `<span class="ph"></span>`;
+    const miss = ["tel", "mail", "site", "adresse", "entrainement"].filter(k => !c[k]).length;
+    return `<button class="row" data-id="${esc(c.id)}">${logo}<span class="t"><span class="n">${esc(c.nom)}${c.ffa ? `<span class="bd">FFA</span>` : ""}${miss >= 4 ? `<span class="bd h">peu d'infos</span>` : ""}</span><span class="m">${esc(c.commune)} · ${esc(c.secteur)} · ${esc(c.type)}</span></span></button>`;
+  }).join("") || `<div class="empty">Aucun club</div>`}</div>`;
+  $("#kq").addEventListener("input", e => { KQ = e.target.value; const p = e.target.selectionStart; viewClubs(); const i = $("#kq"); i.focus(); i.setSelectionRange(p, p); });
+  $("#addc").onclick = () => editClub(null);
+  $$(".row[data-id]", v).forEach(r => r.onclick = () => editClub(r.dataset.id));
+}
+const CTYPES = ["Athlé + trail", "Trail", "Trail + rando", "Athlétisme", "Multisport"];
+const RES = { fb: "Facebook", ig: "Instagram", yt: "YouTube", tt: "TikTok", st: "Strava", wa: "WhatsApp", x: "X" };
+function editClub(id) {
+  const orig = id ? clone(clubs().find(c => c.id === id)) : null;
+  CED = { orig, d: orig ? clone(orig) : { id: "", nom: "", complet: "", commune: "", secteur: "", type: "Trail", ffa: false, site: "", siteLabel: "", courses: [], logo: "", reseaux: [], tel: "", mail: "", adresse: "", entrainement: "" } };
+  $("#sheet").hidden = false; document.body.style.overflow = "hidden"; drawClub(); history.pushState({ sheet: 1 }, "");
+}
+function drawClub() {
+  const { d, orig } = CED, s = $("#sheet");
+  const ci = (k, label, type = "text", ph = "") => `<div class="f"><label>${label}</label><input type="${type}" data-c="${k}" value="${esc(d[k] ?? "")}" placeholder="${esc(ph)}"></div>`;
+  s.innerHTML = `<div class="shead"><button class="btn s" id="sx">← Retour</button><span class="ti">${orig ? esc(d.nom) : "Nouveau club"}</span>${orig ? `<a class="btn s" href="/clubs/${esc(d.id)}/" target="_blank" rel="noopener">Voir ↗</a>` : ""}</div>
+  <div class="sbody">
+    <div class="card"><h3 style="margin-top:4px">Identité</h3><div class="grid">
+      ${ci("nom", "Nom court (affiché)")}${ci("complet", "Nom complet (si différent)")}
+      <div class="f"><label>Commune</label><select data-c="commune"><option value=""></option>${COMMUNES.map(c => `<option ${c === d.commune ? "selected" : ""}>${esc(c)}</option>`).join("")}${d.commune && !COMMUNES.includes(d.commune) ? `<option selected>${esc(d.commune)}</option>` : ""}</select></div>
+      <div class="f"><label>Secteur</label><select data-c="secteur">${["", "Nord", "Sud", "Est", "Ouest"].map(c => `<option ${c === d.secteur ? "selected" : ""}>${c}</option>`).join("")}</select></div>
+      <div class="f"><label>Type</label><input list="dlct" data-c="type" value="${esc(d.type)}"><datalist id="dlct">${CTYPES.map(c => `<option value="${esc(c)}">`).join("")}</datalist></div>
+      <div class="f"><label>&nbsp;</label><label class="ck"><input type="checkbox" data-cb="ffa" ${d.ffa ? "checked" : ""}>Affilié FFA</label></div>
+      <div class="f w"><label>Sections jeunes</label><div style="display:flex;gap:16px">${["u7", "u11", "u15"].map(u => `<label class="ck"><input type="checkbox" data-cj="${u}" ${(d.jeunes || []).includes(u) ? "checked" : ""}>${u.toUpperCase()}</label>`).join("")}</div></div>
+    </div></div>
+    <div class="card"><h3 style="margin-top:4px">Contact</h3><div class="grid">
+      ${ci("tel", "Téléphone", "tel", "0692 00 00 00")}${ci("mail", "E-mail", "email")}
+      <div class="f w"><label>Site</label><div class="pair"><input type="url" data-c="site" value="${esc(d.site)}" placeholder="https://"><select data-c="siteLabel">${[["", "Libellé auto"], ["Site", "Site"], ["HelloAsso", "HelloAsso"]].map(([v, l]) => `<option value="${v}" ${v === d.siteLabel ? "selected" : ""}>${l}</option>`).join("")}</select></div></div>
+      ${ci("adresse", "Adresse")}${ci("entrainement", "Lieu d'entraînement")}
+    </div></div>
+    <div class="card"><h3 style="margin-top:4px">Réseaux</h3><div id="rx"></div><button class="btn s" id="addrx">+ Ajouter un réseau</button></div>
+    <div class="card"><h3 style="margin-top:4px">Courses organisées</h3><p style="font-size:13px;color:var(--ink2);margin:0 0 6px">Nom des courses, comme sur le site : la fiche du club les relie.</p><div id="kc"></div><button class="btn s" id="addkc">+ Ajouter</button></div>
+    <div class="card"><h3 style="margin-top:4px">Autres noms du club</h3><p style="font-size:13px;color:var(--ink2);margin:0 0 6px">Noms utilisés par les organisateurs ou la Ligue, pour reconnaître le club.</p><div id="ka"></div><button class="btn s" id="addka">+ Ajouter</button></div>
+    <div class="card"><h3 style="margin-top:4px">Logo</h3><p style="font-size:13.5px;color:var(--ink2);margin:0">${d.logo ? "Logo en place." : "Pas de logo."} Pour ajouter ou changer un logo, envoie-le-moi : il faut le refaire au format de la planche des logos.</p></div>
+    ${orig ? `<div class="card"><h3 style="margin-top:4px">Retirer</h3><button class="btn d" id="delc">Retirer ce club de l'annuaire</button></div>` : ""}
+  </div>
+  <div class="sfoot"><span class="ch" id="chg"></span><button class="btn" id="cancel">Annuler</button><button class="btn p" id="ok">${orig ? "Enregistrer" : "Ajouter le club"}</button></div>`;
+  const lists = (box, key, ph) => {
+    const draw = () => { $(box).innerHTML = (d[key] || []).map((x, i) => `<div class="pair"><input data-li="${i}" value="${esc(x)}" placeholder="${ph}"><button class="x" data-lrm="${i}">✕</button></div>`).join(""); };
+    draw();
+    $(box).oninput = e => { const i = e.target.dataset.li; if (i != null) { d[key][+i] = e.target.value; chg(); } };
+    $(box).onclick = e => { const b = e.target.closest("[data-lrm]"); if (b) { d[key].splice(+b.dataset.lrm, 1); if (key === "alias" && !d.alias.length) delete d.alias; draw(); chg(); } };
+    return () => { (d[key] = d[key] || []).push(""); draw(); $$(`${box} input`).pop().focus(); chg(); };
+  };
+  $("#addkc").onclick = lists("#kc", "courses", "Nom de la course");
+  $("#addka").onclick = lists("#ka", "alias", "Autre nom");
+  const drawRx = () => { $("#rx").innerHTML = (d.reseaux || []).map((r, i) => `<div class="pair"><select data-ri="${i}" data-rk="t">${Object.entries(RES).map(([k, l]) => `<option value="${k}" ${k === r.t ? "selected" : ""}>${l}</option>`).join("")}</select><input type="url" data-ri="${i}" data-rk="url" value="${esc(r.url)}" placeholder="https://"><button class="x" data-rrm="${i}">✕</button></div>`).join(""); };
+  drawRx();
+  $("#rx").oninput = $("#rx").onchange = e => { const t = e.target; if (t.dataset.ri != null) { d.reseaux[+t.dataset.ri][t.dataset.rk] = t.value; chg(); } };
+  $("#rx").onclick = e => { const b = e.target.closest("[data-rrm]"); if (b) { d.reseaux.splice(+b.dataset.rrm, 1); drawRx(); chg(); } };
+  $("#addrx").onclick = () => { d.reseaux.push({ t: "fb", url: "" }); drawRx(); chg(); };
+  s.oninput = s.onchange = e => {
+    const t = e.target;
+    if (t.dataset.c) d[t.dataset.c] = t.value;
+    else if (t.dataset.cb) d[t.dataset.cb] = t.checked;
+    else if (t.dataset.cj) { const j = new Set(d.jeunes || []); t.checked ? j.add(t.dataset.cj) : j.delete(t.dataset.cj); d.jeunes = ["u7", "u11", "u15"].filter(u => j.has(u)); if (!d.jeunes.length) delete d.jeunes; }
+    else return;
+    chg();
+  };
+  const chg = () => { const o = CED.orig || {}; const k = [...new Set([...Object.keys(o), ...Object.keys(d)])].filter(k => !same(o[k], d[k])); $("#chg").textContent = !CED.orig ? "" : k.length ? `${k.length} modification${k.length > 1 ? "s" : ""}` : "Aucune modification"; return k; };
+  chg();
+  $("#sx").onclick = $("#cancel").onclick = async () => { if (CED.orig && chg().length && !await confirmBox("Quitter sans enregistrer ?", "Tes modifications seront perdues.", "Quitter", "d")) return; history.back(); };
+  $("#ok").onclick = async e => {
+    for (const k of ["courses", "alias"]) if (d[k]) d[k] = d[k].map(x => x.trim()).filter(Boolean);
+    d.reseaux = (d.reseaux || []).filter(r => r.url.trim());
+    const pb = [];
+    if (!d.nom.trim()) pb.push("le nom est vide");
+    if (!d.commune) pb.push("la commune est vide");
+    if (d.site && !/^https?:\/\/\S+$/.test(d.site)) pb.push("le site n'est pas une adresse web");
+    if (d.mail && !/^\S+@\S+\.\S+$/.test(d.mail)) pb.push("l'e-mail n'est pas valide");
+    d.reseaux.forEach(r => { if (!/^https?:\/\/\S+$/.test(r.url)) pb.push("un lien de réseau n'est pas une adresse web"); });
+    if (pb.length) { await dialog(`<h3 style="margin-top:0;text-transform:none;letter-spacing:0;color:var(--ink);font-size:17px">À corriger</h3><ul>${pb.map(p => `<li>${esc(p)}</li>`).join("")}</ul>`, [{ label: "OK", v: 1, cls: "p" }]); return; }
+    if (!CED.orig) { let id = slug(d.nom), n = 2; const b = id; while (clubs().some(c => c.id === id)) id = `${b}-${n++}`; d.id = id; }
+    if (CED.orig && !chg().length) { toast("Aucune modification."); return; }
+    await run(e.target, async () => {
+      await save(CED.orig ? `club ${d.nom}` : `ajout du club ${d.nom}`, ["clubs/clubs.json"], o => {
+        const C = o["clubs/clubs.json"]; C.maj = TODAY;
+        const i = C.clubs.findIndex(c => c.id === d.id);
+        if (i >= 0) { const o2 = CED.orig, cur = C.clubs[i]; for (const k of new Set([...Object.keys(o2), ...Object.keys(d)])) if (!same(o2[k], d[k])) { if (k in d) cur[k] = clone(d[k]); else delete cur[k]; } }
+        else C.clubs.push(clone(d));
+      });
+      toast("Enregistré : en ligne dans 1 à 2 minutes."); history.back();
+    });
+  };
+  const dc = $("#delc"); if (dc) dc.onclick = async () => {
+    if (!await confirmBox("Retirer ce club ?", `« ${esc(d.nom)} » et sa page seront retirés de l'annuaire.`, "Retirer", "d")) return;
+    await run(dc, async () => { await save(`club ${d.nom} retiré`, ["clubs/clubs.json"], o => { const C = o["clubs/clubs.json"]; C.maj = TODAY; C.clubs = C.clubs.filter(c => c.id !== d.id); }); toast("Club retiré."); history.back(); });
+  };
+}
+
+/* ============================================================
+   SAISON 2027
+   ============================================================ */
+let SQ = "";
+function viewSaison() {
+  const S = F["saison2027.json"].obj, v = $("#view"), q = slug(SQ);
+  const ev = S.evenements.map((e, i) => ({ e, i })).filter(({ e }) => !q || slug(`${e.nom} ${e.club} ${e.nature}`).includes(q)).sort((a, b) => a.e.date.localeCompare(b.e.date));
+  const ids = races().map(r => r.id);
+  v.innerHTML = `<h2>Saison 2027 <span style="color:var(--mut);font-weight:500;font-size:15px">${S.evenements.length} dates · mis à jour le ${fd(S.maj)}</span></h2>
+  <div class="note">Calendrier provisoire affiché replié par mois dans la Liste. Une date reliée à une course du site (« fiche ») renvoie vers sa fiche.</div>
+  <div class="bar"><input class="search" id="sq" type="search" placeholder="Chercher…" value="${esc(SQ)}"><button class="btn p" id="adds">+ Ajouter une date</button></div>
+  <div class="list">${ev.map(({ e, i }) => `<button class="row" data-i="${i}"><span class="ph" style="display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:var(--teal);background:var(--soft)">${e.date.slice(8)}/${e.date.slice(5, 7)}</span><span class="t"><span class="n">${esc(e.nom)}${e.champ ? `<span class="bd c">Championnat</span>` : ""}${e.id ? `<span class="bd ok">fiche</span>` : ""}</span><span class="m">${esc(e.nature || "")} · ${esc(e.club || "")}</span></span></button>`).join("")}</div>`;
+  $("#sq").addEventListener("input", e => { SQ = e.target.value; const p = e.target.selectionStart; viewSaison(); const i = $("#sq"); i.focus(); i.setSelectionRange(p, p); });
+  const edit = async i => {
+    const e = i == null ? { nom: "", nature: "Trail", club: "", date: "2027-01-01" } : clone(S.evenements[i]);
+    const nat = ["Trail", "Route", "Cross", "Course Montagne", "Ultra Trail", "Course Obstacles"];
+    const r = await dialog(`<h3 style="margin-top:0;text-transform:none;letter-spacing:0;color:var(--ink);font-size:17px">${i == null ? "Nouvelle date" : "Modifier la date"}</h3>
+      <div class="grid" style="grid-template-columns:1fr 1fr">
+        <div class="f w"><label>Nom</label><input id="s-nom" value="${esc(e.nom)}"></div>
+        <div class="f"><label>Date</label><input id="s-date" type="date" value="${esc(e.date)}"></div>
+        <div class="f"><label>Fin (si plusieurs jours)</label><input id="s-fin" type="date" value="${esc(e.fin || "")}"></div>
+        <div class="f"><label>Nature</label><input id="s-nat" list="dlnat" value="${esc(e.nature || "")}"><datalist id="dlnat">${nat.map(n => `<option value="${n}">`).join("")}</datalist></div>
+        <div class="f"><label>Club / organisateur</label><input id="s-club" value="${esc(e.club || "")}"></div>
+        <div class="f w"><label>Info</label><input id="s-info" value="${esc(e.info || "")}"></div>
+        <div class="f w"><label>Fiche sur le site (si la course y est déjà)</label><select id="s-id"><option value="">Aucune</option>${races().slice().sort((a, b) => a.date.localeCompare(b.date)).map(r => `<option value="${esc(r.id)}" ${r.id === e.id ? "selected" : ""}>${fd(r.date)} · ${esc(r.nom)}</option>`).join("")}${e.id && !ids.includes(e.id) ? `<option selected value="${esc(e.id)}">${esc(e.id)}</option>` : ""}</select></div>
+        <div class="f w"><label class="ck"><input type="checkbox" id="s-ch" ${e.champ ? "checked" : ""}>Championnat</label></div>
+      </div>`, [...(i != null ? [{ label: "Supprimer", v: "del", cls: "d" }] : []), { label: "Annuler", v: null }, { label: "Enregistrer", v: "ok", cls: "p" }].map(b => {
+      if (b.v !== "ok") return b;
+      return { ...b, v: "ok" };
+    }));
+    return r;
+  };
+  const open = async i => {
+    // lit les champs avant que la boîte se ferme
+    const grab = () => ({ nom: $("#s-nom").value.trim(), date: $("#s-date").value, fin: $("#s-fin").value, nature: $("#s-nat").value.trim(), club: $("#s-club").value.trim(), info: $("#s-info").value.trim(), id: $("#s-id").value, champ: $("#s-ch").checked });
+    let vals = null;
+    const h = ev => { if (ev.target.closest('[data-i]') && $("#s-nom")) vals = grab(); };
+    document.addEventListener("click", h, true);
+    const r = await edit(i);
+    document.removeEventListener("click", h, true);
+    if (!r) return;
+    if (r === "ok" && (!vals.nom || !/^\d{4}-/.test(vals.date))) { toast("Nom et date obligatoires.", true); return; }
+    const old = i == null ? null : clone(S.evenements[i]);
+    await run(null, async () => {
+      await save(r === "del" ? `saison 2027 : ${old.nom} retiré` : `saison 2027 : ${vals.nom}`, ["saison2027.json"], o => {
+        const X = o["saison2027.json"]; X.maj = TODAY;
+        const j = old ? X.evenements.findIndex(x => same(x, old)) : -1;
+        if (old && j < 0) throw new Error("cette date a changé entre-temps, recharge la page");
+        if (r === "del") { X.evenements.splice(j, 1); return; }
+        const n = { nom: vals.nom, nature: vals.nature, club: vals.club, date: vals.date };
+        if (vals.fin) n.fin = vals.fin; if (vals.champ) n.champ = true; if (vals.info) n.info = vals.info; if (vals.id) n.id = vals.id;
+        if (old) { for (const k of ["nd", "org"]) if (k in old) n[k] = old[k]; X.evenements[j] = n; } else X.evenements.push(n);
+        X.evenements.sort((a, b) => a.date.localeCompare(b.date));
+      });
+      toast("Enregistré : en ligne dans 1 à 2 minutes."); viewSaison();
+    });
+  };
+  $("#adds").onclick = () => open(null);
+  $$(".row[data-i]", v).forEach(b => b.onclick = () => open(+b.dataset.i));
+}
+
+/* ============================================================
+   STATS
+   ============================================================ */
+let SP = 30, ME = {};
+const STC = {};
+const gcGet = async (p, q) => { const k = p + "?" + new URLSearchParams(q); if (!STC[k]) STC[k] = api("gc/" + k).catch(e => { delete STC[k]; throw e; }); return STC[k]; };
+const range = days => { const e = new Date(Date.now() + 4 * 3600e3), s = new Date(e - (days - 1) * 864e5); return { start: s.toISOString().slice(0, 10), end: e.toISOString().slice(0, 10) }; };
+const EVG = { raccourci: "Raccourcis", favori: "Favoris", agenda: "Ajout à l'agenda", bandeau: "Bandeau « Nouveau »", sortie: "Clics vers les organisateurs", mode: "Mode choisi (Liste / Scroll…)", arrivee: "Arrivée sur le site par mode", "arrivee-partage": "Arrivées par un lien partagé" };
+function hbars(items, max) {
+  max = max || Math.max(1, ...items.map(x => x.n));
+  return `<div class="hb">${items.map(x => `<span class="l" title="${esc(x.t || x.l)}"><i style="width:${(x.n / max * 100).toFixed(1)}%"></i>${esc(x.l)}</span><span class="c">${nf(x.n)}</span>`).join("")}</div>`;
+}
+function dayChart(days) {
+  const W = 700, H = 140, P = 2, n = days.length, max = Math.max(1, ...days.map(d => d.n)), bw = (W - 2) / n;
+  const tick = Math.pow(10, Math.floor(Math.log10(max))), top = Math.ceil(max / tick) * tick;
+  const y = v => H - P - v / top * (H - P - 8);
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Visites par jour">
+   <line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}"/><line x1="0" x2="${W}" y1="${y(top)}" y2="${y(top)}" stroke-dasharray="2 4"/>
+   ${days.map((d, i) => { const h = Math.max(d.n ? 2 : 0, y(0) - y(d.n)); const x = i * bw + 1, w = Math.max(1, bw - 2); return `<rect data-tip="${fd(d.day)} : ${nf(d.n)} visite${d.n > 1 ? "s" : ""}" x="${x}" y="${y(0) - h}" width="${w}" height="${h}" rx="${Math.min(4, w / 2)}"/>`; }).join("")}
+   </svg><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-top:2px"><span>${fd(days[0]?.day)}</span><span>max. ${nf(max)} / jour</span><span>${fd(days[n - 1]?.day)}</span></div>`;
+}
+document.addEventListener("mousemove", e => { const t = e.target.closest && e.target.closest("[data-tip]"); let tp = $(".tip"); if (!t) { tp && tp.remove(); return; } if (!tp) { tp = document.createElement("div"); tp.className = "tip"; document.body.append(tp); } tp.textContent = t.dataset.tip; tp.style.left = Math.min(innerWidth - tp.offsetWidth - 8, e.clientX + 12) + "px"; tp.style.top = e.clientY - 30 + "px"; });
+async function viewStats() {
+  const v = $("#view");
+  v.innerHTML = `<h2>Stats</h2><div class="chips">${[[7, "7 jours"], [30, "30 jours"], [90, "90 jours"]].map(([d, l]) => `<button class="chip" data-d="${d}" aria-pressed="${SP === d}">${l}</button>`).join("")}</div><div id="gcbox"><div class="loading">Chargement des visites…</div></div><div id="cfbox"></div>`;
+  $$(".chip", v).forEach(c => c.onclick = () => { SP = +c.dataset.d; viewStats(); });
+  const R = range(SP);
+  // ---- compteur d'audience ----
+  const gb = $("#gcbox");
+  if (!ME.gc) gb.innerHTML = `<div class="card"><b>Compteur d'audience non relié.</b><p style="font-size:14px;color:var(--ink2)">Ajoute la clé de lecture du compteur dans le service admin (voir le guide de mise en route).</p></div>`;
+  else try {
+    const [tot, hits, refs, sizes, locs] = [await gcGet("stats/total", R), await gcGet("stats/hits", { ...R, limit: 100 }), await gcGet("stats/toprefs", { ...R, limit: 12 }), await gcGet("stats/sizes", R), await gcGet("stats/locations", { ...R, limit: 8 })];
+    const days = (tot.stats || []).map(s => ({ day: s.day, n: s.daily ?? (s.hourly || []).reduce((a, b) => a + b, 0) }));
+    const H = hits.hits || [];
+    const pages = H.filter(h => !h.event), evs = H.filter(h => h.event);
+    const grp = {};
+    for (const h of evs) { const p = h.path.replace(/^\//, ""); const g = p.startsWith("arrivee-partage") ? "arrivee-partage" : p.split("/")[0]; (grp[g] = grp[g] || []).push({ l: p.slice(g.length).replace(/^\//, "") || p, t: h.title, n: h.count }); }
+    const sum = a => a.reduce((s, x) => s + x.n, 0);
+    const modes = (grp.mode || []).concat();
+    const ret = Math.round(days.reduce((a, d) => a + d.n, 0) / Math.max(1, days.length));
+    gb.innerHTML = `<div class="kpis">
+      <div class="kpi"><div class="k">Visites</div><div class="v">${nf(tot.total)}</div><div class="s">${nf(ret)} par jour en moyenne</div></div>
+      <div class="kpi"><div class="k">Clics suivis</div><div class="v">${nf(tot.total_events ?? sum(evs.map(h => ({ n: h.count }))))}</div><div class="s">favoris, agenda, partages…</div></div>
+      <div class="kpi"><div class="k">Clics vers les organisateurs</div><div class="v">${nf(sum(grp.sortie || []))}</div><div class="s">inscriptions, pages officielles</div></div>
+      <div class="kpi"><div class="k">Favoris ajoutés</div><div class="v">${nf(sum((grp.favori || []).filter(x => x.l.startsWith("ajout"))))}</div><div class="s">${nf(sum((grp.favori || []).filter(x => x.l.startsWith("retrait"))))} retirés</div></div>
+    </div>
+    <div class="card"><h3 style="margin-top:2px">Visites par jour</h3>${days.length ? dayChart(days) : `<div class="empty">Pas de données</div>`}</div>
+    <div class="two">
+      <div class="card"><h3 style="margin-top:2px">Pages les plus vues</h3>${hbars(pages.slice(0, 15).map(h => ({ l: h.path === "/" ? "Accueil" : h.path, t: h.title, n: h.count })))}</div>
+      <div class="card"><h3 style="margin-top:2px">Provenance</h3>${hbars((refs.stats || []).map(r => ({ l: r.name || "Accès direct", n: r.count })))}</div>
+    </div>
+    ${modes.length ? `<div class="card"><h3 style="margin-top:2px">Liste ou Scroll ?</h3>${hbars(modes.map(x => ({ ...x, l: x.l.charAt(0).toUpperCase() + x.l.slice(1) })).sort((a, b) => b.n - a.n))}${(grp.arrivee || []).length ? `<p style="font-size:13px;color:var(--ink2);margin:10px 0 4px">Mode affiché à l'arrivée :</p>${hbars(grp.arrivee.map(x => ({ ...x, l: x.l.charAt(0).toUpperCase() + x.l.slice(1) })).sort((a, b) => b.n - a.n))}` : ""}</div>` : ""}
+    <div class="card"><h3 style="margin-top:2px">Clics suivis</h3>${Object.entries(grp).filter(([g]) => g !== "mode" && g !== "arrivee").sort((a, b) => sum(b[1]) - sum(a[1])).map(([g, it]) => `<details style="margin:4px 0"><summary style="cursor:pointer;display:flex;justify-content:space-between;gap:10px;padding:5px 0"><b style="font-weight:600">${esc(EVG[g] || g)}</b><span style="color:var(--ink2);font-variant-numeric:tabular-nums">${nf(sum(it))}</span></summary>${hbars(it.sort((a, b) => b.n - a.n).slice(0, 20))}</details>`).join("") || `<div class="empty">Aucun clic suivi sur la période</div>`}</div>
+    <div class="two">
+      <div class="card"><h3 style="margin-top:2px">Écrans</h3>${hbars((sizes.stats || []).map(s => ({ l: ({ phone: "Téléphone", largephone: "Grand téléphone", tablet: "Tablette", desktop: "Ordinateur", desktophd: "Grand écran", unknown: "Inconnu" })[s.id] || s.name, n: s.count })))}</div>
+      <div class="card"><h3 style="margin-top:2px">Pays</h3>${hbars((locs.stats || []).map(s => ({ l: s.name || s.id, n: s.count })))}</div>
+    </div>`;
+  } catch (e) { gb.innerHTML = `<div class="card note w">Visites indisponibles : ${esc(e.message)}</div>`; }
+  // ---- Web Analytics et trafic ----
+  const cb = $("#cfbox");
+  if (!ME.cf) { cb.innerHTML = `<div class="card"><b>Vitesse réelle et trafic : non reliés.</b><p style="font-size:14px;color:var(--ink2)">S'activent avec le jeton de lecture des statistiques (voir le guide).</p></div>`; return; }
+  cb.innerHTML = `<div class="loading">Chargement de la vitesse…</div>`;
+  try {
+    const q = `query($account:String!,$zone:String!,$site:String!,$s:Time!,$e:Time!,$sd:Date!,$ed:Date!){viewer{
+      accounts(filter:{accountTag:$account}){
+        vis: rumPageloadEventsAdaptiveGroups(limit:1,filter:{siteTag:$site,datetime_geq:$s,datetime_leq:$e}){count sum{visits}}
+        cwv: rumWebVitalsEventsAdaptiveGroups(limit:1,filter:{siteTag:$site,datetime_geq:$s,datetime_leq:$e}){count quantiles{largestContentfulPaintP75 cumulativeLayoutShiftP75 interactionToNextPaintP75}}
+        cwvp: rumWebVitalsEventsAdaptiveGroups(limit:12,orderBy:[count_DESC],filter:{siteTag:$site,datetime_geq:$s,datetime_leq:$e}){count dimensions{requestPath} quantiles{largestContentfulPaintP75 cumulativeLayoutShiftP75 interactionToNextPaintP75}}
+        cwvd: rumWebVitalsEventsAdaptiveGroups(limit:6,orderBy:[count_DESC],filter:{siteTag:$site,datetime_geq:$s,datetime_leq:$e}){count dimensions{deviceType} quantiles{largestContentfulPaintP75 cumulativeLayoutShiftP75 interactionToNextPaintP75}}
+      }
+      zones(filter:{zoneTag:$zone}){ tr: httpRequests1dGroups(limit:100,filter:{date_geq:$sd,date_leq:$ed}){sum{requests cachedRequests threats bytes pageViews} uniq{uniques}} }
+    }}`;
+    const j = await api("cf", { method: "POST", body: JSON.stringify({ query: q, variables: { s: R.start + "T00:00:00Z", e: new Date().toISOString(), sd: R.start, ed: R.end } }) });
+    if (j.errors && j.errors.length && !j.data) throw new Error(j.errors[0].message);
+    const A = (j.data?.viewer?.accounts || [])[0] || {}, Z = (j.data?.viewer?.zones || [])[0] || {};
+    const qq = (A.cwv || [])[0]?.quantiles || {};
+    const lcp = v => v == null ? "–" : `<span class="vit ${v <= 2500 ? "g" : v <= 4000 ? "m" : "b"}">${v <= 2500 ? "✓" : v <= 4000 ? "~" : "✕"} ${(v / 1000).toFixed(1).replace(".", ",")} s</span>`;
+    const cls = v => v == null ? "–" : `<span class="vit ${v <= .1 ? "g" : v <= .25 ? "m" : "b"}">${v <= .1 ? "✓" : v <= .25 ? "~" : "✕"} ${v.toFixed(2).replace(".", ",")}</span>`;
+    const inp2 = v => v == null ? "–" : `<span class="vit ${v <= 200 ? "g" : v <= 500 ? "m" : "b"}">${v <= 200 ? "✓" : v <= 500 ? "~" : "✕"} ${Math.round(v)} ms</span>`;
+    const tr = (Z.tr || []).reduce((a, g) => { for (const k in g.sum) a[k] = (a[k] || 0) + g.sum[k]; a.uniques = (a.uniques || 0) + (g.uniq?.uniques || 0); return a; }, {});
+    const vis = (A.vis || [])[0];
+    cb.innerHTML = `<h3>Vitesse réelle chez les visiteurs</h3>
+      <div class="kpis">
+        <div class="kpi"><div class="k">Affichage du contenu (LCP)</div><div class="v" style="font-size:20px">${lcp(qq.largestContentfulPaintP75)}</div><div class="s">bon : ≤ 2,5 s</div></div>
+        <div class="kpi"><div class="k">Stabilité de la page (CLS)</div><div class="v" style="font-size:20px">${cls(qq.cumulativeLayoutShiftP75)}</div><div class="s">bon : ≤ 0,10</div></div>
+        <div class="kpi"><div class="k">Réactivité (INP)</div><div class="v" style="font-size:20px">${inp2(qq.interactionToNextPaintP75)}</div><div class="s">bon : ≤ 200 ms</div></div>
+        <div class="kpi"><div class="k">Visites mesurées</div><div class="v">${nf(vis?.sum?.visits)}</div><div class="s">${nf(vis?.count)} pages vues</div></div>
+      </div>
+      <p style="font-size:12.5px;color:var(--mut)">Valeur atteinte par 75 % des visites (méthode Google).</p>
+      <div class="two">
+      <div class="card ovw"><h3 style="margin-top:2px">Par page</h3><table class="t"><tr><th>Page</th><th>LCP</th><th>CLS</th><th>INP</th></tr>${(A.cwvp || []).map(g => `<tr><td>${esc(g.dimensions.requestPath)}</td><td>${lcp(g.quantiles.largestContentfulPaintP75)}</td><td>${cls(g.quantiles.cumulativeLayoutShiftP75)}</td><td>${inp2(g.quantiles.interactionToNextPaintP75)}</td></tr>`).join("")}</table></div>
+      <div class="card ovw"><h3 style="margin-top:2px">Par appareil</h3><table class="t"><tr><th>Appareil</th><th>LCP</th><th>CLS</th><th>INP</th></tr>${(A.cwvd || []).map(g => `<tr><td>${esc(({ mobile: "Téléphone", desktop: "Ordinateur", tablet: "Tablette" })[g.dimensions.deviceType] || g.dimensions.deviceType)}</td><td>${lcp(g.quantiles.largestContentfulPaintP75)}</td><td>${cls(g.quantiles.cumulativeLayoutShiftP75)}</td><td>${inp2(g.quantiles.interactionToNextPaintP75)}</td></tr>`).join("")}</table></div>
+      </div>
+      <h3>Trafic reçu (robots compris)</h3>
+      <div class="kpis">
+        <div class="kpi"><div class="k">Requêtes</div><div class="v">${nf(tr.requests)}</div><div class="s">${tr.requests ? Math.round(tr.cachedRequests / tr.requests * 100) : 0} % servies depuis le cache</div></div>
+        <div class="kpi"><div class="k">Visiteurs uniques</div><div class="v">${nf(tr.uniques)}</div><div class="s">adresses distinctes, robots compris</div></div>
+        <div class="kpi"><div class="k">Menaces bloquées</div><div class="v">${nf(tr.threats)}</div><div class="s">&nbsp;</div></div>
+        <div class="kpi"><div class="k">Données servies</div><div class="v">${((tr.bytes || 0) / 1e9).toFixed(2).replace(".", ",")} Go</div><div class="s">&nbsp;</div></div>
+      </div>${j.errors && j.errors.length ? `<p class="note w">Une partie des mesures n'a pas répondu : ${esc(j.errors[0].message)}</p>` : ""}`;
+  } catch (e) { cb.innerHTML = `<div class="card note w">Vitesse et trafic indisponibles : ${esc(e.message)}</div>`; }
+}
+
+/* ============================================================
+   SANTÉ
+   ============================================================ */
+async function viewSante() {
+  const v = $("#view");
+  v.innerHTML = `<h2>Santé</h2><div class="loading">Chargement…</div>`;
+  try {
+    await load(["data.json", "state/health.json", "state/todo.json", "state/partiels.json", "state/journal.json"]);
+    const hist = await api("history").catch(() => []);
+    const D = F["data.json"].obj, Hh = F["state/health.json"]?.obj || {}, T = F["state/todo.json"]?.obj || {}, P = F["state/partiels.json"]?.obj || {}, J = F["state/journal.json"]?.obj || [];
+    const up = races().filter(r => !r.hidden && (r.fin || r.date) >= TODAY);
+    const ago = iso => { const m = Math.round((Date.now() - new Date(iso)) / 6e4); return m < 60 ? `il y a ${m} min` : m < 48 * 60 ? `il y a ${Math.round(m / 60)} h` : `il y a ${Math.round(m / 1440)} j`; };
+    const noPoster = up.filter(r => !r.poster), noLL = up.filter(r => !r.ll), noIns = up.filter(r => !r.inscription && !r.complet);
+    const KJ = { ajout: "Ajout", date: "Date", heure: "Heure", distance: "Distance", "dénivelé": "D+", lieu: "Lieu", retrait: "Retrait", complet: "Complet", clos: "Clos", "réouvert": "Réouvert", ouverture: "Ouverture" };
+    v.innerHTML = `<h2>Santé</h2>
+    <div class="kpis">
+      <div class="kpi"><div class="k">Données modifiées</div><div class="v" style="font-size:20px">${ago(D.updatedAt)}</div><div class="s">${T.at ? `dernier contrôle des sources ${ago(T.at)}` : ""}</div></div>
+      <div class="kpi"><div class="k">Courses à venir</div><div class="v">${up.length}</div><div class="s">${races().filter(r => r.annule).length} annulée(s) affichée(s)</div></div>
+      <div class="kpi"><div class="k">Sans affiche</div><div class="v">${noPoster.length}</div><div class="s">courses visibles</div></div>
+      <div class="kpi"><div class="k">Sources en erreur</div><div class="v">${Object.values(Hh).filter(x => x.etat !== "ok").length + (T.illisibles || []).length}</div><div class="s">sur ${Object.keys(Hh).length + (D.sources || []).length} suivies</div></div>
+    </div>
+    <div class="two">
+      <div class="card ovw"><h3 style="margin-top:2px">Lecture des plateformes</h3><table class="t"><tr><th>Plateforme</th><th>État</th><th>Lu</th></tr>${Object.entries(Hh).map(([k, x]) => `<tr><td>${esc(k)}</td><td>${x.etat === "ok" ? `<span class="vit g">✓ ok</span>` : `<span class="vit b">✕ ${esc(x.etat)}</span>${x.echecs ? ` <small>${x.echecs} échec(s)</small>` : ""}`}</td><td>${esc(Object.entries(x.ref || {}).map(([a, b]) => `${b} ${a}`).join(", "))}</td></tr>`).join("")}</table></div>
+      <div class="card"><h3 style="margin-top:2px">Sites illisibles</h3>${(T.illisibles || []).length ? `<table class="t">${T.illisibles.map(x => `<tr><td><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.id)}</a></td><td>${esc(x.erreur)}</td></tr>`).join("")}</table>` : `<p class="empty">Aucun</p>`}
+        ${Object.keys(P).length ? `<h3>Épreuves non reconnues</h3><table class="t">${Object.entries(P).map(([id, x]) => `<tr><td>${esc(id)}</td><td>${esc((x.epreuves || []).join(", "))}</td></tr>`).join("")}</table>` : ""}</div>
+    </div>
+    <div class="two">
+      <div class="card"><h3 style="margin-top:2px">À compléter</h3>
+        ${[["Sans affiche", noPoster], ["Sans position", noLL], ["Sans lien d'inscription", noIns]].map(([t, l]) => `<details><summary style="cursor:pointer;padding:5px 0;display:flex;justify-content:space-between"><b style="font-weight:600">${t}</b><span>${l.length}</span></summary>${l.map(r => `<button class="row" data-id="${esc(r.id)}" style="padding:6px 10px;margin:3px 0"><span class="t"><span class="n" style="font-size:14px">${esc(r.nom)}</span><span class="m">${fd(r.date)} · ${esc(r.commune)}</span></span></button>`).join("")}</details>`).join("")}
+      </div>
+      <div class="card"><h3 style="margin-top:2px">Derniers changements détectés</h3><table class="t">${J.slice(-15).reverse().map(x => `<tr><td style="white-space:nowrap;color:var(--ink2)">${esc((x.at || "").slice(8, 10) + "/" + (x.at || "").slice(5, 7))}</td><td><span class="bd">${esc(KJ[x.t] || x.t)}</span></td><td>${esc(x.nom)}${x.de ? ` <small style="color:var(--ink2)">${esc(x.de)} → ${esc(x.a)}</small>` : ""}</td></tr>`).join("")}</table></div>
+    </div>
+    <div class="card ovw"><h3 style="margin-top:2px">Historique des mises à jour</h3><table class="t">${hist.map(c => `<tr><td style="white-space:nowrap;color:var(--ink2)">${new Date(c.at).toLocaleString("fr-FR", { timeZone: "Indian/Reunion", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</td><td>${/^Admin/.test(c.msg) ? `<span class="bd l">toi</span> ` : ""}${esc(c.msg)}</td><td><a href="${esc(c.url)}" target="_blank" rel="noopener">détail ↗</a></td></tr>`).join("")}</table>
+      <p style="font-size:12.5px;color:var(--mut)">Chaque modification reste dans l'historique : on peut toujours revenir en arrière.</p></div>`;
+    $$(".row[data-id]", v).forEach(r => r.onclick = () => { TAB = "courses"; $$("#tabs button").forEach(x => x.setAttribute("aria-selected", x.dataset.t === "courses")); editRace(r.dataset.id); });
+  } catch (e) { v.innerHTML = `<h2>Santé</h2><div class="card note w">${esc(e.message)}</div>`; }
+}
+
+/* ============ démarrage ============ */
+(async () => {
+  try {
+    ME = await api("me");
+    $("#who").textContent = ME.email || "";
+    await load(["data.json", "state/overrides.json", "clubs/clubs.json", "saison2027.json"]);
+    try { const t = localStorage.getItem("adm-tab"); if (t && $(`#tabs [data-t="${t}"]`)) { TAB = t; $$("#tabs button").forEach(x => x.setAttribute("aria-selected", x.dataset.t === t)); } } catch (e) { }
+    render();
+  } catch (e) {
+    $("#view").innerHTML = `<div class="card note w" style="margin-top:20px"><b>${e.status === 403 ? "Accès refusé." : "Impossible de charger l'admin."}</b><br>${esc(e.message)}</div>`;
+  }
+})();
+</script>
+</body>
+</html>
