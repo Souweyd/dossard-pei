@@ -1,4 +1,8 @@
-// Dossard Péi — service de la page admin (Cloudflare Worker, route dossardpei.re/admin/api/*).
+// Dossard Péi — service de la page admin (Cloudflare Worker, routes dossardpei.re/admin/api/* et dossardpei.re/api/form).
+//
+// /api/form (public) : reçoit les formulaires du site (contact, clubs) et les range dans l'espace MSG,
+// lu seulement par l'admin. Effacés automatiquement au bout d'un an. Si ce service ne répond pas, le site
+// envoie le message par e-mail comme avant.
 //
 // Seule la personne autorisée par Cloudflare Access (code reçu par e-mail) passe : chaque requête
 // porte le jeton signé d'Access, vérifié ici (signature, audience, expiration, adresse autorisée).
@@ -15,6 +19,8 @@
 //   CF_ACCOUNT     identifiant du compte          CF_ZONE       identifiant de la zone dossardpei.re
 //   CF_SITE_TAG    identifiant du site Web Analytics
 //   CF_API_TOKEN   (secret, facultatif) jeton « Analytics : lecture » (compte et zone)
+//   MSG            espace de stockage KV (liaison « KV namespace ») pour les messages des formulaires
+//   SALT           (secret) texte au hasard, pour compter les envois par appareil sans garder l'adresse IP
 
 const WRITE = /^(data\.json|state\/overrides\.json|clubs\/clubs\.json|saison2027\.json|posters\/in\/[a-z0-9-]+\.(jpg|png))$/;
 const READ = /^(data\.json|saison2027\.json|clubs\/clubs\.json|state\/[a-z0-9_-]+\.json)$/;
@@ -24,6 +30,7 @@ const MAX = 4_000_000;
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
+    if (url.pathname === "/api/form") return form(req, env);
     const path = url.pathname.replace(/^\/admin\/api\/?/, "");
     let who;
     try { who = await access(req, env); } catch (e) { who = null; }
@@ -36,6 +43,8 @@ export default {
       if (path === "history") return json(await history(env));
       if (path.startsWith("gc/")) return await gc(env, path.slice(3), url.searchParams);
       if (path === "cf" && req.method === "POST") return await cf(env, await req.json());
+      if (path === "messages" && req.method === "GET") return json(await messages(env));
+      if (path.startsWith("messages/")) return await message(env, req, decodeURIComponent(path.slice(9)));
       return json({ error: "inconnu" }, 404);
     } catch (e) {
       return json({ error: String(e && e.message || e).slice(0, 300) }, 500);
@@ -162,4 +171,59 @@ async function cf(env, body) {
   const variables = { ...(body.variables || {}), account: env.CF_ACCOUNT, zone: env.CF_ZONE, site: env.CF_SITE_TAG };
   const r = await fetch("https://api.cloudflare.com/client/v4/graphql", { method: "POST", headers: { authorization: `Bearer ${env.CF_API_TOKEN}`, "content-type": "application/json" }, body: JSON.stringify({ query, variables }) });
   return new Response(await r.text(), { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
+}
+
+// ---------- formulaires du site ----------
+const YEAR = 365 * 86400;
+const TYPES = { contact: 1, "club-ajout": 1, "club-maj": 1, "club-correction": 1 };
+const str = (v, n) => typeof v === "string" ? v.trim().slice(0, n) : "";
+async function form(req, env) {
+  const out = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+  if (req.method !== "POST" || !env.MSG) return out({ ok: false }, 503);   // le site passe alors par l'e-mail
+  const origin = req.headers.get("origin") || "";
+  if (origin && !/^https:\/\/(www\.)?dossardpei\.re$/.test(origin)) return out({ ok: false }, 403);
+  const raw = await req.text();
+  if (raw.length > 12000) return out({ ok: false, error: "trop long" }, 413);
+  let b; try { b = JSON.parse(raw); } catch { return out({ ok: false }, 400); }
+  if (b.botcheck) return out({ ok: true });   // piège à robots : on fait comme si
+  const type = TYPES[b.type] ? b.type : "contact";
+  const msg = { type, at: new Date().toISOString(), objet: str(b.objet, 120), sujet: str(b.sujet, 200), course: str(b.course, 200), club: str(b.club, 120), page: str(b.page, 300),
+    message: str(b.message, 6000), nom: str(b.nom, 120), email: str(b.email, 200), champs: {}, etat: "nouveau" };
+  for (const [k, v] of Object.entries(b.champs || {}).slice(0, 40)) if (typeof v === "string" && v.trim()) msg.champs[str(k, 60)] = str(v, 1000);
+  if (msg.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(msg.email)) msg.email = "";
+  if (!msg.message && !Object.keys(msg.champs).length) return out({ ok: false, error: "vide" }, 400);
+  // au plus 6 envois par heure et par appareil (adresse IP hachée, jamais enregistrée en clair)
+  const ip = req.headers.get("cf-connecting-ip") || "";
+  const h = [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode((env.SALT || "dp") + ip)))].slice(0, 8).map(x => x.toString(16).padStart(2, "0")).join("");
+  const rk = `rl:${h}:${Math.floor(Date.now() / 3600e3)}`;
+  const n = +(await env.MSG.get(rk)) || 0;
+  if (n >= 6) return out({ ok: false, error: "trop d'envois" }, 429);
+  await env.MSG.put(rk, String(n + 1), { expirationTtl: 3700 });
+  const id = `m:${(9e15 - Date.now()).toString().padStart(16, "0")}:${crypto.randomUUID().slice(0, 6)}`;   // les plus récents d'abord
+  await env.MSG.put(id, JSON.stringify(msg), { expirationTtl: YEAR, metadata: meta(msg) });
+  return out({ ok: true });
+}
+const meta = m => ({ type: m.type, at: m.at, etat: m.etat, t: (m.sujet || m.objet || "").slice(0, 80), c: (m.course || m.club || "").slice(0, 80), x: (m.message || "").slice(0, 160) });
+async function messages(env) {
+  if (!env.MSG) return { error: "espace des messages non relié", list: [] };
+  const list = []; let cursor;
+  do { const r = await env.MSG.list({ prefix: "m:", cursor, limit: 1000 }); for (const k of r.keys) list.push({ id: k.name, ...(k.metadata || {}), exp: k.expiration }); cursor = r.list_complete ? null : r.cursor; } while (cursor && list.length < 3000);
+  return { list };
+}
+async function message(env, req, id) {
+  if (!env.MSG || !/^m:\d{16}:[0-9a-f]{6}$/.test(id)) return json({ error: "inconnu" }, 404);
+  const { value, metadata } = await env.MSG.getWithMetadata(id);
+  if (value == null) return json({ error: "message introuvable" }, 404);
+  const m = JSON.parse(value);
+  if (req.method === "GET") return json({ id, ...m });
+  if (req.method === "DELETE") { await env.MSG.delete(id); return json({ ok: true }); }
+  if (req.method === "POST") {
+    const b = await req.json();
+    if (["nouveau", "traite"].includes(b.etat)) m.etat = b.etat;
+    // garde l'échéance d'origine (un an après l'envoi)
+    const left = Math.max(60, Math.round((Date.parse(m.at) + YEAR * 1000 - Date.now()) / 1000));
+    await env.MSG.put(id, JSON.stringify(m), { expirationTtl: left, metadata: meta(m) });
+    return json({ ok: true });
+  }
+  return json({ error: "requête refusée" }, 400);
 }

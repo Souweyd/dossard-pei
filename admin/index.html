@@ -104,13 +104,14 @@ table.t td.n{text-align:right;font-variant-numeric:tabular-nums}
 .loading{padding:50px;text-align:center;color:var(--mut)}
 .dlg{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px}
 .dlg>div{background:var(--card);border-radius:16px;max-width:520px;width:100%;padding:16px 18px;max-height:85vh;overflow:auto}
-.dlg ul{margin:8px 0;padding-left:20px;font-size:14px}.dlg .bt{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.dlg ul{margin:8px 0;padding-left:20px;font-size:14px}.dlg .bt{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:14px}
 </style>
 </head>
 <body>
 <header class="top"><b>Dossard Péi</b><span class="tag">admin</span><span class="sp"></span><span id="who"></span><a href="/" target="_blank" rel="noopener">Voir le site ↗</a></header>
 <nav class="tabs" id="tabs" role="tablist">
   <button data-t="courses" aria-selected="true">Courses</button>
+  <button data-t="messages">Messages<span class="bd a" id="nbm" hidden></span></button>
   <button data-t="clubs">Clubs</button>
   <button data-t="saison">Saison 2027</button>
   <button data-t="stats">Stats</button>
@@ -199,7 +200,7 @@ const epLock = (e, k) => !ED.isNew && !ED.d.manual && ED.orig && ovOf(ED.d.id).f
 /* ============ navigation ============ */
 let TAB = "courses";
 $("#tabs").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; TAB = b.dataset.t; $$("#tabs button").forEach(x => x.setAttribute("aria-selected", x === b)); try { localStorage.setItem("adm-tab", TAB); } catch (e) { } render(); });
-function render() { ({ courses: viewCourses, clubs: viewClubs, saison: viewSaison, stats: viewStats, sante: viewSante })[TAB](); }
+function render() { ({ courses: viewCourses, messages: viewMessages, clubs: viewClubs, saison: viewSaison, stats: viewStats, sante: viewSante })[TAB](); }
 
 /* ============================================================
    COURSES
@@ -489,6 +490,57 @@ async function saveRace(btn) {
     toast(ED.isNew ? "Course ajoutée : en ligne dans 1 à 2 minutes." : "Enregistré : en ligne dans 1 à 2 minutes.");
     history.back();
   });
+}
+
+/* ============================================================
+   MESSAGES (formulaires du site)
+   ============================================================ */
+let MF = "nouveau", MSGS = null;
+const MTYPE = { contact: "Contact", "club-ajout": "Nouveau club", "club-maj": "Mise à jour d'un club", "club-correction": "Correction d'un club" };
+const when = iso => new Date(iso).toLocaleString("fr-FR", { timeZone: "Indian/Reunion", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+function badge() { const n = (MSGS || []).filter(m => m.etat !== "traite").length, b = $("#nbm"); b.hidden = !n; b.textContent = n; }
+async function loadMsgs() { const j = await api("messages"); if (j.error) throw new Error(j.error); MSGS = j.list || []; badge(); }
+async function viewMessages() {
+  const v = $("#view");
+  if (!MSGS) { v.innerHTML = `<h2>Messages</h2><div class="loading">Chargement…</div>`; try { await loadMsgs(); } catch (e) { v.innerHTML = `<h2>Messages</h2><div class="card note w">${esc(e.message)}</div>`; return; } }
+  const t = { nouveau: m => m.etat !== "traite", traite: m => m.etat === "traite", tous: () => true };
+  const list = MSGS.filter(t[MF]);
+  v.innerHTML = `<h2>Messages</h2>
+  <div class="note">Les messages envoyés depuis le site (contact, corrections, clubs). Ils s'effacent tout seuls un an après leur envoi.</div>
+  <div class="chips">${[["nouveau", "À traiter"], ["traite", "Traités"], ["tous", "Tous"]].map(([k, l]) => `<button class="chip" data-f="${k}" aria-pressed="${MF === k}">${l} <span style="opacity:.7">${MSGS.filter(t[k]).length}</span></button>`).join("")}<button class="chip" id="mref">↻ Actualiser</button></div>
+  <div class="list">${list.map(m => `<button class="row" data-id="${esc(m.id)}"><span class="ph" style="display:flex;align-items:center;justify-content:center;font-size:20px;background:${m.etat === "traite" ? "var(--chip)" : "var(--soft)"}">${m.type === "contact" ? "✉️" : "🏃"}</span><span class="t"><span class="n">${m.etat !== "traite" ? `<span class="bd a" style="margin:0 6px 0 0">Nouveau</span>` : ""}${esc(m.t || MTYPE[m.type] || "Message")}</span><span class="m">${when(m.at)} · ${esc(MTYPE[m.type] || m.type)}${m.c ? " · " + esc(m.c) : ""}</span><span class="m" style="color:var(--mut)">${esc(m.x || "")}</span></span></button>`).join("") || `<div class="empty">${MF === "nouveau" ? "Aucun message à traiter 👍" : "Aucun message"}</div>`}</div>`;
+  $$(".chip[data-f]", v).forEach(c => c.onclick = () => { MF = c.dataset.f; viewMessages(); });
+  $("#mref").onclick = () => { MSGS = null; viewMessages(); };
+  $$(".row[data-id]", v).forEach(r => r.onclick = () => openMsg(r.dataset.id));
+}
+async function openMsg(id) {
+  let m; try { m = await api("messages/" + encodeURIComponent(id)); } catch (e) { toast(e.message, true); return; }
+  const target = (m.page || "").match(/\/(course|clubs)\/([a-z0-9-]+)\/?$/);
+  const mod = String((m.champs || {})["Champs modifiés"] || "").split(/,\s*/).filter(Boolean);
+  const ch = Object.entries(m.champs || {}).filter(([k]) => k !== "Champs modifiés").sort((a, b) => mod.includes(b[0]) - mod.includes(a[0]));
+  const subj = "Re : " + (m.sujet || m.objet || "ton message sur Dossard Péi");
+  const quote = `\n\n—\nTon message du ${when(m.at)} :\n> ` + (m.message || ch.map(([k, x]) => `${k} : ${x}`).join("\n")).replace(/\n/g, "\n> ");
+  const r = await dialog(`<div style="font-size:12.5px;color:var(--ink2)">${when(m.at)} · ${esc(MTYPE[m.type] || m.type)}</div>
+    <h3 style="margin:4px 0 8px;text-transform:none;letter-spacing:0;color:var(--ink);font-size:17px">${esc(m.sujet || m.objet || "Message")}</h3>
+    ${m.course || m.club ? `<p style="margin:0 0 8px"><b>${esc(m.course || m.club)}</b>${m.page ? ` · <a href="${esc(m.page)}" target="_blank" rel="noopener">voir ↗</a>` : ""}</p>` : ""}
+    ${m.message ? `<div style="white-space:pre-wrap;background:var(--bg);border-radius:10px;padding:10px 12px;font-size:14.5px">${esc(m.message)}</div>` : ""}
+    ${ch.length ? `<table class="t" style="margin-top:8px">${ch.map(([k, x]) => `<tr${mod.includes(k) ? ' style="background:var(--soft)"' : ""}><th style="width:38%">${esc(k)}${mod.includes(k) ? `<br><span class="bd l" style="margin:2px 0 0">modifié</span>` : ""}</th><td style="white-space:pre-wrap;overflow-wrap:anywhere">${esc(x)}</td></tr>`).join("")}</table>${mod.length ? `<p style="font-size:12.5px;color:var(--ink2);margin:6px 0 0">Infos changées par l'expéditeur : en premier, sur fond vert.</p>` : ""}` : ""}
+    <p style="font-size:13.5px;margin:10px 0 0">De : ${esc(m.nom || "–")} · ${m.email ? `<a href="mailto:${esc(m.email)}">${esc(m.email)}</a>` : "pas d'e-mail"}</p>`,
+    [{ label: "Supprimer", v: "del", cls: "d" }, ...(target ? [{ label: target[1] === "course" ? "Ouvrir la course" : "Ouvrir le club", v: "fiche" }] : []), ...(m.email ? [{ label: "Répondre", v: "rep" }] : []), { label: m.etat === "traite" ? "Remettre à traiter" : "Marquer traité", v: "etat", cls: "p" }]);
+  if (!r) return;
+  try {
+    if (r === "rep") { location.href = `mailto:${m.email}?subject=${encodeURIComponent(subj)}&body=${encodeURIComponent(quote)}`; return; }
+    if (r === "fiche") {
+      if (target[1] === "course" && races().some(x => x.id === target[2])) { TAB = "courses"; editRace(target[2]); }
+      else if (target[1] === "clubs" && clubs().some(x => x.id === target[2])) { TAB = "clubs"; editClub(target[2]); }
+      else window.open(m.page, "_blank");
+      $$("#tabs button").forEach(x => x.setAttribute("aria-selected", x.dataset.t === TAB));
+      return;
+    }
+    if (r === "del") { if (!await confirmBox("Supprimer ce message ?", "Il sera effacé définitivement.", "Supprimer", "d")) return; await api("messages/" + encodeURIComponent(id), { method: "DELETE" }); MSGS = MSGS.filter(x => x.id !== id); toast("Message supprimé."); }
+    if (r === "etat") { const etat = m.etat === "traite" ? "nouveau" : "traite"; await api("messages/" + encodeURIComponent(id), { method: "POST", body: JSON.stringify({ etat }) }); const x = MSGS.find(x => x.id === id); if (x) x.etat = etat; toast(etat === "traite" ? "Marqué comme traité." : "Remis à traiter."); }
+    badge(); viewMessages();
+  } catch (e) { toast(e.message, true); }
 }
 
 /* ============================================================
@@ -807,6 +859,7 @@ async function viewSante() {
     await load(["data.json", "state/overrides.json", "clubs/clubs.json", "saison2027.json"]);
     try { const t = localStorage.getItem("adm-tab"); if (t && $(`#tabs [data-t="${t}"]`)) { TAB = t; $$("#tabs button").forEach(x => x.setAttribute("aria-selected", x.dataset.t === t)); } } catch (e) { }
     render();
+    if (TAB !== "messages") loadMsgs().catch(() => { });   // pastille du nombre de messages à traiter
   } catch (e) {
     $("#view").innerHTML = `<div class="card note w" style="margin-top:20px"><b>${e.status === 403 ? "Accès refusé." : "Impossible de charger l'admin."}</b><br>${esc(e.message)}</div>`;
   }

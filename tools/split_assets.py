@@ -26,11 +26,11 @@ ESBUILD = os.environ.get("ESBUILD") or shutil.which("esbuild")
 # (fonts/fonts.css) open the style sheet; a font file is only downloaded by a page that uses it
 FONTS = open("fonts/fonts.css", encoding="utf-8").read() if os.path.exists("fonts/fonts.css") else ""
 # Content-Security-Policy of the public pages (meta tag): what the site loads and where it sends data.
-# GoatCounter (visits), Web3Forms (contact form), jsDelivr (three.js for the 3D view), IGN Géoplateforme (3D imagery);
+# GoatCounter (visits), Cloudflare Web Analytics (speed, script added by Cloudflare), Web3Forms (contact form, fallback), jsDelivr (three.js for the 3D view), IGN Géoplateforme (3D imagery);
 # images may come from the organisers' sites. The inline sky script is allowed by its hash (added below).
-CSP = ("default-src 'self'; script-src 'self' https://gc.zgo.at https://cdn.jsdelivr.net{hashes}; style-src 'self' 'unsafe-inline'; "
+CSP = ("default-src 'self'; script-src 'self' https://gc.zgo.at https://cdn.jsdelivr.net https://static.cloudflareinsights.com{hashes}; style-src 'self' 'unsafe-inline'; "
        "img-src 'self' data: blob: https:; font-src 'self'; "
-       "connect-src 'self' https://dossardpei.goatcounter.com https://api.web3forms.com https://cdn.jsdelivr.net https://data.geopf.fr; "
+       "connect-src 'self' https://dossardpei.goatcounter.com https://api.web3forms.com https://cdn.jsdelivr.net https://data.geopf.fr https://cloudflareinsights.com; "
        "frame-src https://api.web3forms.com; form-action https://api.web3forms.com; worker-src 'self' blob:; "
        "object-src 'none'; base-uri 'self'; upgrade-insecure-requests")
 
