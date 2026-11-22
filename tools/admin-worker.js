@@ -194,7 +194,7 @@ async function gc(env, p, q) {
   if (!GC_PATHS.test(p)) return json({ error: "non autorisé" }, 400);
   const qs = new URLSearchParams();
   for (const k of ["start", "end", "limit", "offset"]) if (q.get(k)) qs.set(k, q.get(k));
-  for (const k of ["include_paths", "exclude_paths"]) for (const v of q.getAll(k)) if (/^\d+$/.test(v)) qs.append(k, v);   // pagination : plusieurs valeurs
+  for (const k of ["include_paths", "exclude_paths"]) for (const v of q.getAll(k)) if (/^\d+(,\d+)*$/.test(v)) qs.append(k, v);   // « 1,2,3 » ou répété   // pagination : plusieurs valeurs
   const r = await fetch(`https://${env.GC_SITE || "dossardpei"}.goatcounter.com/api/v0/${p}?${qs}`, { headers: { authorization: `Bearer ${env.GC_TOKEN}`, "content-type": "application/json" } });
   return new Response(await r.text(), { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
 }
