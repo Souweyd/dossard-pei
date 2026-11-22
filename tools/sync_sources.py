@@ -51,6 +51,18 @@ except (OSError, ValueError):
     ov = {}
 locked = {k: set(v.get("fields", [])) if isinstance(v, dict) else set(v) for k, v in ov.get("overrides", ov).items()} if isinstance(ov, dict) else {}
 changes, errors = [], []
+# fine locks set in the admin page: one field of one épreuve ("ep:<épreuve name>:<field>", e.g. "ep:Trail 10 km:h").
+# The rest of the race and of its épreuves keeps following the sources; the locked value is put back at the end
+# of the run, whatever step changed it.
+FINE = {}
+for _r in data["races"]:
+    for _f in locked.get(_r["id"], ()):
+        if _f.startswith("ep:") and _f.count(":") >= 2:
+            _nom, _k = _f[3:].rsplit(":", 1)
+            for _e in _r.get("epreuves", []):
+                if _e.get("nom") == _nom:
+                    FINE[(_r["id"], _nom, _k)] = (_k in _e, json.loads(json.dumps(_e.get(_k))))
+ORIG = json.loads(json.dumps(data))
 run = {}  # source -> {"metrics": {name: count}, "error": ...}, for state/health.json
 VERIF = {}  # race id -> platform that confirmed its registration state during this run
 # race id -> {"source", "epreuves": [names]}: page read, but some of our épreuves not recognised among the
@@ -1037,6 +1049,16 @@ for r in data["races"]:
     for e in r.get("epreuves", []):
         if isinstance(e.get("prix"), (int, float)) and not isinstance(e.get("prix"), bool):
             e["prix"] = f"{e['prix']:g} €"; changes.append(f"{r['id']}:{e.get('nom', '')}:prix en texte")
+_byid = {r["id"]: r for r in data["races"]}
+for (_rid, _nom, _k), (_has, _v) in FINE.items():
+    for _e in (_byid.get(_rid) or {}).get("epreuves", []):
+        if _e.get("nom") == _nom:
+            if _has:
+                _e[_k] = _v
+            else:
+                _e.pop(_k, None)
+if changes and data == ORIG:   # only a locked épreuve value had moved, and it is back: nothing to publish
+    changes.clear()
 if changes:
     data["updatedAt"] = NOW.isoformat(timespec="seconds")
     json.dump(data, open("data.json", "w"), ensure_ascii=False, separators=(",", ":"))

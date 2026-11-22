@@ -80,7 +80,11 @@ Il y a deux étapes. La première est indispensable, la seconde ajoute les stati
 
 ## Bon à savoir
 - **Mise en ligne.** Chaque enregistrement crée une mise à jour « Admin : … » dans l'historique du dépôt. Le site est à jour 1 à 2 minutes plus tard, 3 minutes pour une affiche.
-- **Verrouillage.** Un champ modifié dans l'admin est **verrouillé** : la synchro horaire ne l'écrase plus. Le bouton 🔒 « verrouillé » rend la main à la synchro.
+- **Verrouillage.** Seule l'info modifiée dans l'admin est **verrouillée** : la synchro horaire ne l'écrase plus, le reste continue de suivre les sources.
+  - Pour une course, c'est un champ : la commune, une date, un lien…
+  - Pour une épreuve, c'est une seule info : par exemple l'heure du 10 km.
+  - Ajouter, retirer, renommer ou déplacer une épreuve verrouille toute la liste des épreuves.
+  - Le bouton 🔒 « verrouillé », à côté de l'info, rend la main à la synchro, qui reprend la valeur de l'organisateur dans l'heure.
 - **Retour arrière.** Une erreur se corrige dans l'admin. Sinon, l'historique du dépôt garde toutes les versions.
 - **En cas de souci.** Si tu perds ton accès, tu peux couper l'admin en supprimant la route du Worker. Le site public n'est pas touché.
 - **Logos des clubs.** Ils ne se changent pas dans l'admin (ils sont sur une planche commune) : il faut me les envoyer.

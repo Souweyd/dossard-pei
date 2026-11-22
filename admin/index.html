@@ -191,7 +191,10 @@ async function run(btn, fn) {
 const TYPES = ["trail", "route", "cross", "marche", "relais", "jeunes", "multisport", "autre"];
 const COMMUNES = ["Bras-Panon", "Cilaos", "Entre-Deux", "L'Étang-Salé", "La Plaine-des-Palmistes", "La Possession", "Le Port", "Le Tampon", "Les Avirons", "Les Trois-Bassins", "Petite-Île", "Saint-André", "Saint-Benoît", "Saint-Denis", "Saint-Joseph", "Saint-Leu", "Saint-Louis", "Saint-Paul", "Saint-Philippe", "Saint-Pierre", "Sainte-Marie", "Sainte-Rose", "Sainte-Suzanne", "Salazie"];
 const LABEL = { nom: "Nom", date: "Date", fin: "Date de fin", commune: "Commune", lieu: "Lieu de départ", ll: "Position", org: "Organisateur", source: "Source", page: "Page de l'organisateur", inscription: "Lien d'inscription", fiche: "Page de la course", limite: "Clôture des inscriptions", avenir: "Inscriptions pas encore ouvertes", info: "Infos pratiques", complet: "Complet", annule: "Annulée", hidden: "Masquée", epreuves: "Épreuves", traces: "Tracés", affiche: "Affiche", poster: "Affiche", poster_lg: "Affiche (grande)", poster_xs: "Vignette", paiement: "Paiement" };
-const lab = k => LABEL[k] || k;
+const EPL = { h: "heure", km: "distance", dp: "D+", prix: "prix", date: "date", limite: "clôture", url: "lien", note: "note", cat: "catégories", type: "type", complet: "complet", clos: "clos", ouverture: "ouverture" };
+const lab = k => k.startsWith("ep:") ? (([n, f]) => `${EPL[f] || f} de « ${n} »`)(k.slice(3).match(/^(.*):([^:]*)$/).slice(1)) : LABEL[k] || k;
+// verrou d'une info d'une épreuve : bouton 🔒 à côté de son libellé
+const epLock = (e, k) => !ED.isNew && !ED.d.manual && ED.orig && ovOf(ED.d.id).fields.includes(`ep:${e.nom}:${k}`) ? ` <button type="button" class="lk on" data-unlock="${esc(`ep:${e.nom}:${k}`)}" title="Corrigé à la main : toucher pour rendre la main à la synchro">verrouillé</button>` : "";
 
 /* ============ navigation ============ */
 let TAB = "courses";
@@ -291,7 +294,7 @@ function drawRace() {
     <div class="card"><h3 style="margin-top:4px">Affiche</h3>${posterHTML()}</div>
     <div class="card"><h3 style="margin-top:4px;display:flex;align-items:center;gap:8px">Épreuves ${!isNew && !d.manual && ovOf(d.id).fields.includes("epreuves") ? `<button type="button" class="lk on" data-unlock="epreuves">verrouillé</button>` : ""}</h3>
       <div id="eps"></div><button class="btn s" id="adde">+ Ajouter une épreuve</button>
-      ${!isNew && !d.manual ? `<div class="note" style="margin-top:10px">Cocher ou décocher « Complet » / « Clos » verrouille l'état des inscriptions : il ne suivra plus la plateforme.</div>` : ""}
+      ${!isNew && !d.manual ? `<div class="note" style="margin-top:10px">Chaque info d'épreuve que tu modifies (heure, prix, complet…) est verrouillée <b>seule</b> : le reste suit toujours la plateforme. Ajouter, retirer, renommer ou déplacer une épreuve verrouille toute la liste.</div>` : ""}
     </div>
     <div class="card"><h3 style="margin-top:4px">Tracés</h3><div id="trs"></div><button class="btn s" id="addt">+ Ajouter un tracé</button></div>
     <div class="card"><details class="adv"><summary>Avancé : toutes les données de la course (JSON)</summary>
@@ -361,7 +364,7 @@ function refreshChg(t) {
   const k = changedKeys(), n = k.length + (ED.upload ? 1 : 0);
   $("#chg").textContent = ED.isNew ? "" : n ? `${n} modification${n > 1 ? "s" : ""} : ${[...k.map(lab), ...(ED.upload ? ["affiche"] : [])].filter((x, i, a) => a.indexOf(x) === i).join(", ")}` : "Aucune modification";
 }
-function epField(i, k, label, type = "text", attrs = "") { const e = ED.d.epreuves[i]; return `<div class="f"><label>${label}</label><input type="${type}" data-e="${i}" data-ek="${k}" value="${esc(e[k] ?? "")}" ${attrs}></div>`; }
+function epField(i, k, label, type = "text", attrs = "") { const e = ED.d.epreuves[i]; return `<div class="f"><label>${label}${epLock(e, k)}</label><input type="${type}" data-e="${i}" data-ek="${k}" value="${esc(e[k] ?? "")}" ${attrs}></div>`; }
 function drawEps() {
   const d = ED.d, box = $("#eps");
   box.innerHTML = (d.epreuves || []).map((e, i) => `<div class="ep" data-i="${i}">
@@ -369,15 +372,15 @@ function drawEps() {
       <button class="btn s" data-mv="-1" ${i ? "" : "disabled"} title="Monter">↑</button><button class="btn s" data-mv="1" ${i < d.epreuves.length - 1 ? "" : "disabled"} title="Descendre">↓</button><button class="btn s d" data-rm title="Supprimer">✕</button></div>
     <div class="grid">
       <div class="f" style="grid-column:span 2">${'<label>Nom</label>'}<input data-e="${i}" data-ek="nom" value="${esc(e.nom)}"></div>
-      <div class="f"><label>Type</label><select data-e="${i}" data-ek="type">${TYPES.map(t => `<option ${t === e.type ? "selected" : ""}>${t}</option>`).join("")}${e.type && !TYPES.includes(e.type) ? `<option selected>${esc(e.type)}</option>` : ""}</select></div>
+      <div class="f"><label>Type${epLock(e, "type")}</label><select data-e="${i}" data-ek="type">${TYPES.map(t => `<option ${t === e.type ? "selected" : ""}>${t}</option>`).join("")}${e.type && !TYPES.includes(e.type) ? `<option selected>${esc(e.type)}</option>` : ""}</select></div>
       ${epField(i, "km", "Distance (km)", "text", 'inputmode="decimal"')}${epField(i, "dp", "D+ (m)", "text", 'inputmode="numeric"')}
       ${epField(i, "date", "Date (si différente)", "date")}${epField(i, "h", "Heure de départ", "text", 'placeholder="07h30"')}
       ${epField(i, "prix", "Prix", "text", 'placeholder="25 €"')}${epField(i, "limite", "Clôture inscriptions", "date")}
-      <div class="f" style="grid-column:1/-1"><label>Lien d'inscription de l'épreuve</label><input type="url" data-e="${i}" data-ek="url" value="${esc(e.url ?? "")}"></div>
+      <div class="f" style="grid-column:1/-1"><label>Lien d'inscription de l'épreuve${epLock(e, "url")}</label><input type="url" data-e="${i}" data-ek="url" value="${esc(e.url ?? "")}"></div>
       ${epField(i, "cat", "Catégories")}
-      <div class="f" style="grid-column:1/-1"><label>Note</label><input data-e="${i}" data-ek="note" value="${esc(e.note ?? "")}"></div>
+      <div class="f" style="grid-column:1/-1"><label>Note${epLock(e, "note")}</label><input data-e="${i}" data-ek="note" value="${esc(e.note ?? "")}"></div>
     </div>
-    <div style="display:flex;gap:18px;margin-top:4px"><label class="ck"><input type="checkbox" data-e="${i}" data-eb="complet" ${e.complet ? "checked" : ""}>Complet</label><label class="ck"><input type="checkbox" data-e="${i}" data-eb="clos" ${e.clos ? "checked" : ""}>Inscriptions closes</label></div>
+    <div style="display:flex;gap:18px;margin-top:4px"><label class="ck"><input type="checkbox" data-e="${i}" data-eb="complet" ${e.complet ? "checked" : ""}>Complet</label>${epLock(e, "complet")}<label class="ck"><input type="checkbox" data-e="${i}" data-eb="clos" ${e.clos ? "checked" : ""}>Inscriptions closes</label>${epLock(e, "clos")}</div>
   </div>`).join("") || `<p style="color:var(--mut);font-size:14px">Aucune épreuve.</p>`;
   box.oninput = box.onchange = ev => {
     const t = ev.target, i = t.dataset.e; if (i == null) return; const e = d.epreuves[+i];
@@ -450,11 +453,17 @@ async function saveRace(btn) {
     let id = base, n = 2; while (races().some(r => r.id === id)) id = `${base}-${n++}`;
     d.id = id; d.manual = true; if (!d.ll) delete d.ll;
   }
-  // champs à verrouiller : ceux modifiés ; « complet » dès qu'un état d'inscription change
+  // champs à verrouiller : ceux modifiés. Pour les épreuves, seulement l'info changée (« ep:<épreuve>:<info> »),
+  // sauf si la liste elle-même change (ajout, retrait, nom, ordre) : alors toute la liste.
   const lock = new Set(keys.filter(k => !["poster_xs", "affiche_capture", "manual", "id"].includes(k)));
-  if (!ED.isNew && ED.orig) {
-    const st = r => JSON.stringify((r.epreuves || []).map(e => [!!e.complet, !!e.clos]));
-    if (st(ED.orig) !== st(d) || !!ED.orig.complet !== !!d.complet) lock.add("complet");
+  let fine = null;   // [[nom, info, valeur ou undefined]]
+  if (!ED.isNew && ED.orig && !d.manual && keys.includes("epreuves")) {
+    const O = ED.orig.epreuves || [], N = d.epreuves || [];
+    if (O.length === N.length && O.every((e, i) => e.nom === N[i].nom)) {
+      fine = [];
+      O.forEach((e, i) => { for (const k of new Set([...Object.keys(e), ...Object.keys(N[i])])) if (!same(e[k], N[i][k])) { fine.push([e.nom, k, N[i][k]]); lock.add(`ep:${e.nom}:${k}`); } });
+      lock.delete("epreuves");
+    }
   }
   if (ED.upload) ["poster", "poster_lg", "affiche"].forEach(k => lock.add(k));
   const extra = ED.upload ? [{ path: `posters/in/${d.id}.jpg`, b64: ED.upload.b64 }] : [];
@@ -464,7 +473,13 @@ async function saveRace(btn) {
       const D = o["data.json"], O = o["state/overrides.json"];
       if (ED.isNew) { D.races.push(clone(d)); (O.manual = O.manual || []).includes(d.id) || O.manual.push(d.id); return; }
       const r = D.races.find(x => x.id === d.id); if (!r) throw new Error("cette course n'est plus dans les données (passée ?)");
-      for (const k of keys) { if (k in d) r[k] = clone(d[k]); else delete r[k]; }
+      for (const k of keys) {
+        if (k === "epreuves" && fine) {   // seulement les infos changées, sur les épreuves telles qu'elles sont maintenant
+          for (const [nom, f, v] of fine) { const e = (r.epreuves || []).find(x => x.nom === nom); if (!e) throw new Error(`l'épreuve « ${nom} » a changé de nom entre-temps, recharge la page`); if (v === undefined) delete e[f]; else e[f] = clone(v); }
+          continue;
+        }
+        if (k in d) r[k] = clone(d[k]); else delete r[k];
+      }
       if (!r.manual) {
         const ov = O.overrides = O.overrides || {}, e = ov[d.id] = ov[d.id] || { fields: [], hidden: false };
         e.fields = [...new Set([...e.fields, ...lock])].sort(); e.hidden = !!r.hidden;
