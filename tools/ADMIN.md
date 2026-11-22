@@ -1,5 +1,7 @@
 # Page admin : mise en route
 
+> **État au 22/11/2026, 18 h 15** : l'étape 1 est faite et fonctionne (Worker `dossardpei-api`, KV `dossardpei-messages` en UE, routes, connexion, messages). Les stats (étape 2) ne sont pas encore branchées.
+
 L'adresse de la page est **https://dossardpei.re/admin/**.
 - La page est protégée par **un mot de passe** que tu choisis. Une fois entré, tu restes connecté 30 jours sur l'appareil. Après 5 erreurs, les essais sont bloqués pendant 1 heure.
 - Les enregistrements passent par un petit **service Cloudflare (Worker)**. Il écrit dans le dépôt GitHub avec une clé limitée à ce dépôt.
@@ -24,8 +26,8 @@ Il y a deux étapes. La première est indispensable, la seconde ajoute les stati
 Choisis un mot de passe d'au moins **12 caractères**, que tu n'utilises nulle part ailleurs. Par exemple, quatre mots au hasard séparés par des tirets. Garde-le dans ton gestionnaire de mots de passe : tu le saisiras à l'étape 3 dans Cloudflare, et à chaque connexion (une fois par mois et par appareil). Ne l'envoie à personne.
 
 ### 3. Le service (Worker)
-1. Dans Cloudflare, ouvre **Workers & Pages › Create › Worker**.
-2. Nomme-le `dossardpei-admin`, puis clique sur **Deploy**.
+1. Dans Cloudflare, ouvre **Workers & Pages › Create › Worker** et choisis **Hello World**. Attention : il faut un **Worker**, pas un projet « Pages ».
+2. Nomme-le `dossardpei-api`, puis clique sur **Deploy**.
 3. Clique sur **Edit code**, efface tout, colle le contenu de `tools/admin-worker.js`, puis clique sur **Deploy**.
 4. Va dans **Settings › Variables and Secrets** et ajoute ces variables :
 
@@ -40,7 +42,7 @@ Choisis un mot de passe d'au moins **12 caractères**, que tu n'utilises nulle p
    - `dossardpei.re/admin/api/*` (l'admin) ;
    - `dossardpei.re/api/form` (les formulaires du site).
 6. **Espace des messages** :
-   - dans **Storage & Databases › KV › Create**, crée un espace nommé `dossardpei-messages` ;
+   - dans **Storage & Databases › KV › Create**, crée un espace nommé `dossardpei-messages`, en juridiction **UE** ;
    - dans le Worker, ouvre **Settings › Bindings › Add › KV namespace** : nom de la variable `MSG`, espace `dossardpei-messages` ;
    - ajoute aussi le secret `SALT` : une suite de mots ou de caractères au hasard, que tu n'as pas besoin de retenir.
 7. Ouvre https://dossardpei.re/admin/ et saisis ton mot de passe : l'admin s'ouvre.
