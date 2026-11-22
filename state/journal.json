@@ -829,5 +829,12 @@
 "id": "ti-bwa",
 "nom": "Kours Ti Bwa",
 "date": "2026-12-06"
+},
+{
+"at": "2026-11-22T18:00+04:00",
+"t": "complet",
+"id": "riviere-mat",
+"nom": "Trail des Berges de la Rivière du Mât Les Bas",
+"date": "2026-11-29"
 }
 ]
