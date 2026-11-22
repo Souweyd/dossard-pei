@@ -193,7 +193,8 @@ async function gc(env, p, q) {
   if (!env.GC_TOKEN) return json({ error: "compteur non relié" }, 404);
   if (!GC_PATHS.test(p)) return json({ error: "non autorisé" }, 400);
   const qs = new URLSearchParams();
-  for (const k of ["start", "end", "limit", "include_paths", "exclude_paths", "offset"]) if (q.get(k)) qs.set(k, q.get(k));
+  for (const k of ["start", "end", "limit", "offset"]) if (q.get(k)) qs.set(k, q.get(k));
+  for (const k of ["include_paths", "exclude_paths"]) for (const v of q.getAll(k)) if (/^\d+$/.test(v)) qs.append(k, v);   // pagination : plusieurs valeurs
   const r = await fetch(`https://${env.GC_SITE || "dossardpei"}.goatcounter.com/api/v0/${p}?${qs}`, { headers: { authorization: `Bearer ${env.GC_TOKEN}`, "content-type": "application/json" } });
   return new Response(await r.text(), { status: r.status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
 }

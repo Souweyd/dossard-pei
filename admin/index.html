@@ -717,7 +717,7 @@ function viewSaison() {
    ============================================================ */
 let SP = 30, ME = {};
 const STC = {};
-const gcGet = async (p, q) => { const k = p + "?" + new URLSearchParams(q); if (!STC[k]) STC[k] = api("gc/" + k).catch(e => { delete STC[k]; throw e; }); return STC[k]; };
+const gcGet = async (p, q) => { const u = new URLSearchParams(); for (const [a, b] of Object.entries(q)) [].concat(b).forEach(x => u.append(a, x)); const k = p + "?" + u; if (!STC[k]) STC[k] = api("gc/" + k).catch(e => { delete STC[k]; throw e; }); return STC[k]; };
 const range = days => { const e = new Date(Date.now() + 4 * 3600e3), s = new Date(e - (days - 1) * 864e5); return { start: s.toISOString().slice(0, 10), end: e.toISOString().slice(0, 10) }; };
 const EVG = { raccourci: "Raccourcis", favori: "Favoris", agenda: "Ajout à l'agenda", bandeau: "Bandeau « Nouveau »", sortie: "Clics vers les organisateurs", mode: "Mode choisi (Liste / Scroll…)", arrivee: "Arrivée sur le site par mode", "arrivee-partage": "Arrivées par un lien partagé" };
 function hbars(items, max) {
@@ -730,7 +730,7 @@ function dayChart(days) {
   const y = v => H - P - v / top * (H - P - 8);
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Visites par jour">
    <line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}"/><line x1="0" x2="${W}" y1="${y(top)}" y2="${y(top)}" stroke-dasharray="2 4"/>
-   ${days.map((d, i) => { const h = Math.max(d.n ? 2 : 0, y(0) - y(d.n)); const x = i * bw + 1, w = Math.max(1, bw - 2); return `<rect data-tip="${fd(d.day)} : ${nf(d.n)} visite${d.n > 1 ? "s" : ""}" x="${x}" y="${y(0) - h}" width="${w}" height="${h}" rx="${Math.min(4, w / 2)}"/>`; }).join("")}
+   ${days.map((d, i) => { const h = Math.max(d.n ? 2 : 0, y(0) - y(d.n)); const x = i * bw + 1, w = Math.max(1, bw - 2); return `<rect data-tip="${fd(d.day)} : ${nf(d.n)} visiteur${d.n > 1 ? "s" : ""}" x="${x}" y="${y(0) - h}" width="${w}" height="${h}" rx="${Math.min(4, w / 2)}"/>`; }).join("")}
    </svg><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-top:2px"><span>${fd(days[0]?.day)}</span><span>max. ${nf(max)} / jour</span><span>${fd(days[n - 1]?.day)}</span></div>`;
 }
 document.addEventListener("mousemove", e => { const t = e.target.closest && e.target.closest("[data-tip]"); let tp = $(".tip"); if (!t) { tp && tp.remove(); return; } if (!tp) { tp = document.createElement("div"); tp.className = "tip"; document.body.append(tp); } tp.textContent = t.dataset.tip; tp.style.left = Math.min(innerWidth - tp.offsetWidth - 8, e.clientX + 12) + "px"; tp.style.top = e.clientY - 30 + "px"; });
@@ -743,9 +743,19 @@ async function viewStats() {
   const gb = $("#gcbox");
   if (!ME.gc) gb.innerHTML = `<div class="card"><b>Compteur d'audience non relié.</b><p style="font-size:14px;color:var(--ink2)">Ajoute la clé de lecture du compteur dans le service admin (voir le guide de mise en route).</p></div>`;
   else try {
-    const [tot, hits, refs, sizes, locs] = [await gcGet("stats/total", R), await gcGet("stats/hits", { ...R, limit: 100 }), await gcGet("stats/toprefs", { ...R, limit: 12 }), await gcGet("stats/sizes", R), await gcGet("stats/locations", { ...R, limit: 8 })];
-    const days = (tot.stats || []).map(s => ({ day: s.day, n: s.daily ?? (s.hourly || []).reduce((a, b) => a + b, 0) }));
-    const H = hits.hits || [];
+    const [tot, refs, sizes, locs] = [await gcGet("stats/total", R), await gcGet("stats/toprefs", { ...R, limit: 12 }), await gcGet("stats/sizes", R), await gcGet("stats/locations", { ...R, limit: 8 })];
+    // toutes les pages et tous les clics suivis : 100 par appel, les suivants en excluant ceux déjà reçus
+    const H = [];
+    for (let i = 0; i < 20; i++) {
+      const h = await gcGet("stats/hits", { ...R, limit: 100, ...(H.length ? { exclude_paths: H.map(x => x.path_id) } : {}) });
+      H.push(...(h.hits || []));
+      if (!h.more || !(h.hits || []).length) break;
+    }
+    // le total du compteur inclut les clics suivis : on les retire pour n'avoir que les visiteurs des pages
+    const evDay = {};
+    for (const h of H) if (h.event) for (const st of h.stats || []) evDay[st.day] = (evDay[st.day] || 0) + (st.daily || 0);
+    const days = (tot.stats || []).map(s => ({ day: s.day, n: Math.max(0, (s.daily ?? (s.hourly || []).reduce((a, b) => a + b, 0)) - (evDay[s.day] || 0)) }));
+    const visitors = Math.max(0, (tot.total || 0) - (tot.total_events || 0));
     const pages = H.filter(h => !h.event), evs = H.filter(h => h.event);
     const grp = {};
     for (const h of evs) { const p = h.path.replace(/^\//, ""); const g = p.startsWith("arrivee-partage") ? "arrivee-partage" : p.split("/")[0]; (grp[g] = grp[g] || []).push({ l: p.slice(g.length).replace(/^\//, "") || p, t: h.title, n: h.count }); }
@@ -753,12 +763,12 @@ async function viewStats() {
     const modes = (grp.mode || []).concat();
     const ret = Math.round(days.reduce((a, d) => a + d.n, 0) / Math.max(1, days.length));
     gb.innerHTML = `<div class="kpis">
-      <div class="kpi"><div class="k">Visites</div><div class="v">${nf(tot.total)}</div><div class="s">${nf(ret)} par jour en moyenne</div></div>
+      <div class="kpi"><div class="k">Visiteurs</div><div class="v">${nf(visitors)}</div><div class="s">${nf(ret)} par jour en moyenne (une personne compte une fois par page et par jour)</div></div>
       <div class="kpi"><div class="k">Clics suivis</div><div class="v">${nf(tot.total_events ?? sum(evs.map(h => ({ n: h.count }))))}</div><div class="s">favoris, agenda, partages…</div></div>
       <div class="kpi"><div class="k">Clics vers les organisateurs</div><div class="v">${nf(sum(grp.sortie || []))}</div><div class="s">inscriptions, pages officielles</div></div>
       <div class="kpi"><div class="k">Favoris ajoutés</div><div class="v">${nf(sum((grp.favori || []).filter(x => x.l.startsWith("ajout"))))}</div><div class="s">${nf(sum((grp.favori || []).filter(x => x.l.startsWith("retrait"))))} retirés</div></div>
     </div>
-    <div class="card"><h3 style="margin-top:2px">Visites par jour</h3>${days.length ? dayChart(days) : `<div class="empty">Pas de données</div>`}</div>
+    <div class="card"><h3 style="margin-top:2px">Visiteurs par jour</h3>${days.length ? dayChart(days) : `<div class="empty">Pas de données</div>`}</div>
     <div class="two">
       <div class="card"><h3 style="margin-top:2px">Pages les plus vues</h3>${hbars(pages.slice(0, 15).map(h => ({ l: h.path === "/" ? "Accueil" : h.path, t: h.title, n: h.count })))}</div>
       <div class="card"><h3 style="margin-top:2px">Provenance</h3>${hbars((refs.stats || []).map(r => ({ l: r.name || "Accès direct", n: r.count })))}</div>
