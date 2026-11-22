@@ -68,7 +68,10 @@ def fraicheur_problems():
             pb.append("aucune synchro réussie trouvée")
     local = json.load(open("data.json"))
     try:
-        live = json.load(urllib.request.urlopen(SITE + f"data.json?c={int(dt.datetime.now().timestamp())}", timeout=30))
+        # a named User-Agent: Cloudflare (in front of the site since 22/11/2026) refuses the default "Python-urllib"
+        req = urllib.request.Request(SITE + f"data.json?c={int(dt.datetime.now().timestamp())}",
+                                     headers={"User-Agent": "Mozilla/5.0 (compatible; DossardPei/1.0; +https://dossardpei.re)"})
+        live = json.load(urllib.request.urlopen(req, timeout=30))
         if live.get("updatedAt") != local.get("updatedAt"):
             mt = dt.datetime.fromisoformat(local["updatedAt"])
             if (dt.datetime.now(mt.tzinfo) - mt).total_seconds() > 45 * 60:
