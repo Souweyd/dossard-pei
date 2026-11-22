@@ -50,10 +50,14 @@ Il y a deux étapes. La première est indispensable, la seconde ajoute les stati
 | `ADMIN_EMAILS` | Text | ton adresse (la même que dans la policy) |
 | `GITHUB_TOKEN` | **Secret** | la clé GitHub de l'étape 1 |
 
-5. Va dans **Settings › Domains & Routes › Add › Route** :
-   - **Route** : `dossardpei.re/admin/api/*`.
-   - **Zone** : `dossardpei.re`.
-6. Ouvre https://dossardpei.re/admin/, saisis ton adresse e-mail, puis le code reçu : l'admin s'ouvre.
+5. Va dans **Settings › Domains & Routes › Add › Route** et ajoute deux routes, toutes les deux sur la zone `dossardpei.re` :
+   - `dossardpei.re/admin/api/*` (l'admin) ;
+   - `dossardpei.re/api/form` (les formulaires du site).
+6. **Espace des messages** :
+   - dans **Storage & Databases › KV › Create**, crée un espace nommé `dossardpei-messages` ;
+   - dans le Worker, ouvre **Settings › Bindings › Add › KV namespace** : nom de la variable `MSG`, espace `dossardpei-messages` ;
+   - ajoute aussi le secret `SALT` : une suite de mots ou de caractères au hasard, que tu n'as pas besoin de retenir.
+7. Ouvre https://dossardpei.re/admin/, saisis ton adresse e-mail, puis le code reçu : l'admin s'ouvre.
 
 ---
 
@@ -87,4 +91,5 @@ Il y a deux étapes. La première est indispensable, la seconde ajoute les stati
   - Le bouton 🔒 « verrouillé », à côté de l'info, rend la main à la synchro, qui reprend la valeur de l'organisateur dans l'heure.
 - **Retour arrière.** Une erreur se corrige dans l'admin. Sinon, l'historique du dépôt garde toutes les versions.
 - **En cas de souci.** Si tu perds ton accès, tu peux couper l'admin en supprimant la route du Worker. Le site public n'est pas touché.
+- **Messages.** Les formulaires du site (contact, corrections, clubs) arrivent dans l'onglet **Messages**, et plus par e-mail. La pastille rouge donne le nombre de messages à traiter. Si l'espace des messages ne répond pas, le site les envoie par e-mail comme avant : rien ne se perd.
 - **Logos des clubs.** Ils ne se changent pas dans l'admin (ils sont sur une planche commune) : il faut me les envoyer.

@@ -274,8 +274,17 @@
     o.from_name = 'Clubs péi (dossardpei.re/clubs)';
     if (d.dataset.club) o['Fiche'] = 'https://dossardpei.re/clubs/' + d.dataset.club + '/';
     var btn = form.querySelector('[type=submit]'); btn.disabled = true; btn.textContent = 'Envoi…';
-    fetch('https://api.web3forms.com/submit', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(o) })
-      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok || j.success === false) throw new Error(); }); })
+    // 1. espace privé du site ; s'il ne répond pas, 2. envoi par e-mail (service de formulaires) comme avant
+    var champs = {}; Object.keys(o).forEach(function (k) { if (['access_key', 'subject', 'from_name', 'email', 'Correction', 'Message', 'Fiche'].indexOf(k) < 0) champs[k] = String(o[k]); });
+    var mine = { type: d.dataset.mode === 'add' ? 'club-ajout' : d.dataset.mode === 'maj' ? 'club-maj' : 'club-correction', sujet: o.subject, club: o['Nom complet'] || o['Nom usuel'] || o.Club || d.dataset.club || '',
+      page: o.Fiche || '', email: o.email || '', message: o.Correction || o.Message || '', champs: champs };
+    var ctl = window.AbortController ? new AbortController() : null; if (ctl) setTimeout(function () { ctl.abort(); }, 8000);
+    fetch('/api/form', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(mine), signal: ctl ? ctl.signal : undefined })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok || !j.ok) throw new Error(); }); })
+      .catch(function () {
+        return fetch('https://api.web3forms.com/submit', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(o) })
+          .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok || j.success === false) throw new Error(); }); });
+      })
       .then(function () { $('#formbox').innerHTML = '<div class="done"><h2>Merci !</h2><p>C’est bien reçu. On vérifie et on met la fiche en ligne (ou à jour) sous quelques jours.</p><p style="margin-top:16px"><button type="button" class="cta" data-close>Fermer</button></p></div>'; })
       .catch(function () { btn.disabled = false; btn.textContent = 'Envoyer'; err.hidden = false; err.innerHTML = 'L’envoi n’a pas marché. Réessaie, ou écris-nous à <a href="mailto:contact@dossardpei.re">contact@dossardpei.re</a>.'; });
   }
