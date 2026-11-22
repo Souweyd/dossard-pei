@@ -21,20 +21,4 @@ TRIGGER:-P2D
 DESCRIPTION:Trail de Villèle dans 2 jours
 END:VALARM
 END:VEVENT
-BEGIN:VEVENT
-UID:villele-cloture@dossardpei.re
-DTSTAMP:20261129T000000Z
-SUMMARY:Clôture des inscriptions : Trail de Villèle
-DTSTART;VALUE=DATE:20261121
-DTEND;VALUE=DATE:20261122
-URL:https://www.sportpro.re/courses/02166-trail-de-villele/
-DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
- iption : https://www.sportpro.re/courses/02166-trail-de-villele/\nFiche :
-  https://dossardpei.re/course/villele/
-BEGIN:VALARM
-ACTION:DISPLAY
-TRIGGER:-PT6H
-DESCRIPTION:Inscriptions Trail de Villèle : clôture demain
-END:VALARM
-END:VEVENT
 END:VCALENDAR
