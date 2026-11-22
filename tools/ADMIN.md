@@ -1,7 +1,7 @@
 # Page admin : mise en route
 
 L'adresse de la page est **https://dossardpei.re/admin/**.
-- La page est protégée par **Cloudflare Access** : seule ton adresse e-mail peut entrer, avec un code reçu par mail.
+- La page est protégée par **un mot de passe** que tu choisis. Une fois entré, tu restes connecté 30 jours sur l'appareil. Après 5 erreurs, les essais sont bloqués pendant 1 heure.
 - Les enregistrements passent par un petit **service Cloudflare (Worker)**. Il écrit dans le dépôt GitHub avec une clé limitée à ce dépôt.
 - Les clés ne sont jamais dans le code. Ce sont des « secrets » du Worker, que tu saisis toi-même.
 
@@ -9,7 +9,7 @@ Il y a deux étapes. La première est indispensable, la seconde ajoute les stati
 
 ---
 
-## Étape 1 : l'admin (environ 20 minutes)
+## Étape 1 : l'admin (environ 15 minutes)
 
 ### 1. La clé GitHub
 1. Sur github.com, clique sur ta photo, puis **Settings › Developer settings › Personal access tokens › Fine-grained tokens › Generate new token**.
@@ -20,20 +20,8 @@ Il y a deux étapes. La première est indispensable, la seconde ajoute les stati
    - **Permissions › Repository permissions › Contents** : *Read and write*. Le reste ne change pas.
 3. Clique sur **Generate token** et copie la clé (elle commence par `github_pat_`). Garde-la le temps de l'étape 3 et ne l'envoie à personne.
 
-### 2. La protection par code e-mail (Cloudflare Access)
-1. Dans Cloudflare, ouvre **Zero Trust** (menu de gauche de l'accueil du compte).
-   - La première fois, choisis un **nom d'équipe**, par exemple `dossardpei`. Ton adresse d'équipe sera `dossardpei.cloudflareaccess.com`.
-   - Choisis l'offre **Free** (jusqu'à 50 personnes). Cloudflare peut demander une carte, mais rien n'est facturé avec l'offre Free.
-2. Va dans **Access › Applications › Add an application › Self-hosted** et remplis :
-   - **Application name** : `Admin Dossard Péi`.
-   - **Session duration** : `1 month` (ou moins si tu préfères).
-   - **Domaine** : `dossardpei.re`, avec le **chemin** `admin`.
-3. Crée une **Policy** :
-   - **Nom** : `Moi`.
-   - **Action** : *Allow*.
-   - **Include › Emails** : ton adresse.
-4. Garde la **connexion par code à usage unique** (*One-time PIN*), qui est proposée par défaut, et enregistre.
-5. Dans l'application créée, copie l'**Application Audience (AUD) Tag** : c'est une longue suite de lettres et de chiffres.
+### 2. Le mot de passe
+Choisis un mot de passe d'au moins **12 caractères**, que tu n'utilises nulle part ailleurs. Par exemple, quatre mots au hasard séparés par des tirets. Garde-le dans ton gestionnaire de mots de passe : tu le saisiras à l'étape 3 dans Cloudflare, et à chaque connexion (une fois par mois et par appareil). Ne l'envoie à personne.
 
 ### 3. Le service (Worker)
 1. Dans Cloudflare, ouvre **Workers & Pages › Create › Worker**.
@@ -45,10 +33,8 @@ Il y a deux étapes. La première est indispensable, la seconde ajoute les stati
 |---|---|---|
 | `REPO` | Text | `Souweyd/dossard-pei` |
 | `BRANCH` | Text | `main` |
-| `ACCESS_TEAM` | Text | `dossardpei.cloudflareaccess.com` (ton nom d'équipe) |
-| `ACCESS_AUD` | Text | le tag AUD copié à l'étape 2 |
-| `ADMIN_EMAILS` | Text | ton adresse (la même que dans la policy) |
 | `GITHUB_TOKEN` | **Secret** | la clé GitHub de l'étape 1 |
+| `ADMIN_PASSWORD` | **Secret** | le mot de passe de l'étape 2 |
 
 5. Va dans **Settings › Domains & Routes › Add › Route** et ajoute deux routes, toutes les deux sur la zone `dossardpei.re` :
    - `dossardpei.re/admin/api/*` (l'admin) ;
@@ -57,7 +43,7 @@ Il y a deux étapes. La première est indispensable, la seconde ajoute les stati
    - dans **Storage & Databases › KV › Create**, crée un espace nommé `dossardpei-messages` ;
    - dans le Worker, ouvre **Settings › Bindings › Add › KV namespace** : nom de la variable `MSG`, espace `dossardpei-messages` ;
    - ajoute aussi le secret `SALT` : une suite de mots ou de caractères au hasard, que tu n'as pas besoin de retenir.
-7. Ouvre https://dossardpei.re/admin/, saisis ton adresse e-mail, puis le code reçu : l'admin s'ouvre.
+7. Ouvre https://dossardpei.re/admin/ et saisis ton mot de passe : l'admin s'ouvre.
 
 ---
 
@@ -90,6 +76,7 @@ Il y a deux étapes. La première est indispensable, la seconde ajoute les stati
   - Ajouter, retirer, renommer ou déplacer une épreuve verrouille toute la liste des épreuves.
   - Le bouton 🔒 « verrouillé », à côté de l'info, rend la main à la synchro, qui reprend la valeur de l'organisateur dans l'heure.
 - **Retour arrière.** Une erreur se corrige dans l'admin. Sinon, l'historique du dépôt garde toutes les versions.
-- **En cas de souci.** Si tu perds ton accès, tu peux couper l'admin en supprimant la route du Worker. Le site public n'est pas touché.
+- **Changer le mot de passe.** Modifie le secret `ADMIN_PASSWORD` dans le Worker. Toutes les sessions ouvertes sont alors déconnectées : c'est ce qu'il faut faire si tu penses qu'il a fuité.
+- **En cas de souci.** Tu peux couper l'admin en supprimant la route `dossardpei.re/admin/api/*` du Worker. Le site public n'est pas touché.
 - **Messages.** Les formulaires du site (contact, corrections, clubs) arrivent dans l'onglet **Messages**, et plus par e-mail. La pastille rouge donne le nombre de messages à traiter. Si l'espace des messages ne répond pas, le site les envoie par e-mail comme avant : rien ne se perd.
 - **Logos des clubs.** Ils ne se changent pas dans l'admin (ils sont sur une planche commune) : il faut me les envoyer.

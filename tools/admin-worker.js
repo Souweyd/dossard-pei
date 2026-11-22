@@ -4,16 +4,17 @@
 // lu seulement par l'admin. Effacés automatiquement au bout d'un an. Si ce service ne répond pas, le site
 // envoie le message par e-mail comme avant.
 //
-// Seule la personne autorisée par Cloudflare Access (code reçu par e-mail) passe : chaque requête
-// porte le jeton signé d'Access, vérifié ici (signature, audience, expiration, adresse autorisée).
+// Accès : mot de passe choisi par le propriétaire (secret ADMIN_PASSWORD, 12 caractères minimum). Une fois
+// entré, un cookie signé garde la session 30 jours sur l'appareil ; changer le mot de passe déconnecte tout le
+// monde. 5 erreurs en 1 heure depuis un même appareil bloquent les essais pendant 1 heure.
+// (Cloudflare Access reste accepté si ACCESS_TEAM et ACCESS_AUD sont renseignés.)
 // Le service lit et écrit les fichiers de données du dépôt GitHub en un seul commit, et relaie les
 // statistiques (compteur d'audience, Web Analytics). Aucune clé n'est dans ce fichier : elles sont
 // des « secrets » du Worker, saisis par le propriétaire dans Cloudflare.
 //
 // Variables (Paramètres › Variables et secrets) :
 //   REPO           Souweyd/dossard-pei            BRANCH        main
-//   ACCESS_TEAM    <équipe>.cloudflareaccess.com  ACCESS_AUD    étiquette d'audience de l'application Access
-//   ADMIN_EMAILS   adresse(s) autorisée(s), séparées par des virgules
+//   ADMIN_PASSWORD (secret) mot de passe de l'admin, 12 caractères minimum
 //   GITHUB_TOKEN   (secret) clé GitHub limitée au dépôt, droit « Contents : lecture et écriture »
 //   GC_SITE        dossardpei                     GC_TOKEN      (secret, facultatif) clé « lecture des statistiques »
 //   CF_ACCOUNT     identifiant du compte          CF_ZONE       identifiant de la zone dossardpei.re
@@ -32,9 +33,11 @@ export default {
     const url = new URL(req.url);
     if (url.pathname === "/api/form") return form(req, env);
     const path = url.pathname.replace(/^\/admin\/api\/?/, "");
-    let who;
-    try { who = await access(req, env); } catch (e) { who = null; }
-    if (!who) return json({ error: "accès refusé" }, 403);
+    if (path === "login" && req.method === "POST") return login(req, env);
+    if (path === "logout") return json({ ok: true }, 200, { "set-cookie": "dp_admin=; Path=/admin; Max-Age=0; HttpOnly; Secure; SameSite=Strict" });
+    let who = await session(req, env).catch(() => null);
+    if (!who) { try { who = await access(req, env); } catch (e) { who = null; } }
+    if (!who) return json({ error: "connexion nécessaire", login: true }, 401);
     if (req.method === "POST" && req.headers.get("x-admin") !== "1") return json({ error: "requête refusée" }, 400);
     try {
       if (path === "me") return json({ email: who, gc: !!env.GC_TOKEN, cf: !!(env.CF_API_TOKEN && env.CF_ACCOUNT) });
@@ -52,7 +55,38 @@ export default {
   },
 };
 
-const json = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+const json = (o, status = 200, extra = {}) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", ...extra } });
+
+// ---------- mot de passe ----------
+const DAYS30 = 30 * 86400;
+const hex = buf => [...new Uint8Array(buf)].map(x => x.toString(16).padStart(2, "0")).join("");
+const sha = async t => hex(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)));
+async function sign(env, text) {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode("dp-admin:" + env.ADMIN_PASSWORD + ":" + (env.SALT || "")), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return hex(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(text)));
+}
+async function session(req, env) {
+  if (!env.ADMIN_PASSWORD || env.ADMIN_PASSWORD.length < 12) return null;
+  const m = (req.headers.get("cookie") || "").match(/(?:^|;\s*)dp_admin=(\d+)\.([0-9a-f]{64})/);
+  if (!m || +m[1] < Date.now() / 1000) return null;
+  return (await sign(env, m[1])) === m[2] ? "admin" : null;
+}
+const FAILS = new Map();   // secours si l'espace KV n'est pas relié
+async function login(req, env) {
+  if (!env.ADMIN_PASSWORD || env.ADMIN_PASSWORD.length < 12) return json({ error: "Mot de passe non réglé dans Cloudflare (12 caractères minimum)." }, 503);
+  const h = (await sha((env.SALT || "dp") + (req.headers.get("cf-connecting-ip") || ""))).slice(0, 16), k = `lg:${h}:${Math.floor(Date.now() / 3600e3)}`;
+  const n = env.MSG ? +(await env.MSG.get(k)) || 0 : FAILS.get(k) || 0;
+  if (n >= 5) return json({ error: "Trop d'essais. Réessaie dans une heure." }, 429);
+  let b = {}; try { b = await req.json(); } catch { }
+  const ok = (await sha(String(b.password || ""))) === (await sha(env.ADMIN_PASSWORD));
+  if (!ok) {
+    if (env.MSG) await env.MSG.put(k, String(n + 1), { expirationTtl: 3700 }); else FAILS.set(k, n + 1);
+    await new Promise(r => setTimeout(r, 800));
+    return json({ error: n + 1 >= 5 ? "Mot de passe incorrect. Trop d'essais : réessaie dans une heure." : `Mot de passe incorrect (${4 - n} essai${4 - n > 1 ? "s" : ""} restant${4 - n > 1 ? "s" : ""}).` }, 401);
+  }
+  const exp = String(Math.floor(Date.now() / 1000) + DAYS30);
+  return json({ ok: true }, 200, { "set-cookie": `dp_admin=${exp}.${await sign(env, exp)}; Path=/admin; Max-Age=${DAYS30}; HttpOnly; Secure; SameSite=Strict` });
+}
 
 // ---------- Cloudflare Access ----------
 let CERTS = null, CERTS_AT = 0;

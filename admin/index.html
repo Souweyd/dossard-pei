@@ -11,6 +11,7 @@
 :root{--teal:#00968f;--teal-d:#007a74;--ink:#15201f;--ink2:#4b5a58;--mut:#7d8b89;--bg:#f4f7f6;--card:#fff;--line:#dfe6e4;--soft:#e6f4f3;--warn:#b25e00;--warn-bg:#fff3e2;--bad:#c0392b;--bad-bg:#fdecea;--ok:#1e8a4c;--ok-bg:#e7f6ee;--chip:#eef2f1;color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#e8efee;--ink2:#b5c3c1;--mut:#8a9997;--bg:#0f1716;--card:#18211f;--line:#2b3735;--soft:#123432;--warn:#f0a24a;--warn-bg:#3a2a12;--bad:#f07a6c;--bad-bg:#3b1d1a;--ok:#5fd193;--ok-bg:#15301f;--chip:#22302e;--teal:#22b5ad;color-scheme:dark}}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
 a{color:var(--teal)}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -108,7 +109,7 @@ table.t td.n{text-align:right;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
-<header class="top"><b>Dossard Péi</b><span class="tag">admin</span><span class="sp"></span><span id="who"></span><a href="/" target="_blank" rel="noopener">Voir le site ↗</a></header>
+<header class="top"><b>Dossard Péi</b><span class="tag">admin</span><span class="sp"></span><span id="who"></span><a href="/" target="_blank" rel="noopener">Voir le site ↗</a><a href="#" id="logout" hidden>Déconnexion</a></header>
 <nav class="tabs" id="tabs" role="tablist">
   <button data-t="courses" aria-selected="true">Courses</button>
   <button data-t="messages">Messages<span class="bd a" id="nbm" hidden></span></button>
@@ -151,7 +152,8 @@ async function api(p, opt = {}) {
   let r;
   try { r = await fetch(API + p, { ...opt, credentials: "same-origin", headers: { "x-admin": "1", "content-type": "application/json" } }); }
   catch (e) { throw Object.assign(new Error("Connexion impossible. Ta session a peut-être expiré : recharge la page."), { status: 0 }); }
-  let j = {}; try { j = await r.json(); } catch (e) { if (r.ok || r.status === 403) throw Object.assign(new Error("Session expirée : recharge la page pour te reconnecter."), { status: 401 }); }
+  let j = {}; try { j = await r.json(); } catch (e) { if (r.status === 404 || r.status === 405) throw Object.assign(new Error("Le service admin n'est pas encore branché dans Cloudflare : suis le guide « Admin : mise en route »."), { status: 404 }); if (r.ok || r.status === 403) throw Object.assign(new Error("Session expirée : recharge la page pour te reconnecter."), { status: 401 }); }
+  if (r.status === 401 && j.login && p !== "login") { showLogin(); throw Object.assign(new Error("Connexion nécessaire."), { status: 401, body: j }); }
   if (!r.ok) throw Object.assign(new Error(j.error || `Erreur ${r.status}`), { status: r.status, body: j });
   return j;
 }
@@ -851,16 +853,39 @@ async function viewSante() {
   } catch (e) { v.innerHTML = `<h2>Santé</h2><div class="card note w">${esc(e.message)}</div>`; }
 }
 
+/* ============ connexion ============ */
+function showLogin() {
+  if ($("#login")) return;
+  $("#sheet").hidden = true; $("#tabs").hidden = true; $("#logout").hidden = true;
+  $("#view").innerHTML = `<form id="login" class="card" style="max-width:380px;margin:40px auto;padding:20px">
+    <h2 style="margin-top:0">Connexion</h2>
+    <div class="f"><label for="pw">Mot de passe</label><input id="pw" type="password" autocomplete="current-password" required></div>
+    <label class="ck" style="margin-top:6px"><input type="checkbox" id="pwshow">Afficher le mot de passe</label>
+    <button class="btn p" style="width:100%;margin-top:12px">Entrer</button>
+    <p id="pwerr" style="color:var(--bad);font-size:14px;min-height:1.2em;margin:10px 0 0"></p>
+    <p style="font-size:12.5px;color:var(--mut);margin:4px 0 0">Tu restes connecté 30 jours sur cet appareil.</p></form>`;
+  $("#pwshow").onchange = e => $("#pw").type = e.target.checked ? "text" : "password";
+  $("#pw").focus();
+  $("#login").onsubmit = async e => {
+    e.preventDefault(); const b = e.target.querySelector("button"); b.disabled = true; $("#pwerr").textContent = "";
+    try { await api("login", { method: "POST", body: JSON.stringify({ password: $("#pw").value }) }); location.reload(); }
+    catch (err) { $("#pwerr").textContent = err.message; b.disabled = false; $("#pw").select(); }
+  };
+}
+$("#logout").onclick = async e => { e.preventDefault(); await api("logout").catch(() => { }); location.reload(); };
+
 /* ============ démarrage ============ */
 (async () => {
   try {
     ME = await api("me");
-    $("#who").textContent = ME.email || "";
+    $("#who").textContent = ME.email && ME.email !== "admin" ? ME.email : "";
+    $("#logout").hidden = false;
     await load(["data.json", "state/overrides.json", "clubs/clubs.json", "saison2027.json"]);
     try { const t = localStorage.getItem("adm-tab"); if (t && $(`#tabs [data-t="${t}"]`)) { TAB = t; $$("#tabs button").forEach(x => x.setAttribute("aria-selected", x.dataset.t === t)); } } catch (e) { }
     render();
     if (TAB !== "messages") loadMsgs().catch(() => { });   // pastille du nombre de messages à traiter
   } catch (e) {
+    if (e.status === 401) return;   // écran de connexion affiché
     $("#view").innerHTML = `<div class="card note w" style="margin-top:20px"><b>${e.status === 403 ? "Accès refusé." : "Impossible de charger l'admin."}</b><br>${esc(e.message)}</div>`;
   }
 })();
