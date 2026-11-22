@@ -719,6 +719,8 @@ let SP = 30, ME = {};
 const STC = {};
 const gcGet = async (p, q) => { const u = new URLSearchParams(); for (const [a, b] of Object.entries(q)) [].concat(b).forEach(x => u.append(a, x)); const k = p + "?" + u; if (!STC[k]) STC[k] = api("gc/" + k).catch(e => { delete STC[k]; throw e; }); return STC[k]; };
 const range = days => { const e = new Date(Date.now() + 4 * 3600e3), s = new Date(e - (days - 1) * 864e5); return { start: s.toISOString().slice(0, 10), end: e.toISOString().slice(0, 10) }; };
+// compteur d'audience : heures exactes (minuit à La Réunion → maintenant), sinon « fin = date » s'arrête à minuit UTC et coupe aujourd'hui
+const gcRange = R => ({ start: new Date(Date.parse(R.start + "T00:00:00+04:00")).toISOString().replace(/\.\d+Z$/, "Z"), end: new Date(Math.ceil(Date.now() / 3600e3) * 3600e3).toISOString().replace(/\.\d+Z$/, "Z") });
 const EVG = { raccourci: "Raccourcis", favori: "Favoris", agenda: "Ajout à l'agenda", bandeau: "Bandeau « Nouveau »", sortie: "Clics vers les organisateurs", mode: "Mode choisi (Liste / Scroll…)", arrivee: "Arrivée sur le site par mode", "arrivee-partage": "Arrivées par un lien partagé", scroll: "Actions en mode Scroll", webapp: "Appli sur l'écran d'accueil", saison2027: "Calendrier 2027", jeu: "Jeu", filtre: "Filtres", inscription: "Boutons « S'inscrire »", itineraire: "Itinéraire", contact: "Formulaire de contact", fiche: "Fiches ouvertes", carte: "Carte", partage: "Partages", vue3d: "Vue 3D" };
 function hbars(items, max) {
   max = max || Math.max(1, ...items.map(x => x.n));
@@ -739,26 +741,27 @@ async function viewStats() {
   v.innerHTML = `<h2>Stats</h2><div class="chips">${[[7, "7 jours"], [30, "30 jours"], [90, "90 jours"]].map(([d, l]) => `<button class="chip" data-d="${d}" aria-pressed="${SP === d}">${l}</button>`).join("")}</div><div id="gcbox"><div class="loading">Chargement des visites…</div></div><div id="cfbox"></div>`;
   $$(".chip", v).forEach(c => c.onclick = () => { SP = +c.dataset.d; viewStats(); });
   const R = range(SP);
+  const G = gcRange(R);
   // ---- compteur d'audience ----
   const gb = $("#gcbox");
   if (!ME.gc) gb.innerHTML = `<div class="card"><b>Compteur d'audience non relié.</b><p style="font-size:14px;color:var(--ink2)">Ajoute la clé de lecture du compteur dans le service admin (voir le guide de mise en route).</p></div>`;
   else try {
     const pause = () => new Promise(r => setTimeout(r, 300));
-    const tot = await gcGet("stats/total", R); await pause();
-    const refs = await gcGet("stats/toprefs", { ...R, limit: 12 }).catch(() => ({})); await pause();
-    const sizes = await gcGet("stats/sizes", R).catch(() => ({})); await pause();
-    const locs = await gcGet("stats/locations", { ...R, limit: 8 }).catch(() => ({})); await pause();
+    const tot = await gcGet("stats/total", G); await pause();
+    const refs = await gcGet("stats/toprefs", { ...G, limit: 12 }).catch(() => ({})); await pause();
+    const sizes = await gcGet("stats/sizes", G).catch(() => ({})); await pause();
+    const locs = await gcGet("stats/locations", { ...G, limit: 8 }).catch(() => ({})); await pause();
     // toutes les pages et tous les clics suivis : 100 par appel, les suivants en excluant ceux déjà reçus
     const H = [], seen = new Set();
     let partial = false, fmt = 0;   // façon d'écrire la liste à exclure qui marche : 1 = « 1,2,3 », 2 = répétée
     const keep = h => { const n = (h.hits || []).filter(x => !seen.has(x.path_id)); n.forEach(x => seen.add(x.path_id)); H.push(...n); return n.length; };
-    let first = await gcGet("stats/hits", { ...R, limit: 100 });
+    let first = await gcGet("stats/hits", { ...G, limit: 100 });
     keep(first);
     for (let i = 0, more = first.more; more && i < 25; i++) {
       let got = 0, h = null;
       for (const f of fmt ? [fmt] : [1, 2]) {   // le compteur limite à 4 appels par seconde
         await new Promise(r => setTimeout(r, 350));
-        h = await gcGet("stats/hits", { ...R, limit: 100, exclude_paths: f === 1 ? [...seen].join(",") : [...seen] }).catch(() => null);
+        h = await gcGet("stats/hits", { ...G, limit: 100, exclude_paths: f === 1 ? [...seen].join(",") : [...seen] }).catch(() => null);
         if (h && (got = keep(h))) { fmt = f; break; }
       }
       if (!got) { partial = true; break; }
