@@ -743,11 +743,23 @@ async function viewStats() {
   const gb = $("#gcbox");
   if (!ME.gc) gb.innerHTML = `<div class="card"><b>Compteur d'audience non relié.</b><p style="font-size:14px;color:var(--ink2)">Ajoute la clé de lecture du compteur dans le service admin (voir le guide de mise en route).</p></div>`;
   else try {
-    const [tot, refs, sizes, locs] = [await gcGet("stats/total", R), await gcGet("stats/toprefs", { ...R, limit: 12 }), await gcGet("stats/sizes", R), await gcGet("stats/locations", { ...R, limit: 8 })];
+    const pause = () => new Promise(r => setTimeout(r, 300));
+    const tot = await gcGet("stats/total", R); await pause();
+    const refs = await gcGet("stats/toprefs", { ...R, limit: 12 }).catch(() => ({})); await pause();
+    const sizes = await gcGet("stats/sizes", R).catch(() => ({})); await pause();
+    const locs = await gcGet("stats/locations", { ...R, limit: 8 }).catch(() => ({})); await pause();
     // toutes les pages et tous les clics suivis : 100 par appel, les suivants en excluant ceux déjà reçus
     const H = [];
+    let partial = false;
     for (let i = 0; i < 20; i++) {
-      const h = await gcGet("stats/hits", { ...R, limit: 100, ...(H.length ? { exclude_paths: H.map(x => x.path_id) } : {}) });
+      let h = null;
+      if (!H.length) h = await gcGet("stats/hits", { ...R, limit: 100 });
+      else {   // le compteur limite à 4 appels par seconde ; deux écritures possibles de la liste à exclure
+        await new Promise(r => setTimeout(r, 350));
+        h = await gcGet("stats/hits", { ...R, limit: 100, exclude_paths: H.map(x => x.path_id).join(",") }).catch(() => null);
+        if (!h) { await new Promise(r => setTimeout(r, 350)); h = await gcGet("stats/hits", { ...R, limit: 100, exclude_paths: H.map(x => x.path_id) }).catch(() => null); }
+        if (!h) { partial = true; break; }
+      }
       H.push(...(h.hits || []));
       if (!h.more || !(h.hits || []).length) break;
     }
@@ -774,7 +786,7 @@ async function viewStats() {
       <div class="card"><h3 style="margin-top:2px">Provenance</h3>${hbars((refs.stats || []).map(r => ({ l: r.name || "Accès direct", n: r.count })))}</div>
     </div>
     ${modes.length ? `<div class="card"><h3 style="margin-top:2px">Liste ou Scroll ?</h3>${hbars(modes.map(x => ({ ...x, l: x.l.charAt(0).toUpperCase() + x.l.slice(1) })).sort((a, b) => b.n - a.n))}${(grp.arrivee || []).length ? `<p style="font-size:13px;color:var(--ink2);margin:10px 0 4px">Mode affiché à l'arrivée :</p>${hbars(grp.arrivee.map(x => ({ ...x, l: x.l.charAt(0).toUpperCase() + x.l.slice(1) })).sort((a, b) => b.n - a.n))}` : ""}</div>` : ""}
-    <div class="card"><h3 style="margin-top:2px">Clics suivis</h3>${Object.entries(grp).filter(([g]) => g !== "mode" && g !== "arrivee").sort((a, b) => sum(b[1]) - sum(a[1])).map(([g, it]) => `<details style="margin:4px 0"><summary style="cursor:pointer;display:flex;justify-content:space-between;gap:10px;padding:5px 0"><b style="font-weight:600">${esc(EVG[g] || g)}</b><span style="color:var(--ink2);font-variant-numeric:tabular-nums">${nf(sum(it))}</span></summary>${hbars(it.sort((a, b) => b.n - a.n).slice(0, 20))}</details>`).join("") || `<div class="empty">Aucun clic suivi sur la période</div>`}</div>
+    <div class="card"><h3 style="margin-top:2px">Clics suivis</h3>${partial ? `<p class="note w">Le compteur n'a pas tout renvoyé : liste incomplète. Réessaie dans une minute.</p>` : ""}${Object.entries(grp).filter(([g]) => g !== "mode" && g !== "arrivee").sort((a, b) => sum(b[1]) - sum(a[1])).map(([g, it]) => `<details style="margin:4px 0"><summary style="cursor:pointer;display:flex;justify-content:space-between;gap:10px;padding:5px 0"><b style="font-weight:600">${esc(EVG[g] || g)}</b><span style="color:var(--ink2);font-variant-numeric:tabular-nums">${nf(sum(it))}</span></summary>${hbars(it.sort((a, b) => b.n - a.n).slice(0, 20))}</details>`).join("") || `<div class="empty">Aucun clic suivi sur la période</div>`}</div>
     <div class="two">
       <div class="card"><h3 style="margin-top:2px">Écrans</h3>${hbars((sizes.stats || []).map(s => ({ l: ({ phone: "Téléphone", largephone: "Grand téléphone", tablet: "Tablette", desktop: "Ordinateur", desktophd: "Grand écran", unknown: "Inconnu" })[s.id] || s.name, n: s.count })))}</div>
       <div class="card"><h3 style="margin-top:2px">Pays</h3>${hbars((locs.stats || []).map(s => ({ l: s.name || s.id, n: s.count })))}</div>
@@ -798,9 +810,10 @@ async function viewStats() {
     if (j.errors && j.errors.length && !j.data) throw new Error(j.errors[0].message);
     const A = (j.data?.viewer?.accounts || [])[0] || {}, Z = (j.data?.viewer?.zones || [])[0] || {};
     const qq = (A.cwv || [])[0]?.quantiles || {};
-    const lcp = v => v == null ? "–" : `<span class="vit ${v <= 2500 ? "g" : v <= 4000 ? "m" : "b"}">${v <= 2500 ? "✓" : v <= 4000 ? "~" : "✕"} ${(v / 1000).toFixed(1).replace(".", ",")} s</span>`;
-    const cls = v => v == null ? "–" : `<span class="vit ${v <= .1 ? "g" : v <= .25 ? "m" : "b"}">${v <= .1 ? "✓" : v <= .25 ? "~" : "✕"} ${v.toFixed(2).replace(".", ",")}</span>`;
-    const inp2 = v => v == null ? "–" : `<span class="vit ${v <= 200 ? "g" : v <= 500 ? "m" : "b"}">${v <= 200 ? "✓" : v <= 500 ? "~" : "✕"} ${Math.round(v)} ms</span>`;
+    // Cloudflare donne LCP et INP en microsecondes ; une valeur négative veut dire « pas assez de mesures »
+    const lcp = u => u == null || u < 0 ? "–" : (v => `<span class="vit ${v <= 2500 ? "g" : v <= 4000 ? "m" : "b"}">${v <= 2500 ? "✓" : v <= 4000 ? "~" : "✕"} ${(v / 1000).toFixed(1).replace(".", ",")} s</span>`)(u / 1000);
+    const cls = v => v == null || v < 0 ? "–" : `<span class="vit ${v <= .1 ? "g" : v <= .25 ? "m" : "b"}">${v <= .1 ? "✓" : v <= .25 ? "~" : "✕"} ${v.toFixed(2).replace(".", ",")}</span>`;
+    const inp2 = u => u == null || u < 0 ? "–" : (v => `<span class="vit ${v <= 200 ? "g" : v <= 500 ? "m" : "b"}">${v <= 200 ? "✓" : v <= 500 ? "~" : "✕"} ${Math.round(v)} ms</span>`)(u / 1000);
     const tr = (Z.tr || []).reduce((a, g) => { for (const k in g.sum) a[k] = (a[k] || 0) + g.sum[k]; a.uniques = (a.uniques || 0) + (g.uniq?.uniques || 0); return a; }, {});
     const vis = (A.vis || [])[0];
     cb.innerHTML = `<h3>Vitesse réelle chez les visiteurs</h3>
@@ -812,7 +825,7 @@ async function viewStats() {
       </div>
       <p style="font-size:12.5px;color:var(--mut)">Valeur atteinte par 75 % des visites (méthode Google).</p>
       <div class="two">
-      <div class="card ovw"><h3 style="margin-top:2px">Par page</h3><table class="t"><tr><th>Page</th><th>LCP</th><th>CLS</th><th>INP</th></tr>${(A.cwvp || []).map(g => `<tr><td>${esc(g.dimensions.requestPath)}</td><td>${lcp(g.quantiles.largestContentfulPaintP75)}</td><td>${cls(g.quantiles.cumulativeLayoutShiftP75)}</td><td>${inp2(g.quantiles.interactionToNextPaintP75)}</td></tr>`).join("")}</table></div>
+      <div class="card ovw"><h3 style="margin-top:2px">Par page</h3><table class="t"><tr><th>Page</th><th>LCP</th><th>CLS</th><th>INP</th></tr>${(A.cwvp || []).filter(g => !/^\/admin/.test(g.dimensions.requestPath)).map(g => `<tr><td>${esc(g.dimensions.requestPath)}</td><td>${lcp(g.quantiles.largestContentfulPaintP75)}</td><td>${cls(g.quantiles.cumulativeLayoutShiftP75)}</td><td>${inp2(g.quantiles.interactionToNextPaintP75)}</td></tr>`).join("")}</table></div>
       <div class="card ovw"><h3 style="margin-top:2px">Par appareil</h3><table class="t"><tr><th>Appareil</th><th>LCP</th><th>CLS</th><th>INP</th></tr>${(A.cwvd || []).map(g => `<tr><td>${esc(({ mobile: "Téléphone", desktop: "Ordinateur", tablet: "Tablette" })[g.dimensions.deviceType] || g.dimensions.deviceType)}</td><td>${lcp(g.quantiles.largestContentfulPaintP75)}</td><td>${cls(g.quantiles.cumulativeLayoutShiftP75)}</td><td>${inp2(g.quantiles.interactionToNextPaintP75)}</td></tr>`).join("")}</table></div>
       </div>
       <h3>Trafic reçu (robots compris)</h3>
