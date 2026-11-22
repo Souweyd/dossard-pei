@@ -109,6 +109,36 @@ def main(today, now):
     except Exception:
         tried = {}
     changed, added = False, []
+    # posters uploaded in the admin page (posters/in/<id>.jpg|png): converted to the site's sizes, then removed
+    for r in data["races"]:
+        for ext in ("jpg", "png"):
+            src = f"posters/in/{r['id']}.{ext}"
+            if not os.path.exists(src):
+                continue
+            try:
+                from PIL import ImageOps
+                im = ImageOps.exif_transpose(Image.open(src))
+                if im.mode in ("RGBA", "LA", "P"):
+                    im = im.convert("RGBA")
+                    bg = Image.new("RGB", im.size, "white")
+                    bg.paste(im, mask=im.split()[-1])
+                    im = bg
+                else:
+                    im = im.convert("RGB")
+                for name, width, q in ((f"posters/{r['id']}.webp", 420, 78), (f"posters/{r['id']}_lg.webp", 1100, 82)):
+                    k = min(1, width / im.width)
+                    im.resize((round(im.width * k), round(im.height * k)), Image.LANCZOS).save(name, "WEBP", quality=q)
+                r.update(poster=f"posters/{r['id']}.webp", poster_lg=f"posters/{r['id']}_lg.webp")
+                r.pop("affiche_capture", None)
+                r.pop("poster_xs", None)   # redrawn below
+                xs = f"posters/{r['id']}_xs.webp"
+                if os.path.exists(xs):
+                    os.remove(xs)
+                changed = True
+                print(f"affiche {r['id']} : affiche déposée dans l'admin")
+            except Exception as e:
+                print(f"affiche {r['id']} : image déposée illisible ({e.__class__.__name__})")
+            os.remove(src)
     for r in data["races"]:
         cap = bool(r.get("affiche_capture"))   # poster taken from a screenshot (Facebook…): replaced by the organiser's own as soon as found
         if r.get("hidden") or (r.get("fin") or r["date"]) < today or (r.get("poster") and not cap) or (r.get("source") == "utoi" and not cap):
