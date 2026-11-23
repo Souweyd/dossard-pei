@@ -22,16 +22,19 @@ DESCRIPTION:Les Foulées de la Pointe dans 2 jours
 END:VALARM
 END:VEVENT
 BEGIN:VEVENT
-UID:foulees-pointe-2027-03-ouverture@dossardpei.re
+UID:foulees-pointe-2027-03-cloture@dossardpei.re
 DTSTAMP:20270306T000000Z
-SUMMARY:Ouverture des inscriptions : Les Foulées de la Pointe
-DTSTART:20261123T140000Z
-DURATION:PT30M
+SUMMARY:Clôture des inscriptions : Les Foulées de la Pointe
+DTSTART;VALUE=DATE:20270228
+DTEND;VALUE=DATE:20270301
 URL:https://www.sportpro.re/courses/02207-les-foulees-de-la-pointe/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://www.sportpro.re/courses/02207-les-foulees-de-la-pointe/\
+ nFiche : https://dossardpei.re/course/foulees-pointe-2027-03/
 BEGIN:VALARM
 ACTION:DISPLAY
-TRIGGER:-PT15M
-DESCRIPTION:Inscriptions Les Foulées de la Pointe : ouverture
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Les Foulées de la Pointe : clôture demain
 END:VALARM
 END:VEVENT
 END:VCALENDAR
