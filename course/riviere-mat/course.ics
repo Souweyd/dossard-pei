@@ -22,4 +22,23 @@ TRIGGER:-P2D
 DESCRIPTION:Trail des Berges de la Rivière du Mât Les Bas dans 2 jours
 END:VALARM
 END:VEVENT
+BEGIN:VEVENT
+UID:riviere-mat-cloture@dossardpei.re
+DTSTAMP:20261129T000000Z
+SUMMARY:Clôture des inscriptions : Trail des Berges de la Rivière du Mâ
+ t Les Bas
+DTSTART;VALUE=DATE:20261123
+DTEND;VALUE=DATE:20261124
+URL:https://www.sportpro.re/courses/02127-trail-des-berges-de-la-riviere-d
+ u-mat-les-bas/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://www.sportpro.re/courses/02127-trail-des-berges-de-la-riv
+ iere-du-mat-les-bas/\nFiche : https://dossardpei.re/course/riviere-mat/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Trail des Berges de la Rivière du Mât Les Bas :
+  clôture demain
+END:VALARM
+END:VEVENT
 END:VCALENDAR
