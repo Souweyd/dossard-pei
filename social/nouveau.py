@@ -10,7 +10,7 @@ Requiert Playwright (Chromium préinstallé), Pillow et ffmpeg.
 """
 import sys, re, pathlib, html, datetime as D
 from core import load, status, MAP, P_xy, _same, poster_path, art_path, fmt_km, JOURS, JOURS_C, MOIS, MOIS_C, TYPE_COL, TYPE_EMO, ROOT, SOC
-import rec, sfx
+import rec, sfx, picto
 
 OUT = SOC / 'out' / 'nouveau'
 F = (SOC / 'fonts').as_uri()
@@ -150,6 +150,7 @@ body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S
 @keyframes tag{{0%{{transform:translateY(700px) scale(.5);opacity:0}} {p(.25)}{{transform:translateY(700px) scale(.5);opacity:0;animation-timing-function:cubic-bezier(.3,1.6,.5,1)}}
   {p(.8)}{{transform:translateY(700px) scale(1);opacity:1}} {p(1.5)}{{transform:translateY(700px) scale(1);opacity:1;animation-timing-function:cubic-bezier(.6,0,.2,1)}}
   {p(2.4)}{{transform:translateY(250px) scale(.62);opacity:1}} 100%{{transform:translateY(250px) scale(.62);opacity:1}}}}
+{picto.badge_css(p)}
 #tag .n{{margin-top:22px;max-width:940px;background:{SURF};color:{INK};font-weight:800;font-size:{nfs}px;line-height:.98;text-align:center;padding:14px 40px 18px;border-radius:22px;box-shadow:0 18px 40px rgba(29,37,35,.3);animation-name:nm}}
 @keyframes nm{{0%,{p(.55)}{{opacity:0;transform:translateY(30px)}} {p(.55)}{{animation-timing-function:cubic-bezier(.2,.9,.3,1)}} {p(1.0)},{p(3.7)}{{opacity:1;transform:none}} {p(4.1)},100%{{opacity:0;transform:translateY(-10px)}}}}
 #pin{{position:absolute;left:0;top:0;animation-name:pinmove}}
@@ -200,7 +201,7 @@ body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S
   <div class="ring anim"></div>
   <svg class="mk" viewBox="0 0 60 82"><path d="M30 80C30 80 4 48 4 28a26 26 0 0 1 52 0c0 20-26 52-26 52z" fill="{TEAL}" stroke="#fff" stroke-width="5"/><circle cx="30" cy="28" r="10" fill="#fff"/></svg></div>
   <div class="lab anim"><b>{esc(r['commune'])}</b>{f'<i>{esc(lieu)}</i>' if lieu else ''}</div></div>
-<div id="tag" class="anim"><div class="s t">Nouveau dossard</div><div class="s n anim">{esc(nm)}</div></div>
+<div id="tag" class="anim">{picto.badge("nouveau")}<div class="s t">Nouveau dossard</div><div class="s n anim">{esc(nm)}</div></div>
 <div id="stack"><div id="card" class="anim">
  <div class="top"><div class="post anim"><img src="{img}"></div>
   <div class="info">

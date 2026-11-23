@@ -10,7 +10,7 @@ import sys, json, pathlib, re, datetime as D
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from core import load, MAP, P_xy, ROOT, JOURS, JOURS_C, MOIS
 from nouveau import island, INK, TEAL, SURF, esc
-import rec, sfx
+import rec, sfx, picto
 
 OUT = ROOT / 'social' / 'out' / 'meteo'
 F = (ROOT / 'social' / 'fonts').as_uri()
@@ -113,6 +113,9 @@ def page(friday):
     T0 = 3.0
     DUR = T0 + len(items) * STEP + 5.5
     p = lambda t: f'{t / DUR * 100:.2f}%'
+    ks = [kind(x['start']['sym']) for _, _, _, x in items]                 # pictogramme de la pastille : le temps dominant du week-end
+    wet, dry = sum(k in ('rain', 'storm') for k in ks), sum(k == 'sun' for k in ks)
+    wk = 'meteo-rain' if wet * 2 >= len(ks) else ('meteo-sun' if dry * 2 > len(ks) else 'meteo-part')
     k0 = 1000 / M['W']
     cam = lambda k, sy: f"translate({W / 2 - M['W'] / 2 * k:.1f}px,{sy - M['H'] / 2 * k:.1f}px) scale({k:.4f})"
     dset = sorted({D.date.fromisoformat(i[0]) for i in items})
@@ -155,10 +158,11 @@ body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S
 @keyframes cam{{0%{{transform:{cam(k0 * .96, 900)}}} {p(1.4)}{{transform:{cam(k0, 900)};animation-timing-function:cubic-bezier(.6,0,.25,1)}} {p(2.7)},100%{{transform:{cam(KF, CY)}}}}}
 #world img{{position:absolute;left:0;top:0;width:{M['W']}px;height:{M['H']}px}} #world svg{{position:absolute;left:0;top:0;overflow:visible}}
 #tag{{position:absolute;left:0;right:0;top:0;display:flex;flex-direction:column;align-items:center;transform-origin:50% 0;animation-name:tag}}
-#tag .t{{background:{TEAL};color:#fff;font-weight:800;font-size:92px;letter-spacing:1px;padding:10px 44px 14px;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.35);line-height:1}}
+#tag .t{{background:{picto.TAG['meteo'][0]};color:{picto.TAG['meteo'][1]};font-weight:800;font-size:92px;letter-spacing:1px;padding:10px 44px 14px;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.35);line-height:1}}
 #tag .n{{margin-top:22px;background:{SURF};color:{INK};font-weight:800;font-size:84px;line-height:1;padding:12px 40px 16px;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.3);animation-name:nm}}
 @keyframes tag{{0%,{p(.25)}{{transform:translateY(700px) scale(.5);opacity:0}} {p(.25)}{{animation-timing-function:cubic-bezier(.3,1.6,.5,1)}}
   {p(.8)},{p(1.5)}{{transform:translateY(700px) scale(1);opacity:1}} {p(1.5)}{{animation-timing-function:cubic-bezier(.6,0,.2,1)}} {p(2.5)},100%{{transform:translateY(120px) scale(.6);opacity:1}}}}
+{picto.badge_css(p)}
 @keyframes nm{{0%,{p(.55)}{{opacity:0;transform:translateY(30px)}} {p(.55)}{{animation-timing-function:cubic-bezier(.2,.9,.3,1)}} {p(1.0)},100%{{opacity:1;transform:none}}}}
 #lines{{position:absolute;left:0;top:0}}
 .ln{{stroke:#fff;stroke-width:4;stroke-linecap:round;stroke-dasharray:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5));animation-name:draw}}
@@ -182,7 +186,7 @@ body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S
  <svg width="{M['W']}" height="{M['H']}" viewBox="0 0 {M['W']} {M['H']}"><g fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.5">{allc}</g></svg></div></div>
 <svg id="lines" width="{W}" height="{H}">{''.join(lines)}</svg>
 {''.join(pins)}{''.join(cards)}
-<div id="tag" class="anim"><div class="s t">Météo des courses</div><div class="s n anim">{esc(title)}</div></div>
+<div id="tag" class="anim">{picto.badge(wk)}<div class="s t">Météo des courses</div><div class="s n anim">{esc(title)}</div></div>
 <div id="foot" class="anim"><div class="b"><img src="{LOGO}"><div>Dossard Péi<small>dossardpei.re</small></div></div>
  <div class="src">{f"+ {more} autres courses sur dossardpei.re · " if more else ""}Prévisions MET Norway du {at.day:02d}/{at.month:02d} à {at.hour}h</div></div>
 </body></html>'''
