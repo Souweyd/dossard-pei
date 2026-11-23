@@ -4,6 +4,7 @@ Drapeau du dossard : 5 rayons depuis le sommet du volcan (voir README)."""
 INK, TEAL, SUN, RED = '#1d2523', '#0d6b67', '#ffd400', '#b3261e'
 # étiquette : (fond, texte)
 TAG = {'meteo': (SUN, INK), 'nouveau': (TEAL, '#fff'), 'annule': (RED, '#fff'),
+       'weekend': (INK, SUN),                    # reel 3D du lundi (dépôt dossard-pei-posts)
        'theme': ('#e8743b', '#fff'), 'region': ('#1f6fb2', '#fff'), 'mois': ('#4b3f8f', '#fff')}      # reels du mercredi, du vendredi, du 1er du mois
 _S = f'stroke="{INK}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"'
 
@@ -37,7 +38,10 @@ def _wrap(body): return f'<svg viewBox="0 0 120 120" width="100%" height="100%" 
 
 
 def picto(kind):
-    """kind : meteo-sun | meteo-part | meteo-rain | nouveau | annule | region | mois | theme-mont | theme-shoe | theme-duo"""
+    """kind : meteo-sun | meteo-part | meteo-rain | nouveau | annule | weekend | region | mois | theme-mont | theme-shoe | theme-duo"""
+    if kind == 'weekend':     # drapeau à damier
+        sq = ''.join(f'<rect x="{38 + i * 16}" y="{22 + j * 15}" width="16" height="15" fill="{INK if (i + j) % 2 == 0 else "#fff"}"/>' for i in range(4) for j in range(3))
+        return _wrap(f'<path d="M30 14v94" {_S} stroke-width="7"/>{sq}<rect x="38" y="22" width="64" height="45" fill="none" {_S}/>')
     if kind == 'region':      # repère de carte
         return _wrap(f'<path d="M60 12c-21 0-36 16-36 35 0 25 36 61 36 61s36-36 36-61c0-19-15-35-36-35z" fill="{TAG["region"][0]}" {_S}/><circle cx="60" cy="47" r="13" fill="#fff" {_S}/>')
     if kind == 'mois':        # calendrier
