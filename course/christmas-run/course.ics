@@ -21,4 +21,20 @@ TRIGGER:-P2D
 DESCRIPTION:Christmas Run dans 2 jours
 END:VALARM
 END:VEVENT
+BEGIN:VEVENT
+UID:christmas-run-cloture@dossardpei.re
+DTSTAMP:20261212T000000Z
+SUMMARY:Clôture des inscriptions : Christmas Run
+DTSTART;VALUE=DATE:20261130
+DTEND;VALUE=DATE:20261201
+URL:https://www.sportpro.re/courses/02177-christmas-run/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://www.sportpro.re/courses/02177-christmas-run/\nFiche : ht
+ tps://dossardpei.re/course/christmas-run/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Christmas Run : clôture demain
+END:VALARM
+END:VEVENT
 END:VCALENDAR
