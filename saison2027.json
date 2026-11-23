@@ -107,10 +107,11 @@
 "date": "2027-02-14"
 },
 {
-"nom": "Foulées des Amoureux",
+"nom": "Les Foulées des Amoureux",
 "nature": "Route",
 "club": "A.A. de la Marine",
-"date": "2027-02-14"
+"date": "2027-02-14",
+"id": "foulees-des-amoureux-2027-02"
 },
 {
 "nom": "Championnat régional de Cross",
