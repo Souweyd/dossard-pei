@@ -291,13 +291,13 @@ def main(ids):
             print(f'{rid} : introuvable ou masquée'); continue
         f = OUT / f'_{rid}.html'; f.write_text(page(r))
         tmp = OUT / f'_{rid}.mp4'
-        rec.record(f, tmp, DUR)
+        rec.record(f, tmp, DUR, stills=[(1.2, OUT / f'{rid}-couverture.jpg')])
         n = min(len(rows(r)), 5)
         ev = [(.25, 'pop', 520), (.6, 'pop', 700), (1.45, 'whoosh', 1.8), (3.45, 'thud'), (3.9, 'whoosh', .75, .4),
               (4.55, 'pop', 480, .12, .35)] + [(5.5 + i * .14, 'tick', 1500 + 120 * i) for i in range(n)] + [(6.2, 'chime')]
         wav = OUT / f'_{rid}.wav'; sfx.track(ev, DUR, wav); sfx.mux(tmp, wav); wav.unlink()
         tmp.replace(OUT / f'{rid}.mp4'); f.unlink()
-        print(f'=== {OUT / (rid + ".mp4")}\n{post_text(r)}\n')
+        print(f'=== {OUT / (rid + ".mp4")}\n=== couverture : {OUT / (rid + "-couverture.jpg")}\n{post_text(r)}\n')
 
 
 if __name__ == '__main__':

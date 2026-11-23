@@ -203,8 +203,9 @@ if __name__ == '__main__':
     OUT.mkdir(parents=True, exist_ok=True)
     f = OUT / '_meteo.html'; f.write_text(html)
     mp4 = OUT / f'story-meteo-{fri}.mp4'; tmp = OUT / '_meteo.mp4'
-    rec.record(f, tmp, dur)
+    cover = OUT / f'story-meteo-{fri}-couverture.jpg'
+    rec.record(f, tmp, dur, stills=[(1.2, cover)])
     wav = OUT / '_meteo.wav'; sfx.track(page.ev, dur, wav); sfx.mux(tmp, wav); wav.unlink()
     tmp.replace(mp4); f.unlink()
     wx_at = json.loads((ROOT / 'weather.json').read_text())['at']
-    print(f'ok {page.n} course(s) · météo du {wx_at}\n{mp4}')
+    print(f'ok {page.n} course(s) · météo du {wx_at}\n{mp4}\n{cover}')

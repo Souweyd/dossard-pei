@@ -33,7 +33,9 @@ Automatisation : des tâches planifiées Claude lancent `jour` 30 min avant chaq
 Tout dessin du drapeau (logo, dossard, bandeau) : fond bleu marine, volcan rouge en bas au centre et **exactement 5 rayons jaunes** qui partent du sommet du volcan, comme dans `favicon.svg`. Jamais 6 rayons, jamais des rayons partant du bas du bandeau.
 
 ## Stories
+Chaque vidéo s'ouvre sur une pastille ronde (pictogramme) et une étiquette à la couleur du type, pour les distinguer sur la grille (`picto.py`) : Météo = soleil / nuage / pluie selon le temps dominant, étiquette jaune ; Nouveau dossard = dossard « + », étiquette turquoise ; Course annulée = dossard barré, étiquette rouge, île grise. Chaque script écrit aussi l'image de couverture (`…-couverture.jpg`, image à 1,2 s).
 - `nouveau.py <id>…` : story vidéo « Nouveau dossard » (MP4 1080×1920, 11 s : nom de la course sur la carte floutée, zoom sur le lieu de départ, puis carte de la course avec une ligne par épreuve), seulement pour une fiche dont les inscriptions sont ouvertes ou dont la date d'ouverture est annoncée (pas « À venir » sans date, pas complète).
+- `annule.py <id> [motif] [info]` : story vidéo « Course annulée » (MP4 de 9 s avec bruitages : l'affiche arrive en couleur, le tampon ANNULÉE tombe et elle passe en gris, puis infos et logo), plus `<id>.jpg` (image fixe).
 - `meteo.py <vendredi>` : story vidéo « Météo des courses » (samedi et dimanche, 8 courses au plus) : vue d'ensemble de l'île, un trait part de chaque course vers son cadre météo ; `rec.py` enregistre la vidéo image par image, `sfx.py` ajoute les bruitages (synthétisés, sans fichier son externe).
 
 ## Légendes
