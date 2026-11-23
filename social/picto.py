@@ -3,7 +3,8 @@ sur la grille, on doit reconnaître le type d'un coup d'œil. Dessins au trait, 
 Drapeau du dossard : 5 rayons depuis le sommet du volcan (voir README)."""
 INK, TEAL, SUN, RED = '#1d2523', '#0d6b67', '#ffd400', '#b3261e'
 # étiquette : (fond, texte)
-TAG = {'meteo': (SUN, INK), 'nouveau': (TEAL, '#fff'), 'annule': (RED, '#fff')}
+TAG = {'meteo': (SUN, INK), 'nouveau': (TEAL, '#fff'), 'annule': (RED, '#fff'),
+       'theme': ('#e8743b', '#fff'), 'region': ('#1f6fb2', '#fff'), 'mois': ('#4b3f8f', '#fff')}      # reels du mercredi, du vendredi, du 1er du mois
 _S = f'stroke="{INK}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"'
 
 
@@ -32,8 +33,24 @@ def _bib(grey=False):
 <circle cx="23" cy="62" r="2.6" fill="{INK}"/><circle cx="97" cy="62" r="2.600" fill="{INK}"/>'''
 
 
+def _wrap(body): return f'<svg viewBox="0 0 120 120" width="100%" height="100%" style="display:block;overflow:visible">{body}</svg>'
+
+
 def picto(kind):
-    """kind : meteo-sun | meteo-part | meteo-rain | nouveau | annule"""
+    """kind : meteo-sun | meteo-part | meteo-rain | nouveau | annule | region | mois | theme-mont | theme-shoe | theme-duo"""
+    if kind == 'region':      # repère de carte
+        return _wrap(f'<path d="M60 12c-21 0-36 16-36 35 0 25 36 61 36 61s36-36 36-61c0-19-15-35-36-35z" fill="{TAG["region"][0]}" {_S}/><circle cx="60" cy="47" r="13" fill="#fff" {_S}/>')
+    if kind == 'mois':        # calendrier
+        cells = ''.join(f'<rect x="{30 + i * 22}" y="{60 + j * 20}" width="14" height="12" rx="3" fill="{SUN if (i, j) == (1, 0) else "#c9c4d8"}"/>' for j in range(2) for i in range(3))
+        return _wrap(f'<clipPath id="pcal"><rect x="18" y="24" width="84" height="80" rx="11"/></clipPath><g clip-path="url(#pcal)"><rect x="18" y="24" width="84" height="80" fill="#fff"/><rect x="18" y="24" width="84" height="26" fill="{TAG["mois"][0]}"/></g>'
+                     f'<rect x="18" y="24" width="84" height="80" rx="11" fill="none" {_S}/><path d="M40 14v20M80 14v20" {_S}/>{cells}')
+    if kind == 'theme-mont':  # montagne
+        return _wrap(f'<circle cx="92" cy="30" r="11" fill="{SUN}" {_S}/><path d="M8 100 46 32l17 28 14-20 35 60z" fill="#2e7d32" {_S}/><path d="M46 32 35 52l11-5 9 4z" fill="#fff" {_S}/>')
+    if kind == 'theme-duo':   # deux coureurs : en équipe
+        return _wrap(f'<path d="M56 102c0-19 10-31 23-31s23 12 23 31z" fill="{SUN}" {_S}/><circle cx="79" cy="48" r="14" fill="{SUN}" {_S}/>'
+                     f'<path d="M16 102c0-21 11-34 26-34s26 13 26 34z" fill="{TEAL}" {_S}/><circle cx="42" cy="42" r="16" fill="{TEAL}" {_S}/>')
+    if kind.startswith('theme'):   # chaussure
+        return _wrap(f'<g transform="translate(3 12) scale(3.3)" stroke-linejoin="round"><path d="M3 10q4 3 8 1l3-5 7 7q3 3 8 4 3 1 3 5v3q0 2-2 2H5q-3 0-3-3z" fill="#ff5a36" stroke="{INK}" stroke-width="1.6"/><path d="M2 24h31" stroke="{INK}" stroke-width="1.6"/><path d="M15 13l-3 3M19 16l-3 3" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></g>')
     if kind == 'meteo-sun':
         body = _sun(60, 60, 22)
     elif kind == 'meteo-rain':
