@@ -25,11 +25,9 @@
 "h": "8e633ccdc2a48943c4c2169a509823b3616e5d428a2b6b40e2973e18c1ba13d4"
 },
 "https://gotrail.run/calendrier-trails/reunion": {
-"at": "2026-11-24T10:05+04:00",
-"changed": "2026-11-24T10:05+04:00",
-"h": "9cd67e6f43d5fb3fcbc84c945a4ac4aa67aee0394cfb6337eb8e036d1692849d",
-"pending": "2cedffb1a7ddd08847d38c2319ee221bc453d84f4460af5a484bb8a72a06055b",
-"since": "2026-11-24T17:02+04:00"
+"at": "2026-11-24T18:05+04:00",
+"changed": "2026-11-24T18:05+04:00",
+"h": "2cedffb1a7ddd08847d38c2319ee221bc453d84f4460af5a484bb8a72a06055b"
 },
 "https://ilop.re/ilop-sport/outdoor/": {
 "at": "2026-11-10T17:17+04:00",
@@ -89,7 +87,9 @@
 "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/": {
 "at": "2026-11-24T14:03+04:00",
 "changed": "2026-11-24T14:03+04:00",
-"h": "fe6da417621b714d163fdf02d21168dbe43461e6ec5ce453ba777c368b26f793"
+"h": "fe6da417621b714d163fdf02d21168dbe43461e6ec5ce453ba777c368b26f793",
+"pending": "8e39dce8d22e3254d6eb240057ab97313264e9a1b5a5e49732627a9e6a8e55f2",
+"since": "2026-11-24T18:05+04:00"
 },
 "https://www.huge-event.fr": {
 "at": "2026-11-20T15:05+04:00",
