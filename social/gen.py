@@ -43,7 +43,8 @@ THEMES = [
          filt={'f-dist': 'long'}, flab='Distance « > 30 km »', tag='#ultratrail'),
     dict(id='multisport', emo='🏊', title='Triathlon,<br>swimrun…', short='Le multisport',
          sub='Nager, pédaler, courir : les épreuves multisport.', pred=lambda r: 'multisport' in r['_types'], cta='Nage, vélo ou course : ton point fort ? 👇',
-         filt={'f-disc': 'multisport'}, flab='Discipline « Multisport »', tag='#triathlon'),
+         filt={'f-disc': 'multisport'}, flab='Discipline « Multisport »', tag='#triathlon',
+         off=True),     # retiré des posts le 24/11/2026 (demande du propriétaire) ; gardé dans la liste pour ne pas décaler la rotation
 ]
 
 TAGS = ['#trail', '#run', '#iledelareunion', '#reunionisland']      # the owner's 4 hashtags, same on every network
@@ -316,6 +317,8 @@ def build_mardi(ref, data, races):
     th = sel = None
     for k in range(len(THEMES)):
         t = THEMES[(k0 + k) % len(THEMES)]
+        if t.get('off'):
+            continue
         s = [r for r in horizon if t['pred'](r)]
         if len(s) >= 3:
             th, sel = t, s; break

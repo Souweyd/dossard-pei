@@ -1,5 +1,5 @@
 """Reel motion design des posts du fil (1080x1920, bruitages, sans musique) : même sélection de courses que le carrousel du jour.
-  python3 social/reel_post.py theme JOUR    → mercredi : le thème de la semaine
+  python3 social/reel_post.py theme JOUR    → mercredi : le thème de la semaine (déroulé de reel_theme.py depuis le 24/11/2026)
   python3 social/reel_post.py region JOUR   → vendredi : une région (zoom sur ses communes)
   python3 social/reel_post.py mois JOUR     → le 1er : les courses du mois (l'île s'allume course après course)
 Déroulé : pastille + étiquette à la couleur du type + titre sur l'île floutée (image de couverture à 1,2 s), la carte se précise
@@ -23,7 +23,10 @@ def select(kind, ref, races):
     if kind == 'theme':
         horizon = upcoming(races, ref, ref + D.timedelta(days=70)); k0 = week_index(ref) % len(THEMES)
         for k in range(len(THEMES)):
-            t = THEMES[(k0 + k) % len(THEMES)]; s = [r for r in horizon if t['pred'](r)]
+            t = THEMES[(k0 + k) % len(THEMES)]
+            if t.get('off'):
+                continue
+            s = [r for r in horizon if t['pred'](r)]
             if len(s) >= 3:
                 return dict(tag='Le thème de la semaine', title=t['short'], sub='ces 10 prochaines semaines', sel=s[:30], icon=ICON.get(t['id'], 'theme-shoe'), communes=None)
         return None
@@ -146,13 +149,17 @@ body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S
 if __name__ == '__main__':
     kind, ref = sys.argv[1], D.date.fromisoformat(sys.argv[2])
     data, races = load()
-    html, dur = page(kind, ref, races)
+    if kind == 'theme':     # version motion design validée le 24/11/2026 (accroche, cartes, profils qui se dressent) : reel_theme.py
+        import reel_theme as RT
+        html, dur = RT.page(ref, races); page = RT.page; cover_t = RT.COVER_T
+    else:
+        html, dur = page(kind, ref, races); cover_t = 1.2
     if not html:
         print('rien : pas assez de courses pour ce reel'); sys.exit(0)
     OUT.mkdir(parents=True, exist_ok=True)
     f = OUT / f'_{kind}.html'; f.write_text(html)
     mp4 = OUT / f'reel-{kind}-{ref}.mp4'; cover = OUT / f'reel-{kind}-{ref}-couverture.jpg'; tmp = OUT / f'_{kind}.mp4'
-    rec.record(f, tmp, dur, stills=[(1.2, cover)])
+    rec.record(f, tmp, dur, stills=[(cover_t, cover)])
     wav = OUT / f'_{kind}.wav'; sfx.track(page.ev, dur, wav); sfx.mux(tmp, wav); wav.unlink()
     tmp.replace(mp4); f.unlink()
     print(f'ok {page.n} course(s) · {page.title} · {dur:.1f} s\n{mp4}\n{cover}')

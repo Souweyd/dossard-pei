@@ -7,7 +7,7 @@ et de captures du site en ligne.
 |---|---|---|
 | 1er du mois | Les courses du mois | Calendrier |
 | Lundi | Les courses du week-end (`post_lundi.py`, style des stories : île et cadres reliés aux courses, une slide par course encore ouverte) | Calendrier / « Ce week-end » |
-| Mercredi | Un thème (rotation : première course, relais, gros D+…) | Filtres |
+| Mercredi | Un thème (rotation : première course, relais, gros D+… ; le multisport est retiré depuis le 24/11/2026, `off=True` dans `gen.THEMES`) | Filtres |
 | Vendredi | Une région (rotation : Ouest, Sud, Est, Nord) | Carte |
 | Vendredi soir | Story vidéo « Météo des courses » du week-end (`meteo.py`) | Météo des fiches |
 
@@ -34,6 +34,7 @@ Tout dessin du drapeau (logo, dossard, bandeau) : fond bleu marine, volcan rouge
 
 ## Reels des posts du fil
 `reel_post.py theme|region|mois <jour>` : reel motion design (1080×1920, 11 à 16 s, bruitages) avec les mêmes courses que le carrousel du jour : pastille et étiquette à la couleur du type (thème orange, région bleue, mois violet), la carte se précise (zoom sur la région), un point par course dans l'ordre des dates avec sa fiche en bas, puis le total et le logo. Sortie : `social/out/reel/reel-<type>-<jour>.mp4` et `…-couverture.jpg`. Lancé par les tâches du mercredi, du vendredi et du 1er du mois après l'envoi du carrousel (le lundi garde son reel 3D, dépôt dossard-pei-posts).
+Depuis le 24/11/2026, `theme` suit le déroulé de `reel_theme.py` (16 à 23 s) : accroche en typo cinétique avec le chiffre fort de la couverture (compteur, trait jaune, Sam et/ou Ana avec leur bulle), pastille et étiquette (couverture à 3,2 s), une carte crème par course (8 au plus, puis « + N autres ») avec flou de mouvement, compteurs km et D+ de l'épreuve du thème, profil d'altitude qui se dresse (`profiles.json`) ou jauge s'il n'y en a pas, puis les barres qui se dressent, le total et le logo. `region` et `mois` gardent le déroulé ci-dessus.
 
 ## Stories
 Chaque vidéo s'ouvre sur une pastille ronde (pictogramme) et une étiquette à la couleur du type, pour les distinguer sur la grille (`picto.py`) : Météo = soleil / nuage / pluie selon le temps dominant, étiquette jaune ; Nouveau dossard = dossard « + », étiquette turquoise ; Course annulée = dossard barré, étiquette rouge, île grise. Chaque script écrit aussi l'image de couverture (`…-couverture.jpg`, image à 1,2 s).
