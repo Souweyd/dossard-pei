@@ -1,15 +1,10 @@
 {
- "at": "2026-11-24T22:06+04:00",
- "since": "2026-11-24T19:36:10+04:00",
+ "at": "2026-11-24T23:03+04:00",
+ "since": "2026-11-24T22:36:00+04:00",
  "rien": true,
  "sources": [],
  "avenir": [],
  "illisibles": [
-  {
-   "id": "aajm",
-   "url": "http://www.aajm.re",
-   "erreur": "URLError"
-  },
   {
    "id": "saint-benoit",
    "url": "https://www.saint-benoit.re/evenements/",
@@ -23,11 +18,6 @@
   {
    "id": "gto",
    "url": "https://www.grandtrail-ouest.re/",
-   "erreur": "URLError"
-  },
-  {
-   "id": "trail-grand-bassin-2027-06",
-   "url": "https://www.aajm.re/courses/trail-grand-bassin/",
    "erreur": "URLError"
   }
  ]
