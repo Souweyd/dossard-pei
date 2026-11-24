@@ -14,7 +14,7 @@ LOCATION:Gymnase COTUR\, Lycée Jean Hinglo\, Le Port\, La Réunion
 URL:https://dossardpei.re/course/trail-anglais-2027-02/
 DESCRIPTION:Formats :\n- Trail des Anglais : 05h30\n\nFiche : https://doss
  ardpei.re/course/trail-anglais-2027-02/\nInscription : https://traildesan
- glais.re/inscriptions/
+ glais.re/
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-P2D
@@ -27,10 +27,10 @@ DTSTAMP:20270228T000000Z
 SUMMARY:Clôture des inscriptions : Trail des Anglais
 DTSTART;VALUE=DATE:20270207
 DTEND;VALUE=DATE:20270208
-URL:https://traildesanglais.re/inscriptions/
+URL:https://traildesanglais.re/
 DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
- iption : https://traildesanglais.re/inscriptions/\nFiche : https://dossar
- dpei.re/course/trail-anglais-2027-02/
+ iption : https://traildesanglais.re/\nFiche : https://dossardpei.re/cours
+ e/trail-anglais-2027-02/
 BEGIN:VALARM
 ACTION:DISPLAY
 TRIGGER:-PT6H

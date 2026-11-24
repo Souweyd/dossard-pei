@@ -1,0 +1,42 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Trail de la Crête
+BEGIN:VEVENT
+UID:trail-de-la-crete-2027-02-course@dossardpei.re
+DTSTAMP:20270207T000000Z
+SUMMARY:Trail de la Crête
+DTSTART:20270207T020000Z
+DURATION:PT5H
+LOCATION:Terrain de foot du village de la Crête\, Saint-Joseph\, La Réun
+ ion
+URL:https://dossardpei.re/course/trail-de-la-crete-2027-02/
+DESCRIPTION:Formats :\n- Trail de la Crête – Championnat de La Réunion
+  de trail court : 06h00\n- Trail de la Crête Open : 07h00\n- Rando de la
+  Crête : 07h15\n\nFiche : https://dossardpei.re/course/trail-de-la-crete
+ -2027-02/\nInscription : https://chronorun974.re/trail-de-la-crete-2027/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Trail de la Crête dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:trail-de-la-crete-2027-02-cloture@dossardpei.re
+DTSTAMP:20270207T000000Z
+SUMMARY:Clôture des inscriptions : Trail de la Crête
+DTSTART;VALUE=DATE:20270201
+DTEND;VALUE=DATE:20270202
+URL:https://chronorun974.re/trail-de-la-crete-2027/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://chronorun974.re/trail-de-la-crete-2027/\nFiche : https:/
+ /dossardpei.re/course/trail-de-la-crete-2027-02/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Trail de la Crête : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

@@ -1,1 +1,21 @@
-{}
+{
+ "trail-de-la-crete-2027-02": {
+  "at": "2026-11-24T19:48+04:00",
+  "ecarts": [
+   "Rando de la Crête : 13.8 km mesurés, Rando de la Crête annoncé à 12 km"
+  ],
+  "src": "https://tracedetrail.fr/fr/iframe/311",
+  "tracks": [
+   {
+    "dp": 1987,
+    "km": 29.1,
+    "nom": "Trail de la Crête – Championnat de La Réunion de trail court"
+   },
+   {
+    "dp": 563,
+    "km": 13.8,
+    "nom": "Rando de la Crête"
+   }
+  ]
+ }
+}
