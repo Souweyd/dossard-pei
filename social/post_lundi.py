@@ -468,12 +468,9 @@ def build(ref, data, races):
         sl.append(fin_sea(P, n, ref) if V2 and not SITE else fin(P, n))
         pages[fmt] = sl
     clot = [r for r in rs if status(r, ref)[0] == 'clot']
-    lines = [f"Ce week-end, {len(rs)} course{'s' if len(rs) > 1 else ''} à La Réunion 🏃⛰️", '']
-    for dd in sorted({r['_d'] for r in rs}):
-        lines.append(f"📅 {JOURS_C[dd.weekday()].capitalize()} {dd.day} : " + ' · '.join(f"{r['nom']} ({r['commune']})" for r in rs if r['_d'] == dd))
-    if clot:
-        lines += ['', '⏳ Dernières inscriptions : ' + ' · '.join(f"{r['nom']} ({status(r, ref)[1].replace('Clôture ', '').lower()})" for r in clot)]
-    lines += ['', 'Infos et inscriptions 👉 dossardpei.re (lien en bio)']
+    from gen import communes_txt      # légende courte (24/11/2026) : le programme est dans le post
+    lines = [f"🏃 Ce week-end, {len(rs)} course{'s' if len(rs) > 1 else ''} à La Réunion{communes_txt(rs)}.", '',
+             'Infos et inscriptions 👉 dossardpei.re (lien en bio)']
     return pages, lines, TAGS
 
 
