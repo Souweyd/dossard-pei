@@ -1133,8 +1133,13 @@ try:
         old_vf, stale = {}, True
     if stale or old_vf.get("races") != verif:   # no commit every hour just for the time stamp
         json.dump({"at": NOW.isoformat(timespec="minutes"), "races": verif}, open("verif.json", "w"), ensure_ascii=False, separators=(",", ":"))
-    # reference version: before the push that started this run (Claude update), else the last commit
-    ref = "HEAD~1" if os.environ.get("GITHUB_EVENT_NAME") == "push" else "HEAD"
+    # reference version: data.json as it was when the journal was last saved. Taking the previous commit lost
+    # events when a run could not publish (conflict with a Claude update pushed at the same time: the races it
+    # added were then already in "HEAD" for the next run, and never reached the « Nouveau » band).
+    try:
+        ref = subprocess.run(["git", "log", "-1", "--format=%H", "--", "state/journal.json"], capture_output=True, text=True, check=True).stdout.strip() or "HEAD"
+    except Exception:
+        ref = "HEAD~1" if os.environ.get("GITHUB_EVENT_NAME") == "push" else "HEAD"
     try:
         prev_data = json.loads(subprocess.run(["git", "show", f"{ref}:data.json"], capture_output=True, text=True, check=True).stdout)
     except Exception:

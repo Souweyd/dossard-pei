@@ -852,6 +852,20 @@
 "date": "2026-11-29"
 },
 {
+"at": "2026-11-23T15:38+04:00",
+"t": "ajout",
+"id": "foulees-pointe-2027-03",
+"nom": "Les Foulées de la Pointe",
+"date": "2027-03-06"
+},
+{
+"at": "2026-11-23T19:39+04:00",
+"t": "ajout",
+"id": "foulees-des-amoureux-2027-02",
+"nom": "Les Foulées des Amoureux",
+"date": "2027-02-14"
+},
+{
 "at": "2026-11-24T00:00+04:00",
 "t": "clos",
 "id": "riviere-mat",
