@@ -169,7 +169,8 @@ body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S
 @keyframes draw{{0%{{stroke-dashoffset:1}} {.3 / DUR * 100:.2f}%,100%{{stroke-dashoffset:0}}}}
 .pin{{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:var(--c);border:6px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.5);animation-name:pop}}
 @keyframes pop{{0%{{opacity:0;transform:scale(.2)}} {.18 / DUR * 100:.2f}%{{opacity:1;transform:scale(1.25)}} {.3 / DUR * 100:.2f}%,100%{{opacity:1;transform:scale(1)}}}}
-.card{{position:absolute;width:{CW}px;height:{CH}px;border-radius:22px;border:4px solid #fff;color:#fff;padding:12px 14px;box-shadow:0 14px 30px rgba(0,0,0,.4);display:flex;flex-direction:column;gap:3px;animation-name:pop}}
+.card{{position:absolute;width:{CW}px;height:{CH}px;border-radius:22px;border:4px solid #fff;color:#fff;padding:12px 14px;box-shadow:0 14px 30px rgba(0,0,0,.4);display:flex;flex-direction:column;gap:3px;animation-name:cin}}
+@keyframes cin{{0%{{opacity:0;transform:translateY(46px) scale(.92);filter:blur(12px)}} {.32 / DUR * 100:.2f}%,100%{{opacity:1;transform:none;filter:blur(0)}}}}
 .ct{{display:flex;align-items:center;gap:8px;margin:4px 0 2px}} .ct b{{font:800 46px/1 S,sans-serif}}
 .cn{{font-weight:800;font-size:28px;line-height:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}}
 .cs{{font-size:19px;font-weight:600;line-height:1.2;opacity:.95;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}} .cs b{{font-weight:800}} .cs.cc{{-webkit-line-clamp:2}}

@@ -124,6 +124,8 @@ def page(r):
         rows_html += f'<div class="row more" style="animation-delay:{5.5 + 4 * .14:.2f}s">+ {more} autres formats</div>'
     ncourses = len(r.get('epreuves', []))
     head = f"{ncourses} course{'s' if ncourses > 1 else ''} au programme" if ncourses > 1 else 'Au programme'
+    import post_lundi as PL     # profil d'altitude qui se dresse, comme dans les reels (24/11/2026)
+    spark = PL._spark(r, TCOL.get(r['_type'], TEAL), 340, 62)
     return f'''<!doctype html><html><head><meta charset="utf-8"><style>
 @font-face{{font-family:S;font-weight:800;src:url('{F}/SairaCondensed-800.woff2')}}
 @font-face{{font-family:S;font-weight:700;src:url('{F}/SairaCondensed-700.woff2')}}
@@ -166,7 +168,7 @@ body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S
 @keyframes lab{{0%,{p(3.55)}{{opacity:0;transform:translate(-50%,14px)}} {p(3.9)},100%{{opacity:1;transform:translate(-50%,0)}}}}
 #stack{{position:absolute;left:36px;right:36px;top:700px}}
 #card{{position:relative;background:{SURF};border-radius:40px;box-shadow:0 -10px 50px rgba(29,37,35,.18),0 30px 60px rgba(29,37,35,.2);padding:40px 40px 26px;animation-name:card}}
-@keyframes card{{0%,{p(3.95)}{{transform:translateY(1500px)}} {p(3.95)}{{animation-timing-function:cubic-bezier(.2,.9,.25,1)}} {p(4.8)},100%{{transform:translateY(0)}}}}
+@keyframes card{{0%,{p(3.95)}{{transform:translateY(1500px);filter:blur(18px)}} {p(3.95)}{{animation-timing-function:cubic-bezier(.15,.85,.25,1)}} {p(4.8)},100%{{transform:translateY(0);filter:blur(0)}}}}
 .top{{display:flex;gap:36px;height:420px}}
 .post{{flex:0 0 300px;height:420px;display:flex;align-items:flex-start;justify-content:center;animation-name:post}}
 .post img{{max-width:300px;max-height:420px;border-radius:18px;box-shadow:0 14px 30px rgba(29,37,35,.28);display:block}}
@@ -179,7 +181,11 @@ body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S
 .st{{display:inline-flex;flex-direction:column;align-self:flex-start;color:#fff;border-radius:16px;padding:10px 20px 11px;font-weight:700;font-size:28px;line-height:1.15}}
 .st small{{font-weight:600;font-size:24px;opacity:.92}}
 .ph{{font-family:S;font-weight:700;font-size:30px;letter-spacing:2px;text-transform:uppercase;color:{MUTED};margin:30px 0 8px}}
-.row{{display:grid;grid-template-columns:150px 1fr 84px 150px;align-items:center;gap:18px;min-height:72px;padding:8px 0;border-top:2px solid #ece4d8;animation-name:f;animation-duration:{DUR}s;animation-fill-mode:both}}
+.row{{display:grid;grid-template-columns:150px 1fr 84px 150px;align-items:center;gap:18px;min-height:72px;padding:8px 0;border-top:2px solid #ece4d8;animation-name:rin;animation-duration:{DUR}s;animation-fill-mode:both}}
+@keyframes rin{{0%{{opacity:0;transform:translateX(120px) skewX(-6deg);filter:blur(10px)}} 4%,100%{{opacity:1;transform:none;filter:blur(0)}}}}
+.ph2{{display:flex;align-items:flex-end;justify-content:space-between;gap:20px}}
+.spk{{margin-bottom:10px;transform-origin:50% 100%;animation-name:spk}}
+@keyframes spk{{0%,{p(5.35)}{{transform:scaleY(0);clip-path:inset(0 100% 0 0)}} {p(5.35)}{{animation-timing-function:cubic-bezier(.2,.8,.2,1)}} {p(6.2)},100%{{transform:none;clip-path:inset(0 0 0 0)}}}}
 .chip{{color:#fff;font-weight:700;font-size:22px;text-transform:uppercase;letter-spacing:1px;text-align:center;border-radius:10px;padding:7px 0}}
 .rn{{font-size:28px;font-weight:600;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}}
 .rh{{font-size:26px;color:{MUTED};text-align:right}}
@@ -210,7 +216,7 @@ body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S
    <div class="ln f anim" style="animation-delay:5.1s"><svg viewBox="0 0 24 24" fill="none" stroke="{TEAL}" stroke-width="2.2"><path d="M12 22s-7-7.5-7-13a7 7 0 0 1 14 0c0 5.5-7 13-7 13z"/><circle cx="12" cy="9" r="2.5"/></svg><span>{esc(r['commune'])}{f'<small>{esc(lieu)}</small>' if lieu else ''}</span></div>
    <div class="st f anim" style="background:{bc};animation-delay:5.25s">{esc(b1)}{f'<small>{esc(b2)}</small>' if b2 else ''}</div>
   </div></div>
- <div class="ph f anim" style="animation-delay:5.4s">{esc(head)}</div>
+ <div class="ph2"><div class="ph f anim" style="animation-delay:5.4s">{esc(head)}</div>{f'<div class="spk anim">{spark}</div>' if spark else ''}</div>
  {rows_html}
 </div>
 <div id="brand" class="anim"><div><img src="{LOGO}" style="width:84px;display:block">

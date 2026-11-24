@@ -135,7 +135,7 @@ body{{font-family:I,sans-serif;color:{N.INK};position:relative}} .s{{font-family
   {p(3.36)}{{transform:translate(-12px,8px) rotate(-1.200deg)}} {p(3.42)}{{transform:translate(10px,-6px) rotate(1deg)}} {p(3.48)}{{transform:translate(-6px,4px)}} {p(3.56)},100%{{opacity:1;transform:none}}}}
 #po img{{animation-name:gr}} @keyframes gr{{0%,{p(3.25)}{{filter:none}} {p(3.5)},100%{{filter:grayscale(1) contrast(.9) brightness(1.08)}}}}
 #st{{animation-name:st}} @keyframes st{{0%,{p(3.0)}{{opacity:0;transform:rotate(-14deg) scale(3.4)}} {p(3.0)}{{animation-timing-function:cubic-bezier(.7,0,.9,.5)}} {p(3.3)}{{opacity:1;transform:rotate(-14deg) scale(.92)}} {p(3.42)},100%{{opacity:1;transform:rotate(-14deg) scale(1)}}}}
-#inf{{animation-name:up}} @keyframes up{{0%,{p(4.0)}{{opacity:0;transform:translateY(160px)}} {p(4.0)}{{animation-timing-function:cubic-bezier(.2,.9,.3,1)}} {p(4.6)},100%{{opacity:1;transform:none}}}}
+#inf{{animation-name:up}} @keyframes up{{0%,{p(4.0)}{{opacity:0;transform:translateY(160px);filter:blur(16px)}} {p(4.0)}{{animation-timing-function:cubic-bezier(.15,.85,.25,1)}} {p(4.6)},100%{{opacity:1;transform:none;filter:blur(0)}}}}
 #lg{{animation-name:lg}} @keyframes lg{{0%,{p(4.8)}{{opacity:0;transform:scale(.4)}} {p(4.8)}{{animation-timing-function:cubic-bezier(.3,1.6,.5,1)}} {p(5.3)},100%{{opacity:1;transform:none}}}}
 </style></head><body>
 <div class="abs" style="inset:0;background:#083b5a;filter:saturate(.3)"><div id="bg" class="abs anim" style="inset:0;filter:blur(14px)">{bg}</div></div>
