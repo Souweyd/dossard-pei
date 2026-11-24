@@ -377,12 +377,8 @@ def build_mardi(ref, data, races):
                                    ['Touche <b>Filtres</b>', th['flab'], 'Touche <b>Voir les courses</b>'], shot))
         sl.append(CH.fin(P, 'couchant'))
         pages[fmt] = sl
-    # légende courte (24/11/2026) : le détail est dans le post ; même chiffre fort que la couverture et le reel
-    import reel_theme as RT
-    hk = RT.hook(th, sel)
-    fact = {'gros-dp': f"jusqu'à {RT.nb(hk['val'])} m de D+", 'longues': f"jusqu'à {RT.nb(hk['val'])} km",
-            'premiere': f"dès {RT.nb(hk['val'])} km, sans gros dénivelé", 'relais': hk['line']}.get(th['id'])
-    lines = [f"{th['emo']} {th['short']} : {len(sel)} courses ces 10 prochaines semaines{', ' + fact if fact else ''}.", '',
+    # légende courte, sans détail des courses (24/11/2026) : tout est dans le post
+    lines = [f"{th['emo']} {th['short']} : {len(sel)} courses ces 10 prochaines semaines.", '',
              'Toutes les infos 👉 dossardpei.re (lien en bio)']
     return pages, lines, TAGS
 
@@ -453,7 +449,7 @@ def build_jeudi(ref, data, races):
         sl.append(CH.fin(P, 'lagon'))
         pages[fmt] = sl
     nm_ = {'nord': 'le Nord', 'sud': 'le Sud', 'est': 'l’Est', 'ouest': 'l’Ouest'}[reg]
-    lines = [f"📍 Courir dans {nm_} : {len(sel)} courses {endlab}{communes_txt(sel).replace(' : ', ', à ', 1)}.", '',     # légende courte (24/11/2026)
+    lines = [f"📍 Courir dans {nm_} : {len(sel)} courses {endlab}.", '',     # légende courte (24/11/2026)
              'Toutes les courses sur la carte 👉 dossardpei.re (lien en bio)']
     return pages, lines, TAGS
 
@@ -493,7 +489,7 @@ def build_mois(ref, data, races):
                                    lambda mw, mh: fit_crop(shot_p, info, mw, mh)))
         sl.append(CH.fin(P, 'soir'))
         pages[fmt] = sl
-    lines = [f"📅 {MOIS[m - 1].capitalize()} à La Réunion : {len(sel)} course{'s' if len(sel) > 1 else ''} ({disc_txt(sel)}).", '',     # légende courte (24/11/2026)
+    lines = [f"📅 {MOIS[m - 1].capitalize()} à La Réunion : {len(sel)} course{'s' if len(sel) > 1 else ''}.", '',     # légende courte (24/11/2026)
              'Le calendrier complet 👉 dossardpei.re (lien en bio)']
     return pages, lines, TAGS
 

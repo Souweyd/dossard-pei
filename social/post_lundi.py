@@ -468,8 +468,8 @@ def build(ref, data, races):
         sl.append(fin_sea(P, n, ref) if V2 and not SITE else fin(P, n))
         pages[fmt] = sl
     clot = [r for r in rs if status(r, ref)[0] == 'clot']
-    from gen import communes_txt      # légende courte (24/11/2026) : le programme est dans le post
-    lines = [f"🏃 Ce week-end, {len(rs)} course{'s' if len(rs) > 1 else ''} à La Réunion{communes_txt(rs)}.", '',
+    # légende courte, sans détail des courses (24/11/2026) : le programme est dans le post
+    lines = [f"🏃 Ce week-end, {len(rs)} course{'s' if len(rs) > 1 else ''} à La Réunion.", '',
              'Infos et inscriptions 👉 dossardpei.re (lien en bio)']
     return pages, lines, TAGS
 
