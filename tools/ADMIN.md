@@ -1,6 +1,6 @@
 # Page admin : mise en route
 
-> **État au 22/11/2026, 18 h 15** : l'étape 1 est faite et fonctionne (Worker `dossardpei-api`, KV `dossardpei-messages` en UE, routes, connexion, messages). Les stats (étape 2) ne sont pas encore branchées.
+> **État au 24/11/2026, 22 h 40** : les 3 étapes sont faites et fonctionnent (admin, messages, stats, notifications testées sur iPhone depuis l'app de l'écran d'accueil).
 
 L'adresse de la page est **https://dossardpei.re/admin/**.
 - La page est protégée par **un mot de passe** que tu choisis. Une fois entré, tu restes connecté 30 jours sur l'appareil. Après 5 erreurs, les essais sont bloqués pendant 1 heure.
