@@ -104,8 +104,14 @@ async def filters(out, values):
             box = await pg.evaluate("""()=>{const x=document.querySelector('[aria-label="Fermer les filtres"]');let p=x.parentElement;
                 while(p&&p.getBoundingClientRect().height<300)p=p.parentElement;const r=p.getBoundingClientRect();return [r.left,r.top,r.right,Math.min(r.bottom,844)]}""")
             n = await pg.evaluate("()=>document.getElementById('fs-go')?.textContent.trim()")
+            # cadres (px CSS) du filtre choisi et du bouton « Voir les courses », pour les anneaux « où toucher » (24/11/2026)
+            k0, v0 = next(iter(values.items()))
+            taps = await pg.evaluate("""([k,v])=>{const c=r=>r?[r.left,r.top,r.right,r.bottom]:null;
+                const a=k==='f-disc'?document.querySelector(`#f-dchips button[data-d="${v}"]`):document.getElementById(k);
+                const g=document.getElementById('fs-go');return [c(a&&a.getBoundingClientRect()),c(g&&g.getBoundingClientRect())]}""", [k0, v0])
+            taps = [t for t in taps if t and 0 < t[1] and t[3] < 844]
             await pg.screenshot(path=str(out))
-            return out, {'box': box, 'go': n}
+            return out, {'box': box, 'go': n, 'taps': taps}
         except Exception as e:
             print('capture filters:', e); return None, None
         finally:
@@ -126,7 +132,14 @@ async def map_commune(out, commune):
                 await mf.click()
             await pg.wait_for_timeout(2200)
             await pg.screenshot(path=str(out).replace('.png', '_ile.png'))
-            await pg.locator(f'g[aria-label^="{commune} :"]').first.click(); await pg.wait_for_timeout(2200)
+            pin = pg.locator(f'g[aria-label^="{commune} :"]').first
+            try:
+                await pin.click(timeout=5000)
+            except Exception:     # a neighbouring pin covers it (Saint-Louis / Entre-Deux, 24/11/2026) : send the click to the pin itself
+                await pin.dispatch_event('click')
+            await pg.wait_for_timeout(2200)
+            # the « Carte » bar of phones floats over the popup : hidden for the capture (24/11/2026)
+            await pg.add_style_tag(content='#tbpill{visibility:hidden!important}')
             pop = await pg.evaluate("""()=>{const x=document.getElementById('mpop-x');let p=x.parentElement;while(p&&p.getBoundingClientRect().height<120)p=p.parentElement;const r=p.getBoundingClientRect();return [r.left,r.top,r.right,r.bottom]}""")
             await pg.screenshot(path=str(out))
             return out, {'pop': pop, 'ile': str(out).replace('.png', '_ile.png')}

@@ -333,12 +333,13 @@ def build_mardi(ref, data, races):
             st = PL.by_type(sel)      # grouped by discipline, as on Monday
             n = 1 + PL.n_list_v2(P, st) + (1 if shot_p else 0) + 1
             sl = [PL.cover_theme_v2(P, n, th, sel, ref)]   # accroche + Sam / Ana (validée le 16/11/2026)
-            sl += PL.list_v2(P, 2, n, th['short'], st, ref)
+            sl += PL.list_v2(P, 2, n, th['short'], st, ref, kind='theme')
             if shot_p:
                 def shot(mw, mh, info=info):
                     b = info['box']
-                    return fit_crop(shot_p, [b[0], b[1], b[2], b[3]], mw, mh)
-                sl.append(PL.how_v2(P, len(sl) + 1, n, 'Filtres', 'Trouve-les en 2 secondes', ['Touche <b>Filtres</b>', th['flab'], 'Touche <b>Voir les courses</b>'], shot))
+                    taps = [(2, *info['taps'][0]), (3, *info['taps'][1])] if len(info.get('taps') or []) == 2 else []   # où toucher (24/11/2026)
+                    return fit_crop(shot_p, [b[0], b[1], b[2], b[3]], mw, mh, extra_fn=PL.rings(taps, b[0], b[1]) if taps else None)
+                sl.append(PL.how_v2(P, len(sl) + 1, n, 'Filtres', 'Trouve-les en 2 secondes', ['Touche <b>Filtres</b>', th['flab'], 'Touche <b>Voir les courses</b>'], shot, kind='theme'))
             sl.append(PL.fin_sea(P, n, ref, duo=th.get('duo', False)))   # team themes: Sam and Ana together
             pages[fmt] = sl
             continue
@@ -391,7 +392,7 @@ def build_jeudi(ref, data, races):
             st = PL.by_type(sel)      # grouped by discipline, as on Monday (the numbers follow)
             n = 1 + PL.n_list_v2(P, st) + (1 if shot_p else 0) + 1
             sl = [PL.cover_region_v2(P, n, name, f"{len(sel)} courses {endlab}", st, communes)]   # zoom sur la région (validé le 15/11/2026)
-            sl += PL.list_v2(P, 2, n, name[0].upper() + name[1:], st, ref, numbered=True)
+            sl += PL.list_v2(P, 2, n, name[0].upper() + name[1:], st, ref, numbered=True, kind='region')
             if shot_p:
                 def shot(mw, mh, info=info):
                     ile = info['ile']; pop = info['pop']
@@ -404,7 +405,7 @@ def build_jeudi(ref, data, races):
                         return None
                     return (f'<div style="position:relative;width:{mw2}px;height:{tot:.0f}px">{m}'
                             f'<div style="position:absolute;left:-10px;top:{mh2 * .55:.0f}px">{pp}</div></div>', mw2, tot)
-                sl.append(PL.how_v2(P, len(sl) + 1, n, 'Carte', 'Les courses autour de toi', ['Touche <b>Carte</b>', 'Agrandis la carte en plein écran', "Touche ta commune : <b>ses courses s'affichent</b>"], shot))
+                sl.append(PL.how_v2(P, len(sl) + 1, n, 'Carte', 'Les courses autour de toi', ['Touche <b>Carte</b>', 'Agrandis la carte en plein écran', "Touche ta commune : <b>ses courses s'affichent</b>"], shot, kind='region'))
             sl.append(PL.fin_sea(P, n, ref))
             pages[fmt] = sl
             continue
@@ -454,11 +455,11 @@ def build_mois(ref, data, races):
             st = PL.by_type(sel)
             n = 1 + PL.n_list_v2(P, st) + (1 if shot_p else 0) + 1
             sl = [PL.cover_cal_v2(P, n, y, m, sel, ref)]   # couverture calendrier (validée le 15/11/2026)
-            sl += PL.list_v2(P, 2, n, MOIS[m - 1].capitalize(), st, ref)
+            sl += PL.list_v2(P, 2, n, MOIS[m - 1].capitalize(), st, ref, kind='mois')
             if shot_p:
                 sl.append(PL.how_v2(P, len(sl) + 1, n, 'Calendrier', 'Tout le mois sur un écran',
                                     ['Touche <b>Calendrier</b>', 'Une pastille = une course', 'Touche un jour pour voir ses courses'],
-                                    lambda mw, mh: fit_crop(shot_p, info, mw, mh)))
+                                    lambda mw, mh: fit_crop(shot_p, info, mw, mh), kind='mois'))
             sl.append(PL.fin_sea(P, n, ref))
             pages[fmt] = sl
             continue

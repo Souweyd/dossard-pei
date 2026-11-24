@@ -300,14 +300,19 @@ def race(P, i, n, r, ref, num=None):
            f'<path d="M30 80C30 80 4 48 4 28a26 26 0 0 1 52 0c0 20-26 52-26 52z" fill="{TEAL}" stroke="#fff" stroke-width="5"/><circle cx="30" cy="28" r="10" fill="#fff"/></svg>'
            f'<div class="abs" style="top:16px;left:0;transform:translateX(-50%);white-space:nowrap;text-align:center"><b class="s" style="display:inline-block;background:{INK};color:#fff;font-size:42px;padding:3px 22px 5px;border-radius:12px">{esc(r["commune"])}</b>'
            + (f'<i style="display:block;font:700 24px I,sans-serif;font-style:normal;color:#fff;margin-top:5px;text-shadow:0 1px 3px rgba(0,0,0,.8),0 0 10px rgba(0,0,0,.55)">{esc(lieu)}</i>' if lieu else '') + '</div></div>')
-    tag = f'<div class="abs" style="left:{P["L"] - 30}px;top:{P["T"] - 22}px"><div class="tag" style="font-size:40px;padding:6px 20px 9px;border-radius:13px">Ce week-end</div></div>'
+    import picto      # étiquette noire et jaune + pastille drapeau à damier, comme le reel 3D du lundi (24/11/2026)
+    tbg, tfg = picto.TAG['weekend']
+    tag = (f'<div class="abs" style="left:{P["L"] - 30}px;top:{P["T"] - 30}px;display:flex;align-items:center;gap:12px">'
+           f'<div style="flex:none;width:66px;height:66px;border-radius:50%;background:#fff;border:4px solid {INK};padding:9px;box-shadow:0 10px 22px rgba(0,0,0,.35)">{picto.picto("weekend")}</div>'
+           f'<div class="tag" style="font-size:40px;padding:6px 20px 9px;border-radius:13px;background:{tbg};color:{tfg}">Ce week-end</div></div>')
+    sp = _spark(r, TCOL.get(r['_type'], TEAL), 300, 54)
     card = f'''<div class="card" style="left:36px;right:{right}px;bottom:{card_bottom}px">
  <div class="top" style="min-height:{ph}px"><div class="post" style="width:{pw}px"><img src="{img}" style="max-width:{pw}px;max-height:{ph}px"></div>
   <div class="info"><div class="s" style="font-size:{fs}px;line-height:.98">{f'<b style="display:inline-block;vertical-align:.12em;width:{fs * .8:.0f}px;height:{fs * .8:.0f}px;margin-right:12px;border-radius:50%;background:{TCOL.get(r["_type"], TEAL)};color:#fff;font-size:{fs * .55:.0f}px;line-height:{fs * .8:.0f}px;text-align:center">{num}</b>' if num else ''}{esc(nm)}</div>
    <div class="ln">{CAL}<span>{esc(date)}{f'<small>Départ {esc(hh)}</small>' if hh else ''}</span></div>
    <div class="ln">{PINI}<span>{esc(r['commune'])}{f'<small>{esc(lieu)}</small>' if lieu else ''}</span></div>
    <div class="bd" style="background:{STC[code]}">{esc(bl[0])}{f'<small>{esc(bl[1])}</small>' if bl[1] else ''}</div></div></div>
- <div class="ph">{esc(head)}</div>{rows_html}</div>'''
+ <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px"><div class="ph">{esc(head)}</div>{f'<div style="margin-bottom:8px">{sp}</div>' if sp else ''}</div>{rows_html}</div>'''
     if SITE:   # the site's drawn landscape, the map in a rounded window at the top, the card under it
         wt, wh = P['T'] + 40, (430 if tt else 330)
         win = (f'<div class="abs" style="left:36px;right:{right}px;top:{wt}px;height:{wh}px;border-radius:30px;overflow:hidden;border:6px solid #fff;box-shadow:0 16px 36px rgba(29,37,35,.25)">'
@@ -449,9 +454,10 @@ def build(ref, data, races):
             last = [r for r in rs if status(r, ref)[0] == 'clot']
             n = 2 + (1 if last else 0) + len(shown) + 1
             rt = by_type(rs)
-            sl = [cover_weekend_v2(P, n, rt, ref, lab.upper()), programme_types(P, 2, n, rt, ref)]   # couverture resserrée sur les courses (16/11/2026)
+            n += n_list_v2(P, rt) - 1
+            sl = [cover_weekend_v2(P, n, rt, ref, lab.upper())] + list_v2(P, 2, n, 'Le programme', rt, ref, numbered=True, kind='weekend')   # couverture resserrée (16/11) ; programme en cartes (24/11/2026)
             if last:
-                sl.append(derniere(P, 3, n, last, ref))
+                sl.append(derniere(P, len(sl) + 1, n, last, ref))
             # one slide per open race, in the order of the programme, with its number
             shown = [r for r in rt if status(r, ref)[0] != 'complet'][:15]
             for r in shown:
@@ -472,10 +478,10 @@ def build(ref, data, races):
 
 
 # ------------------------------------------------------------------ same style for the other posts (Wednesday theme, Friday region)
-def cover_v2(P, n, kicker, title, sub, mood, rs, ref, communes=None, numbered=False):
+def cover_v2(P, n, kicker, title, sub, mood, rs, ref, communes=None, numbered=False, kind=None):
     """sea cover: kicker, title whose letters show the landscape in the post's mood, the island (or the region) with the races"""
     M = MAP(); W, H = P['W'], P['H']; tt = H > 1500
-    top = P['T'] + (70 if not tt else 40)
+    top = P['T'] + (70 if not tt else 76)      # TikTok : room under the type label (24/11/2026)
     lines = title.split('<br>')
     size = int(min(172 if not tt else 178, (W - 2 * P['L']) / (0.44 * max(len(l) for l in lines))))
     th = 20 + sum(size * .92 + 8 for _ in lines)
@@ -508,36 +514,90 @@ def cover_v2(P, n, kicker, title, sub, mood, rs, ref, communes=None, numbered=Fa
     arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
     fade = ambiance(P, mood)   # the post's sky, fading into the sea and the island
-    return page(P, world(kf, cx, cy0, W / 2, sy) + fade + pins + head + chrome(P, 1, n) + arrow)
+    return page(P, world(kf, cx, cy0, W / 2, sy) + fade + pins + head + chrome(P, 1, n) + arrow + (type_tag(P, kind) if kind else ''))
 
 
-def list_v2(P, i0, n, tag, rs, ref, numbered=False, grouped=True):
-    """the races as rows on cards (several slides when there are many)"""
+TYPE_TAG = {'weekend': 'Au programme', 'theme': 'Le thème de la semaine', 'region': 'Près de chez toi', 'mois': 'Les courses du mois'}
+
+
+def type_tag(P, kind, text=None, top=None):
+    """pastille + étiquette à la couleur du type de post (picto.TAG), comme l'intro des reels : sur la grille, la couverture du carrousel
+    et celle du reel du même jour se répondent (validé le 24/11/2026)"""
+    import picto
+    bg, fg = picto.TAG[kind]
+    icon = {'weekend': 'weekend', 'theme': 'theme-mont', 'region': 'region', 'mois': 'mois'}[kind]
+    return (f'<div class="abs" style="left:{P["L"] - 30}px;top:{P["T"] - 30 if top is None else top}px;display:flex;align-items:center;gap:12px;z-index:5">'
+            f'<div style="flex:none;width:66px;height:66px;border-radius:50%;background:#fff;border:4px solid {INK};padding:9px;box-shadow:0 10px 22px rgba(0,0,0,.35)">{picto.picto(icon)}</div>'
+            f'<div class="tag" style="font-size:40px;padding:6px 20px 9px;border-radius:13px;background:{bg};color:{fg}">{esc(text or TYPE_TAG[kind])}</div></div>')
+
+
+def _spark(r, col, w, h):
+    """mini profil d'altitude (profiles.json, comme sur les fiches du site) ; rien si la course n'a pas de tracé"""
+    global _PROF
+    if _PROF is None:
+        import json
+        f = ROOT / 'profiles.json'
+        _PROF = json.loads(f.read_text()) if f.exists() else {}
+    pr = _PROF.get(r['id'])
+    if not pr:
+        return ''
+    lo, hi = min(pr), max(pr)
+    pts = ' '.join(f'{k / (len(pr) - 1) * w:.1f},{h - 3 - (v - lo) / max(1, hi - lo) * (h - 8):.1f}' for k, v in enumerate(pr))
+    gid = 'sp' + re.sub(r'\W', '', r['id'])
+    return (f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}" style="display:block;overflow:visible"><defs><linearGradient id="{gid}" x1="0" y1="0" x2="0" y2="1">'
+            f'<stop offset="0" stop-color="{col}" stop-opacity=".85"/><stop offset="1" stop-color="{col}" stop-opacity=".12"/></linearGradient></defs>'
+            f'<polygon points="0,{h} {pts} {w},{h}" fill="url(#{gid})"/><polyline points="{pts}" fill="none" stroke="{INK}" stroke-width="3" stroke-linejoin="round"/></svg>')
+
+
+_PROF = None
+
+
+def list_v2(P, i0, n, tag, rs, ref, numbered=False, grouped=True, kind=None):
+    """les courses en cartes crème séparées, comme les cartes des reels (validé le 24/11/2026) : barre à la couleur de la discipline,
+    numéro ou point, date · heure · commune et statut, nom, mini profil d'altitude s'il existe, distance et D+ de l'épreuve principale.
+    Étiquette à la couleur du type de post (picto.TAG : thème orange, région bleue, mois violet) avec sa pastille, comme dans les reels."""
+    import picto
     W = P['W']; tt = P['H'] > 1500; top = P['T'] + 40
     right = (P['R'] - 40) if tt else 36
+    tbg, tfg = picto.TAG.get(kind, (TEAL, '#fff'))
+    icon = {'weekend': 'weekend', 'theme': 'theme-mont', 'region': 'region', 'mois': 'mois'}.get(kind)
+    sw = 120 if tt else 150
     out = []
     for p0, p1 in _pages(P, rs, grouped):
         rws, cur = '', None
         for k, r in enumerate(rs[p0:p1], p0 + 1):
+            col = TCOL.get(r['_type'], TEAL)
             if grouped and r['_type'] != cur:     # discipline header (repeated at the top of a following slide)
                 cur = r['_type']; cnt = sum(1 for x in rs if x['_type'] == cur)
-                rws += (f'<div style="display:flex;align-items:center;gap:12px;margin:{14 if rws else 6}px 0 2px"><span class="chip" style="background:{TCOL.get(cur, TEAL)};padding:7px 14px;border-radius:9px">{esc(TPLUR.get(cur, "Courses"))}</span>'
-                        f'<span style="font:700 20px I,sans-serif;color:{MUTED}">{cnt} course{"s" if cnt > 1 else ""}</span></div>')
+                rws += (f'<div style="display:flex;align-items:center;gap:12px;height:{HEAD_H - 12}px;margin-top:{4 if rws else 0}px"><span class="chip" style="background:{TCOL.get(cur, TEAL)};padding:7px 16px;border-radius:10px;font-size:21px;box-shadow:0 6px 14px rgba(0,0,0,.3)">{esc(TPLUR.get(cur, "Courses"))}</span>'
+                        f'<span style="font:700 24px I,sans-serif;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)">{cnt} course{"s" if cnt > 1 else ""}</span></div>')
             code, sl = stat(r, ref)
             h = re.sub(r'^0(?=\d)', '', (r.get('_h') or '').replace('h00', 'h'))
-            num = (f'<b class="s" style="width:46px;height:46px;border-radius:50%;background:{TCOL.get(r["_type"], TEAL)};color:#fff;font-size:27px;line-height:46px;text-align:center">{k}</b>' if numbered
-                   else f'<span style="width:16px;height:16px;border-radius:50%;background:{TCOL.get(r["_type"], TEAL)};margin:0 15px"></span>')
-            rws += (f'<div class="lrow" style="grid-template-columns:46px 1fr auto;padding:10px 0">{num}'
-                    f'<div style="min-width:0"><div class="s" style="font-size:31px;line-height:1">{esc(r["nom"])}</div>'
-                    f'<div style="font-size:21px;color:{MUTED};margin-top:4px">{esc(JOURS_C[r["_d"].weekday()].capitalize())} {r["_d"].day} {MOIS_C[r["_d"].month - 1]}{" · " + esc(h) if h else ""} · {esc(r["commune"])}</div></div>'
-                    f'<span class="st" style="background:{STC[code]}">{esc(sl if code != "ouvert" else "Ouvert")}</span></div>')
-        bg = f'<div class="abs" style="inset:0;filter:blur(12px) saturate(.85);opacity:.55">{world(900 / MAP()["W"], MAP()["W"] / 2, MAP()["H"] / 2, W / 2, P["H"] / 2)}</div>'
-        out.append(page(P, bg + f'<div class="abs" style="left:{P["L"] - 30}px;top:{P["T"] - 22}px"><div class="tag" style="font-size:40px;padding:6px 20px 9px;border-radius:13px">{esc(tag)}</div></div>'
-                        f'<div class="card" style="left:36px;right:{right}px;top:{top + 70}px;padding:8px 30px 8px">{rws}</div>' + chrome(P, i0 + len(out), n)))
+            num = (f'<b class="s" style="flex:none;width:50px;height:50px;border-radius:50%;background:{col};color:#fff;font-size:29px;line-height:50px;text-align:center">{k}</b>' if numbered
+                   else f'<span style="flex:none;width:18px;height:18px;border-radius:50%;background:{col};margin:0 16px"></span>')
+            m = r.get('_main') or {}
+            km = f'{fmt_km(m["km"])}<small> km</small>' if m.get('km') else ''
+            dp = f'{m["dp"]:,} m D+'.replace(',', '\u202f') if m.get('dp') else ''
+            rws += (f'<div style="position:relative;display:flex;align-items:center;gap:14px;height:{ROW_H - 12}px;margin-bottom:12px;background:{SURF};border-radius:22px;'
+                    f'box-shadow:0 12px 26px rgba(4,20,30,.4);overflow:hidden;padding:0 22px 0 30px">'
+                    f'<i style="position:absolute;left:0;top:0;bottom:0;width:13px;background:{col}"></i>{num}'
+                    f'<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:10px;font:700 21px/1 I,sans-serif;color:{TEAL};white-space:nowrap">'
+                    f'<span style="overflow:hidden;text-overflow:ellipsis">{esc(JOURS_C[r["_d"].weekday()].capitalize())} {r["_d"].day} {MOIS_C[r["_d"].month - 1]}{" · " + esc(h) if h else ""} · {esc(r["commune"])}</span>'
+                    f'<span class="st" style="flex:none;background:{STC[code]};font-size:18px;padding:5px 9px">{esc(sl if code != "ouvert" else "Ouvert")}</span></div>'
+                    f'<div class="s" style="font-size:34px;line-height:1.05;margin-top:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{esc(r["nom"])}</div></div>'
+                    f'<div style="flex:none;width:{sw}px">{_spark(r, col, sw, 56)}</div>'
+                    f'<div style="flex:none;min-width:{110 if tt else 130}px;text-align:right"><div class="s" style="font-size:42px;line-height:.95">{km}</div>'
+                    f'<div style="font:700 19px/1.2 I,sans-serif;color:{TEAL};margin-top:9px;white-space:nowrap">{dp}</div></div></div>')
+        bg = (f'<div class="abs" style="inset:0;filter:blur(12px) saturate(.85);opacity:.55">{world(900 / MAP()["W"], MAP()["W"] / 2, MAP()["H"] / 2, W / 2, P["H"] / 2)}</div>'
+              '<div class="abs" style="inset:0;background:rgba(8,59,90,.3)"></div>')
+        pastille = (f'<div style="flex:none;width:66px;height:66px;border-radius:50%;background:#fff;border:4px solid {INK};padding:9px;box-shadow:0 10px 22px rgba(0,0,0,.35)">{picto.picto(icon)}</div>' if icon else '')
+        head = (f'<div class="abs" style="left:{P["L"] - 30}px;top:{P["T"] - 30}px;display:flex;align-items:center;gap:12px">{pastille}'
+                f'<div class="tag" style="font-size:40px;padding:6px 20px 9px;border-radius:13px;background:{tbg};color:{tfg}">{esc(tag)}</div></div>')
+        out.append(page(P, bg + head + f'<div class="abs" style="left:36px;right:{right}px;top:{top + 70}px">{rws}</div>' + chrome(P, i0 + len(out), n)))
     return out
 
 
-ROW_H, HEAD_H = 84, 58      # rendered height of a race row and of a discipline header (px)
+ROW_H, HEAD_H = 104, 62     # rendered height of a race card (with its gap) and of a discipline header (px)
 
 
 def _pages(P, rs, grouped=True):
@@ -561,36 +621,56 @@ def n_list_v2(P, rs, grouped=True):
     return len(_pages(P, rs, grouped))
 
 
-def how_v2(P, i, n, feature, title, steps, shot):
-    """« Sur le site » : the steps, and a capture of the site in a white frame"""
+def how_v2(P, i, n, feature, title, steps, shot, kind=None):
+    """« Sur le site » (refait le 24/11/2026 dans le style des reels) : étapes en cartes crème numérotées à la couleur du type de post,
+    capture dans un cadre d'écran encre (c'est le site sur téléphone) ; la capture peut porter des anneaux numérotés là où toucher (gen.py)"""
+    import picto
     W, H = P['W'], P['H']; tt = H > 1500
     right = (P['R'] - 40) if tt else 36
-    st = ''.join(f'<div style="display:flex;gap:16px;align-items:center;font:600 30px/1.2 I,sans-serif;padding:7px 0"><span class="s" style="flex:none;width:46px;height:46px;border-radius:50%;background:{TEAL};color:#fff;display:grid;place-items:center;font-size:27px">{k}</span><span>{s}</span></div>'
-                 for k, s in enumerate(steps, 1))
+    col = picto.TAG.get(kind, (TEAL, '#fff'))[0]
     top = P['T'] + 40
     stop = top + 90 + 80
-    vtop = stop + 30 + 64 * len(steps) + 40
-    maxw, maxh = W - 36 - right - 40, H - P['B'] - 120 - vtop
+    st = ''.join(f'<div style="display:flex;gap:16px;align-items:center;font:600 29px/1.2 I,sans-serif;background:{SURF};border-radius:20px;padding:11px 20px 11px 14px;margin-bottom:10px;box-shadow:0 10px 22px rgba(4,20,30,.35)">'
+                 f'<span class="s" style="flex:none;width:48px;height:48px;border-radius:50%;background:{col};color:#fff;display:grid;place-items:center;font-size:29px">{k}</span><span>{s_}</span></div>'
+                 for k, s_ in enumerate(steps, 1))
+    vtop = stop + 20 + 80 * len(steps) + 30
+    maxw, maxh = W - 36 - right - 40 - 28, H - P['B'] - 120 - vtop - 28
     res = shot(maxw, maxh) if shot else None
     vis = ''
     if res:
         h_, w_, hh = res
-        vis = f'<div class="abs" style="left:{36 + (W - 36 - right - w_) / 2:.0f}px;top:{vtop}px;border:6px solid #fff;border-radius:18px;overflow:hidden;box-shadow:0 16px 36px rgba(0,0,0,.4);background:#fff">{h_}</div>'
-    bg = f'<div class="abs" style="inset:0;filter:blur(12px) saturate(.85);opacity:.55">{world(900 / MAP()["W"], MAP()["W"] / 2, MAP()["H"] / 2, W / 2, H / 2)}</div>'
-    return page(P, bg + f'<div class="abs" style="left:{P["L"] - 30}px;top:{P["T"] - 22}px"><div class="tag" style="font-size:40px;padding:6px 20px 9px;border-radius:13px">Sur le site · {esc(feature)}</div></div>'
+        vis = (f'<div class="abs" style="left:{36 + (W - 36 - right - w_ - 28) / 2:.0f}px;top:{vtop}px;border:14px solid {INK};border-radius:40px;overflow:hidden;'
+               f'box-shadow:0 26px 56px rgba(0,0,0,.5),inset 0 0 0 2px rgba(255,255,255,.15);background:#fff">{h_}</div>')
+    bg = (f'<div class="abs" style="inset:0;filter:blur(12px) saturate(.85);opacity:.55">{world(900 / MAP()["W"], MAP()["W"] / 2, MAP()["H"] / 2, W / 2, H / 2)}</div>'
+          '<div class="abs" style="inset:0;background:rgba(8,59,90,.3)"></div>')
+    return page(P, bg + f'<div class="abs" style="left:{P["L"] - 30}px;top:{P["T"] - 22}px"><div class="tag" style="font-size:40px;padding:6px 20px 9px;border-radius:13px;background:{col}">Sur le site · {esc(feature)}</div></div>'
                 f'<div class="abs s" style="left:{P["L"] - 30}px;right:{right}px;top:{top + 80}px;color:#fff;font-size:64px;line-height:1">{esc(title)}</div>'
-                f'<div class="card" style="left:36px;right:{right}px;top:{stop + 20}px;padding:12px 28px">{st}</div>' + vis + chrome(P, i, n))
+                f'<div class="abs" style="left:36px;right:{right}px;top:{stop + 20}px">{st}</div>' + vis + chrome(P, i, n))
+
+
+def rings(taps, x0, y0, col='#e8743b'):
+    """cadres numérotés sur une capture (gen.fit_crop extra_fn) : taps = [(numéro, gauche, haut, droite, bas) en px CSS de la page capturée].
+    Le cadre entoure l'élément à toucher sans le cacher ; le numéro est celui de l'étape."""
+    def f(sc):
+        out = ''
+        for k, l, t, r, b in taps:
+            x, y, w, h = (l - x0) * sc - 9, (t - y0) * sc - 9, (r - l) * sc + 18, (b - t) * sc + 18
+            out += (f'<div style="position:absolute;left:{x:.0f}px;top:{y:.0f}px;width:{w:.0f}px;height:{h:.0f}px;border-radius:{min(h / 2, 22):.0f}px;'
+                    f'border:5px solid {col};box-shadow:0 0 0 3px #fff,0 6px 18px rgba(0,0,0,.35)"></div>'
+                    f'<b class="s" style="position:absolute;left:{x + w - 26:.0f}px;top:{y - 22:.0f}px;width:42px;height:42px;border-radius:50%;background:{INK};color:#fff;border:3px solid #fff;font-size:25px;line-height:36px;text-align:center">{k}</b>')
+        return out
+    return f
 
 
 def cover_cal_v2(P, n, y, m, rs, ref):
     """sea cover for the month (validée le 15/11/2026) : the month grid on a cream panel ; race days filled in teal with a white band holding one dot per race (colour of its discipline)"""
     import calendar
     M = MAP(); W, H = P['W'], P['H']; tt = H > 1500
-    top = P['T'] + (56 if not tt else 40)
+    top = P['T'] + (56 if not tt else 76)      # TikTok : room under the type label (24/11/2026)
     title = f'{MOIS[m - 1].capitalize()} {y}'
     size = int(min(150 if not tt else 160, (W - 2 * P['L']) / (0.44 * len(title))))
     head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:{AMB_TXT.get("soir", "#fff")}">'
-            f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">Le programme du mois</div>'
+            f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">&nbsp;</div>'
             f'<div>{titlesolid(title, "soir", size)}</div>'
             f'<div style="font:600 36px/1.25 I,sans-serif;margin-top:10px">{len(rs)} courses à La Réunion</div></div>')
     w = W - P['L'] - (P['R'] if not tt else P['L'])
@@ -629,18 +709,18 @@ def cover_cal_v2(P, n, y, m, rs, ref):
           + ambiance(P, "soir"))   # the post's sky over the blurred island
     arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
-    return page(P, bg + head + panel + chrome(P, 1, n) + arrow)
+    return page(P, bg + head + panel + chrome(P, 1, n) + arrow + type_tag(P, 'mois'))
 
 
 def cover_region_v2(P, n, name, sub, rs, communes):
     """lagoon cover for a region (validée le 15/11/2026) : tight zoom on the region's races, the rest of the island dimmed,
     the region's communes outlined in white, big numbered pins (numbers of the list), commune names under the pins"""
     M = MAP(); W, H = P['W'], P['H']; tt = H > 1500
-    top = P['T'] + (56 if not tt else 40)
+    top = P['T'] + (56 if not tt else 76)      # TikTok : room under the type label (24/11/2026)
     lines = ['Courir dans', name]
     size = int(min(150 if not tt else 160, (W - 2 * P['L']) / (0.44 * max(len(l) for l in lines))))
     head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:{AMB_TXT.get("lagon", "#fff")}">'
-            f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">Près de chez toi</div>'
+            f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">&nbsp;</div>'
             + ''.join(f'<div style="margin-top:{-size * .2 if i else 0:.0f}px">{titlesolid(l, "lagon", size)}</div>' for i, l in enumerate(lines)) +
             f'<div style="font:600 36px/1.25 I,sans-serif;margin-top:24px">{esc(sub)}</div></div>')
     y0 = top + 28 + 2 * (size * .92 + 8) + 70 + 40
@@ -671,7 +751,7 @@ def cover_region_v2(P, n, name, sub, rs, communes):
     arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
     fade = ambiance(P, "lagon", 690 if P['H'] <= 1500 else 950)   # the post's sky, fading into the sea and the island
-    return page(P, world(kf, cx, cy, W / 2, sy, extra) + fade + leaders + pins + labs + head + chrome(P, 1, n) + arrow)
+    return page(P, world(kf, cx, cy, W / 2, sy, extra) + fade + leaders + pins + labs + head + chrome(P, 1, n) + arrow + type_tag(P, 'region'))
 
 
 # ------------------------------------------------------------------ theme covers (16/11/2026)
@@ -695,7 +775,9 @@ def _d(r):
 
 
 def _big(txt, small='', size=150):
-    return f'<div class="s" style="font-size:{size}px;line-height:.9;color:{INK}">{txt}<small style="font-size:{size * .4:.0f}px"> {small}</small></div>'
+    """le chiffre fort, souligné d'un trait lumineux à la couleur du thème comme l'accroche du reel (24/11/2026)"""
+    return (f'<div style="display:inline-block;position:relative"><div class="s" style="font-size:{size}px;line-height:.9;color:{INK}">{txt}<small style="font-size:{size * .4:.0f}px"> {small}</small></div>'
+            f'<div style="position:absolute;left:0;right:0;bottom:-12px;height:8px;border-radius:4px;background:#e8743b;box-shadow:0 0 14px rgba(232,116,59,.6)"></div></div>')
 
 
 def hero_relais(rs, nmax=None):
@@ -744,9 +826,9 @@ def cover_theme_v2(P, n, th, rs, ref):
     """sunset cover for a theme (validée le 16/11/2026) : one strong fact on a cream panel (team sizes, record D+ or distance,
     shortest distance) and Sam / Ana under it with a word in a bubble ; the other themes keep the island"""
     if th['id'] not in HEROES:
-        return cover_v2(P, n, 'Ces 10 prochaines semaines', th['title'], th['sub'], 'couchant', by_type(rs), ref)
+        return cover_v2(P, n, 'Ces 10 prochaines semaines', th['title'], th['sub'], 'couchant', by_type(rs), ref, kind='theme')
     M = MAP(); W, H = P['W'], P['H']; tt = H > 1500
-    top = P['T'] + (56 if not tt else 40)
+    top = P['T'] + (56 if not tt else 76)      # TikTok : room under the type label (24/11/2026)
     lines = th['title'].split('<br>')
     size = int(min(140 if not tt else 150, (W - 2 * P['L']) / (0.44 * max(len(l) for l in lines))))
     head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:{AMB_TXT.get("couchant", "#fff")}">'
@@ -769,22 +851,23 @@ def cover_theme_v2(P, n, th, rs, ref):
     figs = (f'<div style="width:{ph * .74:.0f}px;height:{ph}px">{perso(ref, pose, "jeremi")}</div>'
             f'<div style="width:{ph * .74:.0f}px;height:{ph}px;margin-left:-30px">{perso(ref, pose, "nadia")}</div>') if duo else \
            f'<div style="width:{ph * .74:.0f}px;height:{ph}px">{perso(ref, pose)}</div>'
-    runners = (f'<div class="abs" style="left:{P["L"] - 10}px;bottom:{P["B"] + 70}px;display:flex;align-items:flex-end;gap:6px">{figs}'
+    # Sam / Ana right under the panel, in the flow : they can never overlap it whatever its height (24/11/2026)
+    runners = (f'<div style="display:flex;align-items:flex-end;gap:6px;margin:{22 if not tt else 18}px 0 0 -10px">{figs}'
                f'<div style="margin-bottom:{ph * .62:.0f}px;margin-left:-6px">{bubble(text)}</div></div>')
-    panel += runners
+    panel = panel[:-len('</div>')] + runners + '</div>'
     bg = (f'<div class="abs" style="inset:0;filter:blur(14px) saturate(.85)">{world(1000 / M["W"], M["W"] / 2, M["H"] / 2, W / 2, H * .62)}</div>'
           '<div class="abs" style="inset:0;background:rgba(8,59,90,.45)"></div>'
           + ambiance(P, "couchant"))   # the post's sky over the blurred island
     arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
-    return page(P, bg + head + panel + chrome(P, 1, n) + arrow)
+    return page(P, bg + head + panel + chrome(P, 1, n) + arrow + type_tag(P, 'theme'))
 
 # ------------------------------------------------------------------ Monday cover (16/11/2026)
 def cover_weekend_v2(P, n, rs, ref, lab):
     """morning cover for the weekend : the whole island,
     numbered pins (numbers of the programme and of the race slides), commune and day under each group of pins"""
     M = MAP(); W, H = P['W'], P['H']; tt = H > 1500
-    top = P['T'] + (56 if not tt else 40)
+    top = P['T'] + (56 if not tt else 76)      # TikTok : room under the type label (24/11/2026)
     size = int(min(170 if not tt else 178, (W - 2 * P['L']) / (0.44 * len('Ce week-end'))))
     head = (f'<div class="abs" style="left:{P["L"]}px;right:{P["R"]}px;top:{top}px;color:{AMB_TXT.get("matin", "#fff")}">'
             f'<div style="font:700 28px/1 I,sans-serif;letter-spacing:.14em;text-transform:uppercase">{esc(lab)}</div>'
@@ -813,7 +896,7 @@ def cover_weekend_v2(P, n, rs, ref, lab):
     arrow = (f'<div class="abs" style="right:{P["R"] - 6}px;bottom:{P["B"] - 20}px;width:76px;height:76px;border-radius:50%;background:#fff;display:grid;place-items:center">'
              f'<svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="{INK}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>')
     fade = ambiance(P, "matin", 620 if not tt else 900)   # the post's sky, ending above the island
-    return page(P, world(kf, cx, cy, W / 2, sy) + fade + leaders + pins + labs + head + chrome(P, 1, n) + arrow)
+    return page(P, world(kf, cx, cy, W / 2, sy) + fade + leaders + pins + labs + head + chrome(P, 1, n) + arrow + type_tag(P, 'weekend'))
 
 _LAND = {}
 
@@ -849,7 +932,7 @@ def place_labels(rs, scr, big, W, ymin, ymax, center, sub=None, land=None):
         import math
         coast = land is not None and any(not land(gx + 110 * math.cos(t / 8 * math.pi), gy + 110 * math.sin(t / 8 * math.pi)) for t in range(16))
         cands = []
-        for gap in (8, 50, 95, 140):
+        for gap in (8, 50, 95, 140, 190):
             for cx_, cy_ in ((gx1 + gap + lw / 2, gy), (gx0 - gap - lw / 2, gy), (gx, gy1 + gap + lh / 2), (gx, gy0 - gap - lh / 2),
                              (gx1 + gap + lw / 2, gy1 + gap / 2 + lh / 2), (gx0 - gap - lw / 2, gy1 + gap / 2 + lh / 2),
                              (gx1 + gap + lw / 2, gy0 - gap / 2 - lh / 2), (gx0 - gap - lw / 2, gy0 - gap / 2 - lh / 2)):
@@ -858,7 +941,7 @@ def place_labels(rs, scr, big, W, ymin, ymax, center, sub=None, land=None):
             x, y, gap = c
             bx0, bx1, by0, by1 = x - lw / 2, x + lw / 2, y - lh / 2, y + lh / 2
             sc = sum(12 for a0, a1, b0, b1 in placed if bx0 < a1 + 8 and bx1 > a0 - 8 and by0 < b1 + 8 and by1 > b0 - 8)
-            sc += sum(2 for px, py in pins if bx0 - big / 2 < px < bx1 + big / 2 and by0 - big / 2 < py < by1 + big / 2)
+            sc += sum(25 for px, py in pins if bx0 - big / 2 < px < bx1 + big / 2 and by0 - big / 2 < py < by1 + big / 2)   # never hide a pin (24/11/2026)
             sc += 9 * (bx0 < 16 or bx1 > W - 16 or by0 < ymin or by1 > ymax)
             d = ((x - gx) * out[0] + (y - gy) * out[1]) / on                 # > 0 : towards the sea
             if coast:      # coastal race : the label goes on the sea, not on the island
