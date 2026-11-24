@@ -8,22 +8,23 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
-:root{--teal:#00968f;--teal-d:#007a74;--ink:#15201f;--ink2:#4b5a58;--mut:#7d8b89;--bg:#f4f7f6;--card:#fff;--line:#dfe6e4;--soft:#e6f4f3;--warn:#b25e00;--warn-bg:#fff3e2;--bad:#c0392b;--bad-bg:#fdecea;--ok:#1e8a4c;--ok-bg:#e7f6ee;--chip:#eef2f1;color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#e8efee;--ink2:#b5c3c1;--mut:#8a9997;--bg:#0f1716;--card:#18211f;--line:#2b3735;--soft:#123432;--warn:#f0a24a;--warn-bg:#3a2a12;--bad:#f07a6c;--bad-bg:#3b1d1a;--ok:#5fd193;--ok-bg:#15301f;--chip:#22302e;--teal:#22b5ad;color-scheme:dark}}
+:root{--teal:#00968f;--teal-d:#00706b;--ink:#111113;--ink2:#636368;--mut:#8e8e93;--bg:#f2f2f7;--card:#fff;--line:#e3e3e8;--soft:color-mix(in srgb,#00968f 12%,#fff);--warn:#b25e00;--warn-bg:#fff3e2;--bad:#c62f1e;--bad-bg:#fdecea;--ok:#1e8a4c;--ok-bg:#e7f6ee;--chip:#e9e9ee;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--teal:#2ccfc6;--teal-d:#5fdcd4;--ink:#f3f5fa;--ink2:#9aa7be;--mut:#7f8ca3;--bg:#0d1626;--card:#172238;--line:#26334d;--soft:color-mix(in srgb,#2ccfc6 18%,#172238);--warn:#f0a24a;--warn-bg:#3a2a12;--bad:#ff8a6a;--bad-bg:#3b1d1a;--ok:#5fd193;--ok-bg:#15301f;--chip:#22304a;color-scheme:dark}}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;letter-spacing:-.005em;-webkit-text-size-adjust:100%}
 a{color:var(--teal)}
 button,input,select,textarea{font:inherit;color:inherit}
-.top{position:sticky;top:0;z-index:20;background:var(--teal);color:#fff;display:flex;align-items:center;gap:10px;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top))}
-.top b{font-size:17px;white-space:nowrap}.top .tag{background:rgba(255,255,255,.2);border-radius:99px;padding:1px 9px;font-size:12px;font-weight:600}
-.top .sp{flex:1}.top a{color:#fff;font-size:13px;text-decoration:none;opacity:.9;white-space:nowrap}
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 82%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(14px);backdrop-filter:saturate(1.6) blur(14px);color:var(--ink);display:flex;align-items:center;gap:10px;padding:8px 16px;padding-top:max(8px,env(safe-area-inset-top));border-bottom:1px solid var(--line)}
+.brand{display:inline-flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink)}.brand .logo{width:34px;height:auto}.brand .bname{font-weight:700;font-size:17px;letter-spacing:-.02em;white-space:nowrap}
+.top .tag{background:var(--soft);color:var(--teal-d);border-radius:99px;padding:2px 9px;font-size:12px;font-weight:700}
+.top .sp{flex:1}.top>a:not(.brand){color:var(--teal-d);font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap}
 @media(max-width:600px){#who{display:none}}
 #who{font-size:12px;opacity:.85;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:34vw}
-.tabs{position:sticky;top:46px;z-index:19;display:flex;gap:4px;overflow-x:auto;background:var(--card);border-bottom:1px solid var(--line);padding:6px 12px;scrollbar-width:none}
+.tabs{position:sticky;top:52px;z-index:19;display:flex;gap:6px;overflow-x:auto;background:color-mix(in srgb,var(--bg) 90%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);padding:8px 16px;scrollbar-width:none;max-width:1060px;margin:0 auto}
 .tabs::-webkit-scrollbar{display:none}
-.tabs button{border:0;background:none;padding:8px 12px;border-radius:9px;font-weight:600;color:var(--ink2);white-space:nowrap;cursor:pointer}
-.tabs button[aria-selected=true]{background:var(--soft);color:var(--teal)}
+.tabs button{border:0;background:var(--card);box-shadow:inset 0 0 0 1px var(--line);padding:7px 14px;border-radius:99px;font-weight:600;color:var(--ink);white-space:nowrap;cursor:pointer}
+.tabs button[aria-selected=true]{background:var(--ink);color:var(--bg);box-shadow:none}
 main{max-width:1060px;margin:0 auto;padding:14px 16px 90px}
 h2{font-size:20px;margin:6px 0 12px}h3{font-size:15px;margin:18px 0 8px;color:var(--ink2);text-transform:uppercase;letter-spacing:.04em}
 .bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
@@ -31,12 +32,12 @@ h2{font-size:20px;margin:6px 0 12px}h3{font-size:15px;margin:18px 0 8px;color:va
 .chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px}
 .chips::-webkit-scrollbar{display:none}
 .chip{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:5px 11px;font-size:13px;white-space:nowrap;cursor:pointer}
-.chip[aria-pressed=true]{background:var(--teal);border-color:var(--teal);color:#fff}
+.chip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
 .btn{border:0;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer;background:var(--chip);white-space:nowrap}
-.btn.p{background:var(--teal);color:#fff}.btn.d{background:var(--bad-bg);color:var(--bad)}.btn.s{padding:6px 10px;font-size:13px;border-radius:8px}
+.btn.p{background:var(--teal);color:var(--bg)}.btn.d{background:var(--bad-bg);color:var(--bad)}.btn.s{padding:6px 10px;font-size:13px;border-radius:8px}
 .btn:disabled{opacity:.5;cursor:default}
 .list{display:flex;flex-direction:column;gap:6px}
-.row{display:flex;gap:11px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px 11px;cursor:pointer;text-align:left;width:100%}
+.row{display:flex;gap:11px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:9px 11px;cursor:pointer;text-align:left;width:100%}
 .row:hover{border-color:var(--teal)}
 .row img,.row .ph{width:44px;height:44px;border-radius:8px;object-fit:cover;flex:none;background:var(--chip)}
 .row .t{flex:1;min-width:0;display:block}.row .n,.row .m{display:block}.row .n{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -54,7 +55,7 @@ h2{font-size:20px;margin:6px 0 12px}h3{font-size:15px;margin:18px 0 8px;color:va
 .sbody{max-width:860px;margin:0 auto;padding:6px 16px 120px}
 .sfoot{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;gap:8px;justify-content:flex-end;align-items:center;background:var(--card);border-top:1px solid var(--line);padding:10px 16px;padding-bottom:max(10px,env(safe-area-inset-bottom))}
 .sfoot .ch{flex:1;font-size:13px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}
+.card{background:var(--card);border:0;box-shadow:inset 0 0 0 1px var(--line);border-radius:18px;padding:12px 14px;margin:10px 0}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px 14px}
 .f{display:flex;flex-direction:column;gap:4px;min-width:0}.f.w{grid-column:1/-1}
 .f>label,.lab{font-size:12.5px;font-weight:600;color:var(--ink2);display:flex;align-items:center;gap:6px}
@@ -80,8 +81,23 @@ textarea.code{font:12px/1.4 ui-monospace,Menlo,monospace;min-height:260px;width:
 .pair select{flex:0 0 auto;width:auto}
 .x{border:0;background:var(--chip);border-radius:8px;width:34px;flex:none;cursor:pointer}
 /* stats */
+.sec{display:flex;align-items:center;gap:6px;margin-top:26px}
+.inf{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:0;background:var(--chip);color:var(--ink2);font:italic 700 11px/1 Georgia,serif;cursor:pointer;vertical-align:1px;text-transform:none;letter-spacing:0;flex:none}
+.inf:hover{background:var(--soft);color:var(--teal-d)}
+.dl{font-weight:700;font-size:12px;border-radius:6px;padding:1px 6px}.dl.up{background:var(--ok-bg);color:var(--ok)}.dl.dn{background:var(--bad-bg);color:var(--bad)}
+.pbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:-4px 0 6px}.plab{font-weight:700;font-size:15px}
+.pform{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:var(--ink2)}.pform input{padding:6px 8px;border:1px solid var(--line);border-radius:9px;background:var(--card)}
+.chartw{position:relative}.axis{position:relative;height:30px;font-size:11px;color:var(--mut)}.axis span{position:absolute;top:2px;transform:translateX(-50%);white-space:nowrap}.axis b{position:absolute;right:0;top:15px;font-weight:500}.axis.wk{height:18px}
+.chart rect.we{opacity:.6}.chart rect.part{opacity:.55}.chart rect.hit{fill:transparent}.chart rect.clk{cursor:pointer}.chart rect.hit:hover+rect,.chart rect:hover{fill:var(--teal-d)}
+.hint{font-size:12.5px;color:var(--mut);margin:6px 0 0}
+.chead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.seg2{display:inline-flex;background:var(--chip);border-radius:99px;padding:3px}.seg2 button{border:0;background:none;border-radius:99px;padding:5px 11px;font-size:12.5px;font-weight:600;color:var(--ink2);cursor:pointer;white-space:nowrap}.seg2 button[aria-pressed=true]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.lgd{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--ink2);margin-top:4px}.lgd i{display:inline-block;width:11px;height:11px;border-radius:3px;background:var(--teal);margin-right:5px;vertical-align:-1px}
+details.grp summary{cursor:pointer;display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);list-style:none}details.grp summary::-webkit-details-marker{display:none}details.grp summary b{font-weight:600}details.grp summary span{color:var(--ink2);font-variant-numeric:tabular-nums;font-size:13.5px}details.grp[open] summary b::after{content:" ▾"}details.grp summary b::after{content:" ▸";color:var(--mut)}
+.hb .l.clk{cursor:pointer}.hb .l.clk:hover{color:var(--teal-d);text-decoration:underline}
+
 .kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.kpi{background:var(--card);border:0;box-shadow:inset 0 0 0 1px var(--line);border-radius:18px;padding:12px 14px}
 .kpi .v{font-size:26px;font-weight:700;letter-spacing:-.02em}.kpi .k{font-size:12.5px;color:var(--ink2);font-weight:600}
 .kpi .s{font-size:12px;color:var(--mut)}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:760px){.two{grid-template-columns:1fr}}
@@ -109,7 +125,7 @@ table.t td.n{text-align:right;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
-<header class="top"><b>Dossard Péi</b><span class="tag">admin</span><span class="sp"></span><span id="who"></span><a href="/" target="_blank" rel="noopener">Voir le site ↗</a><a href="#" id="logout" hidden>Déconnexion</a></header>
+<header class="top"><a class="brand" href="/admin/" aria-label="Dossard Péi, accueil"><svg class="logo" viewBox="0 0 64 64" role="img" aria-label="Logo Dossard Péi : dossard 974"><g transform="rotate(-6 32 32)"><rect x="5" y="10" width="54" height="44" rx="6" fill="#fff" stroke="#1d2523" stroke-width="3"/><path d="M6.5 22V16a4.5 4.5 0 0 1 4.5-4.5h42a4.5 4.5 0 0 1 4.5 4.5v6z" fill="#1d4f9c"/><g fill="#ffd400"><path d="M32 17 9.5 11.5h5zM32 17 21.6 11.5h4zM32 17 30.2 11.5h3.6zM32 17 38.4 11.5h4zM32 17 49.5 11.5h5z"/></g><path d="M24 22h16L32 16z" fill="#e3242b"/><circle cx="11.5" cy="27" r="2" fill="#1d2523"/><circle cx="52.5" cy="27" r="2" fill="#1d2523"/><circle cx="11.5" cy="48.5" r="2" fill="#1d2523"/><circle cx="52.5" cy="48.5" r="2" fill="#1d2523"/><text x="32" y="47.5" text-anchor="middle" font-family="Arial Narrow,Arial,sans-serif" font-weight="800" font-size="22" fill="#1d2523" letter-spacing="-.5">974</text></g></svg><span class="bname">Dossard Péi</span></a><span class="tag">admin</span><span class="sp"></span><span id="who"></span><a href="/" target="_blank" rel="noopener">Voir le site ↗</a><a href="#" id="logout" hidden>Déconnexion</a></header>
 <nav class="tabs" id="tabs" role="tablist">
   <button data-t="courses" aria-selected="true">Courses</button>
   <button data-t="messages">Messages<span class="bd a" id="nbm" hidden></span></button>
@@ -715,51 +731,165 @@ function viewSaison() {
 /* ============================================================
    STATS
    ============================================================ */
-let SP = 30, ME = {};
+let ME = {};
+let ST = { p: "30" };   // période : today, yesterday, 7, 30, 90, month, lastmonth, custom (from/to), day (from)
+try { const s = JSON.parse(localStorage.getItem("adm-stats") || "null"); if (s && s.p) ST = s; } catch (e) { }
 const STC = {};
 const gcGet = async (p, q) => { const u = new URLSearchParams(); for (const [a, b] of Object.entries(q)) [].concat(b).forEach(x => u.append(a, x)); const k = p + "?" + u; if (!STC[k]) STC[k] = api("gc/" + k).catch(e => { delete STC[k]; throw e; }); return STC[k]; };
-const range = days => { const e = new Date(Date.now() + 4 * 3600e3), s = new Date(e - (days - 1) * 864e5); return { start: s.toISOString().slice(0, 10), end: e.toISOString().slice(0, 10) }; };
-// compteur d'audience : heures exactes (minuit à La Réunion → maintenant), sinon « fin = date » s'arrête à minuit UTC et coupe aujourd'hui
-const gcRange = R => ({ start: new Date(Date.parse(R.start + "T00:00:00+04:00")).toISOString().replace(/\.\d+Z$/, "Z"), end: new Date(Math.ceil(Date.now() / 3600e3) * 3600e3).toISOString().replace(/\.\d+Z$/, "Z") });
+const cfPost = (query, variables) => api("cf", { method: "POST", body: JSON.stringify({ query, variables }) });
 const EVG = { raccourci: "Raccourcis", favori: "Favoris", agenda: "Ajout à l'agenda", bandeau: "Bandeau « Nouveau »", sortie: "Clics vers les organisateurs", mode: "Mode choisi (Liste / Scroll…)", arrivee: "Arrivée sur le site par mode", "arrivee-partage": "Arrivées par un lien partagé", scroll: "Actions en mode Scroll", webapp: "Appli sur l'écran d'accueil", saison2027: "Calendrier 2027", jeu: "Jeu", filtre: "Filtres", inscription: "Boutons « S'inscrire »", itineraire: "Itinéraire", contact: "Formulaire de contact", fiche: "Fiches ouvertes", carte: "Carte", partage: "Partages", vue3d: "Vue 3D" };
-function hbars(items, max) {
+const JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+const addD = (d, n) => new Date(Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10) + n)).toISOString().slice(0, 10);
+const nDays = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5) + 1;
+const dayName = d => JOURS[new Date(d + "T12:00:00Z").getUTCDay()];
+const fdl = d => `${dayName(d)} ${fd(d)}`;
+// période choisie -> dates (La Réunion), inclusives
+function period() {
+  const t = TODAY, m = t.slice(0, 8) + "01";
+  const P = {
+    today: [t, t], yesterday: [addD(t, -1), addD(t, -1)], 7: [addD(t, -6), t], 30: [addD(t, -29), t], 90: [addD(t, -89), t],
+    month: [m, t], lastmonth: [addD(m, -1).slice(0, 8) + "01", addD(m, -1)], custom: [ST.from, ST.to], day: [ST.from, ST.from],
+  };
+  let [from, to] = P[ST.p] || P[30];
+  if (!from || !to) [from, to] = P[30];
+  if (from > to) [from, to] = [to, from];
+  if (to > t) to = t;
+  const n = nDays(from, to);
+  return { from, to, n, single: n === 1, label: n === 1 ? fdl(from) + (from === t ? " (aujourd'hui, jusqu'à maintenant)" : "") : `du ${fd(from)} au ${fd(to)} · ${n} jours` };
+}
+const prevPeriod = P => ({ from: addD(P.from, -P.n), to: addD(P.from, -1), n: P.n });
+// heures exactes : minuit à La Réunion -> minuit du lendemain (ou maintenant pour aujourd'hui)
+const iso = ms => new Date(ms).toISOString().replace(/\.\d+Z$/, "Z");
+const gcR = P => ({ start: iso(Date.parse(P.from + "T00:00:00+04:00")), end: P.to >= TODAY ? iso(Math.ceil(Date.now() / 3600e3) * 3600e3) : iso(Date.parse(addD(P.to, 1) + "T00:00:00+04:00")) });
+const pct = (a, b) => !b ? "" : (d => `<span class="dl ${d >= 0 ? "up" : "dn"}" title="par rapport aux ${nf(b)} de la période précédente">${d >= 0 ? "▲" : "▼"} ${Math.abs(d)} %</span>`)(Math.round((a - b) / b * 100));
+const info = (t, txt) => `<button type="button" class="inf" data-info="${esc(txt)}" data-ti="${esc(t)}" aria-label="Explication : ${esc(t)}">i</button>`;
+document.addEventListener("click", e => { const b = e.target.closest(".inf"); if (!b) return; e.preventDefault(); e.stopPropagation(); dialog(`<h3 style="margin-top:0;text-transform:none;letter-spacing:0;color:var(--ink);font-size:17px">${esc(b.dataset.ti)}</h3><p style="white-space:pre-line;font-size:14.5px;line-height:1.5">${esc(b.dataset.info)}</p>`, [{ label: "Compris", v: 1, cls: "p" }]); }, true);
+function hbars(items, max, attr) {
   max = max || Math.max(1, ...items.map(x => x.n));
-  return `<div class="hb">${items.map(x => `<span class="l" title="${esc(x.t || x.l)}"><i style="width:${(x.n / max * 100).toFixed(1)}%"></i>${esc(x.l)}</span><span class="c">${nf(x.n)}</span>`).join("")}</div>`;
+  return `<div class="hb">${items.map((x, i) => `<span class="l${attr ? " clk" : ""}" title="${esc(x.t || x.l)}" ${attr ? attr(x, i) : ""}><i style="width:${(x.n / max * 100).toFixed(1)}%"></i>${esc(x.l)}</span><span class="c">${nf(x.n)}</span>`).join("")}</div>`;
 }
-function dayChart(days) {
-  const W = 700, H = 140, P = 2, n = days.length, max = Math.max(1, ...days.map(d => d.n)), bw = (W - 2) / n;
-  const tick = Math.pow(10, Math.floor(Math.log10(max))), top = Math.ceil(max / tick) * tick;
-  const y = v => H - P - v / top * (H - P - 8);
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Visites par jour">
-   <line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}"/><line x1="0" x2="${W}" y1="${y(top)}" y2="${y(top)}" stroke-dasharray="2 4"/>
-   ${days.map((d, i) => { const h = Math.max(d.n ? 2 : 0, y(0) - y(d.n)); const x = i * bw + 1, w = Math.max(1, bw - 2); return `<rect data-tip="${fd(d.day)} : ${nf(d.n)} visiteur${d.n > 1 ? "s" : ""}" x="${x}" y="${y(0) - h}" width="${w}" height="${h}" rx="${Math.min(4, w / 2)}"/>`; }).join("")}
-   </svg><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-top:2px"><span>${fd(days[0]?.day)}</span><span>max. ${nf(max)} / jour</span><span>${fd(days[n - 1]?.day)}</span></div>`;
+// barres : un point par jour (ou par heure) ; les jours sont cliquables pour voir le détail
+function bars(pts, { unit = "visite", clickDay = false, hours = false } = {}) {
+  const W = 700, H = 150, n = pts.length, max = Math.max(1, ...pts.map(d => d.n)), bw = (W - 2) / Math.max(1, n);
+  const step = Math.pow(10, Math.floor(Math.log10(max))), top = Math.ceil(max / step) * step;
+  const y = v => H - 2 - v / top * (H - 10);
+  const pl = v => `${nf(v)} ${unit}${v > 1 ? "s" : ""}`;
+  const lab = d => hours ? `${d.h} h – ${d.h + 1} h` : fdl(d.day);
+  const ticks = hours ? [0, 6, 12, 18, 23].map(h => [h / 24 * 100, h + " h"]) : [0, Math.floor((n - 1) / 2), n - 1].filter((x, i, a) => a.indexOf(x) === i).map(i => [(i + .5) / n * 100, fd(pts[i]?.day).replace(/ \d{4}$/, "")]);
+  const avg = Math.round(pts.reduce((a, d) => a + d.n, 0) / Math.max(1, n));
+  return `<div class="chartw"><svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="${hours ? "Par heure" : "Par jour"}">
+    <line x1="0" x2="${W}" y1="${y(0)}" y2="${y(0)}"/><line x1="0" x2="${W}" y1="${y(top)}" y2="${y(top)}" stroke-dasharray="2 4"/>
+    ${pts.map((d, i) => { const h = Math.max(d.n ? 2 : 0, y(0) - y(d.n)), x = i * bw + 1, w = Math.max(1, bw - 2); const we = !hours && [0, 6].includes(new Date(d.day + "T12:00:00Z").getUTCDay()); return `<rect class="${we ? "we" : ""}${clickDay ? " clk" : ""}" ${clickDay ? `data-day="${d.day}"` : ""} data-tip="${esc(lab(d))} : ${pl(d.n)}${clickDay ? " · toucher pour le détail" : ""}" x="${x}" y="${y(0) - h}" width="${w}" height="${h}" rx="${Math.min(4, w / 2)}"/><rect class="hit${clickDay ? " clk" : ""}" ${clickDay ? `data-day="${d.day}"` : ""} data-tip="${esc(lab(d))} : ${pl(d.n)}${clickDay ? " · toucher pour le détail" : ""}" x="${i * bw}" y="0" width="${bw}" height="${H}"/>`; }).join("")}
+  </svg><div class="axis">${ticks.map(([p, t]) => `<span style="left:${p}%">${esc(t)}</span>`).join("")}<b>max. ${nf(max)} · moy. ${nf(avg)}${hours ? " / heure" : " / jour"}</b></div></div>`;
 }
-document.addEventListener("mousemove", e => { const t = e.target.closest && e.target.closest("[data-tip]"); let tp = $(".tip"); if (!t) { tp && tp.remove(); return; } if (!tp) { tp = document.createElement("div"); tp.className = "tip"; document.body.append(tp); } tp.textContent = t.dataset.tip; tp.style.left = Math.min(innerWidth - tp.offsetWidth - 8, e.clientX + 12) + "px"; tp.style.top = e.clientY - 30 + "px"; });
+let CHV = "jour";   // vue du graphique d'audience : jour, semaine, compare
+try { CHV = localStorage.getItem("adm-chv") || "jour"; } catch (e) { }
+const monday = d => addD(d, -((new Date(d + "T12:00:00Z").getUTCDay() + 6) % 7));
+const JC = ["lun.", "mar.", "mer.", "jeu.", "ven.", "sam.", "dim."];
+// total par semaine (lundi → dimanche) ; une semaine coupée par la période est signalée
+function weekBars(days) {
+  const W = {}; for (const d of days) { const m = monday(d.day); (W[m] = W[m] || { day: m, n: 0, k: 0 }); W[m].n += d.n; W[m].k++; }
+  const pts = Object.values(W).sort((a, b) => a.day.localeCompare(b.day));
+  const Wd = 700, H = 150, n = pts.length, max = Math.max(1, ...pts.map(d => d.n)), bw = (Wd - 2) / Math.max(1, n);
+  const step = Math.pow(10, Math.floor(Math.log10(max))), top = Math.ceil(max / step) * step, y = v => H - 2 - v / top * (H - 10);
+  const lab = d => `semaine du ${fd(d.day)}${d.k < 7 ? ` (${d.k} jour${d.k > 1 ? "s" : ""} sur 7)` : ""}`;
+  return `<div class="chartw"><svg class="chart" viewBox="0 0 ${Wd} ${H}" preserveAspectRatio="none" role="img" aria-label="Par semaine">
+    <line x1="0" x2="${Wd}" y1="${y(0)}" y2="${y(0)}"/><line x1="0" x2="${Wd}" y1="${y(top)}" y2="${y(top)}" stroke-dasharray="2 4"/>
+    ${pts.map((d, i) => { const h = Math.max(d.n ? 2 : 0, y(0) - y(d.n)), x = i * bw + 4, w = Math.max(1, bw - 8), tip = `${lab(d)} : ${nf(d.n)} visites · toucher pour voir la semaine`; return `<rect class="clk${d.k < 7 ? " part" : ""}" data-week="${d.day}" data-tip="${esc(tip)}" x="${x}" y="${y(0) - h}" width="${w}" height="${h}" rx="4"/><rect class="hit clk" data-week="${d.day}" data-tip="${esc(tip)}" x="${i * bw}" y="0" width="${bw}" height="${H}"/>`; }).join("")}
+  </svg><div class="axis">${pts.map((d, i) => n <= 8 || i % Math.ceil(n / 6) === 0 ? `<span style="left:${(i + .5) / n * 100}%">${fd(d.day).replace(/ \d{4}$/, "")}</span>` : "").join("")}<b>max. ${nf(max)} / semaine · semaines incomplètes en plus clair</b></div></div>`;
+}
+// comparer les semaines : les 7 jours côte à côte, une barre par semaine (la plus récente la plus foncée)
+function weekCompare(days) {
+  const W = {}; for (const d of days) { const m = monday(d.day); (W[m] = W[m] || Array(7).fill(null))[(new Date(d.day + "T12:00:00Z").getUTCDay() + 6) % 7] = d; }
+  const wk = Object.keys(W).sort().slice(-6), k = wk.length;
+  if (!k) return `<div class="empty">Pas de données</div>`;
+  const Wd = 700, H = 170, max = Math.max(1, ...wk.flatMap(m => W[m].map(d => d ? d.n : 0))), gw = Wd / 7, bw = (gw - 10) / k;
+  const step = Math.pow(10, Math.floor(Math.log10(max))), top = Math.ceil(max / step) * step, y = v => H - 2 - v / top * (H - 10);
+  const op = i => (0.3 + 0.7 * (i + 1) / k).toFixed(2);
+  return `<div class="chartw"><svg class="chart" viewBox="0 0 ${Wd} ${H}" preserveAspectRatio="none" role="img" aria-label="Comparaison des semaines">
+    <line x1="0" x2="${Wd}" y1="${y(0)}" y2="${y(0)}"/><line x1="0" x2="${Wd}" y1="${y(top)}" y2="${y(top)}" stroke-dasharray="2 4"/>
+    ${wk.map((m, i) => W[m].map((d, j) => { if (!d) return ""; const h = Math.max(d.n ? 2 : 0, y(0) - y(d.n)), x = j * gw + 5 + i * bw, tip = `${fdl(d.day)} (semaine du ${fd(m)}) : ${nf(d.n)} visites · toucher pour le détail`; return `<rect class="clk" style="opacity:${op(i)}" data-day="${d.day}" data-tip="${esc(tip)}" x="${x + 1}" y="${y(0) - h}" width="${Math.max(1, bw - 2)}" height="${h}" rx="${Math.min(3, bw / 3)}"/>`; }).join("")).join("")}
+  </svg><div class="axis wk">${JC.map((j, i) => `<span style="left:${(i + .5) / 7 * 100}%">${j}</span>`).join("")}</div></div>
+  <div class="lgd">${wk.map((m, i) => `<span><i style="opacity:${op(i)}"></i>sem. du ${fd(m).replace(/ \d{4}$/, "")}${i === k - 1 ? " (la plus récente)" : ""}</span>`).join("")}</div>`;
+}
+// survol et toucher : bulle d'information sur les barres
+function tipAt(t, x, yy) { let tp = $(".tip"); if (!t) { tp && tp.remove(); return; } if (!tp) { tp = document.createElement("div"); tp.className = "tip"; document.body.append(tp); } tp.textContent = t.dataset.tip; tp.style.left = Math.max(8, Math.min(innerWidth - tp.offsetWidth - 8, x + 12)) + "px"; tp.style.top = Math.max(8, yy - 36) + "px"; }
+document.addEventListener("mousemove", e => tipAt(e.target.closest && e.target.closest("[data-tip]"), e.clientX, e.clientY));
+document.addEventListener("touchstart", e => { const t = e.target.closest && e.target.closest("[data-tip]"); const p = e.touches[0]; tipAt(t, p.clientX, p.clientY); }, { passive: true });
+const setPeriod = s => { ST = s; try { localStorage.setItem("adm-stats", JSON.stringify(ST)); } catch (e) { } viewStats(); };
+function periodBar(P) {
+  const presets = [["today", "Aujourd'hui"], ["yesterday", "Hier"], ["7", "7 jours"], ["30", "30 jours"], ["90", "90 jours"], ["month", "Ce mois-ci"], ["lastmonth", "Mois dernier"], ["custom", "Dates…"]];
+  return `<div class="chips" id="pchips">${presets.map(([k, l]) => `<button class="chip" data-p="${k}" aria-pressed="${ST.p === k || (k === "custom" && ST.p === "day")}">${l}</button>`).join("")}</div>
+  <div class="pbar">
+    ${P.single ? `<button class="btn s" id="pprev" title="Jour précédent">‹</button>` : ""}
+    <span class="plab">${esc(P.label)}</span>
+    ${P.single ? `<button class="btn s" id="pnext" title="Jour suivant" ${P.from >= TODAY ? "disabled" : ""}>›</button>` : ""}
+    <span style="flex:1"></span>
+    <form id="pform" class="pform" ${ST.p === "custom" || ST.p === "day" ? "" : "hidden"}><label>Du <input type="date" id="pf1" value="${P.from}" max="${TODAY}"></label><label>au <input type="date" id="pf2" value="${P.to}" max="${TODAY}"></label><button class="btn s p">Voir</button></form>
+  </div>`;
+}
+function bindPeriod(P) {
+  $$("#pchips .chip").forEach(c => c.onclick = () => { if (c.dataset.p === "custom") { $("#pform").hidden = false; $("#pf1").focus(); return; } setPeriod({ p: c.dataset.p }); });
+  $("#pform").onsubmit = e => { e.preventDefault(); const a = $("#pf1").value, b = $("#pf2").value || a; if (!a) return; setPeriod(a === b ? { p: "day", from: a } : { p: "custom", from: a, to: b }); };
+  if (P.single) { $("#pprev").onclick = () => setPeriod({ p: "day", from: addD(P.from, -1) }); $("#pnext").onclick = () => setPeriod({ p: "day", from: addD(P.from, 1) }); }
+  $("#view").onclick = e => {
+    const r = e.target.closest("rect.clk[data-day]"); if (r) { tipAt(null); setPeriod({ p: "day", from: r.dataset.day }); return; }
+    const w = e.target.closest("rect.clk[data-week]"); if (w) { tipAt(null); const a = w.dataset.week, b = addD(a, 6); setPeriod({ p: "custom", from: a, to: b > TODAY ? TODAY : b }); return; }
+    const c = e.target.closest("[data-chv]"); if (c) { CHV = c.dataset.chv; try { localStorage.setItem("adm-chv", CHV); } catch (er) { } viewStats(); }
+  };
+}
+const TXT = {
+  visites: "Nombre de pages ouvertes par des personnes, compté par le compteur d'audience du site.\n\nUne personne compte une fois par page et par jour : si elle ouvre l'accueil puis deux fiches course, ça fait 3. Ce n'est donc pas un nombre de personnes différentes (le compteur ne suit personne, sans cookie).\n\nLes robots ne sont pas comptés. Les visiteurs qui ont un bloqueur de publicité ne sont pas comptés non plus (souvent 10 à 30 % sur ordinateur, moins sur téléphone).\n\nLe pourcentage compare à la période précédente de même durée.",
+  clics: "Actions faites sur le site et suivies une par une : favoris, ajout à l'agenda, clics vers les organisateurs, raccourcis, partages, changement de mode Liste / Scroll…\n\nComptées comme les visites : une personne par action et par jour.",
+  sortie: "Personnes qui ont quitté le site vers la page d'un organisateur ou d'une plateforme d'inscription (une fois par destination et par jour). C'est le service rendu par le site : envoyer les coureurs s'inscrire.",
+  favoris: "Courses ajoutées à « Mes courses » (l'étoile). Les favoris restent sur le téléphone de la personne ; on ne compte que le geste.",
+  provenance: "D'où arrivent les visiteurs : Google, Facebook, Instagram, l'appli installée sur l'écran d'accueil…\n\n« Accès direct » : adresse tapée, favori du navigateur, lien dans une messagerie (WhatsApp, Messenger) ou une appli qui ne dit pas d'où elle vient.",
+  modes: "Comparaison des deux façons de parcourir l'accueil. « Mode choisi » : quand quelqu'un change de mode. « Mode affiché à l'arrivée » : le mode dans lequel la personne a trouvé le site.",
+  vitesse: "Vitesse mesurée chez les vrais visiteurs (pas en laboratoire), par l'outil de mesure de Cloudflare.\n\nLCP : temps pour que le contenu principal s'affiche (bon : 2,5 s ou moins).\nCLS : la page bouge-t-elle pendant le chargement (bon : 0,10 ou moins).\nINP : temps de réaction quand on touche un bouton (bon : 200 ms ou moins).\n\nC'est la valeur atteinte par 75 % des visites, comme le fait Google pour classer les sites. « – » : pas encore assez de mesures.",
+  requetes: "Tout ce que Cloudflare a servi : chaque page, image, affiche, fichier de données compte une requête. Une seule visite en fait facilement 20 à 50.\n\nRobots compris (Google, réseaux sociaux, scanners) : ce chiffre sert à surveiller la charge, pas à compter les visiteurs.",
+  cache: "Part des fichiers servis directement par Cloudflare (à Saint-Denis) sans redemander à GitHub. Plus c'est haut, plus c'est rapide. Les pages et les données changent souvent, donc ce taux reste modeste ; les images et affiches sont les plus concernées.",
+  uniques: "Adresses Internet différentes qui ont contacté le site, robots compris. Toujours bien au-dessus des vrais visiteurs : à ne pas comparer avec les visites de pages.",
+  menaces: "Requêtes que Cloudflare a refusées avant qu'elles n'atteignent le site, parce qu'elles venaient :\n• d'adresses connues pour des attaques ou du spam,\n• de robots qui se font passer pour des navigateurs,\n• de scanners automatiques qui cherchent des failles (fichiers de mots de passe, pages d'administration WordPress…).\n\nTon site n'a rien de tout ça : c'est le bruit de fond normal d'Internet, tous les sites en reçoivent. Rien à faire. Un chiffre qui grimpe d'un coup à plusieurs centaines par jour mérite juste un coup d'œil.",
+  donnees: "Volume total envoyé aux navigateurs (pages, images, affiches, cartes). Sans limite sur l'offre gratuite.",
+  codes: "Ce que le site a répondu.\n• Servies : tout s'est bien passé.\n• Redirigées : http → https, www → sans www, anciennes adresses. Normal.\n• Introuvables (404) : surtout des robots qui testent des adresses au hasard, et quelques vieux liens. Si une vraie page revient souvent, il faut une redirection.\n• Refusées (403) : robots bloqués par Cloudflare.\n• Erreurs (5xx) : problème de serveur. Doit rester à 0 ou presque.",
+};
+const THR = [[/^bic/, "Robot sans identité de navigateur"], [/^(macro|ip)\.|reputation/, "Adresse réputée malveillante"], [/^user\./, "Bloqué par une règle"], [/^hot/, "Vol d'images (hotlink)"], [/^ctry|country/, "Pays bloqué"], [/waf/, "Attaque connue (pare-feu)"], [/^ua\./, "Robot identifié"], [/challenge|chl/, "Vérification anti-robot échouée"]];
+const thrName = n => (THR.find(([r]) => r.test(n)) || [0, "Autre (" + n + ")"])[1];
+function kpi(k, v, s, inf, d) { return `<div class="kpi"><div class="k">${k}${inf ? " " + info(k, inf) : ""}</div><div class="v">${v}</div><div class="s">${d || ""}${d && s ? " · " : ""}${s || ""}</div></div>`; }
+
 async function viewStats() {
-  const v = $("#view");
-  v.innerHTML = `<h2>Stats</h2><div class="chips">${[[7, "7 jours"], [30, "30 jours"], [90, "90 jours"]].map(([d, l]) => `<button class="chip" data-d="${d}" aria-pressed="${SP === d}">${l}</button>`).join("")}</div><div id="gcbox"><div class="loading">Chargement des visites…</div></div><div id="cfbox"></div>`;
-  $$(".chip", v).forEach(c => c.onclick = () => { SP = +c.dataset.d; viewStats(); });
-  const R = range(SP);
-  const G = gcRange(R);
-  // ---- compteur d'audience ----
+  const v = $("#view"), P = period(), Pp = prevPeriod(P), G = gcR(P), Gp = gcR(Pp);
+  v.innerHTML = `<h2>Stats</h2>${periodBar(P)}
+    <h3 class="sec">Audience ${info("Audience", "Chiffres du compteur d'audience du site (sans cookie). " + TXT.visites)}</h3><div id="gcbox"><div class="loading">Chargement des visites…</div></div>
+    <h3 class="sec">Vitesse réelle ${info("Vitesse réelle", TXT.vitesse)}</h3><div id="cwbox"><div class="loading">Chargement…</div></div>
+    <h3 class="sec">Trafic et sécurité (Cloudflare) ${info("Trafic et sécurité", TXT.requetes)}</h3><div id="trbox"><div class="loading">Chargement…</div></div>`;
+  bindPeriod(P);
+  statsGC(P, Pp, G, Gp);
+  statsCF(P);
+}
+
+async function statsGC(P, Pp, G, Gp) {
   const gb = $("#gcbox");
-  if (!ME.gc) gb.innerHTML = `<div class="card"><b>Compteur d'audience non relié.</b><p style="font-size:14px;color:var(--ink2)">Ajoute la clé de lecture du compteur dans le service admin (voir le guide de mise en route).</p></div>`;
-  else try {
+  if (!ME.gc) { gb.innerHTML = `<div class="card"><b>Compteur d'audience non relié.</b><p style="font-size:14px;color:var(--ink2)">Ajoute la clé de lecture du compteur dans le service admin (voir le guide de mise en route).</p></div>`; return; }
+  try {
     const pause = () => new Promise(r => setTimeout(r, 300));
     const tot = await gcGet("stats/total", G); await pause();
-    const refs = await gcGet("stats/toprefs", { ...G, limit: 12 }).catch(() => ({})); await pause();
+    const totp = await gcGet("stats/total", Gp).catch(() => null); await pause();
+    const refs = await gcGet("stats/toprefs", { ...G, limit: 15 }).catch(() => ({})); await pause();
     const sizes = await gcGet("stats/sizes", G).catch(() => ({})); await pause();
-    const locs = await gcGet("stats/locations", { ...G, limit: 8 }).catch(() => ({})); await pause();
+    const locs = await gcGet("stats/locations", { ...G, limit: 12 }).catch(() => ({})); await pause();
+    const brw = await gcGet("stats/browsers", { ...G, limit: 10 }).catch(() => ({})); await pause();
+    const sys = await gcGet("stats/systems", { ...G, limit: 10 }).catch(() => ({})); await pause();
+    const camp = await gcGet("stats/campaigns", { ...G, limit: 10 }).catch(() => ({})); await pause();
     // toutes les pages et tous les clics suivis : 100 par appel, les suivants en excluant ceux déjà reçus
     const H = [], seen = new Set();
-    let partial = false, fmt = 0;   // façon d'écrire la liste à exclure qui marche : 1 = « 1,2,3 », 2 = répétée
+    let partial = false, fmt = 0;
     const keep = h => { const n = (h.hits || []).filter(x => !seen.has(x.path_id)); n.forEach(x => seen.add(x.path_id)); H.push(...n); return n.length; };
-    let first = await gcGet("stats/hits", { ...G, limit: 100 });
+    const first = await gcGet("stats/hits", { ...G, limit: 100 });
     keep(first);
     for (let i = 0, more = first.more; more && i < 25; i++) {
       let got = 0, h = null;
-      for (const f of fmt ? [fmt] : [1, 2]) {   // le compteur limite à 4 appels par seconde
+      for (const f of fmt ? [fmt] : [1, 2]) {
         await new Promise(r => setTimeout(r, 350));
         h = await gcGet("stats/hits", { ...G, limit: 100, exclude_paths: f === 1 ? [...seen].join(",") : [...seen] }).catch(() => null);
         if (h && (got = keep(h))) { fmt = f; break; }
@@ -767,80 +897,154 @@ async function viewStats() {
       if (!got) { partial = true; break; }
       more = h.more;
     }
-    const pages0 = H.filter(h => !h.event);
-    // visiteurs des pages (sans les clics suivis), jour par jour : somme des pages
-    const byDay = {};
-    for (const h of pages0) for (const st of h.stats || []) byDay[st.day] = (byDay[st.day] || 0) + (st.daily || 0);
-    const days = (tot.stats || []).map(s => ({ day: s.day, n: byDay[s.day] || 0 }));
-    const visitors = partial ? Math.max(0, (tot.total || 0) - (tot.total_events || 0)) : pages0.reduce((a, h) => a + (h.count || 0), 0);
     const pages = H.filter(h => !h.event), evs = H.filter(h => h.event);
+    const visits = Math.max(0, (tot.total || 0) - (tot.total_events || 0));
+    const visitsP = totp ? Math.max(0, (totp.total || 0) - (totp.total_events || 0)) : 0;
     const grp = {};
-    for (const h of evs) { const p = h.path.replace(/^\//, ""); const g = p.startsWith("arrivee-partage") ? "arrivee-partage" : p.split("/")[0]; (grp[g] = grp[g] || []).push({ l: p.slice(g.length).replace(/^\//, "") || p, t: h.title, n: h.count }); }
-    const sum = a => a.reduce((s, x) => s + x.n, 0);
-    const modes = (grp.mode || []).concat();
-    const ret = Math.round(days.reduce((a, d) => a + d.n, 0) / Math.max(1, days.length));
+    for (const h of evs) { const p = h.path.replace(/^\//, ""); const g = p.startsWith("arrivee-partage") ? "arrivee-partage" : p.split("/")[0]; (grp[g] = grp[g] || []).push({ l: p.slice(g.length).replace(/^\//, "") || p, t: h.title, n: h.count, id: h.path_id, g }); }
+    const sum = a => (a || []).reduce((s, x) => s + x.n, 0);
+    // courbe : par heure pour un seul jour, sinon par jour (visites de pages, sans les clics suivis)
+    let chart;
+    if (P.single) {
+      const hr = Array(24).fill(0);
+      for (const h of pages) for (const st of h.stats || []) if (st.day === P.from) (st.hourly || []).forEach((n, i) => hr[i] += n);
+      chart = `<div class="card"><h3 style="margin-top:2px">Visites de pages par heure</h3>${bars(hr.map((n, h) => ({ h, n })), { hours: true })}</div>`;
+    } else {
+      const byDay = {};
+      for (const h of pages) for (const st of h.stats || []) byDay[st.day] = (byDay[st.day] || 0) + (st.daily || 0);
+      const days = []; for (let d = P.from; d <= P.to; d = addD(d, 1)) days.push({ day: d, n: byDay[d] || 0 });
+      const views = [["jour", "Par jour"], ["semaine", "Par semaine"], ["compare", "Comparer les semaines"]];
+      const body = CHV === "semaine" ? weekBars(days) + `<p class="hint">Touche une semaine pour l'afficher jour par jour.</p>`
+        : CHV === "compare" ? (P.n < 8 ? `<p class="hint">Choisis une période d'au moins 2 semaines (30 jours, 90 jours…) pour comparer.</p>` : weekCompare(days) + `<p class="hint">Chaque jour de la semaine côte à côte, une barre par semaine (6 dernières semaines de la période). Touche une barre pour le détail du jour.</p>`)
+        : bars(days, { clickDay: true }) + `<p class="hint">Touche un jour pour voir son détail heure par heure. Les week-ends sont en plus clair.</p>`;
+      chart = `<div class="card"><div class="chead"><h3 style="margin:2px 0">Visites de pages</h3><div class="seg2">${views.map(([k, l]) => `<button type="button" data-chv="${k}" aria-pressed="${CHV === k}">${l}</button>`).join("")}</div></div>${body}</div>`;
+    }
+    const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+    const favA = sum((grp.favori || []).filter(x => x.l.startsWith("ajout"))), favR = sum((grp.favori || []).filter(x => x.l.startsWith("retrait")));
     gb.innerHTML = `<div class="kpis">
-      <div class="kpi"><div class="k">Visiteurs</div><div class="v">${nf(visitors)}</div><div class="s">${nf(ret)} par jour en moyenne (une personne compte une fois par page et par jour)</div></div>
-      <div class="kpi"><div class="k">Clics suivis</div><div class="v">${nf(tot.total_events ?? sum(evs.map(h => ({ n: h.count }))))}</div><div class="s">favoris, agenda, partages…</div></div>
-      <div class="kpi"><div class="k">Personnes vers les organisateurs</div><div class="v">${nf(sum(grp.sortie || []))}</div><div class="s">inscriptions, pages officielles</div></div>
-      <div class="kpi"><div class="k">Favoris ajoutés</div><div class="v">${nf(sum((grp.favori || []).filter(x => x.l.startsWith("ajout"))))}</div><div class="s">${nf(sum((grp.favori || []).filter(x => x.l.startsWith("retrait"))))} retirés</div></div>
+      ${kpi("Visites de pages", nf(visits), P.n > 1 ? `${nf(Math.round(visits / P.n))} par jour` : "", TXT.visites, pct(visits, visitsP))}
+      ${kpi("Clics suivis", nf(tot.total_events || 0), "favoris, agenda, partages…", TXT.clics, totp ? pct(tot.total_events || 0, totp.total_events || 0) : "")}
+      ${kpi("Vers les organisateurs", nf(sum(grp.sortie)), "inscriptions, pages officielles", TXT.sortie)}
+      ${kpi("Favoris ajoutés", nf(favA), `${nf(favR)} retirés`, TXT.favoris)}
     </div>
-    <div class="card"><h3 style="margin-top:2px">Visiteurs par jour</h3>${days.length ? dayChart(days) : `<div class="empty">Pas de données</div>`}</div>
+    ${partial ? `<p class="note w">Le compteur n'a pas tout renvoyé : les petits chiffres (favoris par course…) peuvent manquer. Réessaie dans une minute.</p>` : ""}
+    ${chart}
     <div class="two">
-      <div class="card"><h3 style="margin-top:2px">Pages les plus vues</h3>${hbars(pages.slice(0, 15).map(h => ({ l: h.path === "/" ? "Accueil" : h.path, t: h.title, n: h.count })))}</div>
-      <div class="card"><h3 style="margin-top:2px">Provenance</h3>${hbars((refs.stats || []).map(r => ({ l: r.name || "Accès direct", n: r.count })))}</div>
+      <div class="card"><h3 style="margin-top:2px">Pages les plus vues</h3>${hbars(pages.slice(0, 15).map(h => ({ l: h.path === "/" ? "Accueil" : h.path.replace(/^\/course\//, "course · "), t: h.title || h.path, n: h.count, id: h.path_id })), 0, x => `data-pid="${x.id}"`)}<p class="hint">Touche une page pour son détail jour par jour et sa provenance.${pages.length > 15 ? ` <button type="button" class="lk" id="allp">Voir les ${pages.length} pages</button>` : ""}</p></div>
+      <div class="card"><h3 style="margin-top:2px">Provenance ${info("Provenance", TXT.provenance)}</h3>${hbars((refs.stats || []).map(r => ({ l: r.name || "Accès direct", n: r.count, id: r.id ?? r.name })), 0, x => `data-dd="toprefs" data-id="${esc(x.id ?? "")}" data-lab="${esc(x.l)}"`)}<p class="hint">Touche une ligne pour le détail.</p></div>
     </div>
-    ${modes.length ? `<div class="card"><h3 style="margin-top:2px">Liste ou Scroll ?</h3>${hbars(modes.map(x => ({ ...x, l: x.l.charAt(0).toUpperCase() + x.l.slice(1) })).sort((a, b) => b.n - a.n))}${(grp.arrivee || []).length ? `<p style="font-size:13px;color:var(--ink2);margin:10px 0 4px">Mode affiché à l'arrivée :</p>${hbars(grp.arrivee.map(x => ({ ...x, l: x.l.charAt(0).toUpperCase() + x.l.slice(1) })).sort((a, b) => b.n - a.n))}` : ""}</div>` : ""}
-    <div class="card"><h3 style="margin-top:2px">Clics suivis</h3>${partial ? `<p class="note w">Le compteur n'a pas tout renvoyé : liste incomplète. Réessaie dans une minute.</p>` : ""}${Object.entries(grp).filter(([g]) => g !== "mode" && g !== "arrivee").sort((a, b) => sum(b[1]) - sum(a[1])).map(([g, it]) => `<details style="margin:4px 0"><summary style="cursor:pointer;display:flex;justify-content:space-between;gap:10px;padding:5px 0"><b style="font-weight:600">${esc(EVG[g] || g)}</b><span style="color:var(--ink2);font-variant-numeric:tabular-nums">${nf(sum(it))}</span></summary>${hbars(it.sort((a, b) => b.n - a.n).slice(0, 20))}</details>`).join("") || `<div class="empty">Aucun clic suivi sur la période</div>`}</div>
+    ${(grp.mode || []).length || (grp.arrivee || []).length ? `<div class="card"><h3 style="margin-top:2px">Liste ou Scroll ? ${info("Liste ou Scroll", TXT.modes)}</h3>${(grp.mode || []).length ? `<p class="hint" style="margin:0 0 4px">Mode choisi :</p>${hbars(grp.mode.map(x => ({ ...x, l: cap(x.l) })).sort((a, b) => b.n - a.n))}` : ""}${(grp.arrivee || []).length ? `<p class="hint" style="margin:10px 0 4px">Mode affiché à l'arrivée :</p>${hbars(grp.arrivee.map(x => ({ ...x, l: cap(x.l) })).sort((a, b) => b.n - a.n))}` : ""}</div>` : ""}
+    <div class="card"><h3 style="margin-top:2px">Clics suivis ${info("Clics suivis", TXT.clics)}</h3>${Object.entries(grp).filter(([g]) => g !== "mode" && g !== "arrivee").sort((a, b) => sum(b[1]) - sum(a[1])).map(([g, it]) => `<details class="grp"><summary><b>${esc(EVG[g] || g)}</b><span>${nf(sum(it))} · ${it.length} élément${it.length > 1 ? "s" : ""}</span></summary>${hbars(it.sort((a, b) => b.n - a.n).slice(0, 60), 0, x => `data-eid="${x.id}"`)}${it.length > 60 ? `<p class="hint">+ ${it.length - 60} autres</p>` : ""}</details>`).join("") || `<div class="empty">Aucun clic suivi sur la période</div>`}</div>
     <div class="two">
-      <div class="card"><h3 style="margin-top:2px">Écrans</h3>${hbars((sizes.stats || []).map(s => ({ l: ({ phone: "Téléphone", largephone: "Grand téléphone", tablet: "Tablette", desktop: "Ordinateur", desktophd: "Grand écran", unknown: "Inconnu" })[s.id] || s.name, n: s.count })))}</div>
-      <div class="card"><h3 style="margin-top:2px">Pays</h3>${hbars((locs.stats || []).map(s => ({ l: s.name || s.id, n: s.count })))}</div>
-    </div>`;
+      <div class="card"><h3 style="margin-top:2px">Écrans</h3>${hbars((sizes.stats || []).filter(s => s.count).map(s => ({ l: ({ phone: "Téléphone", largephone: "Grand téléphone", tablet: "Tablette", desktop: "Ordinateur", desktophd: "Grand écran", unknown: "Inconnu" })[s.id] || s.name, n: s.count, id: s.id })), 0, x => `data-dd="sizes" data-id="${esc(x.id)}" data-lab="${esc(x.l)}"`)}</div>
+      <div class="card"><h3 style="margin-top:2px">Pays</h3>${hbars((locs.stats || []).map(s => ({ l: s.name || s.id, n: s.count, id: s.id })), 0, x => `data-dd="locations" data-id="${esc(x.id)}" data-lab="${esc(x.l)}"`)}</div>
+    </div>
+    <div class="two">
+      <div class="card"><h3 style="margin-top:2px">Navigateurs</h3>${hbars((brw.stats || []).filter(s => s.count).map(s => ({ l: s.name || "Inconnu", n: s.count, id: s.id ?? s.name })), 0, x => `data-dd="browsers" data-id="${esc(x.id)}" data-lab="${esc(x.l)}"`)}</div>
+      <div class="card"><h3 style="margin-top:2px">Systèmes</h3>${hbars((sys.stats || []).filter(s => s.count).map(s => ({ l: s.name || "Inconnu", n: s.count, id: s.id ?? s.name })), 0, x => `data-dd="systems" data-id="${esc(x.id)}" data-lab="${esc(x.l)}"`)}</div>
+    </div>
+    ${(camp.stats || []).length ? `<div class="card"><h3 style="margin-top:2px">Campagnes ${info("Campagnes", "Liens marqués d'une campagne (paramètre « utm_campaign » ou « ref ») : par exemple un lien mis dans un post Instagram ou une story. Permet de savoir quel post a amené du monde.")}</h3>${hbars(camp.stats.map(s => ({ l: s.name || "(sans nom)", n: s.count, id: s.id ?? s.name })), 0, x => `data-dd="campaigns" data-id="${esc(x.id)}" data-lab="${esc(x.l)}"`)}</div>` : ""}
+    <p class="hint">Touche une ligne (navigateur, système, pays, écran, provenance) pour descendre d'un niveau.</p>`;
+    $$("[data-pid]", gb).forEach(el => el.onclick = () => pageDetail(pages.find(h => String(h.path_id) === el.dataset.pid), P, G));
+    $$("[data-eid]", gb).forEach(el => el.onclick = () => { const h = evs.find(x => String(x.path_id) === el.dataset.eid); const p = h.path.replace(/^\//, ""), g = p.startsWith("arrivee-partage") ? "arrivee-partage" : p.split("/")[0]; pageDetail(h, P, G, `${EVG[g] || g} · ${p.slice(g.length).replace(/^\//, "") || p}`); });
+    $$("[data-dd]", gb).forEach(el => el.onclick = () => ddDetail(el.dataset.dd, el.dataset.id, el.dataset.lab, P, G));
+    const ap = $("#allp"); if (ap) ap.onclick = async () => {
+      const r = await dialog(`<div style="font-size:12.5px;color:var(--ink2)">${esc(P.label)}</div><h3 style="margin:4px 0 8px;text-transform:none;letter-spacing:0;color:var(--ink);font-size:17px">Toutes les pages (${pages.length})</h3><input class="search" id="apq" placeholder="Filtrer…" style="width:100%;margin-bottom:8px"><div id="apl">${hbars(pages.map(h => ({ l: h.path === "/" ? "Accueil" : h.path, n: h.count, id: h.path_id })), 0, x => `data-apid="${x.id}"`)}</div>`, [{ label: "Fermer", v: null, cls: "p" }]);
+    };
+    document.addEventListener("input", e => { if (e.target.id !== "apq") return; const q = e.target.value.toLowerCase(); $$("#apl .l").forEach((l, i) => { const show = l.textContent.toLowerCase().includes(q); l.style.display = show ? "" : "none"; l.nextElementSibling.style.display = show ? "" : "none"; }); });
+    document.addEventListener("click", e => { const el = e.target.closest("[data-apid]"); if (!el) return; const h = pages.find(x => String(x.path_id) === el.dataset.apid); $(".dlg") && $(".dlg").remove(); pageDetail(h, P, G); });
   } catch (e) { gb.innerHTML = `<div class="card note w">Visites indisponibles : ${esc(e.message)}</div>`; }
-  // ---- Web Analytics et trafic ----
-  const cb = $("#cfbox");
-  if (!ME.cf) { cb.innerHTML = `<div class="card"><b>Vitesse réelle et trafic : non reliés.</b><p style="font-size:14px;color:var(--ink2)">S'activent avec le jeton de lecture des statistiques (voir le guide).</p></div>`; return; }
-  cb.innerHTML = `<div class="loading">Chargement de la vitesse…</div>`;
+}
+// niveau de détail suivant pour un navigateur, un système, un pays, une provenance, un écran
+const DD = { browsers: "Versions du navigateur", systems: "Versions du système", locations: "Régions", toprefs: "Détail de la provenance", sizes: "Tailles d'écran", campaigns: "Détail de la campagne" };
+async function ddDetail(kind, id, label, P, G) {
+  let r = {};
+  try { r = await gcGet(`stats/${kind}/${encodeURIComponent(id)}`, { ...G, limit: 30 }); } catch (e) { toast("Détail indisponible : " + e.message, true); return; }
+  const it = (r.stats || r.refs || []).map(x => ({ l: x.name || x.id || "(inconnu)", n: x.count }));
+  await dialog(`<div style="font-size:12.5px;color:var(--ink2)">${esc(P.label)}</div><h3 style="margin:4px 0 8px;text-transform:none;letter-spacing:0;color:var(--ink);font-size:17px">${esc(label)} · ${esc(DD[kind] || "Détail")}</h3>${it.length ? hbars(it) : `<p class="hint">Pas de détail.</p>`}`, [{ label: "Fermer", v: 1, cls: "p" }]);
+}
+async function pageDetail(h, P, G, title) {
+  if (!h) return;
+  let refs = [];
+  try { const r = await gcGet(`stats/hits/${h.path_id}`, { ...G, limit: 10 }); refs = r.refs || r.stats || []; } catch (e) { }
+  const byDay = {}; for (const st of h.stats || []) byDay[st.day] = st.daily || 0;
+  let pts;
+  if (P.single) { const hr = Array(24).fill(0); for (const st of h.stats || []) if (st.day === P.from) (st.hourly || []).forEach((n, i) => hr[i] += n); pts = bars(hr.map((n, i) => ({ h: i, n })), { hours: true }); }
+  else { const days = []; for (let d = P.from; d <= P.to; d = addD(d, 1)) days.push({ day: d, n: byDay[d] || 0 }); pts = bars(days); }
+  const m = h.path.match(/^\/course\/([a-z0-9-]+)/), race = m && races().find(r => r.id === m[1]);
+  const r = await dialog(`<div style="font-size:12.5px;color:var(--ink2)">${esc(P.label)}</div>
+    <h3 style="margin:4px 0 6px;text-transform:none;letter-spacing:0;color:var(--ink);font-size:17px">${esc(title || (race ? race.nom : h.path === "/" ? "Accueil" : h.title || h.path))}</h3>
+    <p style="margin:0 0 6px;font-size:13px;color:var(--ink2)">${esc(h.path)} · <b>${nf(h.count)}</b> visite${h.count > 1 ? "s" : ""}</p>${pts}
+    ${refs.length ? `<h3 style="font-size:13px">${h.event ? "Depuis quelle provenance" : "Provenance de cette page"}</h3>${hbars(refs.map(x => ({ l: x.name || "Accès direct", n: x.count })))}` : ""}`,
+    [...(race ? [{ label: "Ouvrir la fiche dans l'admin", v: "ed" }] : []), ...(h.event ? [] : [{ label: "Voir la page ↗", v: "go" }]), { label: "Fermer", v: null, cls: "p" }]);
+  if (r === "go") window.open(h.path, "_blank");
+  if (r === "ed") { TAB = "courses"; $$("#tabs button").forEach(x => x.setAttribute("aria-selected", x.dataset.t === "courses")); editRace(race.id); }
+}
+
+async function statsCF(P) {
+  const cw = $("#cwbox"), tb = $("#trbox");
+  if (!ME.cf) { cw.innerHTML = tb.innerHTML = `<div class="card"><b>Non relié.</b><p style="font-size:14px;color:var(--ink2)">S'active avec le jeton de lecture des statistiques Cloudflare (voir le guide).</p></div>`; return; }
+  const s = iso(Date.parse(P.from + "T00:00:00+04:00")), e = P.to >= TODAY ? iso(Date.now()) : iso(Date.parse(addD(P.to, 1) + "T00:00:00+04:00"));
+  // Cloudflare donne LCP et INP en microsecondes ; une valeur négative veut dire « pas assez de mesures »
+  const lcp = u => u == null || u < 0 ? "–" : (v => `<span class="vit ${v <= 2500 ? "g" : v <= 4000 ? "m" : "b"}">${v <= 2500 ? "✓" : v <= 4000 ? "~" : "✕"} ${(v / 1000).toFixed(1).replace(".", ",")} s</span>`)(u / 1000);
+  const cls = v => v == null || v < 0 ? "–" : `<span class="vit ${v <= .1 ? "g" : v <= .25 ? "m" : "b"}">${v <= .1 ? "✓" : v <= .25 ? "~" : "✕"} ${v.toFixed(2).replace(".", ",")}</span>`;
+  const inp = u => u == null || u < 0 ? "–" : (v => `<span class="vit ${v <= 200 ? "g" : v <= 500 ? "m" : "b"}">${v <= 200 ? "✓" : v <= 500 ? "~" : "✕"} ${Math.round(v)} ms</span>`)(u / 1000);
+  const Q = "quantiles{largestContentfulPaintP75 cumulativeLayoutShiftP75 interactionToNextPaintP75}";
   try {
-    const q = `query($account:String!,$zone:String!,$site:String!,$s:Time!,$e:Time!,$sd:Date!,$ed:Date!){viewer{
-      accounts(filter:{accountTag:$account}){
-        vis: rumPageloadEventsAdaptiveGroups(limit:1,filter:{siteTag:$site,datetime_geq:$s,datetime_leq:$e}){count sum{visits}}
-        cwv: rumWebVitalsEventsAdaptiveGroups(limit:1,filter:{siteTag:$site,datetime_geq:$s,datetime_leq:$e}){count quantiles{largestContentfulPaintP75 cumulativeLayoutShiftP75 interactionToNextPaintP75}}
-        cwvp: rumWebVitalsEventsAdaptiveGroups(limit:12,orderBy:[count_DESC],filter:{siteTag:$site,datetime_geq:$s,datetime_leq:$e}){count dimensions{requestPath} quantiles{largestContentfulPaintP75 cumulativeLayoutShiftP75 interactionToNextPaintP75}}
-        cwvd: rumWebVitalsEventsAdaptiveGroups(limit:6,orderBy:[count_DESC],filter:{siteTag:$site,datetime_geq:$s,datetime_leq:$e}){count dimensions{deviceType} quantiles{largestContentfulPaintP75 cumulativeLayoutShiftP75 interactionToNextPaintP75}}
-      }
-      zones(filter:{zoneTag:$zone}){ tr: httpRequests1dGroups(limit:100,filter:{date_geq:$sd,date_leq:$ed}){sum{requests cachedRequests threats bytes pageViews} uniq{uniques}} }
-    }}`;
-    const j = await api("cf", { method: "POST", body: JSON.stringify({ query: q, variables: { s: R.start + "T00:00:00Z", e: new Date().toISOString(), sd: R.start, ed: R.end } }) });
+    const j = await cfPost(`query($account:String!,$site:String!,$s:Time!,$e:Time!){viewer{accounts(filter:{accountTag:$account}){
+      vis: rumPageloadEventsAdaptiveGroups(limit:1,filter:{siteTag:$site,datetime_geq:$s,datetime_leq:$e}){count sum{visits}}
+      cwv: rumWebVitalsEventsAdaptiveGroups(limit:1,filter:{siteTag:$site,datetime_geq:$s,datetime_leq:$e}){count ${Q}}
+      cwvp: rumWebVitalsEventsAdaptiveGroups(limit:15,orderBy:[count_DESC],filter:{siteTag:$site,datetime_geq:$s,datetime_leq:$e}){count dimensions{requestPath} ${Q}}
+      cwvd: rumWebVitalsEventsAdaptiveGroups(limit:6,orderBy:[count_DESC],filter:{siteTag:$site,datetime_geq:$s,datetime_leq:$e}){count dimensions{deviceType} ${Q}}
+    }}}`, { s, e });
     if (j.errors && j.errors.length && !j.data) throw new Error(j.errors[0].message);
-    const A = (j.data?.viewer?.accounts || [])[0] || {}, Z = (j.data?.viewer?.zones || [])[0] || {};
-    const qq = (A.cwv || [])[0]?.quantiles || {};
-    // Cloudflare donne LCP et INP en microsecondes ; une valeur négative veut dire « pas assez de mesures »
-    const lcp = u => u == null || u < 0 ? "–" : (v => `<span class="vit ${v <= 2500 ? "g" : v <= 4000 ? "m" : "b"}">${v <= 2500 ? "✓" : v <= 4000 ? "~" : "✕"} ${(v / 1000).toFixed(1).replace(".", ",")} s</span>`)(u / 1000);
-    const cls = v => v == null || v < 0 ? "–" : `<span class="vit ${v <= .1 ? "g" : v <= .25 ? "m" : "b"}">${v <= .1 ? "✓" : v <= .25 ? "~" : "✕"} ${v.toFixed(2).replace(".", ",")}</span>`;
-    const inp2 = u => u == null || u < 0 ? "–" : (v => `<span class="vit ${v <= 200 ? "g" : v <= 500 ? "m" : "b"}">${v <= 200 ? "✓" : v <= 500 ? "~" : "✕"} ${Math.round(v)} ms</span>`)(u / 1000);
-    const tr = (Z.tr || []).reduce((a, g) => { for (const k in g.sum) a[k] = (a[k] || 0) + g.sum[k]; a.uniques = (a.uniques || 0) + (g.uniq?.uniques || 0); return a; }, {});
-    const vis = (A.vis || [])[0];
-    cb.innerHTML = `<h3>Vitesse réelle chez les visiteurs</h3>
-      <div class="kpis">
-        <div class="kpi"><div class="k">Affichage du contenu (LCP)</div><div class="v" style="font-size:20px">${lcp(qq.largestContentfulPaintP75)}</div><div class="s">bon : ≤ 2,5 s</div></div>
-        <div class="kpi"><div class="k">Stabilité de la page (CLS)</div><div class="v" style="font-size:20px">${cls(qq.cumulativeLayoutShiftP75)}</div><div class="s">bon : ≤ 0,10</div></div>
-        <div class="kpi"><div class="k">Réactivité (INP)</div><div class="v" style="font-size:20px">${inp2(qq.interactionToNextPaintP75)}</div><div class="s">bon : ≤ 200 ms</div></div>
-        <div class="kpi"><div class="k">Visites mesurées</div><div class="v">${nf(vis?.sum?.visits)}</div><div class="s">${nf(vis?.count)} pages vues</div></div>
+    const A = (j.data?.viewer?.accounts || [])[0] || {}, q = (A.cwv || [])[0]?.quantiles || {}, vis = (A.vis || [])[0];
+    const row = (l, g) => `<tr><td>${l}</td><td>${lcp(g.quantiles.largestContentfulPaintP75)}</td><td>${cls(g.quantiles.cumulativeLayoutShiftP75)}</td><td>${inp(g.quantiles.interactionToNextPaintP75)}</td><td class="n">${nf(g.count)}</td></tr>`;
+    cw.innerHTML = `<div class="kpis">
+        ${kpi("Affichage (LCP)", lcp(q.largestContentfulPaintP75), "bon : 2,5 s ou moins", TXT.vitesse)}
+        ${kpi("Stabilité (CLS)", cls(q.cumulativeLayoutShiftP75), "bon : 0,10 ou moins", TXT.vitesse)}
+        ${kpi("Réactivité (INP)", inp(q.interactionToNextPaintP75), "bon : 200 ms ou moins", TXT.vitesse)}
+        ${kpi("Visites mesurées", nf(vis?.sum?.visits || 0), `${nf(vis?.count || 0)} pages vues`, "Visites mesurées par l'outil de vitesse de Cloudflare. C'est un échantillon : le nombre sert à juger si les mesures de vitesse sont fiables (au moins quelques dizaines), pas à compter l'audience.")}
       </div>
-      <p style="font-size:12.5px;color:var(--mut)">Valeur atteinte par 75 % des visites (méthode Google).</p>
       <div class="two">
-      <div class="card ovw"><h3 style="margin-top:2px">Par page</h3><table class="t"><tr><th>Page</th><th>LCP</th><th>CLS</th><th>INP</th></tr>${(A.cwvp || []).filter(g => !/^\/admin/.test(g.dimensions.requestPath)).map(g => `<tr><td>${esc(g.dimensions.requestPath)}</td><td>${lcp(g.quantiles.largestContentfulPaintP75)}</td><td>${cls(g.quantiles.cumulativeLayoutShiftP75)}</td><td>${inp2(g.quantiles.interactionToNextPaintP75)}</td></tr>`).join("")}</table></div>
-      <div class="card ovw"><h3 style="margin-top:2px">Par appareil</h3><table class="t"><tr><th>Appareil</th><th>LCP</th><th>CLS</th><th>INP</th></tr>${(A.cwvd || []).map(g => `<tr><td>${esc(({ mobile: "Téléphone", desktop: "Ordinateur", tablet: "Tablette" })[g.dimensions.deviceType] || g.dimensions.deviceType)}</td><td>${lcp(g.quantiles.largestContentfulPaintP75)}</td><td>${cls(g.quantiles.cumulativeLayoutShiftP75)}</td><td>${inp2(g.quantiles.interactionToNextPaintP75)}</td></tr>`).join("")}</table></div>
+        <div class="card ovw"><h3 style="margin-top:2px">Par page</h3><table class="t"><tr><th>Page</th><th>LCP</th><th>CLS</th><th>INP</th><th class="n">Mesures</th></tr>${(A.cwvp || []).filter(g => !/^\/admin/.test(g.dimensions.requestPath)).map(g => row(esc(g.dimensions.requestPath === "/" ? "Accueil" : g.dimensions.requestPath), g)).join("") || `<tr><td colspan="5" class="empty">Pas de mesure</td></tr>`}</table></div>
+        <div class="card ovw"><h3 style="margin-top:2px">Par appareil</h3><table class="t"><tr><th>Appareil</th><th>LCP</th><th>CLS</th><th>INP</th><th class="n">Mesures</th></tr>${(A.cwvd || []).map(g => row(esc(({ mobile: "Téléphone", desktop: "Ordinateur", tablet: "Tablette" })[g.dimensions.deviceType] || g.dimensions.deviceType), g)).join("") || `<tr><td colspan="5" class="empty">Pas de mesure</td></tr>`}</table></div>
+      </div>`;
+  } catch (er) { cw.innerHTML = `<div class="card note w">Vitesse indisponible : ${esc(er.message)}</div>`; }
+  try {
+    const j = await cfPost(`query($zone:String!,$sd:Date!,$ed:Date!){viewer{zones(filter:{zoneTag:$zone}){
+      d: httpRequests1dGroups(limit:100,orderBy:[date_ASC],filter:{date_geq:$sd,date_leq:$ed}){dimensions{date} sum{requests cachedRequests threats bytes pageViews} uniq{uniques}}
+    }}}`, { sd: P.from, ed: P.to });
+    if (j.errors && j.errors.length && !j.data) throw new Error(j.errors[0].message);
+    const D = (j.data?.viewer?.zones || [])[0]?.d || [];
+    const t = D.reduce((a, g) => { for (const k in g.sum) a[k] = (a[k] || 0) + (g.sum[k] || 0); a.uniques = (a.uniques || 0) + (g.uniq?.uniques || 0); return a; }, {});
+    const days = D.map(g => ({ day: g.dimensions.date, n: g.sum.requests || 0 })), thr = D.map(g => ({ day: g.dimensions.date, n: g.sum.threats || 0 }));
+    let det = { data: null };
+    try { det = await cfPost(`query($zone:String!,$sd:Date!,$ed:Date!){viewer{zones(filter:{zoneTag:$zone}){
+      x: httpRequests1dGroups(limit:100,filter:{date_geq:$sd,date_leq:$ed}){sum{countryMap{clientCountryName requests threats} responseStatusMap{edgeResponseStatus requests} threatPathingMap{threatPathingName requests}}}
+    }}}`, { sd: P.from, ed: P.to }); } catch (e) { }
+    const X = (det.data?.viewer?.zones || [])[0]?.x || [];
+    const agg = (key, name, val) => { const o = {}; for (const g of X) for (const r of g.sum?.[key] || []) o[r[name]] = (o[r[name]] || 0) + (r[val] || 0); return Object.entries(o).map(([l, n]) => ({ l, n })).filter(x => x.n).sort((a, b) => b.n - a.n); };
+    const tTypes = {}; for (const x of agg("threatPathingMap", "threatPathingName", "requests")) tTypes[thrName(x.l)] = (tTypes[thrName(x.l)] || 0) + x.n;
+    const cn = c => { try { return new Intl.DisplayNames(["fr"], { type: "region" }).of(c) || c; } catch (e) { return c; } };
+    const tCountries = agg("countryMap", "clientCountryName", "threats").slice(0, 8).map(x => ({ ...x, l: cn(x.l) }));
+    const st = agg("responseStatusMap", "edgeResponseStatus", "requests"), cnt = f => st.filter(x => f(+x.l)).reduce((a, x) => a + x.n, 0);
+    const codes = [["Servies normalement", cnt(c => c >= 200 && c < 300 || c === 304)], ["Redirigées", cnt(c => c >= 300 && c < 400 && c !== 304)], ["Introuvables (404)", cnt(c => c === 404)], ["Refusées (403)", cnt(c => c === 403)], ["Autres refus (4xx)", cnt(c => c >= 400 && c < 500 && c !== 403 && c !== 404)], ["Erreurs du serveur (5xx)", cnt(c => c >= 500)]].filter(x => x[1]).map(([l, n]) => ({ l, n }));
+    tb.innerHTML = `<div class="kpis">
+        ${kpi("Requêtes", nf(t.requests || 0), "robots compris", TXT.requetes)}
+        ${kpi("Servies depuis le cache", `${t.requests ? Math.round((t.cachedRequests || 0) / t.requests * 100) : 0} %`, "", TXT.cache)}
+        ${kpi("Menaces bloquées", nf(t.threats || 0), (t.threats || 0) ? "requêtes refusées par Cloudflare" : "aucune", TXT.menaces)}
+        ${kpi("Adresses différentes", nf(t.uniques || 0), "robots compris", TXT.uniques)}
+        ${kpi("Données envoyées", `${((t.bytes || 0) / 1e6 >= 1000 ? ((t.bytes || 0) / 1e9).toFixed(2) + " Go" : Math.round((t.bytes || 0) / 1e6) + " Mo").replace(".", ",")}`, "", TXT.donnees)}
       </div>
-      <h3>Trafic reçu (robots compris)</h3>
-      <div class="kpis">
-        <div class="kpi"><div class="k">Requêtes</div><div class="v">${nf(tr.requests)}</div><div class="s">${tr.requests ? Math.round(tr.cachedRequests / tr.requests * 100) : 0} % servies depuis le cache</div></div>
-        <div class="kpi"><div class="k">Visiteurs uniques</div><div class="v">${nf(tr.uniques)}</div><div class="s">adresses distinctes, robots compris</div></div>
-        <div class="kpi"><div class="k">Menaces bloquées</div><div class="v">${nf(tr.threats)}</div><div class="s">&nbsp;</div></div>
-        <div class="kpi"><div class="k">Données servies</div><div class="v">${((tr.bytes || 0) / 1e9).toFixed(2).replace(".", ",")} Go</div><div class="s">&nbsp;</div></div>
-      </div>${j.errors && j.errors.length ? `<p class="note w">Une partie des mesures n'a pas répondu : ${esc(j.errors[0].message)}</p>` : ""}`;
-  } catch (e) { cb.innerHTML = `<div class="card note w">Vitesse et trafic indisponibles : ${esc(e.message)}</div>`; }
+      ${days.length > 1 ? `<div class="card"><h3 style="margin-top:2px">Requêtes par jour</h3>${bars(days, { unit: "requête", clickDay: true })}</div>` : ""}
+      <div class="two">
+        <div class="card"><h3 style="margin-top:2px">Menaces bloquées : de quel type ? ${info("Menaces bloquées", TXT.menaces)}</h3>${Object.keys(tTypes).length ? hbars(Object.entries(tTypes).map(([l, n]) => ({ l, n })).sort((a, b) => b.n - a.n)) : `<p class="hint">${(t.threats || 0) ? "Détail non disponible sur l'offre gratuite." : "Aucune menace sur la période."}</p>`}
+          ${tCountries.length ? `<p class="hint" style="margin:10px 0 4px">D'où elles viennent :</p>${hbars(tCountries)}` : ""}
+          ${thr.some(x => x.n) && thr.length > 1 ? `<p class="hint" style="margin:10px 0 4px">Par jour :</p>${bars(thr, { unit: "menace" })}` : ""}</div>
+        <div class="card"><h3 style="margin-top:2px">Réponses du site ${info("Réponses du site", TXT.codes)}</h3>${codes.length ? hbars(codes) : `<p class="hint">Détail non disponible.</p>`}</div>
+      </div>`;
+  } catch (er) { tb.innerHTML = `<div class="card note w">Trafic indisponible : ${esc(er.message)}</div>`; }
 }
 
 /* ============================================================

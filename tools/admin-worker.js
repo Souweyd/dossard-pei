@@ -25,7 +25,7 @@
 
 const WRITE = /^(data\.json|state\/overrides\.json|clubs\/clubs\.json|saison2027\.json|posters\/in\/[a-z0-9-]+\.(jpg|png))$/;
 const READ = /^(data\.json|saison2027\.json|clubs\/clubs\.json|state\/[a-z0-9_-]+\.json)$/;
-const GC_PATHS = /^(stats\/(total|hits|toprefs|browsers|systems|sizes|locations|campaigns)|stats\/hits\/\d+|stats\/toprefs\/\d+)$/;
+const GC_PATHS = /^stats\/(total|hits|toprefs|browsers|systems|sizes|locations|campaigns)(\/[\w%.+-]{1,120})?$/;   // + niveau de détail (une page, un navigateur, un pays…)
 const MAX = 4_000_000;
 
 export default {
