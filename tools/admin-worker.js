@@ -274,7 +274,7 @@ async function message(env, req, id) {
 // (heure de La Réunion) ; rappels et clôtures à 18 h. Plus de 3 nouveaux dossards d'un coup : une seule notification.
 const SITE = "https://dossardpei.re";
 const TZ = 4 * 3600e3;   // La Réunion, UTC+4, sans heure d'été
-const PREFS = { nouveau: 1, ouverture: 1, places: 1, cloture: 1, changement: 1, annul: 1, rappel: 1 };
+const PREFS = { nouveau: 1, ouverture: 1, places: 1, cloture: 1, changement: 1, annul: 1, rappel: 1, revient: 1 };
 const PUSH_HOSTS = /^https:\/\/([a-z0-9.-]+\.)?(fcm\.googleapis\.com|push\.services\.mozilla\.com|push\.apple\.com|notify\.windows\.com|push\.api\.chromium\.org)\//;
 const enc64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 const dec64u = s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(s.length / 4) * 4, "=")), c => c.charCodeAt(0));
@@ -290,6 +290,8 @@ async function db(env) {
       env.DB.prepare("CREATE TABLE IF NOT EXISTS subs (id TEXT PRIMARY KEY, endpoint TEXT NOT NULL, p256dh TEXT NOT NULL, auth TEXT NOT NULL, favs TEXT NOT NULL DEFAULT '[]', prefs TEXT NOT NULL DEFAULT '{}', created TEXT, updated TEXT, day TEXT, sent INTEGER DEFAULT 0, fails INTEGER DEFAULT 0, admin INTEGER DEFAULT 0)"),
       env.DB.prepare("CREATE TABLE IF NOT EXISTS sends (n INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT, kind TEXT, race TEXT, title TEXT, body TEXT, sent INTEGER, ok INTEGER, gone INTEGER)"),
       env.DB.prepare("CREATE TABLE IF NOT EXISTS state (k TEXT PRIMARY KEY, v TEXT)"),
+      // mémoire des courses (y compris passées, qui sortent du calendrier) : sert à reconnaître la prochaine édition
+      env.DB.prepare("CREATE TABLE IF NOT EXISTS races (id TEXT PRIMARY KEY, nom TEXT, commune TEXT, date TEXT, base TEXT, nkey TEXT)"),
     ]);
     DBREADY = true;
   }
@@ -388,7 +390,21 @@ const MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août"
 const JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
 const fdate = d => { const x = new Date(d + "T12:00:00Z"); return `${JOURS[x.getUTCDay()]} ${x.getUTCDate()} ${MOIS[x.getUTCMonth()]}`; };
 const dist = r => [...new Set((r.epreuves || []).map(e => e.km).filter(Boolean))].sort((a, b) => a - b).map(k => String(k).replace(".", ",") + " km").slice(0, 5).join(", ");
+// même course, autre édition : même identifiant sans l'année, ou même nom (sans année ni n° d'édition) dans la même commune
+const idBase = id => String(id).replace(/-20\d\d(-\d\d)?$/, "");
+const nameKey = n => String(n || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+  .replace(/\b(19|20)\d\d\b/g, " ").replace(/\b\d+\s*(e|eme|er|re|ere)\b/g, " ").replace(/\bedition\b/g, " ").replace(/[^a-z0-9]+/g, " ").replace(/\b(de|du|des|la|le|les|l|d)\b/g, " ").replace(/\s+/g, " ").trim();
 const getJSON = async u => (await fetch(`${SITE}/${u}?c=${Date.now()}`, { headers: { "user-agent": "Mozilla/5.0 (compatible; DossardPei-notifications/1.0; +https://dossardpei.re)" } })).json();
+
+// mémoire des courses (calendrier + courses terminées encore en ligne)
+async function rememberRaces(D, data) {
+  let term = {}; try { term = await getJSON("state/terminees.json"); } catch (e) { }
+  const all = [...Object.entries(term || {}).map(([id, t]) => ({ id, ...t })), ...(data.races || [])].filter(r => r.id && r.date && !r.hidden);
+  const up = D.prepare(`INSERT INTO races (id, nom, commune, date, base, nkey) VALUES (?, ?, ?, ?, ?, ?)
+    ON CONFLICT(id) DO UPDATE SET nom = excluded.nom, commune = excluded.commune, date = excluded.date, base = excluded.base, nkey = excluded.nkey
+    WHERE races.date IS NOT excluded.date OR races.nom IS NOT excluded.nom OR races.commune IS NOT excluded.commune`);
+  for (let i = 0; i < all.length; i += 50) await D.batch(all.slice(i, i + 50).map(r => up.bind(r.id, r.nom || "", r.commune || "", r.fin || r.date, idBase(r.id), nameKey(r.nom))));
+}
 
 async function sendRun(env, opts = {}) {
   const now = reu(), h = now.getUTCHours(), today = dayStr(now);
@@ -399,7 +415,7 @@ async function sendRun(env, opts = {}) {
   // 1. événements du journal pas encore traités
   const key = e => `${e.at}|${e.t}|${e.id}|${e.a || ""}`;
   let seen = await getState(env, "seen");
-  if (!seen) { await setState(env, "seen", journal.map(key)); return { init: journal.length }; }   // première fois : on ne rejoue pas le passé
+  if (!seen) { await setState(env, "seen", journal.map(key)); await rememberRaces(D, data); return { init: journal.length }; }   // première fois : on ne rejoue pas le passé
   const S = new Set(seen), fresh = journal.filter(e => !S.has(key(e)));
   const msgs = [];   // { kind, race, fav: bool, title, body, url, ins }
   const url = (id, k) => `/course/${id}/?ref=notif-${k}`;
@@ -407,6 +423,12 @@ async function sendRun(env, opts = {}) {
   const chg = {};
   for (const e of fresh) {
     const r = races[e.id];
+    if (e.t === "ajout" && r && !r.hidden) {
+      // la course revient : éditions passées de la même course (au moins 3 mois avant), pour ceux qui l'avaient en favori
+      const prev = ((await D.prepare("SELECT id FROM races WHERE date < ? AND date < ? AND (id = ? OR base = ? OR (nkey = ? AND commune = ?))")
+        .bind(addDays(r.date, -90), today, r.id, idBase(r.id), nameKey(r.nom), r.commune || "").all()).results || []).map(x => x.id);
+      if (prev.length) msgs.push({ kind: "revient", race: e.id, prev, title: `La course revient : ${r.nom}`, body: `Prochaine édition ${fdate(r.date)} · ${r.commune}${dist(r) ? " · " + dist(r) : ""}`, url: url(e.id, "revient"), image: r.poster_lg ? `${SITE}/${r.poster_lg}` : undefined });
+    }
     if (e.t === "ajout" && r && !r.hidden) msgs.push({ kind: "nouveau", race: e.id, fav: false, title: `Nouveau dossard : ${r.nom}`, body: `${fdate(r.date)} · ${r.commune}${dist(r) ? " · " + dist(r) : ""}`, url: url(e.id, "nouveau"), image: r.poster_lg ? `${SITE}/${r.poster_lg}` : undefined });
     else if (e.t === "ouverture" && r) msgs.push({ kind: "ouverture", race: e.id, fav: true, title: r.nom, body: `Les inscriptions sont ouvertes${dist(r) ? " · " + dist(r) : ""}`, url: url(e.id, "ouverture"), ins: r.inscription });
     else if (e.t === "réouvert" && r && !r.complet && !(await lastSent("places", e.id, 12))) {
@@ -452,8 +474,11 @@ async function sendRun(env, opts = {}) {
     const tally = {};
     for (const s of subs) {
       const favs = new Set(JSON.parse(s.favs || "[]")), prefs = { ...PREFS, ...JSON.parse(s.prefs || "{}") };
-      const ORD = { annul: 0, places: 1, ouverture: 2, cloture: 3, changement: 4, rappel: 5, nouveau: 6 };   // le plus important d'abord
-      const mine = msgs.filter(m => prefs[m.kind] && (!m.fav || favs.has(m.race))).sort((a, b) => ORD[a.kind] - ORD[b.kind]);
+      const ORD = { annul: 0, places: 1, ouverture: 2, revient: 3, cloture: 4, changement: 5, rappel: 6, nouveau: 7 };   // le plus important d'abord
+      const hit = m => m.prev ? m.prev.some(x => favs.has(x)) : (!m.fav || favs.has(m.race));
+      let mine = msgs.filter(m => prefs[m.kind] && hit(m));
+      const back = new Set(mine.filter(m => m.kind === "revient").map(m => m.race));   // « la course revient » remplace « nouveau dossard » pour la même course
+      mine = mine.filter(m => !(m.kind === "nouveau" && back.has(m.race))).sort((a, b) => ORD[a.kind] - ORD[b.kind]);
       if (!mine.length) continue;
       const sentToday = s.day === today ? s.sent : 0;
       // pas de plafond ; seule sécurité : plus de 3 nouveaux dossards d'un coup partent en une seule notification
@@ -473,6 +498,7 @@ async function sendRun(env, opts = {}) {
     for (const t of Object.values(tally)) await D.prepare("INSERT INTO sends (at, kind, race, title, body, sent, ok, gone) VALUES (?, ?, ?, ?, ?, ?, ?, ?)").bind(at, t.m.kind, t.m.race, t.m.title, t.m.body, t.sent, t.ok, t.gone).run();
     for (const m of msgs) if (!Object.keys(tally).includes(m.kind + "|" + m.race)) await D.prepare("INSERT INTO sends (at, kind, race, title, body, sent, ok, gone) VALUES (?, ?, ?, ?, ?, 0, 0, 0)").bind(at, m.kind, m.race, m.title, m.body).run();
   }
+  await rememberRaces(D, data);   // après la recherche des éditions passées, pour qu'une course qui garde son identifiant ne s'efface pas elle-même
   // mémoire : 60 jours de journal suffisent ; on ne garde que les clés encore présentes
   const keys = new Set(journal.map(key));
   await setState(env, "seen", [...S].filter(k => keys.has(k)));

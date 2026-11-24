@@ -1051,7 +1051,7 @@ async function statsCF(P) {
 /* ============================================================
    NOTIFICATIONS
    ============================================================ */
-const NKIND = { nouveau: "Nouveau dossard", ouverture: "Inscriptions ouvertes", places: "Places libérées", cloture: "Clôture proche", changement: "Changement", annul: "Course annulée", rappel: "Rappel J-2" };
+const NKIND = { nouveau: "Nouveau dossard", ouverture: "Inscriptions ouvertes", places: "Places libérées", cloture: "Clôture proche", changement: "Changement", annul: "Course annulée", rappel: "Rappel J-2", revient: "La course revient" };
 async function mySub() { if (!("serviceWorker" in navigator) || !("PushManager" in window)) return null; const r = await navigator.serviceWorker.getRegistration("/"); return r ? r.pushManager.getSubscription() : null; }
 async function viewNotifs() {
   const v = $("#view");
