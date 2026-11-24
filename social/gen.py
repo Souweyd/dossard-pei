@@ -378,7 +378,7 @@ def build_mardi(ref, data, races):
         sl.append(CH.fin(P, 'couchant'))
         pages[fmt] = sl
     # légende courte, sans détail des courses (24/11/2026) : tout est dans le post
-    lines = [f"{th['emo']} {th['short']} : {len(sel)} courses ces 10 prochaines semaines.", '',
+    lines = [f"{th['emo']} {th['short']} : {len(sel)} courses à venir.", '',
              'Toutes les infos 👉 dossardpei.re (lien en bio)']
     return pages, lines, TAGS
 
@@ -449,7 +449,7 @@ def build_jeudi(ref, data, races):
         sl.append(CH.fin(P, 'lagon'))
         pages[fmt] = sl
     nm_ = {'nord': 'le Nord', 'sud': 'le Sud', 'est': 'l’Est', 'ouest': 'l’Ouest'}[reg]
-    lines = [f"📍 Courir dans {nm_} : {len(sel)} courses {endlab}.", '',     # légende courte (24/11/2026)
+    lines = [f"📍 Courir dans {nm_} : {len(sel)} courses à venir.", '',     # légende courte (24/11/2026)
              'Toutes les courses sur la carte 👉 dossardpei.re (lien en bio)']
     return pages, lines, TAGS
 
