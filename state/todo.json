@@ -1,5 +1,5 @@
 {
- "at": "2026-11-24T14:03+04:00",
+ "at": "2026-11-24T15:05+04:00",
  "since": "2026-11-24T11:36:22+04:00",
  "rien": false,
  "sources": [
@@ -30,6 +30,11 @@
    "id": "gto",
    "url": "https://www.grandtrail-ouest.re/",
    "erreur": "URLError"
+  },
+  {
+   "id": "trail-anglais-2027-02",
+   "url": "https://traildesanglais.re/inscriptions/",
+   "erreur": "HTTPError 404"
   }
  ]
 }
