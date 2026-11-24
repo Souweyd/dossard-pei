@@ -132,6 +132,7 @@ table.t td.n{text-align:right;font-variant-numeric:tabular-nums}
   <button data-t="clubs">Clubs</button>
   <button data-t="saison">Saison 2027</button>
   <button data-t="stats">Stats</button>
+  <button data-t="notifs">Notifications</button>
   <button data-t="sante">Santé</button>
 </nav>
 <main id="view"><div class="loading">Chargement…</div></main>
@@ -218,7 +219,7 @@ const epLock = (e, k) => !ED.isNew && !ED.d.manual && ED.orig && ovOf(ED.d.id).f
 /* ============ navigation ============ */
 let TAB = "courses";
 $("#tabs").addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; TAB = b.dataset.t; $$("#tabs button").forEach(x => x.setAttribute("aria-selected", x === b)); try { localStorage.setItem("adm-tab", TAB); } catch (e) { } render(); });
-function render() { ({ courses: viewCourses, messages: viewMessages, clubs: viewClubs, saison: viewSaison, stats: viewStats, sante: viewSante })[TAB](); }
+function render() { ({ notifs: viewNotifs, courses: viewCourses, messages: viewMessages, clubs: viewClubs, saison: viewSaison, stats: viewStats, sante: viewSante })[TAB](); }
 
 /* ============================================================
    COURSES
@@ -1045,6 +1046,47 @@ async function statsCF(P) {
         <div class="card"><h3 style="margin-top:2px">Réponses du site ${info("Réponses du site", TXT.codes)}</h3>${codes.length ? hbars(codes) : `<p class="hint">Détail non disponible.</p>`}</div>
       </div>`;
   } catch (er) { tb.innerHTML = `<div class="card note w">Trafic indisponible : ${esc(er.message)}</div>`; }
+}
+
+/* ============================================================
+   NOTIFICATIONS
+   ============================================================ */
+const NKIND = { nouveau: "Nouveau dossard", ouverture: "Inscriptions ouvertes", places: "Places libérées", cloture: "Clôture proche", changement: "Changement", annul: "Course annulée", rappel: "Rappel J-2" };
+async function mySub() { if (!("serviceWorker" in navigator) || !("PushManager" in window)) return null; const r = await navigator.serviceWorker.getRegistration("/"); return r ? r.pushManager.getSubscription() : null; }
+async function viewNotifs() {
+  const v = $("#view");
+  v.innerHTML = `<h2>Notifications</h2><div class="loading">Chargement…</div>`;
+  let d; try { d = await api("push"); } catch (e) { v.innerHTML = `<h2>Notifications</h2><div class="card note w">${esc(e.message)}${/non reliée/.test(e.message) ? "<br>Il faut créer la base D1 et la relier au service (voir le guide)." : ""}</div>`; return; }
+  const me = await mySub().catch(() => null);
+  const name = id => (races().find(r => r.id === id) || {}).nom || id;
+  v.innerHTML = `<h2>Notifications</h2>
+  <div class="kpis">
+    ${kpi("Appareils abonnés", nf(d.abonnes), `${nf(d.nouveaux7j)} nouveaux en 7 jours`, "Nombre de téléphones ou d'ordinateurs qui ont activé les notifications. Une même personne peut en avoir plusieurs. Un appareil désinstallé est retiré tout seul au premier envoi qui échoue.")}
+    ${kpi("Actifs en 7 jours", nf(d.actifs7j), "ont ouvert le site", "Appareils abonnés dont le site a mis à jour les favoris ou les réglages ces 7 derniers jours.")}
+    ${kpi("Nouveaux dossards", nf(d.prefs.nouveau), "appareils l'ont activé", "")}
+    ${kpi("Envois récents", nf(d.envois.reduce((a, x) => a + (x.sent || 0), 0)), "sur les 60 derniers messages", "")}
+  </div>
+  <div class="card"><div class="chead"><h3 style="margin:2px 0">Sur cet appareil</h3></div>
+    <p class="hint" style="margin-top:0">${me ? "Cet appareil est abonné." : "Active les notifications ici pour pouvoir t'envoyer des tests."}</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">${me ? `<button class="btn p" id="ntest">Envoyer une notification de test</button>` : `<button class="btn p" id="nsub">Activer sur cet appareil</button>`}<button class="btn" id="nrun">Lancer l'envoi maintenant</button></div>
+    <p class="hint">« Lancer l'envoi maintenant » fait tout de suite ce que la tâche horaire fait toutes les heures (même la nuit).</p></div>
+  <div class="two">
+    <div class="card"><h3 style="margin-top:2px">Ce que les abonnés ont activé</h3>${hbars(Object.entries(d.prefs).map(([k, n]) => ({ l: NKIND[k] || k, n })), d.abonnes || 1)}</div>
+    <div class="card"><h3 style="margin-top:2px">Courses les plus suivies ⭐</h3>${d.favoris.length ? hbars(d.favoris.map(([id, n]) => ({ l: name(id), n }))) : `<p class="hint">Aucun abonné n'a encore de favori.</p>`}</div>
+  </div>
+  <div class="card ovw"><h3 style="margin-top:2px">Derniers envois</h3>${d.envois.length ? `<table class="t"><tr><th>Quand</th><th>Type</th><th>Message</th><th class="n">Envoyés</th><th class="n">Reçus</th></tr>${d.envois.map(x => `<tr><td style="white-space:nowrap;color:var(--ink2)">${new Date(x.at).toLocaleString("fr-FR", { timeZone: "Indian/Reunion", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</td><td><span class="bd">${esc(NKIND[x.kind] || x.kind)}</span></td><td><b style="font-weight:600">${esc(x.title)}</b><br><span style="color:var(--ink2)">${esc(x.body)}</span></td><td class="n">${nf(x.sent)}</td><td class="n">${nf(x.ok)}${x.gone ? ` <small style="color:var(--mut)">(${x.gone} désabonnés)</small>` : ""}</td></tr>`).join("")}</table>` : `<p class="hint">Aucun envoi pour l'instant.</p>`}</div>`;
+  const t = $("#ntest"); if (t) t.onclick = () => run(t, async () => { const r = await api("push/test", { method: "POST", body: JSON.stringify({ endpoint: me.endpoint }) }); toast(r.ok ? "Notification de test envoyée." : "Échec : " + r.statut, !r.ok); });
+  const sb = $("#nsub"); if (sb) sb.onclick = () => run(sb, async () => {
+    if (!("PushManager" in window)) throw new Error("ce navigateur ne permet pas les notifications (sur iPhone : depuis l'appli installée)");
+    if (await Notification.requestPermission() !== "granted") throw new Error("notifications refusées");
+    const r = await navigator.serviceWorker.register("/sw.js"); await navigator.serviceWorker.ready;
+    const k = await (await fetch("/api/push/key")).json();
+    const s = (await r.pushManager.getSubscription()) || await r.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: k.key });
+    const ok = (await fetch("/api/push/sub", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ subscription: s.toJSON(), favs: [], prefs: {}, welcome: true }) })).ok;
+    if (!ok) throw new Error("abonnement refusé par le service");
+    toast("Activé sur cet appareil."); viewNotifs();
+  });
+  $("#nrun").onclick = e => run(e.target, async () => { const r = await api("push/run", { method: "POST", body: "{}" }); toast(r.skipped ? "Rien : silence de nuit." : r.init ? "Initialisé : les prochains changements seront envoyés." : `${nf(r.messages || 0)} message(s), ${nf(r.ok || 0)} reçu(s).`); viewNotifs(); });
 }
 
 /* ============================================================

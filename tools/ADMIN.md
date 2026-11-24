@@ -82,3 +82,21 @@ Choisis un mot de passe d'au moins **12 caractères**, que tu n'utilises nulle p
 - **En cas de souci.** Tu peux couper l'admin en supprimant la route `dossardpei.re/admin/api/*` du Worker. Le site public n'est pas touché.
 - **Messages.** Les formulaires du site (contact, corrections, clubs) arrivent dans l'onglet **Messages**, et plus par e-mail. La pastille rouge donne le nombre de messages à traiter. Si l'espace des messages ne répond pas, le site les envoie par e-mail comme avant : rien ne se perd.
 - **Logos des clubs.** Ils ne se changent pas dans l'admin (ils sont sur une planche commune) : il faut me les envoyer.
+
+---
+
+## Étape 3 : les notifications (environ 5 minutes)
+
+1. **La base** : dans Cloudflare, ouvre **Stockage et bases de données › D1 › Créer**.
+   - Nom : `dossardpei-notifications`.
+   - Emplacement ou juridiction : **Union européenne** (ou « Europe de l'Ouest »).
+2. **La relier au service** : dans le Worker `dossardpei-api`, ouvre **Paramètres › Liaisons › Ajouter › Base de données D1**.
+   - Nom de la variable : `DB`.
+   - Base : `dossardpei-notifications`.
+   - Les tables se créent toutes seules au premier usage.
+3. **La route** : dans **Domaines et routes**, ajoute la route `dossardpei.re/api/push/*` (zone `dossardpei.re`).
+4. **La tâche horaire** : dans **Paramètres › Déclencheurs › Déclencheurs cron › Ajouter**, saisis `20 * * * *` (toutes les heures à la 20e minute, après la synchro).
+5. **Le code** : recolle `tools/admin-worker.js` (**Modifier le code**, tout remplacer, puis **Déployer**).
+6. **Le test** : dans l'admin, onglet **Notifications**, clique sur **Activer sur cet appareil**, puis **Envoyer une notification de test**. Sur iPhone, fais-le depuis l'appli installée sur l'écran d'accueil.
+
+Il n'y a aucune clé à saisir : les clés d'envoi sont créées par le service au premier usage et gardées dans la base.

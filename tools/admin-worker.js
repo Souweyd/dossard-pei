@@ -1,4 +1,4 @@
-// Dossard Péi — service de la page admin (Cloudflare Worker, routes dossardpei.re/admin/api/* et dossardpei.re/api/form).
+// Dossard Péi — service de la page admin (Cloudflare Worker, routes dossardpei.re/admin/api/*, dossardpei.re/api/form et dossardpei.re/api/push/*).
 //
 // /api/form (public) : reçoit les formulaires du site (contact, clubs) et les range dans l'espace MSG,
 // lu seulement par l'admin. Effacés automatiquement au bout d'un an. Si ce service ne répond pas, le site
@@ -21,6 +21,7 @@
 //   CF_SITE_TAG    identifiant du site Web Analytics
 //   CF_API_TOKEN   (secret, facultatif) jeton « Analytics : lecture » (compte et zone)
 //   MSG            espace de stockage KV (liaison « KV namespace ») pour les messages des formulaires
+//   DB             base D1 (liaison « D1 database ») pour les notifications ; déclencheur cron « 20 * * * * »
 //   SALT           (secret) texte au hasard, pour compter les envois par appareil sans garder l'adresse IP
 
 const WRITE = /^(data\.json|state\/overrides\.json|clubs\/clubs\.json|saison2027\.json|posters\/in\/[a-z0-9-]+\.(jpg|png))$/;
@@ -29,9 +30,11 @@ const GC_PATHS = /^stats\/(total|hits|toprefs|browsers|systems|sizes|locations|c
 const MAX = 4_000_000;
 
 export default {
+  async scheduled(event, env, ctx) { ctx.waitUntil(sendRun(env).catch(e => console.log("notifications", e))); },
   async fetch(req, env) {
     const url = new URL(req.url);
     if (url.pathname === "/api/form") return form(req, env);
+    if (url.pathname.startsWith("/api/push/")) return pushApi(req, env, url.pathname.slice(10));
     const path = url.pathname.replace(/^\/admin\/api\/?/, "");
     if (path === "login" && req.method === "POST") return login(req, env);
     if (path === "logout") return json({ ok: true }, 200, { "set-cookie": "dp_admin=; Path=/admin; Max-Age=0; HttpOnly; Secure; SameSite=Strict" });
@@ -46,6 +49,7 @@ export default {
       if (path === "history") return json(await history(env));
       if (path.startsWith("gc/")) return await gc(env, path.slice(3), url.searchParams);
       if (path === "cf" && req.method === "POST") return await cf(env, await req.json());
+      if (path === "push" || path.startsWith("push/")) return await pushAdmin(req, env, path);
       if (path === "messages" && req.method === "GET") return json(await messages(env));
       if (path.startsWith("messages/")) return await message(env, req, decodeURIComponent(path.slice(9)));
       return json({ error: "inconnu" }, 404);
@@ -261,4 +265,243 @@ async function message(env, req, id) {
     return json({ ok: true });
   }
   return json({ error: "requête refusée" }, 400);
+}
+
+// ---------- notifications (Web Push) ----------
+// Base D1 (liaison DB) : abonnements, journal des envois, état. Les clés d'envoi (VAPID) sont créées par le service
+// lui-même au premier usage et gardées dans la base : aucune clé à saisir.
+// Tâche horaire (déclencheur cron « 20 * * * * ») : lit le journal des changements du site et envoie, entre 7 h et 21 h
+// (heure de La Réunion) ; rappels et clôtures à 18 h. Plus de 3 nouveaux dossards d'un coup : une seule notification.
+const SITE = "https://dossardpei.re";
+const TZ = 4 * 3600e3;   // La Réunion, UTC+4, sans heure d'été
+const PREFS = { nouveau: 1, ouverture: 1, places: 1, cloture: 1, changement: 1, annul: 1, rappel: 1 };
+const PUSH_HOSTS = /^https:\/\/([a-z0-9.-]+\.)?(fcm\.googleapis\.com|push\.services\.mozilla\.com|push\.apple\.com|notify\.windows\.com|push\.api\.chromium\.org)\//;
+const enc64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const dec64u = s => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(s.length / 4) * 4, "=")), c => c.charCodeAt(0));
+const cat = (...a) => { const o = new Uint8Array(a.reduce((n, x) => n + x.length, 0)); let i = 0; for (const x of a) { o.set(x, i); i += x.length; } return o; };
+const te = s => new TextEncoder().encode(s);
+async function hmac(key, data) { const k = await crypto.subtle.importKey("raw", key, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]); return new Uint8Array(await crypto.subtle.sign("HMAC", k, data)); }
+
+let DBREADY = false;
+async function db(env) {
+  if (!env.DB) throw new Error("base des notifications non reliée");
+  if (!DBREADY) {
+    await env.DB.batch([
+      env.DB.prepare("CREATE TABLE IF NOT EXISTS subs (id TEXT PRIMARY KEY, endpoint TEXT NOT NULL, p256dh TEXT NOT NULL, auth TEXT NOT NULL, favs TEXT NOT NULL DEFAULT '[]', prefs TEXT NOT NULL DEFAULT '{}', created TEXT, updated TEXT, day TEXT, sent INTEGER DEFAULT 0, fails INTEGER DEFAULT 0, admin INTEGER DEFAULT 0)"),
+      env.DB.prepare("CREATE TABLE IF NOT EXISTS sends (n INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT, kind TEXT, race TEXT, title TEXT, body TEXT, sent INTEGER, ok INTEGER, gone INTEGER)"),
+      env.DB.prepare("CREATE TABLE IF NOT EXISTS state (k TEXT PRIMARY KEY, v TEXT)"),
+    ]);
+    DBREADY = true;
+  }
+  return env.DB;
+}
+const getState = async (env, k) => { const r = await (await db(env)).prepare("SELECT v FROM state WHERE k = ?").bind(k).first(); return r ? JSON.parse(r.v) : null; };
+const setState = async (env, k, v) => (await db(env)).prepare("INSERT INTO state (k, v) VALUES (?, ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v").bind(k, JSON.stringify(v)).run();
+
+// clés VAPID (ES256), créées une fois
+async function vapid(env) {
+  let k = await getState(env, "vapid");
+  if (!k) {
+    const p = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, ["sign", "verify"]);
+    k = { priv: await crypto.subtle.exportKey("jwk", p.privateKey), pub: enc64u(await crypto.subtle.exportKey("raw", p.publicKey)) };
+    await setState(env, "vapid", k);
+  }
+  return k;
+}
+async function vapidHeader(env, endpoint) {
+  const k = await vapid(env);
+  const head = enc64u(te(JSON.stringify({ typ: "JWT", alg: "ES256" })));
+  const body = enc64u(te(JSON.stringify({ aud: new URL(endpoint).origin, exp: Math.floor(Date.now() / 1000) + 12 * 3600, sub: "mailto:contact@dossardpei.re" })));
+  const key = await crypto.subtle.importKey("jwk", k.priv, { name: "ECDSA", namedCurve: "P-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, key, te(`${head}.${body}`));
+  return `vapid t=${head}.${body}.${enc64u(sig)}, k=${k.pub}`;
+}
+// chiffrement du message (RFC 8291, aes128gcm)
+async function encrypt(p256dh, auth, text) {
+  const ua = dec64u(p256dh), secret = dec64u(auth);
+  const eph = await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, true, ["deriveBits"]);
+  const asPub = new Uint8Array(await crypto.subtle.exportKey("raw", eph.publicKey));
+  const uaKey = await crypto.subtle.importKey("raw", ua, { name: "ECDH", namedCurve: "P-256" }, false, []);
+  const shared = new Uint8Array(await crypto.subtle.deriveBits({ name: "ECDH", public: uaKey }, eph.privateKey, 256));
+  const prkKey = await hmac(secret, shared);
+  const ikm = await hmac(prkKey, cat(te("WebPush: info\0"), ua, asPub, new Uint8Array([1])));
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const prk = await hmac(salt, ikm);
+  const cek = (await hmac(prk, cat(te("Content-Encoding: aes128gcm\0"), new Uint8Array([1])))).slice(0, 16);
+  const nonce = (await hmac(prk, cat(te("Content-Encoding: nonce\0"), new Uint8Array([1])))).slice(0, 12);
+  const k = await crypto.subtle.importKey("raw", cek, "AES-GCM", false, ["encrypt"]);
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv: nonce }, k, cat(te(text), new Uint8Array([2]))));
+  return cat(salt, new Uint8Array([0, 0, 16, 0]), new Uint8Array([65]), asPub, ct);   // en-tête : sel, taille d'enregistrement 4096, clé
+}
+// envoie un message à un abonnement ; "gone" = l'appareil n'existe plus (on supprime l'abonnement)
+async function pushOne(env, s, msg) {
+  try {
+    const r = await fetch(s.endpoint, {
+      method: "POST",
+      headers: { authorization: await vapidHeader(env, s.endpoint), "content-encoding": "aes128gcm", "content-type": "application/octet-stream", ttl: String(msg.ttl || 86400), urgency: msg.urgency || "normal", ...(msg.topic ? { topic: msg.topic } : {}) },
+      body: await encrypt(s.p256dh, s.auth, JSON.stringify(msg)),
+    });
+    if (r.status === 404 || r.status === 410) return "gone";
+    return r.ok ? "ok" : "fail:" + r.status;
+  } catch (e) { return "fail"; }
+}
+
+// ----- abonnement depuis le site (public) -----
+async function pushApi(req, env, path) {
+  const out = (o, status = 200) => new Response(JSON.stringify(o), { status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
+  try {
+    if (path === "key") return out({ key: (await vapid(env)).pub });
+    if (req.method !== "POST") return out({ error: "requête refusée" }, 405);
+    const origin = req.headers.get("origin") || "";
+    if (origin && !/^https:\/\/(www\.)?dossardpei\.re$/.test(origin)) return out({ error: "refusé" }, 403);
+    const raw = await req.text();
+    if (raw.length > 20000) return out({ error: "trop long" }, 413);
+    const b = JSON.parse(raw || "{}");
+    const sub = b.subscription || {}, ep = String(sub.endpoint || b.endpoint || "");
+    if (!PUSH_HOSTS.test(ep) || ep.length > 1000) return out({ error: "abonnement invalide" }, 400);
+    const id = (await sha(ep)).slice(0, 32), D = await db(env), now = new Date().toISOString();
+    if (path === "unsub") { await D.prepare("DELETE FROM subs WHERE id = ?").bind(id).run(); return out({ ok: true }); }
+    if (path !== "sub") return out({ error: "inconnu" }, 404);
+    const p256dh = String(sub.keys?.p256dh || ""), auth = String(sub.keys?.auth || "");
+    if (!/^[\w-]{80,100}$/.test(p256dh) || !/^[\w-]{16,30}$/.test(auth)) return out({ error: "clés invalides" }, 400);
+    let favs = [...new Set((Array.isArray(b.favs) ? b.favs : []).filter(x => typeof x === "string" && /^[a-z0-9-]{2,80}$/.test(x)))].slice(0, 300);
+    const prefs = {}; for (const k in PREFS) prefs[k] = b.prefs && k in b.prefs ? (b.prefs[k] ? 1 : 0) : 1;
+    if (b.old && PUSH_HOSTS.test(String(b.old))) {   // abonnement renouvelé par le navigateur : on reprend les favoris et réglages de l'ancien
+      const oid = (await sha(String(b.old))).slice(0, 32), o = await D.prepare("SELECT favs, prefs FROM subs WHERE id = ?").bind(oid).first();
+      if (o) { favs = JSON.parse(o.favs || "[]"); Object.assign(prefs, JSON.parse(o.prefs || "{}")); if (oid !== id) await D.prepare("DELETE FROM subs WHERE id = ?").bind(oid).run(); }
+    }
+    await D.prepare(`INSERT INTO subs (id, endpoint, p256dh, auth, favs, prefs, created, updated, fails) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)
+      ON CONFLICT(id) DO UPDATE SET endpoint = excluded.endpoint, p256dh = excluded.p256dh, auth = excluded.auth, favs = excluded.favs, prefs = excluded.prefs, updated = excluded.updated, fails = 0`)
+      .bind(id, ep, p256dh, auth, JSON.stringify(favs), JSON.stringify(prefs), now, now).run();
+    if (b.welcome) {   // première activation : petite notification de confirmation (elle prouve que tout marche)
+      await pushOne(env, { endpoint: ep, p256dh, auth }, { title: "Notifications activées 🔔", body: favs.length ? `Tu seras prévenu pour tes ${favs.length} course${favs.length > 1 ? "s" : ""} favorite${favs.length > 1 ? "s" : ""}.` : "Tu seras prévenu des nouveaux dossards.", url: "/?ref=notif-bienvenue", tag: "bienvenue" });
+    }
+    return out({ ok: true });
+  } catch (e) { return out({ error: String(e.message || e).slice(0, 200) }, 500); }
+}
+
+// ----- envoi : tâche horaire -----
+const reu = (ms = Date.now()) => new Date(ms + TZ);   // date et heure de La Réunion (lire avec getUTC…)
+const dayStr = d => d.toISOString().slice(0, 10);
+const addDays = (d, n) => dayStr(new Date(Date.parse(d + "T12:00:00Z") + n * 864e5));
+const MOIS = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+const JOURS = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+const fdate = d => { const x = new Date(d + "T12:00:00Z"); return `${JOURS[x.getUTCDay()]} ${x.getUTCDate()} ${MOIS[x.getUTCMonth()]}`; };
+const dist = r => [...new Set((r.epreuves || []).map(e => e.km).filter(Boolean))].sort((a, b) => a - b).map(k => String(k).replace(".", ",") + " km").slice(0, 5).join(", ");
+const getJSON = async u => (await fetch(`${SITE}/${u}?c=${Date.now()}`, { headers: { "user-agent": "Mozilla/5.0 (compatible; DossardPei-notifications/1.0; +https://dossardpei.re)" } })).json();
+
+async function sendRun(env, opts = {}) {
+  const now = reu(), h = now.getUTCHours(), today = dayStr(now);
+  if (!opts.force && (h < 7 || h >= 21)) return { skipped: "nuit" };   // silence la nuit : le journal attendra 7 h
+  const D = await db(env);
+  const [journal, data] = [await getJSON("state/journal.json"), await getJSON("data.json")];
+  const races = Object.fromEntries((data.races || []).map(r => [r.id, r]));
+  // 1. événements du journal pas encore traités
+  const key = e => `${e.at}|${e.t}|${e.id}|${e.a || ""}`;
+  let seen = await getState(env, "seen");
+  if (!seen) { await setState(env, "seen", journal.map(key)); return { init: journal.length }; }   // première fois : on ne rejoue pas le passé
+  const S = new Set(seen), fresh = journal.filter(e => !S.has(key(e)));
+  const msgs = [];   // { kind, race, fav: bool, title, body, url, ins }
+  const url = (id, k) => `/course/${id}/?ref=notif-${k}`;
+  const lastSent = async (kind, race, hours) => !!(await D.prepare("SELECT 1 FROM sends WHERE kind = ? AND race = ? AND at > ? LIMIT 1").bind(kind, race, new Date(Date.now() - hours * 3600e3).toISOString()).first());
+  const chg = {};
+  for (const e of fresh) {
+    const r = races[e.id];
+    if (e.t === "ajout" && r && !r.hidden) msgs.push({ kind: "nouveau", race: e.id, fav: false, title: `Nouveau dossard : ${r.nom}`, body: `${fdate(r.date)} · ${r.commune}${dist(r) ? " · " + dist(r) : ""}`, url: url(e.id, "nouveau"), image: r.poster_lg ? `${SITE}/${r.poster_lg}` : undefined });
+    else if (e.t === "ouverture" && r) msgs.push({ kind: "ouverture", race: e.id, fav: true, title: r.nom, body: `Les inscriptions sont ouvertes${dist(r) ? " · " + dist(r) : ""}`, url: url(e.id, "ouverture"), ins: r.inscription });
+    else if (e.t === "réouvert" && r && !r.complet && !(await lastSent("places", e.id, 12))) {
+      // anti yo-yo : la course doit être encore ouverte maintenant, et au plus un message toutes les 12 h
+      const age = Date.now() - Date.parse(e.at);
+      if (age < 50 * 60e3) continue;   // trop récent : on revérifiera à la prochaine heure
+      msgs.push({ kind: "places", race: e.id, fav: true, title: r.nom, body: "Des places se sont libérées : inscriptions rouvertes", url: url(e.id, "places"), ins: r.inscription });
+    } else if (["date", "heure", "lieu", "distance", "dénivelé"].includes(e.t) && r) {
+      const lib = { date: "Date", heure: "Heure", lieu: "Lieu", distance: "Distance", "dénivelé": "Dénivelé" }[e.t];
+      const hh = x => String(x).replace(/^0/, "").replace("h", " h ").replace(/ h 00$/, " h").trim();
+      const v = e.t === "date" ? `${fdate(e.de)} → ${fdate(e.a)}` : e.t === "heure" ? `${hh(e.de)} → ${hh(e.a)}` : `${e.de} → ${e.a}`;
+      const part = e.nom.includes(" – ") ? e.nom.split(" – ").slice(1).join(" – ") + " : " : "";
+      (chg[e.id] = chg[e.id] || []).push(`${lib} ${part}${v}`);
+    }
+    S.add(key(e));
+  }
+  for (const [id, l] of Object.entries(chg)) msgs.push({ kind: "changement", race: id, fav: true, title: `Changement : ${races[id].nom}`, body: l.slice(0, 3).join(" · "), url: url(id, "changement") });
+  // 2. annulations (repérées dans les données : la course reste affichée avec le tampon)
+  const ann = new Set((await getState(env, "annules")) || []);
+  for (const r of data.races || []) if (r.annule && !ann.has(r.id)) { ann.add(r.id); if ((r.fin || r.date) >= today) msgs.push({ kind: "annul", race: r.id, fav: true, title: r.nom, body: "Course annulée par l'organisateur", url: url(r.id, "annul"), urgency: "high" }); }
+  // 3. à 18 h : clôture des inscriptions demain, et rappel 2 jours avant la course
+  if (h === 18 || opts.evening) {
+    const done = (await getState(env, "soir")) || "";
+    if (done !== today) {
+      const tom = addDays(today, 1), j2 = addDays(today, 2);
+      let meteo = {}; try { meteo = (await getJSON("weather.json")).races || {}; } catch (e) { }
+      for (const r of data.races || []) {
+        if (r.hidden) continue;
+        if (r.limite === tom && !r.complet) msgs.push({ kind: "cloture", race: r.id, fav: true, title: r.nom, body: "Clôture des inscriptions demain", url: url(r.id, "cloture"), ins: r.inscription });
+        if (r.date === j2) {
+          const hs = [...new Set((r.epreuves || []).map(e => e.h).filter(Boolean))].sort();
+          const w = (meteo[r.id] || [])[0], wt = w && w.window ? ` · ${w.window.tmin === w.window.tmax ? w.window.tmin : w.window.tmin + "-" + w.window.tmax}°C${w.window.rain >= 1 ? ", pluie possible" : ""}` : "";
+          msgs.push({ kind: "rappel", race: r.id, fav: true, title: `${JOURS[new Date(r.date + "T12:00:00Z").getUTCDay()].replace(/^./, c => c.toUpperCase())} : ${r.nom}`, body: `${hs.length ? (hs.length > 1 ? "Premier départ " : "Départ ") + hs[0].replace(/^0/, "").replace("h", " h ").replace(/ h 00$/, " h") + " · " : ""}${r.lieu || r.commune}${wt}`, url: url(r.id, "rappel") });
+        }
+      }
+      await setState(env, "soir", today);
+    }
+  }
+  // 4. distribution : chaque abonné reçoit ce qui le concerne
+  const res = { messages: msgs.length, envois: 0, ok: 0, supprimes: 0 };
+  if (msgs.length) {
+    const subs = (await D.prepare("SELECT * FROM subs").all()).results || [];
+    const tally = {};
+    for (const s of subs) {
+      const favs = new Set(JSON.parse(s.favs || "[]")), prefs = { ...PREFS, ...JSON.parse(s.prefs || "{}") };
+      const ORD = { annul: 0, places: 1, ouverture: 2, cloture: 3, changement: 4, rappel: 5, nouveau: 6 };   // le plus important d'abord
+      const mine = msgs.filter(m => prefs[m.kind] && (!m.fav || favs.has(m.race))).sort((a, b) => ORD[a.kind] - ORD[b.kind]);
+      if (!mine.length) continue;
+      const sentToday = s.day === today ? s.sent : 0;
+      // pas de plafond ; seule sécurité : plus de 3 nouveaux dossards d'un coup partent en une seule notification
+      const nv = mine.filter(m => m.kind === "nouveau");
+      const list = nv.length <= 3 ? mine : [...mine.filter(m => m.kind !== "nouveau"), { kind: "nouveau", race: "", title: `${nv.length} nouveaux dossards`, body: nv.map(m => m.title.replace(/^Nouveau dossard : /, "")).slice(0, 4).join(", ") + (nv.length > 4 ? "…" : ""), url: "/?ref=notif-nouveau" }];
+      let n = 0, gone = false;
+      for (const m of list) {
+        const st = await pushOne(env, s, { title: m.title, body: m.body, url: m.url, ins: m.ins, image: m.image, tag: m.race ? `${m.kind}-${m.race}` : m.kind, topic: m.race ? (m.kind + m.race).replace(/[^\w-]/g, "").slice(-32) : undefined, urgency: m.urgency });
+        const t = tally[m.kind + "|" + m.race] = tally[m.kind + "|" + m.race] || { m, sent: 0, ok: 0, gone: 0 };
+        t.sent++; res.envois++;
+        if (st === "ok") { t.ok++; res.ok++; n++; } else if (st === "gone") { t.gone++; gone = true; break; }
+      }
+      if (gone) { await D.prepare("DELETE FROM subs WHERE id = ?").bind(s.id).run(); res.supprimes++; }
+      else await D.prepare("UPDATE subs SET day = ?, sent = ?, fails = CASE WHEN ? = 0 THEN fails + 1 ELSE 0 END WHERE id = ?").bind(today, sentToday + n, n, s.id).run();
+    }
+    const at = new Date().toISOString();
+    for (const t of Object.values(tally)) await D.prepare("INSERT INTO sends (at, kind, race, title, body, sent, ok, gone) VALUES (?, ?, ?, ?, ?, ?, ?, ?)").bind(at, t.m.kind, t.m.race, t.m.title, t.m.body, t.sent, t.ok, t.gone).run();
+    for (const m of msgs) if (!Object.keys(tally).includes(m.kind + "|" + m.race)) await D.prepare("INSERT INTO sends (at, kind, race, title, body, sent, ok, gone) VALUES (?, ?, ?, ?, ?, 0, 0, 0)").bind(at, m.kind, m.race, m.title, m.body).run();
+  }
+  // mémoire : 60 jours de journal suffisent ; on ne garde que les clés encore présentes
+  const keys = new Set(journal.map(key));
+  await setState(env, "seen", [...S].filter(k => keys.has(k)));
+  await setState(env, "annules", [...ann].filter(id => races[id]));
+  await D.prepare("DELETE FROM subs WHERE fails > 30").run();
+  await D.prepare("DELETE FROM sends WHERE at < ?").bind(new Date(Date.now() - 180 * 864e5).toISOString()).run();
+  return res;
+}
+
+// ----- admin -----
+async function pushAdmin(req, env, path) {
+  const D = await db(env);
+  if (path === "push" && req.method === "GET") {
+    const subs = (await D.prepare("SELECT favs, prefs, created, updated, day, sent, admin FROM subs").all()).results || [];
+    const by = {}; for (const k in PREFS) by[k] = 0;
+    const favCount = {};
+    for (const s of subs) { const p = { ...PREFS, ...JSON.parse(s.prefs || "{}") }; for (const k in PREFS) if (p[k]) by[k]++; for (const f of JSON.parse(s.favs || "[]")) favCount[f] = (favCount[f] || 0) + 1; }
+    const sends = (await D.prepare("SELECT * FROM sends ORDER BY n DESC LIMIT 60").all()).results || [];
+    const week = new Date(Date.now() - 7 * 864e5).toISOString();
+    return json({ abonnes: subs.length, nouveaux7j: subs.filter(s => (s.created || "") >= week).length, actifs7j: subs.filter(s => (s.updated || "") >= week).length, prefs: by, favoris: Object.entries(favCount).sort((a, b) => b[1] - a[1]).slice(0, 15), envois: sends, cle: (await vapid(env)).pub });
+  }
+  if (path === "push/test" && req.method === "POST") {
+    const b = await req.json(), id = (await sha(String(b.endpoint || ""))).slice(0, 32);
+    const s = await D.prepare("SELECT * FROM subs WHERE id = ?").bind(id).first();
+    if (!s) return json({ error: "Cet appareil n'est pas abonné : active d'abord les notifications ici." }, 404);
+    await D.prepare("UPDATE subs SET admin = 1 WHERE id = ?").bind(id).run();
+    const st = await pushOne(env, s, { title: "Test Dossard Péi 🔔", body: "Si tu lis ceci, les notifications marchent sur cet appareil.", url: "/admin/", tag: "test" });
+    return json({ ok: st === "ok", statut: st });
+  }
+  if (path === "push/run" && req.method === "POST") { const b = await req.json().catch(() => ({})); return json(await sendRun(env, { force: true, evening: !!b.soir })); }
+  return json({ error: "inconnu" }, 404);
 }
