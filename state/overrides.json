@@ -206,6 +206,12 @@
     "ll"
    ],
    "hidden": false
+  },
+  "charrette": {
+   "fields": [
+    "ep:Cadets et juniors:dp"
+   ],
+   "hidden": false
   }
  },
  "manual": [
