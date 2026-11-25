@@ -1,12 +1,12 @@
 {
- "at": "2026-11-25T12:40+04:00",
+ "at": "2026-11-25T14:03+04:00",
  "since": "2026-11-25T11:36:27+04:00",
  "rien": false,
  "sources": [
   {
    "id": "grandraid",
    "url": "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/",
-   "changed": "2026-11-25T12:40+04:00"
+   "changed": "2026-11-25T14:03+04:00"
   }
  ],
  "avenir": [],
@@ -24,6 +24,11 @@
   {
    "id": "gto",
    "url": "https://www.grandtrail-ouest.re/",
+   "erreur": "URLError"
+  },
+  {
+   "id": "ultra-marathon-cirques-2027-06",
+   "url": "https://ultramarathondescirques.re/#umc-inscriptions",
    "erreur": "URLError"
   }
  ]
