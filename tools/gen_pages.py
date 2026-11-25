@@ -15,6 +15,7 @@ def reu_today():
     return (dt_mod.datetime.now(dt_mod.timezone.utc) + dt_mod.timedelta(hours=4)).date()
 
 SITE = "https://dossardpei.re"
+HOME_TITLE = "Dossard Péi · toutes les courses à pied de La Réunion"
 FIRST = {}
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
@@ -936,6 +937,8 @@ def main():
     blk = all_races_block(races, reu_today().isoformat())
     idx2 = re.sub(r'<!--toutes-courses-->.*?<!--/toutes-courses-->', '', idx2, flags=re.S)
     if '<footer class="sitefoot">' in idx2: idx2 = idx2.replace('<footer class="sitefoot">', blk + '<footer class="sitefoot">', 1)
+    # title of the home page: 70 characters at most (the site's source writes a longer one at each sync)
+    idx2 = re.sub(r"<title>[^<]*</title>", f"<title>{HOME_TITLE}</title>", idx2, count=1)
     if idx2 != idx:
         open("index.html", "w", encoding="utf-8").write(idx2); idx = idx2
     m = re.search(r'<svg class="logo biglogo".*?</svg>', idx, re.S)

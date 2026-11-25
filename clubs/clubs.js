@@ -461,7 +461,7 @@
     $('#cmap').addEventListener('click', pick);
     $('#cmap').addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(e); } });
     $('#formbox').addEventListener('submit', sendForm);
-    $('#dclub').addEventListener('close', function () { document.title = 'Clubs péi : les clubs de course et de trail de La Réunion – Dossard Péi'; if (!ROUTING && pathId()) go(''); });
+    $('#dclub').addEventListener('close', function () { document.title = 'Clubs péi : les clubs de course et de trail de La Réunion'; if (!ROUTING && pathId()) go(''); });
     $('#club').addEventListener('scroll', fiche, { passive: true });
     [$('#dclub'), $('#dform'), $('#dfilters')].forEach(function (d) { sheetSwipe(d); d.lastElementChild.addEventListener('scroll', function (e) { fades(e.currentTarget); }, { passive: true }); d.addEventListener('click', function (e) { if (e.target === d) closeDlg(d); }); d.addEventListener('cancel', function (e) { e.preventDefault(); closeDlg(d); }); });
     window.addEventListener('hashchange', onHash);
