@@ -109,7 +109,7 @@ UPDATED = None   # date of data.json (« mis à jour le … »)
 
 
 def day_month(s):
-    d = d_of(s); return f"{d.day} {MOIS[d.month - 1]}"
+    d = d_of(s); return f"{'1er' if d.day == 1 else d.day} {MOIS[d.month - 1]}"
 
 
 def platform(url):
@@ -245,6 +245,21 @@ def og_image(r, out, fonts):
 
 
 # ---------------------------------------------------------------- related races
+TH_SLUGS, TH_LINKS = set(), []   # theme pages of this run (filled in main before the race pages)
+
+
+def see_also(r):
+    """links from a race page to its theme pages (month, discipline, this weekend)"""
+    d = d_of(r["date"]); out = []
+    sl = f"{MSLUG[d.month - 1]}-{d.year}"
+    if sl in TH_SLUGS: out.append(f'<a href="/calendrier/{sl}/">Toutes les courses de {MOIS[d.month - 1]} {d.year}</a>')
+    for k in ("trail", "route", "cross"):
+        if k in TH_SLUGS and k in [typ(e) for e in r.get("epreuves", [])]:
+            out.append(f'<a href="/calendrier/{k}/">{ {"trail": "Tous les trails", "route": "Toutes les courses sur route", "cross": "Tous les cross"}[k] } à La Réunion</a>')
+    out.append('<a href="/calendrier/ce-week-end/">Les courses de ce week-end</a>')
+    return f'<p class="seeall">Voir aussi : {" · ".join(out)}</p>'
+
+
 def related(r, races):
     today = reu_today().isoformat()
     up = [x for x in races if x["id"] != r["id"] and x["date"] >= today]
@@ -436,7 +451,7 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
 <div class="cta">{f'<a class="btn main" href="{esc(r["inscription"])}" rel="noopener" data-goatcounter-click="inscription/{esc(rid)}" data-goatcounter-title="Clic S’inscrire (page course)">{"Page d’inscription" if not_yet else "S’inscrire"}</a>' if r.get('inscription') and can_reg else ''}<a class="btn map" href="/#c-{esc(rid)}">{'Carte et parcours' if has_trk else 'Voir sur la carte'} →</a></div>
 {f'<div class="tbl"><table><thead><tr><th>Épreuve</th><th>Dist.</th><th>D+</th><th>Type</th><th>Départ</th><th>Tarif</th></tr></thead><tbody>{rows}</tbody></table></div>' if rows else ''}
 <p class="src">Informations reprises des sources officielles, à vérifier auprès de l’organisateur avant de vous inscrire.{(' · ' + ' · '.join(links)) if links else ''} · <a href="/#contact-{esc(rid)}">Signaler une erreur</a></p>
-</div></article>{related(r, races)}</main>
+</div></article>{related(r, races)}{see_also(r)}</main>
 <footer>Dossard Péi · toutes les courses de La Réunion au même endroit · <a href="/">dossardpei.re</a> · <a href="/#contact">Nous contacter</a></footer>
 </body></html>
 """
@@ -547,10 +562,210 @@ def all_races_block(races, today):
         li = "".join(f'<li><a href="/course/{esc(r["id"])}/">{esc(r["nom"])}</a> <span>{d_of(r["date"]).day}'
                      f'{"–" + str(d_of(r["fin"]).day) if r.get("fin") and r["fin"] != r["date"] and r["fin"][:7] == ym else ""}'
                      f' · {esc(r.get("commune", ""))}{" · annulée" if r.get("annule") else ""}</span></li>' for r in rs)
-        parts.append(f'<div><h3>{MOIS[int(m) - 1].capitalize()} {y}</h3><ul>{li}</ul></div>')
+        sl = f"{MSLUG[int(m) - 1]}-{y}"
+        hd = f'<a href="/calendrier/{sl}/">{MOIS[int(m) - 1].capitalize()} {y}</a>' if sl in TH_SLUGS else f"{MOIS[int(m) - 1].capitalize()} {y}"
+        parts.append(f'<div><h3>{hd}</h3><ul>{li}</ul></div>')
     # folded by default (the list above already shows them); the links are in the page either way
     return (f'<!--toutes-courses--><details class="allr"><summary><h2>Toutes les courses à venir <span>({len(up)})</span></h2></summary>'
+            f'<p class="allr-nav">Calendriers : <a href="/calendrier/">tous</a>'
+            + "".join(f' · <a href="/calendrier/{sl}/">{esc(lb)}</a>' for sl, lb in TH_LINKS) + '</p>'
             f'<div class="allr-g">{"".join(parts)}</div></details><!--/toutes-courses-->')
+
+# ---------------------------------------------------------------- S4: theme pages (/calendrier/…)
+# Plain static pages that answer the searches people (and AI assistants) make: « courses ce week-end à La Réunion »,
+# « calendrier trail Réunion décembre »… Each one: a factual introduction, the list of races (links to the race pages),
+# links to the other theme pages, ItemList structured data. Rebuilt at each run, so « ce week-end » follows the days.
+CAL = "calendrier"
+MSLUG = ["janvier", "fevrier", "mars", "avril", "mai", "juin", "juillet", "aout", "septembre", "octobre", "novembre", "decembre"]
+MONTHS_AHEAD = 6   # month pages: the current month and the next 5 (further ones hold one or two races, thin pages)
+THEMES = {"trail": ("Trail", "trails", "Calendrier trail à La Réunion : tous les trails à venir"),
+          "route": ("Route", "courses sur route", "Courses sur route à La Réunion : le calendrier"),
+          "cross": ("Cross", "cross", "Cross à La Réunion : le calendrier")}
+
+
+def race_state(r, today, now_reu):
+    """one short registration word for a list: from the formats' states (adult formats)"""
+    if r.get("annule"): return "annulée"
+    eps = [e for e in r.get("epreuves", []) if e.get("type") != "jeunes"] or [{}]
+    st = [ep_state(r, e, today, now_reu) for e in eps]
+    op = sorted(x.split(":", 1)[1] for x in st if x.startswith("ouvert"))
+    if op: return "inscriptions ouvertes" + (f" jusqu’au {day_month(max(op))}" if all(op) else "")
+    if "avenir" in st: return "inscriptions bientôt"
+    if set(st) == {"complet"}: return "complet"
+    return "inscriptions closes"
+
+
+def cal_list(rs, today, now_reu, group=True):
+    """races grouped by day (or by month for long lists)"""
+    by = {}
+    for r in rs: by.setdefault(r["date"] if group else r["date"][:7], []).append(r)
+    out = []
+    for k, xs in by.items():
+        if group:
+            d = d_of(k); h = f"{JOURS[d.weekday()].capitalize()} {'1er' if d.day == 1 else d.day} {MOIS[d.month - 1]} {d.year}"
+        else:
+            y, m = k.split("-"); h = (f'<a href="/{CAL}/{MSLUG[int(m) - 1]}-{y}/">{MOIS[int(m) - 1].capitalize()} {y}</a>' if f"{MSLUG[int(m) - 1]}-{y}" in TH_SLUGS
+                 else f"{MOIS[int(m) - 1].capitalize()} {y}")
+        li = "".join(
+            f'<li><a href="/course/{esc(r["id"])}/"><b>{esc(r["nom"])}</b>'
+            f'<span>{"" if group else str(d_of(r["date"]).day) + " " + MOIS[d_of(r["date"]).month - 1] + " · "}'
+            f'{esc(r.get("commune", ""))} · {esc(DISC[disc_of(r)])}{(" · " + summary(r)) if summary(r) else ""}'
+            f' · {race_state(r, today, now_reu)}</span></a></li>' for r in xs)
+        out.append(f'<h2>{h}</h2><ul class="up">{li}</ul>')
+    return "".join(out)
+
+
+def counts(rs):
+    """« 11 trails, 5 courses sur route et 1 cross »"""
+    n = {}
+    for r in rs:
+        if r.get("annule"): continue
+        n[disc_of(r)] = n.get(disc_of(r), 0) + 1
+    lab = {"trail": ("trail", "trails"), "route": ("course sur route", "courses sur route"), "cross": ("cross", "cross"),
+           "multisport": ("épreuve multisport", "épreuves multisport"), "relais": ("relais", "relais"),
+           "marche": ("rando ou marche", "randos ou marches"), "jeunes": ("course jeunes", "courses jeunes"), "autre": ("autre course", "autres courses")}
+    xs = [f"{v} {lab[k][v > 1]}" for k, v in sorted(n.items(), key=lambda kv: -kv[1])]
+    return (", ".join(xs[:-1]) + " et " + xs[-1]) if len(xs) > 1 else (xs[0] if xs else "")
+
+
+def longest(rs):
+    best = None
+    for r in rs:
+        for e in r.get("epreuves", []):
+            if e.get("km") and not r.get("annule") and (not best or e["km"] > best[1]["km"]): best = (r, e)
+    if not best: return ""
+    r, e = best
+    return f" Le plus long : {r['nom']} ({fmt_km(e['km'])} km{', ' + thou(e['dp']) + ' m D+' if e.get('dp') else ''})."
+
+
+def theme_page(slug, title, desc, h1, intro, body, nav, logo, rs):
+    url = f"{SITE}/{CAL}/{slug + '/' if slug else ''}"
+    ld = {"@context": "https://schema.org", "@type": "ItemList", "name": h1, "url": url, "numberOfItems": len(rs),
+          "itemListElement": [{"@type": "ListItem", "position": i + 1, "url": f"{SITE}/course/{r['id']}/", "name": r["nom"]} for i, r in enumerate(rs)]}
+    ldj = json.dumps(ld, ensure_ascii=False).replace("</", "<\\/")
+    upd = f"Informations mises à jour le {day_month(UPDATED)} {UPDATED[:4]}." if UPDATED else ""
+    return f"""<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>{esc(title)}</title>
+<meta name="description" content="{esc(desc)}">
+<link rel="canonical" href="{url}">
+<meta property="og:type" content="website"><meta property="og:url" content="{url}"><meta property="og:title" content="{esc(h1)}">
+<meta property="og:description" content="{esc(desc)}"><meta property="og:image" content="{SITE}/og/home.jpg"><meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#f5efe6" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#14110e" media="(prefers-color-scheme: dark)">
+<link rel="stylesheet" href="/fonts/fonts.css">
+<script data-goatcounter="https://dossardpei.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<script type="application/ld+json">{ldj}</script>
+<style>{CSS}
+.lead{{font-size:1.05rem;margin:0 0 6px}} .upd{{color:var(--muted);font-size:.86rem;margin:0}}
+ul.up{{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:8px}} ul.up a{{display:flex;flex-direction:column;min-height:44px;justify-content:center;padding:8px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--line);text-decoration:none;color:inherit}}
+ul.up a:hover{{border-color:var(--accent)}} ul.up span{{color:var(--muted);font-size:.92rem}} h2{{font-size:1.15rem;margin:26px 0 0}} h2 a{{color:inherit}}
+.cnav{{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 0;padding:0;list-style:none}} .cnav a{{display:inline-block;padding:6px 12px;border-radius:99px;border:1px solid var(--line);text-decoration:none;font-weight:600;font-size:.92rem}}
+.cnav a[aria-current]{{background:var(--accent-soft);border-color:transparent}}</style></head><body>
+<header class="top"><a class="brand" href="/">{logo}<span>Dossard Péi</span></a><a class="all" href="/">Toutes les courses →</a></header>
+<main><article class="card" style="display:block">
+<h1>{esc(h1)}</h1>
+<p class="lead">{esc(intro)}</p>
+<p class="upd">{upd}</p>
+{body}
+<h2>Autres calendriers</h2><ul class="cnav">{nav}</ul>
+<div class="cta" style="margin-top:22px"><a class="btn main" href="/">Ouvrir Dossard Péi (recherche, carte, filtres)</a></div>
+</article></main>
+<footer>Dossard Péi · toutes les courses de La Réunion au même endroit · <a href="/">dossardpei.re</a> · <a href="/#contact">Nous contacter</a></footer>
+</body></html>
+"""
+
+
+def short(t, n=160):
+    return t if len(t) <= n else t[: n - 1].rsplit(" ", 1)[0] + "…"
+
+
+FILTRE_JS = """// /calendrier/<page>/ : opens the site with the page's filter (read by the app from the address)
+(function () {
+  try {
+    var m = location.pathname.match(/^\\/calendrier\\/([a-z0-9-]+)\\/?$/);
+    if (!m || location.search) return;
+    var s = m[1], q = "", M = """ + json.dumps({x: i + 1 for i, x in enumerate(MSLUG)}) + """;
+    if (s === "ce-week-end") q = "quand=we";
+    else if (/^(trail|route|cross)$/.test(s)) q = "type=" + s;
+    else { var x = s.match(/^([a-z]+)-(\\d{4})$/); if (x && M[x[1]]) q = "mois=" + x[2] + "-" + ("0" + M[x[1]]).slice(-2); }
+    if (q) history.replaceState(history.state, "", location.pathname + "?" + q + location.hash);
+  } catch (e) {}
+})();
+"""
+
+
+def theme_pages(races, logo):
+    """{relative path: html} of the /calendrier/ pages, and the list of (slug, label) for the links"""
+    now_reu = (dt_mod.datetime.now(dt_mod.timezone.utc) + dt_mod.timedelta(hours=4)).strftime("%Y-%m-%dT%H:%M")
+    today = now_reu[:10]; td = d_of(today)
+    up = sorted([r for r in races if (r.get("fin") or r["date"]) >= today], key=lambda r: (r["date"], r["nom"]))
+    live = [r for r in up if not r.get("annule")]
+    pages, links = {}, []
+    # ce week-end: Friday to Sunday of the current week (from today on); on Monday-Thursday, the coming one
+    fri = td + dt_mod.timedelta(days=(4 - td.weekday()) % 7 if td.weekday() < 4 else 0)
+    if td.weekday() >= 4: fri = td - dt_mod.timedelta(days=td.weekday() - 4)
+    sun = fri + dt_mod.timedelta(days=2); a, b = max(fri, td).isoformat(), sun.isoformat()
+    we = [r for r in up if r["date"] <= b and (r.get("fin") or r["date"]) >= a]
+    sat = fri + dt_mod.timedelta(days=1)
+    wlab = (f"samedi {sat.day} et dimanche {sun.day} {MOIS[sun.month - 1]}" if sat.month == sun.month
+            else f"samedi {sat.day} {MOIS[sat.month - 1]} et dimanche {sun.day} {MOIS[sun.month - 1]}") + f" {sun.year}"
+    links.append(("ce-week-end", "Ce week-end"))
+    months = []
+    for r in up:
+        k = r["date"][:7]
+        if k not in months: months.append(k)
+    lim = f"{td.year + (td.month + MONTHS_AHEAD - 1 - 1) // 12}-{(td.month + MONTHS_AHEAD - 1 - 1) % 12 + 1:02d}"
+    months = [k for k in months if k <= lim]
+    for k in months:
+        y, m = k.split("-"); links.append((f"{MSLUG[int(m) - 1]}-{y}", f"{MOIS[int(m) - 1].capitalize()} {y}"))
+    for k, (lab, plur, _) in THEMES.items():
+        if any(k in [typ(e) for e in r.get("epreuves", [])] for r in live): links.append((k, lab))
+    nav = lambda cur: "".join(f'<li><a href="/{CAL}/{sl}/"{" aria-current=page" if sl == cur else ""}>{esc(lb)}</a></li>' for sl, lb in links) + \
+        (f'<li><a href="/{CAL}/"{" aria-current=page" if cur == "" else ""}>Tous les calendriers</a></li>')
+
+    lwe = [r for r in we if not r.get("annule")]
+    if lwe:
+        intro = (f"Ce week-end ({wlab}), {len(lwe)} course{'s' if len(lwe) > 1 else ''} à La Réunion : {counts(lwe)}. "
+                 + " ; ".join(f"{r['nom']} {a_commune(r.get('commune', ''))}" for r in lwe[:6]) + "." + longest(lwe))
+        body = cal_list(we, today, now_reu)
+    else:
+        nxt = live[:6]
+        intro = f"Aucune course n’est annoncée à La Réunion ce week-end ({wlab}). Les prochaines : " + \
+            " ; ".join(f"{r['nom']} le {date_range(r)} {a_commune(r.get('commune', ''))}" for r in nxt[:3]) + "."
+        body = '<h2>Prochaines courses</h2>' + cal_list(nxt, today, now_reu)
+    pages["ce-week-end"] = theme_page("ce-week-end", "Courses à pied ce week-end à La Réunion | Dossard Péi",
+                                      short(intro), "Les courses à pied ce week-end à La Réunion", intro, body, nav("ce-week-end"), logo, we or live[:6])
+    for k in months:
+        y, m = k.split("-"); mois = MOIS[int(m) - 1]; slug = f"{MSLUG[int(m) - 1]}-{y}"
+        rs = [r for r in up if r["date"][:7] == k]; lrs = [r for r in rs if not r.get("annule")]
+        ann = len(rs) - len(lrs)
+        intro = (f"En {mois} {y}, Dossard Péi recense {len(lrs)} course{'s' if len(lrs) > 1 else ''} à pied à La Réunion"
+                 + (f" : {counts(lrs)}" if lrs else "") + "."
+                 + (f" Du {d_of(lrs[0]['date']).day} au {d_of(lrs[-1]['date']).day} {mois} : {lrs[0]['nom']} ouvre le mois, {lrs[-1]['nom']} le termine." if len(lrs) > 1 else "")
+                 + longest(lrs) + (f" {ann} course{'s' if ann > 1 else ''} annulée{'s' if ann > 1 else ''}." if ann else ""))
+        pages[slug] = theme_page(slug, f"Calendrier des courses à La Réunion : {mois} {y} | Dossard Péi", short(intro),
+                                 f"Courses à pied à La Réunion en {mois} {y}", intro, cal_list(rs, today, now_reu), nav(slug), logo, rs)
+    for k, (lab, plur, ttl) in THEMES.items():
+        rs = [r for r in up if k in [typ(e) for e in r.get("epreuves", [])]]
+        lrs = [r for r in rs if not r.get("annule")]
+        if not lrs: continue
+        last = d_of(lrs[-1]["date"])
+        intro = (f"{len(lrs)} {plur if len(lrs) > 1 else plur.rstrip('s') if k != 'cross' else 'cross'} à venir à La Réunion "
+                 f"d’ici {MOIS[last.month - 1]} {last.year}, du plus proche au plus lointain. {'Prochaine course' if k == 'route' else 'Prochain'} : {lrs[0]['nom']}, le {date_range(lrs[0])} {a_commune(lrs[0].get('commune', ''))}."
+                 + longest(lrs))
+        pages[k] = theme_page(k, f"{ttl} | Dossard Péi" if len(ttl) <= 56 else ttl, short(intro),
+                              {"trail": "Les trails à La Réunion", "route": "Les courses sur route à La Réunion", "cross": "Les cross à La Réunion"}[k],
+                              intro, cal_list(rs, today, now_reu, group=False), nav(k), logo, rs)
+    # hub
+    intro = (f"Tous les calendriers des courses à pied de La Réunion : {len(live)} courses à venir ({counts(live)}). "
+             "Par week-end, par mois ou par discipline, chaque course renvoie vers sa fiche : horaires, tarifs, parcours et inscription.")
+    body = "<h2>Par période et par discipline</h2><ul class=\"up\">" + "".join(
+        f'<li><a href="/{CAL}/{sl}/"><b>{esc(lb)}</b></a></li>' for sl, lb in links) + "</ul>"
+    pages[""] = theme_page("", "Calendrier des courses à pied à La Réunion | Dossard Péi", short(intro),
+                           "Calendrier des courses à pied à La Réunion", intro, body, nav(""), logo, live)
+    return pages, links
+
 
 def app_page(idx, static_doc, rid):
     """The page of a race = the full site (same as a click on the race: list behind, race open in the
@@ -607,6 +822,8 @@ html[data-mood] .cfiche{display:none}
 .cfiche .rel ul{list-style:none;padding:0}
 .cfiche .rel a{display:block;padding:6px 0}
 .cfiche .src,.cfiche .note,.cfiche .rel span{color:#776a5f;font-size:.88rem}
+.cfiche .seeall{margin:18px 0 0;font-size:.95rem}
+.cfiche ul.up,.cfiche .cnav{list-style:none;padding:0;margin:8px 0 0}.cfiche ul.up li,.cfiche .cnav li{margin:6px 0}.cfiche ul.up span{display:block;color:#776a5f;font-size:.9rem}
 """
 
 
@@ -708,6 +925,10 @@ def main():
     try: same = old and {k: v for k, v in json.loads(old.group(1).replace("<\\/", "</")).items() if k not in ("updatedAt", "checkedAt")} == {k: v for k, v in data.items() if k not in ("updatedAt", "checkedAt")}
     except ValueError: same = False
     idx2 = idx if same or not old else idx[:old.start(1)] + snap + idx[old.end(1):]
+    # theme pages (/calendrier/…): their links go into the home block and the race pages
+    global TH_SLUGS, TH_LINKS
+    _, TH_LINKS = theme_pages(races, "")
+    TH_SLUGS = {sl for sl, _ in TH_LINKS}
     # list of all races to come, in plain HTML, just before the footer (rebuilt at each run)
     blk = all_races_block(races, reu_today().isoformat())
     idx2 = re.sub(r'<!--toutes-courses-->.*?<!--/toutes-courses-->', '', idx2, flags=re.S)
@@ -717,6 +938,22 @@ def main():
     m = re.search(r'<svg class="logo biglogo".*?</svg>', idx, re.S)
     logo = re.sub(r'class="logo biglogo"', 'aria-hidden="true"', m.group(0)) if m else ""
     logo = re.sub(r'\s(role|aria-label)="[^"]*"', "", logo)
+    # each theme page is the site itself (same look as the home page), opened with the matching filter by
+    # /calendrier/filtre.js (it adds ?type=trail, ?mois=2026-12 or ?quand=we to the address before the app reads it),
+    # with its own title, description and structured data, and its list as plain HTML for engines without JavaScript
+    th, _ = theme_pages(races, logo)
+    os.makedirs(CAL, exist_ok=True)
+    if not os.path.exists(f"{CAL}/filtre.js") or open(f"{CAL}/filtre.js", encoding="utf-8").read() != FILTRE_JS:
+        open(f"{CAL}/filtre.js", "w", encoding="utf-8").write(FILTRE_JS)
+    for sl, out in th.items():
+        out = app_page(idx, nbsp_html(out), "calendrier")
+        out = out.replace("</title>", '</title><script src="/calendrier/filtre.js"></script>', 1)
+        d = f"{CAL}/{sl}".rstrip("/"); os.makedirs(d, exist_ok=True)
+        if not os.path.exists(f"{d}/index.html") or open(f"{d}/index.html", encoding="utf-8").read() != out:
+            open(f"{d}/index.html", "w", encoding="utf-8").write(out)
+    if os.path.isdir(CAL):   # months that have passed, disciplines without races: page removed
+        for d in os.listdir(CAL):
+            if os.path.isdir(f"{CAL}/{d}") and d not in th: shutil.rmtree(f"{CAL}/{d}", ignore_errors=True)
     fonts = {"bold": "tools/fonts/Poppins-Bold.ttf", "medium": "tools/fonts/Poppins-Medium.ttf"}
     os.makedirs("og", exist_ok=True)
     keep = set()
@@ -824,6 +1061,8 @@ def main():
     urls = [f"<url><loc>{SITE}/</loc><lastmod>{lastmod}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>",
             f"<url><loc>{SITE}/jeu/</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq></url>",
             f"<url><loc>{SITE}/clubs/</loc><lastmod>{lm('clubs/index.html')}</lastmod><changefreq>monthly</changefreq></url>"]
+    for sl in [""] + [sl for sl, _ in TH_LINKS]:
+        urls.append(f"<url><loc>{SITE}/{CAL}/{sl + '/' if sl else ''}</loc><lastmod>{lm(f'{CAL}/{sl}/index.html'.replace('//', '/'))}</lastmod><changefreq>daily</changefreq></url>")
     for cid in CLUBS.get("ids", []):
         urls.append(f"<url><loc>{SITE}/clubs/{cid}/</loc><lastmod>{lm(f'clubs/{cid}/index.html')}</lastmod><changefreq>monthly</changefreq></url>")
     for r in sorted(races, key=lambda r: r["date"]):
