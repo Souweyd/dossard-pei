@@ -320,7 +320,13 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
     if r.get("annule"): desc = f"Course annulée. {desc}"
     else:
         if s: desc += f" {s}."
-        desc += " Horaires, tarifs, parcours et lien d'inscription."
+        # 160 characters at most (longer descriptions are cut in results): shorter ending, then without the summary
+        for end in (" Horaires, tarifs, parcours et lien d'inscription.", " Horaires, tarifs et inscription.", ""):
+            if len(desc + end) <= 160: break
+        if len(desc + end) > 160 and s:
+            desc = desc[: -len(f" {s}.")]
+            end = " Horaires, tarifs et inscription." if len(desc) <= 127 else ""
+        desc += end
     img = f"{SITE}/og/{rid}.jpg" if has_og else f"{SITE}/og/home.jpg"
     poster = r.get("poster_lg") or r.get("poster")
     lieu = r.get("lieu") if r.get("lieu") and r.get("lieu") != r.get("commune") else ""
@@ -491,8 +497,10 @@ def ended_page(rid, t, logo, races):
     soon = [r for r in up if r is not nxt and r not in near][:6 - len(near)]
     li = lambda r: (f'<li><a href="/course/{esc(r["id"])}/"><b>{esc(r["nom"])}</b><span>{esc(date_range(r))} · {esc(r.get("commune", ""))}</span></a></li>')
     eps = " · ".join(esc(e.get("nom", "")) + (f" ({fmt_km(e['km'])} km)" if e.get("km") else "") for e in t.get("epreuves", []))
-    title = f"{t['nom']} {a.year} · course terminée | Dossard Péi"
-    desc = f"{t['nom']} a eu lieu {'le ' if a == b else ''}{when} à {t.get('commune', '')}. Les prochaines courses de La Réunion sont sur Dossard Péi."
+    ann = bool(t.get("annule"))   # a cancelled race whose date has passed: same page, « Course annulée »
+    title = f"{t['nom']} {a.year} · course {'annulée' if ann else 'terminée'} | Dossard Péi"
+    desc = (f"{t['nom']}, prévu {'le ' if a == b else ''}{when} à {t.get('commune', '')}, a été annulé." if ann else
+            f"{t['nom']} a eu lieu {'le ' if a == b else ''}{when} à {t.get('commune', '')}.") + " Les prochaines courses de La Réunion sont sur Dossard Péi."
     return f"""<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -510,12 +518,12 @@ ul.up span{{color:#636368;font-size:.92rem}} h2{{font-size:1.15rem;margin:26px 0
 @media (prefers-color-scheme: dark){{.ended{{background:#2b241e;color:#e8dccd}} .nx{{background:#12312e}} ul.up a{{background:#1d1915;border-color:#3a322a}} ul.up span{{color:#b9ada0}}}}</style></head><body>
 <header class="top"><a class="brand" href="/">{logo}<span>Dossard Péi</span></a><a class="all" href="/">Toutes les courses →</a></header>
 <main><article class="card" style="display:block">
-<p class="ended">Course terminée</p>
+<p class="ended">{'Course annulée' if ann else 'Course terminée'}</p>
 <p class="when">{esc(when)}</p>
 <h1>{esc(t['nom'])}</h1>
 <p class="where">{esc(t.get('commune', ''))}{' · ' + esc(t['lieu']) if t.get('lieu') and t.get('lieu') != t.get('commune') else ''}{' · organisé par ' + esc(t['org']) if t.get('org') else ''}</p>
 {f'<p>{eps}</p>' if eps else ''}
-<p>Cette course a eu lieu. {f'Résultats et prochaine édition : voir <a href="{esc(t["page"])}" rel="noopener">le site de l’organisateur</a>.' if t.get('page') else ''}</p>
+<p>{'Cette course a été annulée.' if ann else 'Cette course a eu lieu.'} {f'{"Prochaine édition" if ann else "Résultats et prochaine édition"} : voir <a href="{esc(t["page"])}" rel="noopener">le site de l’organisateur</a>.' if t.get('page') else ''}</p>
 {f'<p class="nx">Prochaine édition : <a href="/course/{esc(nxt["id"])}/">{esc(nxt["nom"])}, {esc(date_range(nxt))}</a></p>' if nxt else ''}
 {f'<h2>Prochaines courses {esc(a_commune(t.get("commune", "")))}</h2><ul class="up">' + "".join(li(r) for r in near) + '</ul>' if near else ''}
 {'<h2>Prochaines courses à La Réunion</h2><ul class="up">' + "".join(li(r) for r in soon) + '</ul>' if soon else ''}
@@ -752,15 +760,22 @@ def main():
     term = json.load(open(TERM, encoding="utf-8")) if os.path.exists(TERM) else {}
     today_s = reu_today().isoformat()
     in_data = {r.get("id") for r in data.get("races", [])}
+    made = {r["id"] for r in races}
+    # cancelled races whose date has passed (still in data.json, hidden): « Course annulée » page, 200 + noindex,
+    # like a finished race, instead of a 404 (keeps the links and impressions they already had)
+    for r in data.get("races", []):
+        if (r.get("annule") and r.get("id") not in made and r.get("date") and (r.get("fin") or r["date"]) < today_s
+                and re.fullmatch(r"[a-z0-9-]+", r.get("id", "")) and r["id"] not in term):
+            term[r["id"]] = {**term_record(r), "annule": True}
     if os.path.isdir("course"):
         for d in os.listdir("course"):
             if d in keep or d in term or d in in_data or not re.fullmatch(r"[a-z0-9-]+", d):
                 continue
             r = snapshot_race(f"course/{d}/index.html", d)
-            if r and r.get("date") and (r.get("fin") or r["date"]) < today_s and not r.get("annule"):
-                term[d] = term_record(r)
+            if r and r.get("date") and (r.get("fin") or r["date"]) < today_s:
+                term[d] = {**term_record(r), **({"annule": True} if r.get("annule") else {})}
     for d in sorted(term):
-        if term[d].get("until", "") < today_s or d in keep or d in in_data:
+        if term[d].get("until", "") < today_s or d in keep or (d in in_data and not term[d].get("annule")):
             del term[d]; continue
         try:
             os.makedirs(f"course/{d}", exist_ok=True)

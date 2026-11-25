@@ -610,5 +610,28 @@
 "org": "Club de Natation les Z'anguilles de Salazie",
 "page": "https://www.sportpro.re/courses/02112-triathlon-tri-salazes/",
 "until": "2027-04-29"
+},
+"tropica-dingue-2026-11": {
+"annule": true,
+"commune": "Saint-Paul",
+"date": "2026-11-21",
+"epreuves": [
+{
+"km": 8,
+"nom": "Tropica'Dingue samedi",
+"type": "autre"
+},
+{
+"km": 8,
+"nom": "Tropica'Dingue dimanche",
+"type": "autre"
+}
+],
+"fin": "2026-11-22",
+"lieu": "La Cocoteraie",
+"nom": "Tropica'Dingue",
+"org": "ILOP Sport",
+"page": "https://tropicadingue.re/",
+"until": "2027-05-21"
 }
 }
