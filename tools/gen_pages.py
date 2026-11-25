@@ -5,7 +5,7 @@ sitemap.xml and robots.txt from data.json. Run from the repository root.
 
 The pages are light, readable on their own and indexable; the full app (map, track, profile)
 stays at / and opens the same race with /#c-<id>."""
-import html, json, os, re, shutil, sys
+import hashlib, html, json, os, re, shutil, sys
 import datetime as dt_mod
 from datetime import date
 
@@ -792,14 +792,31 @@ def main():
             if f"{folder}/{f}" not in refs and f.split("_")[0].split(".")[0] not in keep:
                 os.remove(f"{folder}/{f}")
     # sitemap + robots
+    # lastmod = the day a page's own content last changed (title, description, structured data, summary block),
+    # kept in state/lastmod.json; not the hourly data update, which would mark every page as new every day
     lastmod = (data.get("updatedAt") or reu_today().isoformat())[:10]
+    today = reu_today().isoformat()
+    try: LM = json.load(open("state/lastmod.json", encoding="utf-8"))
+    except Exception: LM = {}
+    def lm(path):
+        try: t = open(path, encoding="utf-8").read()
+        except OSError: return today
+        parts = re.findall(r'<title>.*?</title>|<meta name="description"[^>]*>|<script type="application/ld\+json">.*?</script>|'
+                           r'<section class="cfiche".*?</section>', t, re.S)
+        sig = hashlib.sha1(re.sub(r"Informations mises à jour le [^.]*\.", "", "".join(parts)).encode()).hexdigest()[:16]
+        if LM.get(path, [None])[0] != sig: LM[path] = [sig, today]
+        return LM[path][1]
     urls = [f"<url><loc>{SITE}/</loc><lastmod>{lastmod}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>",
             f"<url><loc>{SITE}/jeu/</loc><lastmod>2026-11-08</lastmod><changefreq>monthly</changefreq></url>",
-            f"<url><loc>{SITE}/clubs/</loc><lastmod>2026-11-16</lastmod><changefreq>monthly</changefreq></url>"]
+            f"<url><loc>{SITE}/clubs/</loc><lastmod>{lm('clubs/index.html')}</lastmod><changefreq>monthly</changefreq></url>"]
     for cid in CLUBS.get("ids", []):
-        urls.append(f"<url><loc>{SITE}/clubs/{cid}/</loc><lastmod>2026-11-17</lastmod><changefreq>monthly</changefreq></url>")
+        urls.append(f"<url><loc>{SITE}/clubs/{cid}/</loc><lastmod>{lm(f'clubs/{cid}/index.html')}</lastmod><changefreq>monthly</changefreq></url>")
     for r in sorted(races, key=lambda r: r["date"]):
-        urls.append(f"<url><loc>{SITE}/course/{r['id']}/</loc><lastmod>{lastmod}</lastmod><changefreq>weekly</changefreq></url>")
+        urls.append(f"<url><loc>{SITE}/course/{r['id']}/</loc><lastmod>{lm('course/' + r['id'] + '/index.html')}</lastmod><changefreq>weekly</changefreq></url>")
+    os.makedirs("state", exist_ok=True)
+    js = json.dumps(LM, ensure_ascii=False, indent=0, sort_keys=True)
+    if not os.path.exists("state/lastmod.json") or open("state/lastmod.json", encoding="utf-8").read() != js:
+        open("state/lastmod.json", "w", encoding="utf-8").write(js)
     sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "\n".join(urls) + "\n</urlset>\n"
     if not os.path.exists("sitemap.xml") or open("sitemap.xml").read() != sm:
         open("sitemap.xml", "w").write(sm)
