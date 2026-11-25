@@ -1,5 +1,5 @@
 {
- "at": "2026-11-25T05:09+04:00",
+ "at": "2026-11-25T06:05+04:00",
  "since": "2026-11-24T22:36:00+04:00",
  "rien": false,
  "sources": [
@@ -25,16 +25,6 @@
    "id": "gto",
    "url": "https://www.grandtrail-ouest.re/",
    "erreur": "URLError"
-  },
-  {
-   "id": "trail-de-la-crete-2027-02",
-   "url": "https://chronorun974.re/trail-de-la-crete-2027/",
-   "erreur": "TimeoutError"
-  },
-  {
-   "id": "laustral-2027-06",
-   "url": "https://chronorun974.re/laustral/",
-   "erreur": "TimeoutError"
   }
  ]
 }
