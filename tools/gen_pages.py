@@ -313,6 +313,9 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
     a = d_of(r["date"]); b = d_of(r.get("fin") or r["date"])
     when = f"{a.day} {MOIS[a.month - 1]}" if a == b else (f"{a.day}–{b.day} {MOIS[b.month - 1]}" if a.month == b.month else f"{a.day} {MOIS[a.month - 1]} – {b.day} {MOIS[b.month - 1]}")
     title = f"{r['nom']} {a.year}{' · course annulée' if r.get('annule') else ''} · {when} · {r.get('commune', '')} | Dossard Péi"
+    # titles over 70 characters are cut in results (Bing flags them): drop the site name, then the town
+    if len(title) > 70: title = title.rsplit(" | ", 1)[0]
+    if len(title) > 70: title = title.rsplit(" · ", 1)[0]
     desc = f"{r['nom']} : {DISC[disc].lower()} {'le ' if not r.get('fin') or r['fin'] == r['date'] else ''}{dl} à {r.get('commune', '')}, La Réunion."
     if r.get("annule"): desc = f"Course annulée. {desc}"
     else:

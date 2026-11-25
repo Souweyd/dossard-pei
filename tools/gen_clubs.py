@@ -77,9 +77,12 @@ def club_page(tpl, c, lk):
     url = f"{SITE}/clubs/{c['id']}/"
     full = c.get("complet") or ""
     kind = KIND.get(c["type"], "club")
-    title = f"{c['nom']}{' (' + full + ')' if full and fold(full) != fold(c['nom']) else ''} : {kind} {a_lieu(c['commune'])} – Clubs péi"
+    # short enough not to be cut in results (70 characters): the full name stays in the H1 block and the description
+    title = f"{c['nom']} : {kind} {a_lieu(c['commune'])} – Clubs péi"
+    if len(title) > 70: title = title.rsplit(" – ", 1)[0]
+    if len(title) > 70: title = f"{c['nom']} : club {a_lieu(c['commune'])}"
     bits = [x for x in ("adresse" if c.get("adresse") or c.get("entrainement") else "", "contact" if c.get("tel") or c.get("mail") else "", "site" if c.get("site") else "") if x]
-    desc = f"{c['nom']}, {kind} {a_lieu(c['commune'])} ({c['secteur']}, La Réunion)"
+    desc = f"{c['nom']}{' (' + full + ')' if full and fold(full) != fold(c['nom']) else ''}, {kind} {a_lieu(c['commune'])} ({c['secteur']}, La Réunion)"
     desc += (" : " + ", ".join(bits) + (" et courses organisées." if lk else ".")) if bits else (" : courses organisées et infos du club." if lk else ".")
     same = [x for x in [c.get("site")] + [r["url"] for r in c.get("reseaux", [])] if x]
     ld = {"@context": "https://schema.org", "@type": "SportsClub", "name": c["nom"], "url": url,
