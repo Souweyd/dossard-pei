@@ -1,26 +1,9 @@
 {
- "at": "2026-11-25T22:06+04:00",
- "since": "2026-11-25T19:36:12+04:00",
- "rien": false,
- "sources": [
-  {
-   "id": "runninglife",
-   "url": "https://running.life/calendrier-course-a-pied/reunion",
-   "changed": "2026-11-25T22:06+04:00"
-  },
-  {
-   "id": "grandraid",
-   "url": "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/",
-   "changed": "2026-11-25T22:06+04:00"
-  }
- ],
- "avenir": [
-  {
-   "id": "trail-de-la-crete-2027-02",
-   "url": "https://chronorun974.re/trail-de-la-crete-2027/",
-   "changed": "2026-11-25T22:06+04:00"
-  }
- ],
+ "at": "2026-11-25T23:03+04:00",
+ "since": "2026-11-25T22:36:21+04:00",
+ "rien": true,
+ "sources": [],
+ "avenir": [],
  "illisibles": [
   {
    "id": "saint-benoit",
