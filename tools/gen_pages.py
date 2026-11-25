@@ -101,6 +101,81 @@ def price_num(p):
     return float(m.group(1).replace(",", ".")) if m else (0.0 if p and "gratuit" in p.lower() else None)
 
 
+# ---------------------------------------------------------------- summary sentence (S1, read by search engines and AI assistants)
+PLATF = {"sportpro.re": "Sport PRO", "chronorun974": "Chrono Run 974", "topchrono": "Top Chrono", "utoi": "UTOI",
+         "chronometrage.com": "Chronometrage.com", "klikego": "Klikego", "njuko": "njuko", "helloasso": "HelloAsso",
+         "sport-innovation": "Sport Innovation", "grandraid-reunion": "le site du Grand Raid", "werun": "WeRun"}
+UPDATED = None   # date of data.json (« mis à jour le … »)
+
+
+def day_month(s):
+    d = d_of(s); return f"{d.day} {MOIS[d.month - 1]}"
+
+
+def platform(url):
+    host = re.sub(r"^https?://(www\.)?", "", url or "").split("/")[0].lower()
+    return next((v for k, v in PLATF.items() if k in host), "le site de l’organisateur" if host else "")
+
+
+def ep_state(r, e, today, now_reu):
+    """registration state of one format: complet / clos / avenir / ouvert:<limite> (format values override the race's)"""
+    x = {**{k: r.get(k) for k in ("ouverture", "avenir", "limite", "clos", "complet")}, **{k: v for k, v in e.items() if v not in (None, "")}}
+    if x.get("complet"): return "complet"
+    if x.get("clos") or (x.get("limite") and x["limite"] < today): return "clos"
+    if (x.get("ouverture") and x["ouverture"] > now_reu) or (x.get("avenir") and not x.get("ouverture")): return "avenir"
+    return "ouvert:" + (x.get("limite") or "")
+
+
+def lead(r, today, now_reu, past):
+    """One plain factual paragraph at the top of the race page: when, where, formats, prices, registration status
+    per format (a race can be closed for one format and open for another), platform and freshness. It says what the
+    table says, in sentences an assistant can quote."""
+    nom, com = r["nom"], r.get("commune", "")
+    lieu = r.get("lieu") if r.get("lieu") and r.get("lieu") != com else ""
+    where = a_commune(com) + (f" ({lieu})" if lieu else "") + ", La Réunion"
+    single = not r.get("fin") or r["fin"] == r["date"]
+    when = ("le " if single else "") + date_range(r)
+    if r.get("annule"):
+        return f"{nom}, prévu {when} {where}, est annulé."
+    out = [f"{nom} {'a eu' if past else 'a'} lieu {when} {where}."]
+    eps = [e for e in r.get("epreuves", []) if e.get("type") != "jeunes"]
+    kids = [e for e in r.get("epreuves", []) if e.get("type") == "jeunes"]
+    def fmt(e):
+        bits = [fmt_km(e["km"]) + " km"] if e.get("km") else []
+        if e.get("dp"): bits.append(f"{thou(e['dp'])} m D+")
+        hm = re.match(r"\s*0?(\d{1,2})\s*[hH:]\s*(\d{2})?", e.get("h") or "")
+        if hm and not (e.get("date") and e["date"] != r["date"]): bits.append(f"départ {hm.group(1)} h {hm.group(2) or '00'}")
+        if e.get("prix"): bits.append(e["prix"])
+        return (e.get("nom") or nom) + (" : " + ", ".join(bits) if bits else "")
+    if eps:
+        out.append(("Au programme : " if len(eps) > 1 else "Format : ") + " ; ".join(fmt(e) for e in eps[:8]) + "."
+                   + (" Courses enfants également proposées." if kids else ""))
+    if not past:
+        groups = {}
+        for e in eps or [{}]:
+            groups.setdefault(ep_state(r, e, today, now_reu), []).append(e.get("nom") or nom)
+        multi = len(groups) > 1
+        parts = []
+        for k, names in groups.items():
+            who = (" pour " + ", ".join(names)) if multi else ""
+            if k == "complet": parts.append(("complet" + who) if multi else "Complet")
+            elif k == "clos": parts.append(f"inscriptions closes{who}")
+            elif k == "avenir":
+                o = r.get("ouverture") or ""
+                parts.append(f"ouverture des inscriptions {('le ' + day_month(o[:10])) if o else 'à venir'}{who}")
+            else:
+                lim = k.split(":", 1)[1]
+                parts.append(f"inscriptions ouvertes{(' jusqu’au ' + day_month(lim)) if lim else ''}{who}")
+        txt = " ; ".join(parts)
+        txt = txt[0].upper() + txt[1:]
+        pf = platform(r.get("inscription"))
+        if pf and any(k.startswith("ouvert") or k == "avenir" for k in groups): txt += f", sur {pf}"
+        out.append(txt + ".")
+    if r.get("org"): out.append(f"Organisation : {r['org']}.")
+    if UPDATED: out.append(f"Informations mises à jour le {day_month(UPDATED)} {UPDATED[:4]} sur Dossard Péi.")
+    return " ".join(out)
+
+
 # ---------------------------------------------------------------- share image (1200 x 630)
 def og_image(r, out, fonts):
     try:
@@ -261,6 +336,10 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
         can_reg = True
     elif r.get("limite"): st = f"Inscriptions jusqu'au {d_of(r['limite']).day} {MOIS[d_of(r['limite']).month - 1]}"; can_reg = True
     else: st = ""; can_reg = True
+    # every adult format closed or full (the race itself says nothing): say so, as the summary sentence does
+    eps_s = {ep_state(r, e, today, now_reu) for e in r.get("epreuves", []) if e.get("type") != "jeunes"}
+    if can_reg and eps_s and eps_s <= {"clos", "complet"}:
+        st = "Complet" if eps_s == {"complet"} else "Inscriptions closes"; can_reg = False
 
     # JSON-LD
     ev = {"@context": "https://schema.org", "@type": "SportsEvent", "name": r["nom"], "startDate": r["date"], "endDate": r.get("fin") or r["date"],
@@ -343,6 +422,7 @@ def page(r, logo, has_og, has_trk, races=(), data_date=None):
 <h1>{esc(r['nom'])}</h1>
 <p class="where">{esc(r.get('commune', ''))}{' · ' + esc(lieu) if lieu else ''}{' · organisé par ' + esc(r['org']) if r.get('org') else ''}{''.join(f' · <a href="/clubs/{esc(c)}/">fiche du club {esc(CLUBNAME.get(c, c))}</a>' for c in CLUBS.get('courses', {}).get(r['id'], []))}</p>
 <ul class="tags">{''.join(tags)}</ul>
+<p class="lead">{esc(lead(r, today, now_reu, past))}</p>
 {f'<p class="annul"><b>Course annulée</b> · information de {esc(((r.get("annule_source") or {}).get("nom")) or r.get("_srcnom") or "l’organisateur")}{(" · <a href=" + chr(34) + esc(r["page"]) + chr(34) + " rel=noopener>voir l’annonce</a>") if r.get("page") else ""}</p>' if r.get("annule") else ''}
 <div class="cta">{f'<a class="btn main" href="{esc(r["inscription"])}" rel="noopener" data-goatcounter-click="inscription/{esc(rid)}" data-goatcounter-title="Clic S’inscrire (page course)">{"Page d’inscription" if not_yet else "S’inscrire"}</a>' if r.get('inscription') and can_reg else ''}<a class="btn map" href="/#c-{esc(rid)}">{'Carte et parcours' if has_trk else 'Voir sur la carte'} →</a></div>
 {f'<div class="tbl"><table><thead><tr><th>Épreuve</th><th>Dist.</th><th>D+</th><th>Type</th><th>Départ</th><th>Tarif</th></tr></thead><tbody>{rows}</tbody></table></div>' if rows else ''}
@@ -463,12 +543,16 @@ def all_races_block(races, today):
 
 def app_page(idx, static_doc, rid):
     """The page of a race = the full site (same as a click on the race: list behind, race open in the
-    dialog), with the race's own title, description, share image and structured data, and its static
-    summary in <noscript> (readable without JavaScript)."""
+    dialog), with the race's own title, description, share image and structured data.
+    S1 (25/11/2026): the race's own summary (title, summary sentence, table of formats, related races) is now real,
+    visible content at the top of the body, no longer inside <noscript>. Search engines and AI assistants that do not
+    run JavaScript read it first; with JavaScript it is hidden at once (the « sky » script at the top of the page sets
+    html[data-mood] before the block is parsed) and the site shows the same race in its dialog, so nothing changes
+    for visitors."""
     sh, _, sb = static_doc.partition("</head>")
     tags = "".join(re.findall(r'<title>.*?</title>|<meta name="description"[^>]*>|<link rel="canonical"[^>]*>|<meta property="og:[^>]*>|'
                               r'<meta name="twitter:card"[^>]*>|<script type="application/ld\+json">.*?</script>', sh, re.S))
-    m = re.search(r"<main>.*</main>", sb, re.S)
+    m = re.search(r"<main>(.*)</main>", sb, re.S)
     # index.html has no </head> / <body> tags: the head ends with the first </style>, the page starts at <div class="wrap">
     i = idx.find('<div class="wrap">')
     if i < 0:
@@ -478,7 +562,37 @@ def app_page(idx, static_doc, rid):
     j = head.find("<style>")
     if j < 0: j = head.find('<link rel="stylesheet" href="assets/')
     head = head[:j] + tags + "\n" + head[j:] if j >= 0 else head + tags
-    return head + (f"<noscript>{m.group(0)}</noscript>\n" if m else "") + body
+    if not m:
+        return head + body
+    blk = (f'<style>{FICHE_CSS}</style><section class="cfiche" aria-label="Fiche de la course">{m.group(1)}</section>\n')
+    # right after the sky script (it runs first and marks html[data-mood]): no flash of the block for visitors
+    k = body.find("</script>", body.find('<section class="hero2"'))
+    if k > 0 and body.find('<section class="hero2"') >= 0:
+        k += len("</script>")
+        return head + body[:k] + blk + body[k:]
+    return head + body.replace('<div class="wrap">', '<div class="wrap">' + blk, 1)
+
+
+# styles of the race summary in the app page, scoped to .cfiche (the app's own CSS has .card, .top… with other meanings)
+FICHE_CSS = """
+html[data-mood] .cfiche{display:none}
+.cfiche{max-width:1040px;margin:0 auto;padding:12px 16px 28px;color:inherit;font:16px/1.5 system-ui,-apple-system,sans-serif;text-align:left}
+.cfiche .card{display:grid;gap:22px;grid-template-columns:minmax(0,260px) minmax(0,1fr);background:#fffcf7;color:#2a211c;border:1px solid #e6dccf;border-radius:18px;padding:20px}
+@media (max-width:720px){.cfiche .card{grid-template-columns:minmax(0,1fr)}}
+.cfiche img{max-width:100%;height:auto;border-radius:12px}
+.cfiche h1{font-size:2rem;line-height:1.1;margin:4px 0 8px}
+.cfiche .when{color:#d2481e;font-weight:700;text-transform:uppercase;font-size:.9rem;margin:0}
+.cfiche .lead{font-size:1.02rem}
+.cfiche .tags{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0}
+.cfiche .tags li{border:1px solid #e6dccf;border-radius:99px;padding:2px 10px;font-size:.88rem}
+.cfiche table{width:100%;border-collapse:collapse;font-size:.95rem}
+.cfiche th,.cfiche td{text-align:left;padding:7px 8px 7px 0;border-bottom:1px solid #e6dccf;vertical-align:top}
+.cfiche .btn{display:inline-block;margin:0 8px 8px 0;padding:9px 16px;border-radius:99px;border:1px solid #e6dccf;font-weight:700}
+.cfiche .rels{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-top:18px}
+.cfiche .rel ul{list-style:none;padding:0}
+.cfiche .rel a{display:block;padding:6px 0}
+.cfiche .src,.cfiche .note,.cfiche .rel span{color:#776a5f;font-size:.88rem}
+"""
 
 
 CLUBS, CLUBNAME = {}, {}
@@ -550,7 +664,8 @@ def ics(r, today=None):
 
 def main():
     data = json.load(open("data.json", encoding="utf-8"))
-    global CLUBS, CLUBNAME
+    global CLUBS, CLUBNAME, UPDATED
+    UPDATED = (data.get("updatedAt") or "")[:10] or None
     try:   # Clubs péi: race <-> club links and the static club pages (tools/gen_clubs.py)
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
         import gen_clubs
