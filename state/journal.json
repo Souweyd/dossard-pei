@@ -885,5 +885,13 @@
 "id": "trail-de-la-crete-2027-02",
 "nom": "Trail de la Crête",
 "date": "2027-02-07"
+},
+{
+"at": "2026-11-25T12:32+04:00",
+"t": "dénivelé",
+"id": "charrette",
+"nom": "Trail Charrette – Cadets et juniors",
+"de": "850 m",
+"a": "200 m"
 }
 ]
