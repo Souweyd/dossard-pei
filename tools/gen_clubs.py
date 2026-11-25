@@ -7,8 +7,12 @@ Run from the repository root (gen_pages.py calls it at each build, so the links 
   A race belongs to a club when its organiser ("org") names the club (short name, full name or
   an alias of clubs.json), or when its name is one of the club's "courses".
 - clubs/<id>/index.html: the clubs page itself (same app, the club's fiche opens from the address)
-  with the club's own title, description, canonical link, structured data (SportsClub) and a
-  static summary in <noscript>. Pages of clubs removed from clubs.json are deleted.
+  with the club's own title, description, canonical link, structured data (SportsClub) and the
+  club's summary as real content at the top of the body (S1, 25/11/2026: no longer in <noscript>).
+  With JavaScript it is hidden at once (/clubs/mood.js, in <head>, sets html[data-mood]) and the app
+  opens the same club in its dialog. Pages of clubs removed from clubs.json are deleted.
+- clubs/index.html and every club page: the list of all clubs as plain links inside <div id="list">
+  (the app replaces it with its cards), so search engines find every club page from /clubs/.
 Returns the links so gen_pages.py can name the club on the static race pages."""
 import html, json, os, re, shutil, unicodedata
 
@@ -97,10 +101,17 @@ def club_page(tpl, c, lk):
     for r in c.get("reseaux", []): li.append(f"<li><a href=\"{esc(r['url'])}\" rel=\"noopener\">{esc(r['url'])}</a></li>")
     rs = "".join(f"<li><a href=\"/course/{esc(r[0])}/\">{esc(r[1])}</a> ({esc(date_fr(r[2]))})</li>" for r in (lk or {}).get("r", []))
     rs += "".join(f"<li>{esc(x)}</li>" for x in ((lk or {}).get("autres") if lk else c.get("courses", [])))
-    static = (f"<noscript><main class=\"static\"><h1>{esc(c['nom'])}</h1>" + (f"<p>{esc(full)}</p>" if full else "") +
+    lead = f"{c['nom']}{' (' + full + ')' if full and fold(full) != fold(c['nom']) else ''} est un {kind} {a_lieu(c['commune'])}, {('dans l’' if c['secteur'][:1] in 'AEIOU' else 'dans le ') + c['secteur']} de La Réunion"
+    lead += (", affilié à la FFA." if c.get("ffa") else ".")
+    if c.get("entrainement"): lead += f" Lieu d’entraînement : {c['entrainement']}."
+    if c.get("jeunes"): lead += " Section jeunes (annuaire FFA)."
+    nr = len((lk or {}).get("r", []))
+    if nr: lead += f" {nr} course{'s' if nr > 1 else ''} organisée{'s' if nr > 1 else ''} à venir sur Dossard Péi."
+    static = (f"<section class=\"cfiche\" aria-label=\"Fiche du club\"><h1>{esc(c['nom'])}</h1>" + (f"<p class=\"sub\">{esc(full)}</p>" if full else "") +
+              f"<p class=\"lead\">{esc(lead)}</p>"
               f"<p>{esc(c['type'])} · {esc(c['commune'])} · {esc(c['secteur'])}{' · Affilié FFA' if c.get('ffa') else ''}</p>" +
-              (f"<ul>{''.join(li)}</ul>" if li else "") + (f"<h2>Courses organisées</h2><ul>{rs}</ul>" if rs else "") +
-              "<p><a href=\"/clubs/\">Tous les clubs de La Réunion</a></p></main></noscript>")
+              (f"<h2>Coordonnées</h2><ul>{''.join(li)}</ul>" if li else "") + (f"<h2>Courses organisées</h2><ul>{rs}</ul>" if rs else "") +
+              "<p><a href=\"/clubs/\">Tous les clubs de La Réunion</a> · <a href=\"/\">Toutes les courses de La Réunion</a></p></section>")
     p = tpl
     p = re.sub(r"<title>.*?</title>", f"<title>{esc(title)}</title>", p, flags=re.S)
     p = re.sub(r'<meta name="description" content="[^"]*">', f'<meta name="description" content="{esc(desc)}">', p)
@@ -110,11 +121,36 @@ def club_page(tpl, c, lk):
     p = re.sub(r'<meta property="og:description" content="[^"]*">', f'<meta property="og:description" content="{esc(desc)}">', p)
     p = p.replace("</head>", f'<script type="application/ld+json">{ldj}</script>\n{MARK}\n</head>', 1)
     p = p.replace("<body>", "<body>\n" + static, 1)
+    p = p.replace("</head>", FICHE_CSS + "\n</head>", 1)
     # one <h1> per page = the club's name: the big title « Clubs péi » becomes a <div> drawn exactly like it
     # (same rules as .hero2 .big h1 in site-hero.css and clubs.css, evening sky included)
     p = p.replace("<h1>Clubs péi</h1>", '<div class="bh">Clubs péi</div>', 1)
     p = p.replace("</head>", BH_CSS + "\n</head>", 1)
     return p
+
+
+# the club's summary: hidden as soon as /clubs/mood.js has run (JavaScript on), styled for readers without it
+FICHE_CSS = ("<style>html[data-mood] .cfiche{display:none}"
+             ".cfiche{max-width:760px;margin:0 auto;padding:16px 16px 28px;font:16px/1.5 system-ui,-apple-system,sans-serif}"
+             ".cfiche h1{font-size:2rem;line-height:1.1;margin:8px 0}.cfiche .sub{margin:0 0 8px;color:#776a5f}"
+             ".cfiche h2{font-size:1.15rem;margin:20px 0 6px}.cfiche ul{padding-left:18px}</style>")
+
+# all clubs as links, by sector: inside <div id="list"> (replaced by the app's cards when JavaScript runs)
+SECT = ("Nord", "Est", "Sud", "Ouest")
+
+
+def list_html(clubs):
+    out = []
+    for sec in SECT + tuple(sorted({c["secteur"] for c in clubs} - set(SECT))):
+        cs = sorted((c for c in clubs if c["secteur"] == sec), key=lambda c: fold(c["nom"]))
+        if not cs: continue
+        out.append(f'<section class="grp"><h2>{esc(sec)} <small>{len(cs)} club{"s" if len(cs) > 1 else ""}</small></h2><ul class="slist">' +
+                   "".join(f'<li><a href="/clubs/{esc(c["id"])}/">{esc(c["nom"])}</a> · {esc(c["type"])} · {esc(c["commune"])}</li>' for c in cs) +
+                   "</ul></section>")
+    return "".join(out)
+
+
+LIST_RE = re.compile(r'<div id="list">.*?</div>', re.S)
 
 
 BH_CSS = ("<style>.hero2 .big .bh{font-family:var(--display);text-transform:none;font-weight:700;letter-spacing:-.045em;"
@@ -133,6 +169,10 @@ def main(data=None):
     if not os.path.exists("clubs/liens.json") or open("clubs/liens.json", encoding="utf-8").read() != s:
         open("clubs/liens.json", "w", encoding="utf-8").write(s)
     tpl = open("clubs/index.html", encoding="utf-8").read()
+    ok = [c for c in clubs if re.fullmatch(r"[a-z0-9-]+", c["id"])]
+    new = LIST_RE.sub(lambda m: '<div id="list">' + list_html(ok) + "</div>", tpl, count=1)
+    if new != tpl:
+        open("clubs/index.html", "w", encoding="utf-8").write(new); tpl = new
     ids = set()
     for c in clubs:
         if not re.fullmatch(r"[a-z0-9-]+", c["id"]):

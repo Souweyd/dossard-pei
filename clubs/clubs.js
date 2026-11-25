@@ -185,7 +185,7 @@
       '<p class="foot"><button type="button" class="lnk" data-maj="' + esc(c.id) + '">Mettre à jour la fiche</button></p></div>';
     $('#fbt').textContent = c.nom; $('#dclub .fbar').style.setProperty('--tp', '0');
     var d = $('#dclub'); if (!d.open) d.showModal(); $('#club').scrollTop = 0; fiche(); fades($('#club'));
-    document.title = c.nom + ' – Clubs péi – Dossard Péi';
+    document.title = (c.id === T0[1] ? T0[0] : c.nom + ' – Clubs péi – Dossard Péi');   // the club's own page keeps its full title (same as the HTML)
     if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: '/clubs/' + c.id, title: c.nom, event: false });
   }
   function closeDlg(d, then) {
@@ -209,6 +209,7 @@
       else d.style.transform = '';
     });
   }
+  var T0 = [document.title, (location.pathname.match(/^\/clubs\/([a-z0-9-]+)\/?$/) || [])[1] || ''];
   function pathId() { var m = location.pathname.match(/^\/clubs\/([a-z0-9-]+)\/?$/); return m ? m[1] : ''; }
   function go(id) { var u = id ? '/clubs/' + id + '/' : '/clubs/'; if (location.pathname !== u) history.pushState(null, '', u); }
   function route() { var id = pathId(); ROUTING = true; if (id && DATA.clubs.some(function (x) { return x.id === id; })) openClub(id); else closeClub(); ROUTING = false; }
