@@ -8,7 +8,7 @@
   var URL = '/jeu/';
   var CSS = '.dpjeu-pill{display:inline-flex!important;align-items:center;gap:6px;margin:6px 0 0 8px;background:#ffd400!important;color:#1d2523!important;border:0!important;text-decoration:none!important;white-space:nowrap;vertical-align:middle;width:auto!important;max-width:none!important}'
     + '.dpjeu-pill svg{width:18px!important;height:18px!important;min-width:0!important;flex:none;margin:0!important}'
-    + '.dpjeu-new{background:#c62828;color:#fff;font-size:.68em;font-weight:700;padding:2px 7px;border-radius:99px;line-height:1.4}'
+    + '.dpjeu-new{background:#c62828;color:#fff;font-size:12px;font-weight:700;padding:2px 7px;border-radius:99px;line-height:1.4}'
     + '.dpjeu-card .rcard .pimg{object-fit:cover}'
     // petits écrans (iPhone SE) : l'affiche s'arrête au-dessus du texte de la carte
     + '@media (max-height:700px){.dpjeu-card .rcard{height:calc(100% - 384px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}}'

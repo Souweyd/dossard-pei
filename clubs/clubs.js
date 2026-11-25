@@ -169,7 +169,7 @@
     row('Réseaux', c.reseaux.length && '<span class="nets">' + c.reseaux.map(function (r) { var n = NET[r.t] || NET.web; return '<a class="net' + (n.b ? ' brand' : '') + '" href="' + esc(r.url) + '" target="_blank" rel="noopener" aria-label="' + esc(n.l) + '" title="' + esc(n.l) + '">' + n.s + '</a>'; }).join('') + '</span>');
     var JL = { u7: 'Moins de 7 ans', u11: '7 à 10 ans', u15: '11 à 14 ans' };
     // courses
-    var lk = LIENS.clubs[c.id], M = ['JANV', 'FÉVR', 'MARS', 'AVR', 'MAI', 'JUIN', 'JUIL', 'AOÛT', 'SEPT', 'OCT', 'NOV', 'DÉC'];
+    var lk = LIENS.clubs[c.id], M = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
     var rc = lk ? lk.r.map(function (r) { var p = r[2].split('-'); return '<a class="rc" href="/course/' + esc(r[0]) + '/"><span class="dt"><b>' + (+p[2]) + '</b><small>' + M[+p[1] - 1] + '</small></span><span class="n">' + esc(r[1]) + '</span>' + svg(P.chev) + '</a>'; }).join('') : '';
     var oth = lk ? lk.autres : c.courses;
     var courses = '<div class="sec"><h3>Courses organisées</h3>' + (rc || oth.length ? rc + (oth.length ? '<p class="oth">' + (rc ? 'Aussi : ' : '') + oth.map(esc).join(', ') + '</p>' : '') : '<p class="oth">' + NONE + '</p>') + '</div>';
@@ -180,7 +180,7 @@
       '<div class="chips"><span>' + esc(c.type) + '</span><span>' + esc(c.commune) + '</span>' + (c.ffa ? '<span>Affilié FFA</span>' : '') + '</div></div>' +
       '<div class="bar">' + bar + '</div>' +
       '<div class="sec"><h3>Coordonnées</h3><dl>' + dl + '</dl></div>' +
-      '<div class="sec"><h3>Section jeunes' + (c.jeunes && c.jeunes.length ? ' <span>· annuaire FFA</span>' : '') + '</h3>' + (c.jeunes && c.jeunes.length ? '<div class="kids">' + c.jeunes.map(function (k) { return '<span>' + JL[k] + '</span>'; }).join('') + '</div>' : '<p class="oth">' + NONE + '</p>') + '</div>' +
+      '<div class="sec"><h3>Section jeunes' + (c.jeunes && c.jeunes.length ? ' <span>(annuaire FFA)</span>' : '') + '</h3>' + (c.jeunes && c.jeunes.length ? '<div class="kids">' + c.jeunes.map(function (k) { return '<span>' + JL[k] + '</span>'; }).join('') + '</div>' : '<p class="oth">' + NONE + '</p>') + '</div>' +
       courses +
       '<p class="foot"><button type="button" class="lnk" data-maj="' + esc(c.id) + '">Mettre à jour la fiche</button></p></div>';
     $('#fbt').textContent = c.nom; $('#dclub .fbar').style.setProperty('--tp', '0');

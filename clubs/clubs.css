@@ -268,7 +268,7 @@ noscript .static{max-width:760px;margin:90px auto 0;padding:0 20px}
 /* pastille « Le jeu » jaune, comme l'accueil */
 .szlink.jeu{background:#ffd400;color:#1d2523}
 .szlink.jeu svg{width:18px;height:18px;flex:none}
-.dpjeu-new{background:#c62828;color:#fff;font-size:.68em;font-weight:700;padding:2px 7px;border-radius:99px;line-height:1.4}
+.dpjeu-new{background:#c62828;color:#fff;font-size:12px;font-weight:700;padding:2px 7px;border-radius:99px;line-height:1.4}
 /* sélecteur d'affichage en bas d'écran sur mobile (comme « 4 façons de voir les courses ») */
 .tabbar,.tbpill,.tbdim{display:none}
 @media (max-width:760px){
@@ -327,7 +327,7 @@ body.mapfull .maptools{top:calc(10px + env(safe-area-inset-top))}
 .mpop-n{display:block;font-weight:600;line-height:1.2}
 .mpop-m{display:block;font-size:.8rem;color:var(--soft);margin-top:2px}
 @media (min-aspect-ratio:5/4) and (min-width:600px){body.mapfull .mpop{inset:64px 12px auto auto;width:min(380px,38%);max-height:calc(100% - 76px);border-radius:16px}}
-.szlink .dpjeu-new{font-size:.68em;margin-left:2px;padding:2px 7px}
+.szlink .dpjeu-new{font-size:12px;margin-left:2px;padding:2px 7px}
 .hfind .qchips{justify-content:center}
 /* réseaux Dossard Péi dans la barre du haut (comme l'accueil) */
 .socb{position:relative;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:0;color:#fff!important;transition:transform .15s}
@@ -357,3 +357,8 @@ body.mapfull .maptools{top:calc(10px + env(safe-area-inset-top))}
 .fa .none{font-weight:400;opacity:.55}
 .dlg .x{font-size:0!important;display:grid;place-items:center;padding:0}.dlg .x::before{content:"";position:absolute;inset:0;margin:auto;width:19px;height:19px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E") center / contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E") center / contain no-repeat}
 .dlg .x:not(.fbx){position:relative}
+
+/* Retouches Hallmark n° 2 (25/11) : chiffre sans pastille, titres de section sans capitales espacées, mois lisibles */
+#state span.pill{background:none;padding:0;min-height:0}
+.fa .sec h3{text-transform:none;letter-spacing:0;font-size:.95rem;color:var(--fg)}
+.fa .dt small{font-size:12px;font-weight:600}
