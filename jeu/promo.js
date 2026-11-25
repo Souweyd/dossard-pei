@@ -10,6 +10,8 @@
     + '.dpjeu-pill svg{width:18px!important;height:18px!important;min-width:0!important;flex:none;margin:0!important}'
     + '.dpjeu-new{background:#c62828;color:#fff;font-size:.68em;font-weight:700;padding:2px 7px;border-radius:99px;line-height:1.4}'
     + '.dpjeu-card .rcard .pimg{object-fit:cover}'
+    // petits écrans (iPhone SE) : l'affiche s'arrête au-dessus du texte de la carte
+    + '@media (max-height:700px){.dpjeu-card .rcard{height:calc(100% - 384px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}}'
     + '.dpjeu-card .rst{background:#ffd400!important;color:#1d2523!important}'
     + '.dpjeu-card .rmore .dpjeu-go{flex:1;display:flex;align-items:center;justify-content:center;background:#ffd400;color:#1d2523;text-decoration:none;font-weight:800}'
     + '@media (max-width:360px){.dpjeu-pill{margin-left:0;margin-top:8px}}';

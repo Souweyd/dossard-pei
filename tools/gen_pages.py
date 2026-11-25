@@ -565,8 +565,11 @@ def all_races_block(races, today):
         sl = f"{MSLUG[int(m) - 1]}-{y}"
         hd = f'<a href="/calendrier/{sl}/">{MOIS[int(m) - 1].capitalize()} {y}</a>' if sl in TH_SLUGS else f"{MOIS[int(m) - 1].capitalize()} {y}"
         parts.append(f'<div><h3>{hd}</h3><ul>{li}</ul></div>')
-    # folded by default (the list above already shows them); the links are in the page either way
-    return (f'<!--toutes-courses--><details class="allr"><summary><h2>Toutes les courses à venir <span>({len(up)})</span></h2></summary>'
+    # folded by default (the list above already shows them); the links are in the page either way.
+    # The count matches the one at the top of the list (cancelled races left out), cancelled ones named apart.
+    n_ann = sum(1 for r in up if r.get("annule"))
+    count = f'{len(up) - n_ann}' + (f', plus {n_ann} annulée{"s" if n_ann > 1 else ""}' if n_ann else '')
+    return (f'<!--toutes-courses--><details class="allr"><summary><h2>Toutes les courses à venir <span>({count})</span></h2></summary>'
             f'<p class="allr-nav">Calendriers : <a href="/calendrier/">tous</a>'
             + "".join(f' · <a href="/calendrier/{sl}/">{esc(lb)}</a>' for sl, lb in TH_LINKS) + '</p>'
             f'<div class="allr-g">{"".join(parts)}</div></details><!--/toutes-courses-->')
