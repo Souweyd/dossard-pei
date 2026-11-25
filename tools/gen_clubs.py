@@ -110,7 +110,16 @@ def club_page(tpl, c, lk):
     p = re.sub(r'<meta property="og:description" content="[^"]*">', f'<meta property="og:description" content="{esc(desc)}">', p)
     p = p.replace("</head>", f'<script type="application/ld+json">{ldj}</script>\n{MARK}\n</head>', 1)
     p = p.replace("<body>", "<body>\n" + static, 1)
+    # one <h1> per page = the club's name: the big title « Clubs péi » becomes a <div> drawn exactly like it
+    # (same rules as .hero2 .big h1 in site-hero.css and clubs.css, evening sky included)
+    p = p.replace("<h1>Clubs péi</h1>", '<div class="bh">Clubs péi</div>', 1)
+    p = p.replace("</head>", BH_CSS + "\n</head>", 1)
     return p
+
+
+BH_CSS = ("<style>.hero2 .big .bh{font-family:var(--display);text-transform:none;font-weight:700;letter-spacing:-.045em;"
+          "line-height:1.02;font-size:clamp(2rem,4.6vw,3.3rem);margin:0;text-wrap:balance;color:var(--fg)}"
+          ":root[data-mood=soir] .hero2 .big .bh{color:#fff;text-shadow:0 1px 8px rgba(14,24,48,.55)}</style>")
 
 
 def main(data=None):
