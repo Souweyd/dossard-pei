@@ -565,6 +565,8 @@ def app_page(idx, static_doc, rid):
     if not m:
         return head + body
     blk = (f'<style>{FICHE_CSS}</style><section class="cfiche" aria-label="Fiche de la course">{m.group(1)}</section>\n')
+    # one <h1> per page = the race's name: the site's big title « Dossard Péi » becomes a <div> drawn exactly like it
+    body = body.replace("<h1>Dossard Péi</h1>", '<div class="bh">Dossard Péi</div>', 1)
     # right after the sky script (it runs first and marks html[data-mood]): no flash of the block for visitors
     k = body.find("</script>", body.find('<section class="hero2"'))
     if k > 0 and body.find('<section class="hero2"') >= 0:
@@ -576,6 +578,8 @@ def app_page(idx, static_doc, rid):
 # styles of the race summary in the app page, scoped to .cfiche (the app's own CSS has .card, .top… with other meanings)
 FICHE_CSS = """
 html[data-mood] .cfiche{display:none}
+.hero2 .big .bh{font-family:var(--display);font-weight:700;text-transform:none;letter-spacing:-.045em;line-height:1.02;font-size:clamp(2rem,4.6vw,3.3rem);margin:0;text-wrap:balance}
+:root[data-mood=soir] .hero2 .bh{color:#fff;text-shadow:0 1px 8px rgba(14,24,48,.55)}
 .cfiche{max-width:1040px;margin:0 auto;padding:12px 16px 28px;color:inherit;font:16px/1.5 system-ui,-apple-system,sans-serif;text-align:left}
 .cfiche .card{display:grid;gap:22px;grid-template-columns:minmax(0,260px) minmax(0,1fr);background:#fffcf7;color:#2a211c;border:1px solid #e6dccf;border-radius:18px;padding:20px}
 @media (max-width:720px){.cfiche .card{grid-template-columns:minmax(0,1fr)}}
