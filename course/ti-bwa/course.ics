@@ -21,20 +21,4 @@ TRIGGER:-P2D
 DESCRIPTION:Kours Ti Bwa dans 2 jours
 END:VALARM
 END:VEVENT
-BEGIN:VEVENT
-UID:ti-bwa-cloture@dossardpei.re
-DTSTAMP:20261206T000000Z
-SUMMARY:Clôture des inscriptions : Kours Ti Bwa
-DTSTART;VALUE=DATE:20261201
-DTEND;VALUE=DATE:20261202
-URL:https://www.sportpro.re/courses/02164-kours-ti-bwa-/
-DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
- iption : https://www.sportpro.re/courses/02164-kours-ti-bwa-/\nFiche : ht
- tps://dossardpei.re/course/ti-bwa/
-BEGIN:VALARM
-ACTION:DISPLAY
-TRIGGER:-PT6H
-DESCRIPTION:Inscriptions Kours Ti Bwa : clôture demain
-END:VALARM
-END:VEVENT
 END:VCALENDAR
