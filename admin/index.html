@@ -91,6 +91,25 @@ details.famd>summary{list-style:none;cursor:pointer}details.famd>summary::-webki
 details.famd>summary .fam{margin-bottom:0}details.famd>summary .chev{margin-left:auto;align-self:center;color:var(--mut);font-size:14px;white-space:nowrap}
 details.famd[open]>summary .chev .c,details.famd:not([open])>summary .chev .o{display:none}
 @media(max-width:600px){.chev .c,.chev .o{font-size:0}.chev .c::after{content:"▸";font-size:18px}.chev .o::after{content:"▾";font-size:18px}}
+/* tableau de bord : couleurs validées (séries, chaleur, parcours), claires et sombres */
+:root{--s1:#00968f;--s2:#f47230;--s3:#257de0;--s4:#f2a600;--s5:#6a4ce2;--s6:#ee7fac;--h0:#eef0f3;--h1:#cdeeeb;--h2:#8fd6d0;--h3:#3fb4ac;--h4:#00968f;--h5:#005f5a;--o1:#005f5a;--o2:#00968f;--o3:#5cc2bb}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--s1:#1fb5ab;--s2:#e76624;--s3:#338ced;--s4:#d28e05;--s5:#9887ef;--s6:#e24d8b;--h0:#1c2943;--h1:#1b3f4b;--h2:#16625f;--h3:#11877f;--h4:#1fb5ab;--h5:#7fe3dc;--o1:#7fe3dc;--o2:#1fb5ab;--o3:#11877f}}
+.kpi .spk{display:block;width:100%;height:32px;margin-top:8px}.spk .l{fill:none;stroke:var(--s1);stroke-width:2;vector-effect:non-scaling-stroke;stroke-linejoin:round}.spk .a{fill:var(--s1);opacity:.12}
+.kpi.hero{background:linear-gradient(160deg,color-mix(in srgb,var(--s1) 14%,var(--card)),var(--card) 70%)}
+.area{position:relative}.area svg{width:100%;height:190px;display:block}.area .ln{fill:none;stroke:var(--s1);stroke-width:2.2;vector-effect:non-scaling-stroke;stroke-linejoin:round}.area .ar{fill:url(#agr)}.area .ma{fill:none;stroke:var(--ink2);stroke-width:1.4;stroke-dasharray:4 4;vector-effect:non-scaling-stroke}
+.area .wkb{fill:var(--chip);opacity:.7}.area .gl{stroke:var(--line);vector-effect:non-scaling-stroke}.area rect.hit{fill:transparent;cursor:pointer}
+.area .xh{position:absolute;top:0;width:0;border-left:1px dashed var(--ink2);height:190px;pointer-events:none;display:none}.area .xd{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--s1);box-shadow:0 0 0 2px var(--card);pointer-events:none;display:none}
+.area.on .xh,.area.on .xd{display:block}
+.lgd2{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--ink2);margin-top:6px}.lgd2 i{display:inline-block;width:14px;height:3px;border-radius:2px;background:var(--s1);vertical-align:3px;margin-right:5px}.lgd2 i.d{background:none;border-top:1.6px dashed var(--ink2);height:0}.lgd2 i.w{height:10px;width:12px;background:var(--chip);vertical-align:-1px}
+.two>*{min-width:0}.heat{display:grid;grid-template-columns:30px repeat(24,minmax(0,1fr));gap:2px;font-size:11px;color:var(--mut)}.heat b{font-weight:500;align-self:center}.heat i{display:block;height:14px;border-radius:3px;background:var(--h0)}@media(min-width:761px){.heat i{height:auto;aspect-ratio:1/1}}.heat i:hover{outline:2px solid var(--ink);outline-offset:-1px}
+.heat .hx{grid-column:span 6;text-align:left}.hlg{display:flex;align-items:center;gap:3px;font-size:11.5px;color:var(--mut);margin-top:8px}.hlg i{width:16px;height:10px;border-radius:2px;display:inline-block}
+.insight{display:flex;gap:8px;align-items:flex-start;background:var(--soft);border-radius:12px;padding:9px 12px;font-size:13.5px;margin-top:10px;line-height:1.35}
+.segb{display:flex;gap:2px;height:22px;border-radius:7px;overflow:hidden;margin:4px 0 10px}.segb span{min-width:3px;height:100%}.segb span:hover{filter:brightness(1.12)}
+.segl{display:grid;grid-template-columns:auto 1fr auto auto;gap:5px 10px;align-items:center;font-size:13.5px}.segl i{width:11px;height:11px;border-radius:3px}.segl .n{text-align:right;font-variant-numeric:tabular-nums}.segl .p{color:var(--ink2);text-align:right;min-width:38px;font-variant-numeric:tabular-nums}.segl .clk{cursor:pointer}.segl .clk:hover{text-decoration:underline}
+.fun{display:grid;gap:8px}.fun .st{display:grid;grid-template-columns:1fr auto;gap:2px 10px;font-size:13.5px}.fun .bar{grid-column:1/-1;height:26px;border-radius:7px;display:flex;align-items:center;padding:0 9px;color:#fff;font-weight:700;font-size:13px;min-width:44px;box-sizing:border-box}.fun .cv{font-size:12px;color:var(--ink2);text-align:right}
+.tp{display:grid;grid-template-columns:1fr 90px auto;gap:4px 12px;align-items:center;font-size:13.5px}.tp .lb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}.tp .lb:hover{text-decoration:underline}.tp svg{width:90px;height:22px}.tp .n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.tip.tip{white-space:pre-line;line-height:1.4}
+@media(max-width:480px){header.top #who,header.top .tag{display:none}header.top{gap:10px}}
 .mline{font-size:13px;color:var(--ink2);margin:6px 2px 0}.mline.w{color:var(--bad)}
 .inf{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:0;background:var(--chip);color:var(--ink2);font:italic 700 11px/1 Georgia,serif;cursor:pointer;vertical-align:1px;text-transform:none;letter-spacing:0;flex:none}
 .inf:hover{background:var(--soft);color:var(--teal-d)}
@@ -887,6 +906,63 @@ async function viewStats() {
   go();
 }
 
+// ---------- tableau de bord ----------
+function spark(vals, cls = "spk") {
+  const W = 120, H = 32, n = vals.length; if (n < 2) return "";
+  const max = Math.max(1, ...vals), pts = vals.map((v, i) => `${(i / (n - 1) * W).toFixed(1)},${(H - 2 - v / max * (H - 6)).toFixed(1)}`).join("L");
+  return `<svg class="${cls}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path class="a" d="M${pts}L${W},${H}L0,${H}Z"/><path class="l" d="M${pts}"/></svg>`;
+}
+const kpiS = (k, v, s, inf, d, vals, hero) => kpi(k, v, s, inf, d).replace(/^<div class="kpi">/, `<div class="kpi${hero ? " hero" : ""}">`).replace(/<\/div>$/, `${spark(vals)}</div>`);
+// courbe de l'audience : aire, moyenne sur 7 jours, week-ends en bandes, ligne de lecture au survol
+function area(days, unit = "visite") {
+  const W = 700, H = 190, n = days.length, max = Math.max(1, ...days.map(d => d.n));
+  const step = Math.pow(10, Math.floor(Math.log10(max))), top = Math.ceil(max / step) * step;
+  const X = i => n < 2 ? W / 2 : 8 + i * (W - 16) / (n - 1), Y = v => H - 4 - v / top * (H - 18), cw = n < 2 ? W : (W - 16) / (n - 1);
+  const ma = days.map((d, i) => { const a = days.slice(Math.max(0, i - 6), i + 1); return a.reduce((s, x) => s + x.n, 0) / a.length; });
+  const line = days.map((d, i) => `${X(i).toFixed(1)},${Y(d.n).toFixed(1)}`).join("L");
+  const pl = v => `${nf(v)} ${unit}${v > 1 ? "s" : ""}`;
+  const wk = d => [0, 6].includes(new Date(d + "T12:00:00Z").getUTCDay());
+  const ticks = [0, Math.floor((n - 1) / 2), n - 1].filter((x, i, a) => a.indexOf(x) === i);
+  return `<div class="area" data-n="${n}"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Visites par jour">
+    <defs><linearGradient id="agr" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--s1)" stop-opacity=".35"/><stop offset="1" stop-color="var(--s1)" stop-opacity="0"/></linearGradient></defs>
+    ${days.map((d, i) => wk(d.day) ? `<rect class="wkb" x="${(X(i) - cw / 2).toFixed(1)}" y="0" width="${cw.toFixed(1)}" height="${H}"/>` : "").join("")}
+    <line class="gl" x1="0" x2="${W}" y1="${Y(top)}" y2="${Y(top)}" stroke-dasharray="2 4"/><line class="gl" x1="0" x2="${W}" y1="${Y(top / 2)}" y2="${Y(top / 2)}" stroke-dasharray="2 4"/><line class="gl" x1="0" x2="${W}" y1="${Y(0)}" y2="${Y(0)}"/>
+    <path class="ar" d="M${line}L${X(n - 1)},${Y(0)}L${X(0)},${Y(0)}Z"/>${n >= 14 ? `<path class="ma" d="M${ma.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("L")}"/>` : ""}<path class="ln" d="M${line}"/>
+    ${days.map((d, i) => `<rect class="hit clk" data-day="${d.day}" data-i="${i}" data-x="${(X(i) / W * 100).toFixed(2)}" data-y="${(Y(d.n) / H * 100).toFixed(2)}" data-tip="${esc(fdl(d.day))}\n${pl(d.n)}${n >= 14 ? ` · moyenne 7 j : ${nf(Math.round(ma[i]))}` : ""}\ntoucher pour le détail heure par heure" x="${(X(i) - cw / 2).toFixed(1)}" y="0" width="${cw.toFixed(1)}" height="${H}"/>`).join("")}
+  </svg><span class="xh"></span><span class="xd"></span>
+  <div class="axis">${ticks.map(i => `<span style="left:${X(i) / W * 100}%">${fd(days[i]?.day).replace(/ \d{4}$/, "")}</span>`).join("")}<b>repère haut : ${nf(top)} / jour</b></div></div>
+  <div class="lgd2"><span><i></i>Visites de pages</span>${n >= 14 ? `<span><i class="d"></i>Moyenne sur 7 jours</span>` : ""}<span><i class="w"></i>Week-end</span></div>`;
+}
+document.addEventListener("mouseover", e => { const r = e.target.closest && e.target.closest(".area rect.hit"); const a = r && r.closest(".area"); $$(".area.on").forEach(x => x !== a && x.classList.remove("on")); if (!a) return; a.classList.add("on"); a.querySelector(".xh").style.left = r.dataset.x + "%"; const d = a.querySelector(".xd"); d.style.left = r.dataset.x + "%"; d.style.top = (r.dataset.y / 100 * 190) + "px"; });
+// quand les gens viennent : jour de la semaine × heure (moyenne par jour), teinte unique du clair au foncé
+function heat(pages, P) {
+  const M = Array.from({ length: 7 }, () => Array(24).fill(0)), cnt = Array(7).fill(0), seenDay = new Set();
+  for (const h of pages) for (const st of h.stats || []) { if (st.day < P.from || st.day > P.to) continue; const w = (new Date(st.day + "T12:00:00Z").getUTCDay() + 6) % 7; if (!seenDay.has(st.day)) { seenDay.add(st.day); cnt[w]++; } (st.hourly || []).forEach((v, i) => M[w][i] += v); }
+  for (let w = 0; w < 7; w++) for (let i = 0; i < 24; i++) M[w][i] = cnt[w] ? M[w][i] / cnt[w] : 0;
+  const max = Math.max(...M.flat()); if (!max) return `<div class="empty">Pas encore assez de visites</div>`;
+  const lv = v => v <= 0 ? 0 : Math.min(5, 1 + Math.floor(v / max * 4.999));
+  const JL = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"];
+  let best = [0, 0]; M.forEach((r, w) => r.forEach((v, i) => { if (v > M[best[0]][best[1]]) best = [w, i]; }));
+  const hr = Array(24).fill(0); M.forEach(r => r.forEach((v, i) => hr[i] += v)); const hb = hr.indexOf(Math.max(...hr));
+  const day = M.map(r => r.reduce((a, b) => a + b, 0)), db = day.indexOf(Math.max(...day));
+  return `<div class="heat">${M.map((r, w) => `<b>${JC[w]}</b>${r.map((v, i) => `<i style="background:var(--h${lv(v)})" data-tip="${JL[w]}, ${i} h – ${i + 1} h\n${v ? (v < 10 ? v.toFixed(1).replace(".", ",") : nf(Math.round(v))) + " visites en moyenne" : "aucune visite"}"></i>`).join("")}`).join("")}
+    <span></span>${[0, 6, 12, 18].map(h => `<span class="hx">${h} h</span>`).join("")}</div>
+    <div class="hlg">moins ${[1, 2, 3, 4, 5].map(k => `<i style="background:var(--h${k})"></i>`).join("")} plus</div>
+    <div class="insight">💡<span>Le plus de monde : <b>${JL[best[0]]} vers ${best[1]} h</b>. Sur toute la semaine, l'heure la plus suivie est <b>${hb} h – ${hb + 1} h</b> et le jour le plus fort le <b>${JL[db]}</b>. Publier un peu avant ces moments donne le plus de chances d'être vu.</span></div>`;
+}
+// répartition : une barre découpée + la liste avec les mêmes couleurs (ordre des couleurs fixe)
+function segs(items, attr) {
+  const tot = items.reduce((a, x) => a + x.n, 0) || 1, pc = n => Math.round(n / tot * 100);
+  return `<div class="segb">${items.map(x => `<span style="flex:${x.n};background:var(--s${x.c})" data-tip="${esc(x.l)} : ${nf(x.n)} (${pc(x.n)} %)"></span>`).join("")}</div>
+  <div class="segl">${items.map(x => `<i style="background:var(--s${x.c})"></i><span class="${attr ? "clk" : ""}" ${attr ? attr(x) : ""}>${esc(x.l)}</span><span class="n">${nf(x.n)}</span><span class="p">${pc(x.n)} %</span>`).join("")}</div>`;
+}
+function funnel(steps) {
+  const m = Math.max(1, steps[0].n);
+  return `<div class="fun">${steps.map((s, i) => `<div class="st"><span>${esc(s.l)} ${s.inf ? info(s.l, s.inf) : ""}</span><span class="cv">${i ? `${steps[i - 1].n ? Math.round(s.n / steps[i - 1].n * 100) : 0} % de l'étape d'avant` : ""}</span><div class="bar" style="width:${Math.max(8, s.n / m * 100)}%;background:var(--o${i + 1})" data-tip="${esc(s.l)} : ${nf(s.n)}">${nf(s.n)}</div></div>`).join("")}</div>`;
+}
+const refCat = n => { n = (n || "").toLowerCase(); return !n ? 0 : /google|bing|qwant|duckduckgo|ecosia|yahoo|search|yandex|brave/.test(n) ? 1 : /facebook|fb\.|messenger/.test(n) ? 2 : /instagram/.test(n) ? 3 : 4; };
+const REFCAT = ["Accès direct", "Moteurs de recherche", "Facebook", "Instagram", "Autres sites"];
+
 async function statsGC(P, Pp, G, Gp) {
   const gb = $("#gcbox");
   if (!ME.gc) { gb.innerHTML = `<div class="card"><b>Compteur d'audience non relié.</b><p style="font-size:14px;color:var(--ink2)">Ajoute la clé de lecture du compteur dans le service admin (voir le guide de mise en route).</p></div>`; return; }
@@ -935,35 +1011,49 @@ async function statsGC(P, Pp, G, Gp) {
       const views = [["jour", "Par jour"], ["semaine", "Par semaine"], ["compare", "Comparer les semaines"]];
       const body = CHV === "semaine" ? weekBars(days) + `<p class="hint">Touche une semaine pour l'afficher jour par jour.</p>`
         : CHV === "compare" ? (P.n < 8 ? `<p class="hint">Choisis une période d'au moins 2 semaines (30 jours, 90 jours…) pour comparer.</p>` : weekCompare(days) + `<p class="hint">Chaque jour de la semaine côte à côte, une barre par semaine (6 dernières semaines de la période). Touche une barre pour le détail du jour.</p>`)
-        : bars(days, { clickDay: true }) + `<p class="hint">Touche un jour pour voir son détail heure par heure. Les week-ends sont en plus clair.</p>`;
+        : area(days);
       chart = `<div class="card"><div class="chead"><h3 style="margin:2px 0">Visites de pages</h3><div class="seg2">${views.map(([k, l]) => `<button type="button" data-chv="${k}" aria-pressed="${CHV === k}">${l}</button>`).join("")}</div></div>${body}</div>`;
     }
     const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
     const favA = sum((grp.favori || []).filter(x => x.l.startsWith("ajout"))), favR = sum((grp.favori || []).filter(x => x.l.startsWith("retrait")));
+    // séries par jour pour les petites courbes
+    const DL = []; for (let d = P.from; d <= P.to; d = addD(d, 1)) DL.push(d);
+    const daily = hs => { const o = {}; for (const h of hs) for (const st of h.stats || []) o[st.day] = (o[st.day] || 0) + (st.daily || 0); return DL.map(d => o[d] || 0); };
+    const evOf = f => evs.filter(h => f(h.path.replace(/^\//, "")));
+    const sortN = sum(grp.sortie), courseV = pages.filter(h => h.path.startsWith("/course/")).reduce((a, h) => a + h.count, 0);
+    const refC = {}; for (const r of refs.stats || []) { const c = refCat(r.name); refC[c] = (refC[c] || 0) + r.count; }
+    const scr = {}; for (const s2 of sizes.stats || []) { const k = /phone/.test(s2.id) ? "Téléphone" : /desktop/.test(s2.id) ? "Ordinateur" : s2.id === "tablet" ? "Tablette" : "Autre"; scr[k] = (scr[k] || 0) + s2.count; }
+    const SCR = ["Téléphone", "Ordinateur", "Tablette", "Autre"];
+    const sy = (sys.stats || []).filter(x => x.count), SYS = ["iOS", "Android", "Windows", "macOS"], sysO = SYS.map((l, i) => ({ l, n: (sy.find(x => x.name === l) || {}).count || 0, c: i + 1, id: l })).filter(x => x.n);
+    const sysR = sy.filter(x => !SYS.includes(x.name)).reduce((a, x) => a + x.count, 0); if (sysR) sysO.push({ l: "Autres", n: sysR, c: 5 });
     gb.innerHTML = `<div class="kpis">
-      ${kpi("Visites de pages", nf(visits), P.n > 1 ? `${nf(Math.round(visits / P.n))} par jour` : "", TXT.visites, pct(visits, visitsP))}
-      ${kpi("Clics suivis", nf(tot.total_events || 0), "favoris, agenda, partages…", TXT.clics, totp ? pct(tot.total_events || 0, totp.total_events || 0) : "")}
-      ${kpi("Vers les organisateurs", nf(sum(grp.sortie)), "inscriptions, pages officielles", TXT.sortie)}
-      ${kpi("Favoris ajoutés", nf(favA), `${nf(favR)} retirés`, TXT.favoris)}
+      ${kpiS("Visites de pages", nf(visits), P.n > 1 ? `${nf(Math.round(visits / P.n))} par jour` : "", TXT.visites, pct(visits, visitsP), P.single ? [] : daily(pages), true)}
+      ${kpiS("Vers les organisateurs", nf(sortN), visits ? `${(sortN / visits * 100).toFixed(1).replace(".", ",")} % des visites` : "", TXT.sortie, "", P.single ? [] : daily(evOf(p => p.startsWith("sortie"))))}
+      ${kpiS("Favoris ajoutés", nf(favA), `${nf(favR)} retirés`, TXT.favoris, "", P.single ? [] : daily(evOf(p => p.startsWith("favori/ajout"))))}
+      ${kpiS("Clics suivis", nf(tot.total_events || 0), "favoris, agenda, partages…", TXT.clics, totp ? pct(tot.total_events || 0, totp.total_events || 0) : "", P.single ? [] : daily(evs))}
     </div>
     ${partial ? `<p class="note w">Le compteur n'a pas tout renvoyé : les petits chiffres (favoris par course…) peuvent manquer. Réessaie dans une minute.</p>` : ""}
     ${chart}
     <div class="two">
-      <div class="card"><h3 style="margin-top:2px">Pages les plus vues</h3>${hbars(pages.slice(0, 15).map(h => ({ l: h.path === "/" ? "Accueil" : h.path.replace(/^\/course\//, "course · "), t: h.title || h.path, n: h.count, id: h.path_id })), 0, x => `data-pid="${x.id}"`)}<p class="hint">Touche une page pour son détail jour par jour et sa provenance.${pages.length > 15 ? ` <button type="button" class="lk" id="allp">Voir les ${pages.length} pages</button>` : ""}</p></div>
-      <div class="card"><h3 style="margin-top:2px">Provenance ${info("Provenance", TXT.provenance)}</h3>${hbars((refs.stats || []).map(r => ({ l: r.name || "Accès direct", n: r.count, id: r.id ?? r.name })), 0, x => `data-dd="toprefs" data-id="${esc(x.id ?? "")}" data-lab="${esc(x.l)}"`)}<p class="hint">Touche une ligne pour le détail.</p></div>
+      <div class="card"><h3 style="margin-top:2px">Quand viennent-ils ? ${info("Quand viennent-ils", "Visites de pages en moyenne, par jour de la semaine et par heure (heure de La Réunion), sur la période choisie. Plus la case est foncée, plus il y a de monde.")}</h3>${heat(pages, P)}</div>
+      <div class="card"><h3 style="margin-top:2px">D'où viennent-ils ? ${info("Provenance", TXT.provenance)}</h3>${segs([0, 1, 2, 3, 4].filter(c => refC[c]).map(c => ({ l: REFCAT[c], n: refC[c], c: c + 1 })))}
+        <p class="hint" style="margin:12px 0 4px">En détail :</p>${hbars((refs.stats || []).slice(0, 8).map(r => ({ l: r.name || "Accès direct", n: r.count, id: r.id ?? r.name })), 0, x => `data-dd="toprefs" data-id="${esc(x.id ?? "")}" data-lab="${esc(x.l)}"`)}</div>
     </div>
+    <div class="two">
+      <div class="card"><h3 style="margin-top:2px">Le parcours ${info("Le parcours", "Du passage sur le site jusqu'au clic vers l'organisateur ou la plateforme d'inscription. Chaque étape est comptée comme les visites (une personne par page, ou par destination, et par jour) : ce sont des ordres de grandeur, pas un suivi des mêmes personnes.")}</h3>
+        ${funnel([{ l: "Visites de pages", n: visits }, { l: "Fiches course ouvertes", n: courseV }, { l: "Vers les organisateurs", n: sortN, inf: TXT.sortie }])}</div>
+      <div class="card"><h3 style="margin-top:2px">Sur quel appareil ?</h3>${segs(SCR.map((l, i) => ({ l, n: scr[l] || 0, c: i + 1 })).filter(x => x.n))}
+        <p class="hint" style="margin:12px 0 4px">Système :</p>${segs(sysO, x => x.id ? `data-dd="systems" data-id="${esc(x.id)}" data-lab="${esc(x.l)}"` : "")}</div>
+    </div>
+    <div class="card"><h3 style="margin-top:2px">Pages les plus vues</h3><div class="tp">${pages.slice(0, 12).map(h => `<span class="lb" data-pid="${h.path_id}" title="${esc(h.title || h.path)}">${esc(h.path === "/" ? "Accueil" : h.path.replace(/^\/course\//, "course · "))}</span>${P.single ? "<span></span>" : spark(daily([h]))}<span class="n">${nf(h.count)}</span>`).join("")}</div><p class="hint">Touche une page pour son détail jour par jour et sa provenance.${pages.length > 12 ? ` <button type="button" class="lk" id="allp">Voir les ${pages.length} pages</button>` : ""}</p></div>
     ${(grp.mode || []).length || (grp.arrivee || []).length ? `<div class="card"><h3 style="margin-top:2px">Liste ou Scroll ? ${info("Liste ou Scroll", TXT.modes)}</h3>${(grp.mode || []).length ? `<p class="hint" style="margin:0 0 4px">Mode choisi :</p>${hbars(grp.mode.map(x => ({ ...x, l: cap(x.l) })).sort((a, b) => b.n - a.n))}` : ""}${(grp.arrivee || []).length ? `<p class="hint" style="margin:10px 0 4px">Mode affiché à l'arrivée :</p>${hbars(grp.arrivee.map(x => ({ ...x, l: cap(x.l) })).sort((a, b) => b.n - a.n))}` : ""}</div>` : ""}
     <div class="card"><h3 style="margin-top:2px">Clics suivis ${info("Clics suivis", TXT.clics)}</h3>${Object.entries(grp).filter(([g]) => g !== "mode" && g !== "arrivee").sort((a, b) => sum(b[1]) - sum(a[1])).map(([g, it]) => `<details class="grp"><summary><b>${esc(EVG[g] || g)}</b><span>${nf(sum(it))} · ${it.length} élément${it.length > 1 ? "s" : ""}</span></summary>${hbars(it.sort((a, b) => b.n - a.n).slice(0, 60), 0, x => `data-eid="${x.id}"`)}${it.length > 60 ? `<p class="hint">+ ${it.length - 60} autres</p>` : ""}</details>`).join("") || `<div class="empty">Aucun clic suivi sur la période</div>`}</div>
     <div class="two">
-      <div class="card"><h3 style="margin-top:2px">Écrans</h3>${hbars((sizes.stats || []).filter(s => s.count).map(s => ({ l: ({ phone: "Téléphone", largephone: "Grand téléphone", tablet: "Tablette", desktop: "Ordinateur", desktophd: "Grand écran", unknown: "Inconnu" })[s.id] || s.name, n: s.count, id: s.id })), 0, x => `data-dd="sizes" data-id="${esc(x.id)}" data-lab="${esc(x.l)}"`)}</div>
       <div class="card"><h3 style="margin-top:2px">Pays</h3>${hbars((locs.stats || []).map(s => ({ l: s.name || s.id, n: s.count, id: s.id })), 0, x => `data-dd="locations" data-id="${esc(x.id)}" data-lab="${esc(x.l)}"`)}</div>
-    </div>
-    <div class="two">
       <div class="card"><h3 style="margin-top:2px">Navigateurs</h3>${hbars((brw.stats || []).filter(s => s.count).map(s => ({ l: s.name || "Inconnu", n: s.count, id: s.id ?? s.name })), 0, x => `data-dd="browsers" data-id="${esc(x.id)}" data-lab="${esc(x.l)}"`)}</div>
-      <div class="card"><h3 style="margin-top:2px">Systèmes</h3>${hbars((sys.stats || []).filter(s => s.count).map(s => ({ l: s.name || "Inconnu", n: s.count, id: s.id ?? s.name })), 0, x => `data-dd="systems" data-id="${esc(x.id)}" data-lab="${esc(x.l)}"`)}</div>
     </div>
     ${(camp.stats || []).length ? `<div class="card"><h3 style="margin-top:2px">Campagnes ${info("Campagnes", "Liens marqués d'une campagne (paramètre « utm_campaign » ou « ref ») : par exemple un lien mis dans un post Instagram ou une story. Permet de savoir quel post a amené du monde.")}</h3>${hbars(camp.stats.map(s => ({ l: s.name || "(sans nom)", n: s.count, id: s.id ?? s.name })), 0, x => `data-dd="campaigns" data-id="${esc(x.id)}" data-lab="${esc(x.l)}"`)}</div>` : ""}
-    <p class="hint">Touche une ligne (navigateur, système, pays, écran, provenance) pour descendre d'un niveau.</p>`;
+    <p class="hint">Touche une ligne (provenance, système, pays, navigateur) pour descendre d'un niveau.</p>`;
     $$("[data-pid]", gb).forEach(el => el.onclick = () => pageDetail(pages.find(h => String(h.path_id) === el.dataset.pid), P, G));
     $$("[data-eid]", gb).forEach(el => el.onclick = () => { const h = evs.find(x => String(x.path_id) === el.dataset.eid); const p = h.path.replace(/^\//, ""), g = p.startsWith("arrivee-partage") ? "arrivee-partage" : p.split("/")[0]; pageDetail(h, P, G, `${EVG[g] || g} · ${p.slice(g.length).replace(/^\//, "") || p}`); });
     $$("[data-dd]", gb).forEach(el => el.onclick = () => ddDetail(el.dataset.dd, el.dataset.id, el.dataset.lab, P, G));
