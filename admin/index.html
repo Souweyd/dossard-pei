@@ -82,6 +82,16 @@ textarea.code{font:12px/1.4 ui-monospace,Menlo,monospace;min-height:260px;width:
 .x{border:0;background:var(--chip);border-radius:8px;width:34px;flex:none;cursor:pointer}
 /* stats */
 .sec{display:flex;align-items:center;gap:6px;margin-top:26px}
+.fam{display:flex;align-items:flex-start;gap:12px;margin:22px 0 4px;padding:14px 16px;border-radius:18px;background:var(--card);border:1px solid var(--line)}
+.fam .ic{flex:none;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px}
+.fam.p .ic{background:var(--teal);color:#fff}.fam.m .ic{background:var(--chip);color:var(--ink2)}
+.fam b{display:block;font-size:17px;line-height:1.2}.fam b em{font-style:normal;font-weight:500;color:var(--ink2)}
+.fam small{display:block;margin-top:3px;font-size:13px;color:var(--ink2);line-height:1.35}
+details.famd>summary{list-style:none;cursor:pointer}details.famd>summary::-webkit-details-marker{display:none}
+details.famd>summary .fam{margin-bottom:0}details.famd>summary .chev{margin-left:auto;align-self:center;color:var(--mut);font-size:14px;white-space:nowrap}
+details.famd[open]>summary .chev .c,details.famd:not([open])>summary .chev .o{display:none}
+@media(max-width:600px){.chev .c,.chev .o{font-size:0}.chev .c::after{content:"▸";font-size:18px}.chev .o::after{content:"▾";font-size:18px}}
+.mline{font-size:13px;color:var(--ink2);margin:6px 2px 0}.mline.w{color:var(--bad)}
 .inf{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:0;background:var(--chip);color:var(--ink2);font:italic 700 11px/1 Georgia,serif;cursor:pointer;vertical-align:1px;text-transform:none;letter-spacing:0;flex:none}
 .inf:hover{background:var(--soft);color:var(--teal-d)}
 .dl{font-weight:700;font-size:12px;border-radius:6px;padding:1px 6px}.dl.up{background:var(--ok-bg);color:var(--ok)}.dl.dn{background:var(--bad-bg);color:var(--bad)}
@@ -858,15 +868,23 @@ const THR = [[/^bic/, "Robot sans identité de navigateur"], [/^(macro|ip)\.|rep
 const thrName = n => (THR.find(([r]) => r.test(n)) || [0, "Autre (" + n + ")"])[1];
 function kpi(k, v, s, inf, d) { return `<div class="kpi"><div class="k">${k}${inf ? " " + info(k, inf) : ""}</div><div class="v">${v}</div><div class="s">${d || ""}${d && s ? " · " : ""}${s || ""}</div></div>`; }
 
+const TECHOPEN = () => { try { return localStorage.getItem("dp-tech") === "1"; } catch (e) { return false; } };
 async function viewStats() {
   const v = $("#view"), P = period(), Pp = prevPeriod(P), G = gcR(P), Gp = gcR(Pp);
   v.innerHTML = `<h2>Stats</h2>${periodBar(P)}
-    <h3 class="sec">Audience ${info("Audience", "Chiffres du compteur d'audience du site (sans cookie). " + TXT.visites)}</h3><div id="gcbox"><div class="loading">Chargement des visites…</div></div>
-    <h3 class="sec">Vitesse réelle ${info("Vitesse réelle", TXT.vitesse)}</h3><div id="cwbox"><div class="loading">Chargement…</div></div>
-    <h3 class="sec">Trafic et sécurité (Cloudflare) ${info("Trafic et sécurité", TXT.requetes)}</h3><div id="trbox"><div class="loading">Chargement…</div></div>`;
+    <div class="fam p"><span class="ic">👥</span><div><b>Audience <em>· des personnes</em> ${info("Audience", "Chiffres du compteur d'audience du site (sans cookie). " + TXT.visites)}</b><small>Les visiteurs du site, robots exclus. C'est le chiffre à suivre.</small></div></div>
+    <div id="gcbox"><div class="loading">Chargement des visites…</div></div>
+    <details class="famd" id="techd"${TECHOPEN() ? " open" : ""}><summary><div class="fam m"><span class="ic">⚙️</span><div><b>Technique <em>· des machines</em></b><small>Vitesse, trafic et sécurité vus par Cloudflare. Robots compris : à ne pas comparer avec l'audience.</small></div><span class="chev"><span class="c">Afficher ▸</span><span class="o">Masquer ▾</span></span></div></summary>
+      <h3 class="sec">Vitesse réelle ${info("Vitesse réelle", TXT.vitesse)}</h3><div id="cwbox"><div class="loading">Chargement…</div></div>
+      <h3 class="sec">Trafic et sécurité ${info("Trafic et sécurité", TXT.requetes)}</h3><div id="trbox"><div class="loading">Chargement…</div></div>
+    </details>`;
   bindPeriod(P);
   statsGC(P, Pp, G, Gp);
-  statsCF(P);
+  // la partie technique ne se charge qu'une fois ouverte (et reste ouverte d'une visite à l'autre si on l'a laissée ouverte)
+  const td = $("#techd"); let cfDone = false;
+  const go = () => { if (td.open && !cfDone) { cfDone = true; statsCF(P); } };
+  td.addEventListener("toggle", () => { try { localStorage.setItem("dp-tech", td.open ? "1" : "0"); } catch (e) { } go(); });
+  go();
 }
 
 async function statsGC(P, Pp, G, Gp) {
@@ -1005,8 +1023,8 @@ async function statsCF(P) {
         ${kpi("Affichage (LCP)", lcp(q.largestContentfulPaintP75), "bon : 2,5 s ou moins", TXT.vitesse)}
         ${kpi("Stabilité (CLS)", cls(q.cumulativeLayoutShiftP75), "bon : 0,10 ou moins", TXT.vitesse)}
         ${kpi("Réactivité (INP)", inp(q.interactionToNextPaintP75), "bon : 200 ms ou moins", TXT.vitesse)}
-        ${kpi("Visites mesurées", nf(vis?.sum?.visits || 0), `${nf(vis?.count || 0)} pages vues`, "Visites mesurées par l'outil de vitesse de Cloudflare. C'est un échantillon : le nombre sert à juger si les mesures de vitesse sont fiables (au moins quelques dizaines), pas à compter l'audience.")}
       </div>
+      ${(n => `<p class="mline${n < 30 ? " w" : ""}">Basé sur ${nf(n)} mesure${n > 1 ? "s" : ""} (un échantillon des visites)${n < 30 ? " : trop peu pour être fiable, élargis la période." : "."}</p>`)((A.cwv || [])[0]?.count || 0)}
       <div class="two">
         <div class="card ovw"><h3 style="margin-top:2px">Par page</h3><table class="t"><tr><th>Page</th><th>LCP</th><th>CLS</th><th>INP</th><th class="n">Mesures</th></tr>${(A.cwvp || []).filter(g => !/^\/admin/.test(g.dimensions.requestPath)).map(g => row(esc(g.dimensions.requestPath === "/" ? "Accueil" : g.dimensions.requestPath), g)).join("") || `<tr><td colspan="5" class="empty">Pas de mesure</td></tr>`}</table></div>
         <div class="card ovw"><h3 style="margin-top:2px">Par appareil</h3><table class="t"><tr><th>Appareil</th><th>LCP</th><th>CLS</th><th>INP</th><th class="n">Mesures</th></tr>${(A.cwvd || []).map(g => row(esc(({ mobile: "Téléphone", desktop: "Ordinateur", tablet: "Tablette" })[g.dimensions.deviceType] || g.dimensions.deviceType), g)).join("") || `<tr><td colspan="5" class="empty">Pas de mesure</td></tr>`}</table></div>
@@ -1035,9 +1053,9 @@ async function statsCF(P) {
         ${kpi("Requêtes", nf(t.requests || 0), "robots compris", TXT.requetes)}
         ${kpi("Servies depuis le cache", `${t.requests ? Math.round((t.cachedRequests || 0) / t.requests * 100) : 0} %`, "", TXT.cache)}
         ${kpi("Menaces bloquées", nf(t.threats || 0), (t.threats || 0) ? "requêtes refusées par Cloudflare" : "aucune", TXT.menaces)}
-        ${kpi("Adresses différentes", nf(t.uniques || 0), "robots compris", TXT.uniques)}
         ${kpi("Données envoyées", `${((t.bytes || 0) / 1e6 >= 1000 ? ((t.bytes || 0) / 1e9).toFixed(2) + " Go" : Math.round((t.bytes || 0) / 1e6) + " Mo").replace(".", ",")}`, "", TXT.donnees)}
       </div>
+      <p class="mline">Adresses IP différentes : ${nf(t.uniques || 0)} (robots compris) ${info("Adresses IP", TXT.uniques)}</p>
       ${days.length > 1 ? `<div class="card"><h3 style="margin-top:2px">Requêtes par jour</h3>${bars(days, { unit: "requête", clickDay: true })}</div>` : ""}
       <div class="two">
         <div class="card"><h3 style="margin-top:2px">Menaces bloquées : de quel type ? ${info("Menaces bloquées", TXT.menaces)}</h3>${Object.keys(tTypes).length ? hbars(Object.entries(tTypes).map(([l, n]) => ({ l, n })).sort((a, b) => b.n - a.n)) : `<p class="hint">${(t.threats || 0) ? "Détail non disponible sur l'offre gratuite." : "Aucune menace sur la période."}</p>`}
