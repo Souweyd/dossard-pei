@@ -110,6 +110,16 @@ details.famd[open]>summary .chev .c,details.famd:not([open])>summary .chev .o{di
 .tp{display:grid;grid-template-columns:1fr 90px auto;gap:4px 12px;align-items:center;font-size:13.5px}.tp .lb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}.tp .lb:hover{text-decoration:underline}.tp svg{width:90px;height:22px}.tp .n{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
 .tip.tip{white-space:pre-line;line-height:1.4}
 @media(max-width:480px){header.top #who,header.top .tag{display:none}header.top{gap:10px}}
+.pbar2{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 6px}
+.pgrp{display:flex;align-items:stretch;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.pnav{border:0;background:none;width:40px;font-size:22px;line-height:1;color:var(--ink2);cursor:pointer}.pnav:hover:not(:disabled){background:var(--chip);color:var(--ink)}.pnav:disabled{opacity:.3;cursor:default}
+.pbtn{display:flex;align-items:center;gap:10px;border:0;border-left:1px solid var(--line);border-right:1px solid var(--line);background:none;padding:8px 14px;text-align:left;cursor:pointer;color:var(--ink);font:inherit}.pbtn:hover{background:var(--chip)}
+.pbtn svg{color:var(--teal);flex:none}.pbtn b{display:block;font-size:15.5px}.pbtn small{display:block;font-size:12px;color:var(--ink2);margin-top:1px}.pbtn .car{color:var(--mut);font-size:12px;margin-left:4px}
+.ppop{position:absolute;z-index:60;top:calc(100% + 6px);left:0;display:grid;grid-template-columns:190px 230px;gap:0;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 14px 40px rgba(0,0,0,.18);overflow:hidden}
+.ppop[hidden]{display:none!important}
+.pls{display:flex;flex-direction:column;padding:6px;border-right:1px solid var(--line)}.pls button{border:0;background:none;text-align:left;padding:8px 10px;border-radius:9px;font:inherit;font-size:14px;color:var(--ink);cursor:pointer}.pls button:hover{background:var(--chip)}.pls button[aria-pressed=true]{background:var(--soft);color:var(--teal-d);font-weight:700}
+.pform2{display:flex;flex-direction:column;gap:8px;padding:12px 14px;font-size:13px;color:var(--ink2)}.pform2 b{color:var(--ink);font-size:14px}.pform2 label{display:flex;flex-direction:column;gap:3px}.pform2 input{padding:7px 9px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font:inherit}.pform2 small{font-size:11.5px;color:var(--mut)}
+@media(max-width:600px){.pgrp{flex:1 1 100%}.pbtn{flex:1}.ppop{grid-template-columns:1fr;left:0;right:0}.pls{display:grid;grid-template-columns:1fr 1fr;border-right:0;border-bottom:1px solid var(--line)}}
 .mline{font-size:13px;color:var(--ink2);margin:6px 2px 0}.mline.w{color:var(--bad)}
 .inf{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:0;background:var(--chip);color:var(--ink2);font:italic 700 11px/1 Georgia,serif;cursor:pointer;vertical-align:1px;text-transform:none;letter-spacing:0;flex:none}
 .inf:hover{background:var(--soft);color:var(--teal-d)}
@@ -847,21 +857,46 @@ function tipAt(t, x, yy) { let tp = $(".tip"); if (!t) { tp && tp.remove(); retu
 document.addEventListener("mousemove", e => tipAt(e.target.closest && e.target.closest("[data-tip]"), e.clientX, e.clientY));
 document.addEventListener("touchstart", e => { const t = e.target.closest && e.target.closest("[data-tip]"); const p = e.touches[0]; tipAt(t, p.clientX, p.clientY); }, { passive: true });
 const setPeriod = s => { ST = s; try { localStorage.setItem("adm-stats", JSON.stringify(ST)); } catch (e) { } viewStats(); };
+const PNAME = { today: "Aujourd'hui", yesterday: "Hier", 7: "7 derniers jours", 30: "30 derniers jours", 90: "90 derniers jours", month: "Ce mois-ci", lastmonth: "Mois dernier", custom: "Période choisie", day: "Jour choisi" };
+const CAL = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>`;
 function periodBar(P) {
-  const presets = [["today", "Aujourd'hui"], ["yesterday", "Hier"], ["7", "7 jours"], ["30", "30 jours"], ["90", "90 jours"], ["month", "Ce mois-ci"], ["lastmonth", "Mois dernier"], ["custom", "Dates…"]];
-  return `<div class="chips" id="pchips">${presets.map(([k, l]) => `<button class="chip" data-p="${k}" aria-pressed="${ST.p === k || (k === "custom" && ST.p === "day")}">${l}</button>`).join("")}</div>
-  <div class="pbar">
-    ${P.single ? `<button class="btn s" id="pprev" title="Jour précédent">‹</button>` : ""}
-    <span class="plab">${esc(P.label)}</span>
-    ${P.single ? `<button class="btn s" id="pnext" title="Jour suivant" ${P.from >= TODAY ? "disabled" : ""}>›</button>` : ""}
-    <span style="flex:1"></span>
-    <form id="pform" class="pform" ${ST.p === "custom" || ST.p === "day" ? "" : "hidden"}><label>Du <input type="date" id="pf1" value="${P.from}" max="${TODAY}"></label><label>au <input type="date" id="pf2" value="${P.to}" max="${TODAY}"></label><button class="btn s p">Voir</button></form>
+  const range = P.single ? fdl(P.from).replace(/^./, c => c.toUpperCase()) : (P.from.slice(0, 4) === P.to.slice(0, 4) ? fd(P.from).replace(/ \d{4}$/, "") : fd(P.from)) + " – " + fd(P.to);
+  const lastD = addD(addD(P.from.slice(0, 8) + "28", 4).slice(0, 8) + "01", -1), fullM = P.from.endsWith("-01") && P.to === lastD && !["month", "lastmonth"].includes(ST.p);
+  const mName = new Date(P.from + "T12:00:00Z").toLocaleDateString("fr-FR", { month: "long", year: "numeric", timeZone: "UTC" });
+  const sub = `${fullM ? mName.replace(/^./, c => c.toUpperCase()) : PNAME[ST.p] || PNAME[30]}${P.single && P.from === TODAY ? " · jusqu'à maintenant" : ""} · comparé ${P.single ? "à la veille" : `aux ${P.n} jours d'avant`}`;
+  const quick = [["7", "7 j"], ["30", "30 j"], ["90", "90 j"]];
+  return `<div class="pbar2">
+    <div class="pgrp"><button type="button" class="pnav" id="pprev" aria-label="Période précédente">‹</button>
+    <button type="button" class="pbtn" id="pbtn" aria-expanded="false" aria-controls="ppop">${CAL}<span><b>${esc(range)}</b><small>${esc(sub)}</small></span><span class="car">▾</span></button>
+    <button type="button" class="pnav" id="pnext" aria-label="Période suivante" ${P.to >= TODAY ? "disabled" : ""}>›</button></div>
+    <div class="seg2 pq">${quick.map(([k, l]) => `<button type="button" data-q="${k}" aria-pressed="${ST.p === k}">${l}</button>`).join("")}</div>
+    <div class="ppop" id="ppop" hidden>
+      <div class="pls">${["today", "yesterday", "7", "30", "90", "month", "lastmonth"].map(k => `<button type="button" data-p="${k}" aria-pressed="${ST.p === k}">${PNAME[k]}</button>`).join("")}</div>
+      <form id="pform" class="pform2"><b>Dates précises</b><label>Du <input type="date" id="pf1" value="${P.from}" max="${TODAY}"></label><label>Au <input type="date" id="pf2" value="${P.to}" max="${TODAY}"></label><small>Même date deux fois : un seul jour, heure par heure.</small><button class="btn s p">Afficher</button></form>
+    </div>
   </div>`;
 }
+// période d'avant / d'après : de même longueur, ou mois par mois pour un mois entier
+function shiftPeriod(P, dir) {
+  if (P.single) return { p: "day", from: addD(P.from, dir) };
+  const last = d => addD(addD(d.slice(0, 8) + "28", 4).slice(0, 8) + "01", -1);
+  if (P.from.endsWith("-01") && (P.to === last(P.from) || ST.p === "month")) {
+    const f = dir < 0 ? addD(P.from, -1).slice(0, 8) + "01" : addD(last(P.from), 1);
+    return { p: "custom", from: f, to: last(f) > TODAY ? TODAY : last(f) };
+  }
+  const f = addD(P.from, dir * P.n), t = addD(P.to, dir * P.n);
+  return { p: "custom", from: f, to: t > TODAY ? TODAY : t };
+}
 function bindPeriod(P) {
-  $$("#pchips .chip").forEach(c => c.onclick = () => { if (c.dataset.p === "custom") { $("#pform").hidden = false; $("#pf1").focus(); return; } setPeriod({ p: c.dataset.p }); });
+  const pop = $("#ppop"), btn = $("#pbtn");
+  const show = on => { pop.hidden = !on; btn.setAttribute("aria-expanded", on); };
+  btn.onclick = e => { e.stopPropagation(); show(pop.hidden); };
+  if (!window.PPOP) { window.PPOP = 1; document.addEventListener("click", e => { const p = $("#ppop"); if (p && !p.hidden && !e.target.closest("#ppop,#pbtn")) { p.hidden = true; $("#pbtn").setAttribute("aria-expanded", false); } }); }
+  $$("#ppop [data-p]").forEach(c => c.onclick = () => setPeriod({ p: c.dataset.p }));
+  $$(".pq [data-q]").forEach(c => c.onclick = () => setPeriod({ p: c.dataset.q }));
   $("#pform").onsubmit = e => { e.preventDefault(); const a = $("#pf1").value, b = $("#pf2").value || a; if (!a) return; setPeriod(a === b ? { p: "day", from: a } : { p: "custom", from: a, to: b }); };
-  if (P.single) { $("#pprev").onclick = () => setPeriod({ p: "day", from: addD(P.from, -1) }); $("#pnext").onclick = () => setPeriod({ p: "day", from: addD(P.from, 1) }); }
+  $("#pprev").onclick = () => setPeriod(shiftPeriod(P, -1));
+  $("#pnext").onclick = () => setPeriod(shiftPeriod(P, 1));
   $("#view").onclick = e => {
     const r = e.target.closest("rect.clk[data-day]"); if (r) { tipAt(null); setPeriod({ p: "day", from: r.dataset.day }); return; }
     const w = e.target.closest("rect.clk[data-week]"); if (w) { tipAt(null); const a = w.dataset.week, b = addD(a, 6); setPeriod({ p: "custom", from: a, to: b > TODAY ? TODAY : b }); return; }
