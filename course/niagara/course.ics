@@ -21,20 +21,4 @@ TRIGGER:-P2D
 DESCRIPTION:Foulées Nature Niagara dans 2 jours
 END:VALARM
 END:VEVENT
-BEGIN:VEVENT
-UID:niagara-cloture@dossardpei.re
-DTSTAMP:20261129T000000Z
-SUMMARY:Clôture des inscriptions : Foulées Nature Niagara
-DTSTART;VALUE=DATE:20261125
-DTEND;VALUE=DATE:20261126
-URL:https://www.sportpro.re/courses/02103-foulees-nature-niagara/
-DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
- iption : https://www.sportpro.re/courses/02103-foulees-nature-niagara/\nF
- iche : https://dossardpei.re/course/niagara/
-BEGIN:VALARM
-ACTION:DISPLAY
-TRIGGER:-PT6H
-DESCRIPTION:Inscriptions Foulées Nature Niagara : clôture demain
-END:VALARM
-END:VEVENT
 END:VCALENDAR
