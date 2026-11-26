@@ -32,7 +32,9 @@
 "https://gotrail.run/calendrier-trails/reunion": {
 "at": "2026-11-26T01:05+04:00",
 "changed": "2026-11-26T01:05+04:00",
-"h": "4a84db33b1cdc07d855f7683fbe3b69e1072fc5743b46acd0f22ac183c9f4f56"
+"h": "4a84db33b1cdc07d855f7683fbe3b69e1072fc5743b46acd0f22ac183c9f4f56",
+"pending": "b0a8d2cab794c755c0ca7cca673f644f115da65576d9d81c19db6979460e4225",
+"since": "2026-11-26T18:04+04:00"
 },
 "https://ilop.re/ilop-sport/outdoor/": {
 "at": "2026-11-10T17:17+04:00",
@@ -92,7 +94,9 @@
 "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/": {
 "at": "2026-11-26T16:06+04:00",
 "changed": "2026-11-26T16:06+04:00",
-"h": "fe6da417621b714d163fdf02d21168dbe43461e6ec5ce453ba777c368b26f793"
+"h": "fe6da417621b714d163fdf02d21168dbe43461e6ec5ce453ba777c368b26f793",
+"pending": "8e39dce8d22e3254d6eb240057ab97313264e9a1b5a5e49732627a9e6a8e55f2",
+"since": "2026-11-26T18:04+04:00"
 },
 "https://www.huge-event.fr": {
 "at": "2026-11-20T15:05+04:00",
