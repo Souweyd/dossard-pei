@@ -2,7 +2,7 @@
 
 > Toutes les courses à pied de La Réunion au même endroit : trail, route, cross, multisport. Pour chaque course : date, lieu, formats (distance, dénivelé), tarifs, état des inscriptions et lien d’inscription officiel.
 
-Calendrier mis à jour toutes les heures à partir des plateformes d’inscription (Sport PRO, Top Chrono, Chrono Run 974, UTOI…) et des sites des organisateurs. 55 courses à venir au 27 novembre 2026 (33 trails, 13 courses sur route, 6 épreuves multisport, 2 relais et 1 course jeunes). Les informations de chaque fiche datent de la dernière synchronisation ; en cas de doute, la plateforme d’inscription fait foi.
+Calendrier mis à jour toutes les heures à partir des plateformes d’inscription (Sport PRO, Top Chrono, Chrono Run 974, UTOI…) et des sites des organisateurs. 55 courses à venir au 28 novembre 2026 (33 trails, 13 courses sur route, 6 épreuves multisport, 2 relais et 1 course jeunes). Les informations de chaque fiche datent de la dernière synchronisation ; en cas de doute, la plateforme d’inscription fait foi.
 
 ## Calendriers
 
@@ -23,7 +23,7 @@ Calendrier mis à jour toutes les heures à partir des plateformes d’inscripti
 - [Trail Urbain de Saint-Pierre](https://dossardpei.re/course/trail-urbain-saint-pierre-2026-11/) : samedi 28 novembre 2026, Saint-Pierre ; trail, 21 km (250 m D+), 7 km (50 m D+) ; complet
 - [Course inclusive des maladies rares](https://dossardpei.re/course/course-inclusive-maladies-rares-2026-11/) : dimanche 29 novembre 2026, Saint-Benoît ; route, 3,5 km ; complet
 - [Foulées Nature Niagara](https://dossardpei.re/course/niagara/) : dimanche 29 novembre 2026, Sainte-Suzanne ; route, 25 km ; inscriptions closes
-- [Les Foulées de la Possession](https://dossardpei.re/course/possession/) : dimanche 29 novembre 2026, La Possession ; route, 10 km ; inscriptions ouvertes jusqu’au 27 novembre
+- [Les Foulées de la Possession](https://dossardpei.re/course/possession/) : dimanche 29 novembre 2026, La Possession ; route, 10 km ; inscriptions closes
 - [Trail de Villèle](https://dossardpei.re/course/villele/) : dimanche 29 novembre 2026, Saint-Paul ; trail, 25 km (750 m D+), 10 km ; inscriptions closes
 - [Trail des Berges de la Rivière du Mât Les Bas](https://dossardpei.re/course/riviere-mat/) : dimanche 29 novembre 2026, Saint-André ; trail, 17 km (159 m D+), 12 km (82 m D+) ; inscriptions closes
 - [Boucle du Cœur de l'Est](https://dossardpei.re/course/boucle-coeur-est-2026-12/) : samedi 5 décembre 2026, Salazie ; trail, 65 km (3 630 m D+), 45 km (2 300 m D+) ; inscriptions closes
