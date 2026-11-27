@@ -1,0 +1,86 @@
+# Dossard Péi
+
+> Toutes les courses à pied de La Réunion au même endroit : trail, route, cross, multisport. Pour chaque course : date, lieu, formats (distance, dénivelé), tarifs, état des inscriptions et lien d’inscription officiel.
+
+Calendrier mis à jour toutes les heures à partir des plateformes d’inscription (Sport PRO, Top Chrono, Chrono Run 974, UTOI…) et des sites des organisateurs. 54 courses à venir au 27 novembre 2026 (32 trails, 13 courses sur route, 6 épreuves multisport, 2 relais et 1 course jeunes). Les informations de chaque fiche datent de la dernière synchronisation ; en cas de doute, la plateforme d’inscription fait foi.
+
+## Calendriers
+
+- [Tous les calendriers](https://dossardpei.re/calendrier/) : par week-end, par mois et par discipline
+- [Ce week-end](https://dossardpei.re/calendrier/ce-week-end/) : les courses du prochain week-end
+- [Novembre 2026](https://dossardpei.re/calendrier/novembre-2026/) : les courses de novembre 2026
+- [Décembre 2026](https://dossardpei.re/calendrier/decembre-2026/) : les courses de décembre 2026
+- [Janvier 2027](https://dossardpei.re/calendrier/janvier-2027/) : les courses de janvier 2027
+- [Février 2027](https://dossardpei.re/calendrier/fevrier-2027/) : les courses de février 2027
+- [Mars 2027](https://dossardpei.re/calendrier/mars-2027/) : les courses de mars 2027
+- [Avril 2027](https://dossardpei.re/calendrier/avril-2027/) : les courses d’avril 2027
+- [Trail](https://dossardpei.re/calendrier/trail/) : tous les trails à venir
+- [Route](https://dossardpei.re/calendrier/route/) : toutes les courses sur route à venir
+
+## Courses à venir
+
+- [Mafate Trail Tour (MTT)](https://dossardpei.re/course/mafate-trail-tour-2026-11/) : samedi 28 novembre 2026, Salazie ; trail, 70 km (4 800 m D+), 54 km (3 600 m D+), 38 km (2 100 m D+) ; complet
+- [Trail Urbain de Saint-Pierre](https://dossardpei.re/course/trail-urbain-saint-pierre-2026-11/) : samedi 28 novembre 2026, Saint-Pierre ; trail, 21 km (250 m D+), 7 km (50 m D+) ; complet
+- [Course inclusive des maladies rares](https://dossardpei.re/course/course-inclusive-maladies-rares-2026-11/) : dimanche 29 novembre 2026, Saint-Benoît ; route, 3,5 km ; complet
+- [Foulées Nature Niagara](https://dossardpei.re/course/niagara/) : dimanche 29 novembre 2026, Sainte-Suzanne ; route, 25 km ; inscriptions closes
+- [Les Foulées de la Possession](https://dossardpei.re/course/possession/) : dimanche 29 novembre 2026, La Possession ; route, 10 km ; inscriptions ouvertes jusqu’au 27 novembre
+- [Trail de Villèle](https://dossardpei.re/course/villele/) : dimanche 29 novembre 2026, Saint-Paul ; trail, 25 km (750 m D+), 10 km ; inscriptions closes
+- [Trail des Berges de la Rivière du Mât Les Bas](https://dossardpei.re/course/riviere-mat/) : dimanche 29 novembre 2026, Saint-André ; trail, 17 km (159 m D+), 12 km (82 m D+) ; inscriptions closes
+- [Boucle du Cœur de l'Est](https://dossardpei.re/course/boucle-coeur-est-2026-12/) : samedi 5 décembre 2026, Salazie ; trail, 65 km (3 630 m D+), 45 km (2 300 m D+) ; inscriptions closes
+- [Kours Ti Bwa](https://dossardpei.re/course/ti-bwa/) : dimanche 6 décembre 2026, Saint-Paul ; trail, 12 km (286 m D+), 6 km ; inscriptions ouvertes jusqu’au 1er décembre
+- [Leu Trail des Musées](https://dossardpei.re/course/musees/) : dimanche 6 décembre 2026, Saint-Leu ; trail, 26 km (560 m D+) ; complet
+- [Trans Dimitile](https://dossardpei.re/course/dimitile/) : dimanche 6 décembre 2026, Entre-Deux ; trail, 32 km (1 800 m D+), 14 km (900 m D+) ; inscriptions closes
+- [Magik Run](https://dossardpei.re/course/magik-run-2026-12/) : mercredi 9 décembre 2026, Bras-Panon ; jeunes, 2 km ; inscriptions ouvertes jusqu’au 6 décembre
+- [Christmas Run](https://dossardpei.re/course/christmas-run/) : samedi 12 décembre 2026, Saint-Benoît ; route, 5 km ; complet
+- [Foulées de la Liberté](https://dossardpei.re/course/foulees-de-la-liberte-2026-12/) : samedi 12 décembre 2026, Saint-Denis ; route, 10 km, 4 km ; inscriptions ouvertes jusqu’au 8 décembre
+- [Foulées nocturnes de Saint-Louis](https://dossardpei.re/course/foulees-nocturnes-saint-louis-2026-12/) : samedi 12 décembre 2026, Saint-Louis ; route, 10 km, 5 km ; inscriptions ouvertes
+- [Maloya Trail](https://dossardpei.re/course/maloya/) : samedi 12 décembre 2026, Salazie ; trail, 12 km (556 m D+), 8 km, 2,2 km (49 m D+), 1,6 km (26 m D+) ; annulée
+- [Trail Urbain de Sainte-Marie](https://dossardpei.re/course/trail-urbain-sainte-marie-2026-12/) : samedi 12 décembre 2026, Sainte-Marie ; trail, 15 km (192 m D+) ; complet
+- [Marmailles Masters Trail](https://dossardpei.re/course/marmailles-masters-trail-2026-12/) : dimanche 13 décembre 2026, Saint-Louis ; trail, 22 km (1 500 m D+), 2 km ; inscriptions ouvertes jusqu’au 6 décembre
+- [Relais Trail le Vieux Saint-Paul](https://dossardpei.re/course/relais-trail-vieux-saint-paul-2026-12/) : dimanche 13 décembre 2026, Saint-Paul ; relais, 18,5 km (1 000 m D+) ; inscriptions ouvertes
+- [Trail Nature Sainte-Anne](https://dossardpei.re/course/sainte-anne/) : dimanche 13 décembre 2026, Saint-Benoît ; trail, 24 km (490 m D+), 12 km, 12 km (245 m D+), 9 km ; inscriptions ouvertes jusqu’au 8 décembre
+- [Le Raid des Dalons](https://dossardpei.re/course/raid-dalons-2026-12/) : du vendredi 18 au dimanche 20 décembre 2026, L'Étang-Salé ; trail, 60 km (2 682 m D+) ; annulée
+- [Les Foulées du Verval](https://dossardpei.re/course/foulees-verval-2026-12/) : samedi 19 décembre 2026, Saint-Louis ; trail, 10 km ; complet
+- [The Pace of Mountain](https://dossardpei.re/course/pace/) : samedi 19 décembre 2026, Salazie ; trail, 71 km (3 900 m D+), 70 km (3 165 m D+), 37 km (1 900 m D+) ; inscriptions ouvertes jusqu’au 14 décembre
+- [Trail Urbain des Letchis](https://dossardpei.re/course/trail-urbain-letchis-2026-12/) : samedi 19 décembre 2026, Saint-Benoît ; trail, 14 km (132 m D+) ; inscriptions ouvertes jusqu’au 15 décembre
+- [Trophée des champions sur route – Finale](https://dossardpei.re/course/trophee-champions-route-finale-2026-12/) : samedi 19 décembre 2026, Sainte-Marie ; route, 15 km (115 m D+), 10 km (71 m D+), 5 km (36 m D+) ; inscriptions ouvertes jusqu’au 30 novembre
+- [Le Relais des Marrons](https://dossardpei.re/course/relais-marrons-2026-12/) : dimanche 20 décembre 2026, Sainte-Suzanne ; relais, 21,1 km ; inscriptions ouvertes jusqu’au 16 décembre
+- [Les Foulées de la Cité du Volcan](https://dossardpei.re/course/foulees-cite-volcan-2026-12/) : dimanche 20 décembre 2026, Le Tampon ; route, 10 km ; inscriptions ouvertes
+- [Trail Charrette](https://dossardpei.re/course/charrette/) : dimanche 20 décembre 2026, Saint-Paul ; trail, 22 km (850 m D+), 15 km (200 m D+) ; inscriptions ouvertes jusqu’au 14 décembre
+- [ATP Urban Trail](https://dossardpei.re/course/atp-urban-trail-2027-01/) : samedi 9 janvier 2027, La Plaine-des-Palmistes ; trail, 10 km, 5 km ; inscriptions ouvertes jusqu’au 5 janvier
+- [Foulées de la Côte Ouest](https://dossardpei.re/course/foulees-de-la-cote-ouest-2027-01/) : samedi 23 janvier 2027, Saint-Paul ; trail, 25 km (327 m D+), 12 km ; inscriptions ouvertes jusqu’au 17 janvier
+- [Trails du Volcan : Tangue et Transvolcano](https://dossardpei.re/course/championnat-trail-trans-volcano-2027-01/) : samedi 23 janvier 2027, Le Tampon ; trail, 67 km (1 850 m D+), 40 km (1 240 m D+), 22 km (800 m D+) ; complet
+- [Les Foulées du CFG](https://dossardpei.re/course/cfg/) : samedi 30 janvier 2027, Saint-Benoît ; route, 10 km ; inscriptions ouvertes jusqu’au 26 janvier
+- [VolcaroX](https://dossardpei.re/course/volcarox-2027-01/) : du samedi 30 au dimanche 31 janvier 2027, Le Tampon ; multisport, 8 km, 4 km ; inscriptions ouvertes
+- [Les Foulées des Berges de la Rivière du Mât Les Bas](https://dossardpei.re/course/foulees-berges-riviere-mat-les-bas-2027-01/) : dimanche 31 janvier 2027, Saint-André ; route, 10 km ; inscriptions ouvertes jusqu’au 28 décembre
+- [Festi Trail de Saint-Leu](https://dossardpei.re/course/festi-trail-saint-leu-2027-02/) : dimanche 7 février 2027, Saint-Leu ; trail, 25 km (770 m D+) ; inscriptions ouvertes jusqu’au 31 janvier
+- [Trail de la Crête](https://dossardpei.re/course/trail-de-la-crete-2027-02/) : dimanche 7 février 2027, Saint-Joseph ; trail, 30 km (2 000 m D+), 12 km (600 m D+) ; inscriptions bientôt
+- [Hybrid Challenge](https://dossardpei.re/course/hybrid-challenge-2027-02/) : du vendredi 12 au dimanche 14 février 2027, Saint-Denis ; multisport ; inscriptions ouvertes jusqu’au 10 janvier
+- [Trail Sclérose en Plaques](https://dossardpei.re/course/trail-sclerose-en-plaques-2027-02/) : samedi 13 février 2027, Les Avirons ; trail, 23 km (1 200 m D+), 8 km ; inscriptions ouvertes jusqu’au 7 février
+- [Ensemb mon zézèr](https://dossardpei.re/course/ensemb-mon-zezer-2027-02/) : dimanche 14 février 2027, Saint-Benoît ; route, 13,5 km ; inscriptions ouvertes jusqu’au 15 janvier
+- [Les Foulées des Amoureux](https://dossardpei.re/course/foulees-des-amoureux-2027-02/) : dimanche 14 février 2027, Sainte-Suzanne ; route, 10 km, 5 km ; inscriptions ouvertes jusqu’au 7 février
+- [TRI97.4](https://dossardpei.re/course/tri974-2027-02/) : dimanche 14 février 2027, Saint-Leu ; multisport, 102,6 km, 97,4 km ; inscriptions ouvertes
+- [Bois d'Olives Urban Trail](https://dossardpei.re/course/bois-d-olives-urban-trail-2027-02/) : samedi 20 février 2027, Saint-Pierre ; trail, 19 km (299 m D+), 10 km, 5 km (90 m D+) ; inscriptions ouvertes jusqu’au 14 février
+- [Trail des Anglais](https://dossardpei.re/course/trail-anglais-2027-02/) : dimanche 28 février 2027, Le Port ; trail, 30 km (1 270 m D+) ; inscriptions bientôt
+- [Les Foulées de la Pointe](https://dossardpei.re/course/foulees-pointe-2027-03/) : samedi 6 mars 2027, Le Tampon ; route, 16 km, 7 km ; inscriptions ouvertes jusqu’au 28 février
+- [Eden Rox Challenge](https://dossardpei.re/course/eden-rox-challenge-2027-03/) : du samedi 20 au dimanche 21 mars 2027, Saint-Paul ; multisport, 8 km, 4 km ; inscriptions ouvertes
+- [Trail des Ananas](https://dossardpei.re/course/trail-des-ananas-2027-04/) : dimanche 11 avril 2027, Saint-Denis ; trail, 21 km (1 100 m D+), 7,4 km ; inscriptions ouvertes jusqu’au 6 avril
+- [Triathlon / Duathlon du Colosse](https://dossardpei.re/course/triathlon-colosse-2027-04/) : dimanche 25 avril 2027, Saint-André ; multisport, 55 km, 51,5 km, 12,9 km, 4,5 km ; inscriptions bientôt
+- [Ultra Trail des Géants](https://dossardpei.re/course/ultra-trail-geants-2027-05/) : du jeudi 6 au dimanche 9 mai 2027, Saint-Philippe ; trail, 232,9 km (14 368 m D+), 173,8 km (10 657 m D+), 134 km (7 717 m D+) ; inscriptions ouvertes jusqu’au 30 novembre
+- [L'Austral](https://dossardpei.re/course/laustral-2027-06/) : dimanche 6 juin 2027, Saint-Joseph ; trail, 62 km (2 700 m D+), 13 km (300 m D+) ; inscriptions bientôt
+- [Trail Grand Bassin Mollaret](https://dossardpei.re/course/trail-grand-bassin-2027-06/) : samedi 19 juin 2027, Le Tampon ; trail, 22 km (1 170 m D+), 10 km (750 m D+) ; inscriptions bientôt
+- [Ultra Marathon des Cirques](https://dossardpei.re/course/ultra-marathon-cirques-2027-06/) : samedi 19 juin 2027, Cilaos ; trail, 64 km (5 000 m D+) ; inscriptions bientôt
+- [Grand Trail de l'Ouest (GTO)](https://dossardpei.re/course/gto-2027-07/) : du vendredi 2 au dimanche 4 juillet 2027, Saint-Paul ; trail, 85 km (4 000 m D+), 50 km (1 900 m D+), 20 km (800 m D+) ; inscriptions bientôt
+- [Leu Oxygène Trail](https://dossardpei.re/course/leu-oxygene-trail-2027-07/) : du vendredi 30 au samedi 31 juillet 2027, Saint-Leu ; trail, 90 km (4 200 m D+), 55 km (3 100 m D+), 35 km (1 500 m D+), 10 km (500 m D+) ; inscriptions bientôt
+- [Trail Boucle Pic Adam](https://dossardpei.re/course/boucle-pic-adam-2027-08/) : samedi 7 août 2027, Saint-Denis ; trail, 25 km (1 100 m D+), 8 km ; inscriptions bientôt
+- [Réunion Tri Tour](https://dossardpei.re/course/reunion-tri-tour-2027-09/) : samedi 25 septembre 2027, Saint-Leu ; multisport, 271,7 km, 267 km ; inscriptions ouvertes jusqu’au 23 septembre
+- [Grand Raid de La Réunion](https://dossardpei.re/course/grand-raid-2027-10/) : du jeudi 14 au dimanche 17 octobre 2027, Saint-Pierre ; trail, 180 km (10 200 m D+), 160 km (8 460 m D+), 106 km (6 200 m D+), 74 km (3 800 m D+) ; inscriptions bientôt
+
+## Clubs
+
+- [Clubs péi](https://dossardpei.re/clubs/) : annuaire des clubs de course à pied et de trail de La Réunion (coordonnées, lieux d’entraînement, courses organisées)
+
+## Optional
+
+- [Plan du site](https://dossardpei.re/sitemap.xml)
+- [Contact](https://dossardpei.re/#contact) : signaler une course ou une erreur
