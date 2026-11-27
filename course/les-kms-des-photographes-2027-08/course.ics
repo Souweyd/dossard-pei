@@ -1,0 +1,42 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Dossard Pei//dossardpei.re//FR
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Les kms des photographes
+BEGIN:VEVENT
+UID:les-kms-des-photographes-2027-08-course@dossardpei.re
+DTSTAMP:20270822T000000Z
+SUMMARY:Les kms des photographes
+DTSTART:20270822T023000Z
+DURATION:PT5H
+LOCATION:Stade Lucien Simone\, Saint-Benoît\, La Réunion
+URL:https://dossardpei.re/course/les-kms-des-photographes-2027-08/
+DESCRIPTION:Formats :\n- Le Trail des Photographes : 06h30\n- Le Relais de
+ s Photographes : 06h30\n- La Rando des Photographes : 06h45\n- La Marche 
+ des Séniors des Photographes : 07h00\n\nFiche : https://dossardpei.re/co
+ urse/les-kms-des-photographes-2027-08/\nInscription : https://www.sportpr
+ o.re/courses/02192-les-kms-des-photographes/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-P2D
+DESCRIPTION:Les kms des photographes dans 2 jours
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:les-kms-des-photographes-2027-08-cloture@dossardpei.re
+DTSTAMP:20270822T000000Z
+SUMMARY:Clôture des inscriptions : Les kms des photographes
+DTSTART;VALUE=DATE:20270815
+DTEND;VALUE=DATE:20270816
+URL:https://www.sportpro.re/courses/02192-les-kms-des-photographes/
+DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
+ iption : https://www.sportpro.re/courses/02192-les-kms-des-photographes/\
+ nFiche : https://dossardpei.re/course/les-kms-des-photographes-2027-08/
+BEGIN:VALARM
+ACTION:DISPLAY
+TRIGGER:-PT6H
+DESCRIPTION:Inscriptions Les kms des photographes : clôture demain
+END:VALARM
+END:VEVENT
+END:VCALENDAR

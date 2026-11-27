@@ -2,7 +2,7 @@
 
 > Toutes les courses à pied de La Réunion au même endroit : trail, route, cross, multisport. Pour chaque course : date, lieu, formats (distance, dénivelé), tarifs, état des inscriptions et lien d’inscription officiel.
 
-Calendrier mis à jour toutes les heures à partir des plateformes d’inscription (Sport PRO, Top Chrono, Chrono Run 974, UTOI…) et des sites des organisateurs. 54 courses à venir au 27 novembre 2026 (32 trails, 13 courses sur route, 6 épreuves multisport, 2 relais et 1 course jeunes). Les informations de chaque fiche datent de la dernière synchronisation ; en cas de doute, la plateforme d’inscription fait foi.
+Calendrier mis à jour toutes les heures à partir des plateformes d’inscription (Sport PRO, Top Chrono, Chrono Run 974, UTOI…) et des sites des organisateurs. 55 courses à venir au 27 novembre 2026 (33 trails, 13 courses sur route, 6 épreuves multisport, 2 relais et 1 course jeunes). Les informations de chaque fiche datent de la dernière synchronisation ; en cas de doute, la plateforme d’inscription fait foi.
 
 ## Calendriers
 
@@ -73,6 +73,7 @@ Calendrier mis à jour toutes les heures à partir des plateformes d’inscripti
 - [Grand Trail de l'Ouest (GTO)](https://dossardpei.re/course/gto-2027-07/) : du vendredi 2 au dimanche 4 juillet 2027, Saint-Paul ; trail, 85 km (4 000 m D+), 50 km (1 900 m D+), 20 km (800 m D+) ; inscriptions bientôt
 - [Leu Oxygène Trail](https://dossardpei.re/course/leu-oxygene-trail-2027-07/) : du vendredi 30 au samedi 31 juillet 2027, Saint-Leu ; trail, 90 km (4 200 m D+), 55 km (3 100 m D+), 35 km (1 500 m D+), 10 km (500 m D+) ; inscriptions bientôt
 - [Trail Boucle Pic Adam](https://dossardpei.re/course/boucle-pic-adam-2027-08/) : samedi 7 août 2027, Saint-Denis ; trail, 25 km (1 100 m D+), 8 km ; inscriptions bientôt
+- [Les kms des photographes](https://dossardpei.re/course/les-kms-des-photographes-2027-08/) : dimanche 22 août 2027, Saint-Benoît ; trail, 22 km (415 m D+), 14 km, 12 km (135 m D+), 6 km ; inscriptions ouvertes jusqu’au 15 août
 - [Réunion Tri Tour](https://dossardpei.re/course/reunion-tri-tour-2027-09/) : samedi 25 septembre 2027, Saint-Leu ; multisport, 271,7 km, 267 km ; inscriptions ouvertes jusqu’au 23 septembre
 - [Grand Raid de La Réunion](https://dossardpei.re/course/grand-raid-2027-10/) : du jeudi 14 au dimanche 17 octobre 2027, Saint-Pierre ; trail, 180 km (10 200 m D+), 160 km (8 460 m D+), 106 km (6 200 m D+), 74 km (3 800 m D+) ; inscriptions bientôt
 
