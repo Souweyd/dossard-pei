@@ -699,6 +699,40 @@ FILTRE_JS = """// /calendrier/<page>/ : opens the site with the page's filter (r
 """
 
 
+def llms_txt(races):
+    """/llms.txt: the site presented to AI assistants (format proposed at llmstxt.org): what it is, the calendar
+    pages, every race to come in one line with a link to its page, the clubs. Rebuilt at each run."""
+    now_reu = (dt_mod.datetime.now(dt_mod.timezone.utc) + dt_mod.timedelta(hours=4)).strftime("%Y-%m-%dT%H:%M")
+    today = now_reu[:10]
+    up = sorted([r for r in races if (r.get("fin") or r["date"]) >= today], key=lambda r: (r["date"], r["nom"]))
+    live = [r for r in up if not r.get("annule")]
+    out = ["# Dossard Péi", "",
+           "> Toutes les courses à pied de La Réunion au même endroit : trail, route, cross, multisport. Pour chaque course : "
+           "date, lieu, formats (distance, dénivelé), tarifs, état des inscriptions et lien d’inscription officiel.", "",
+           f"Calendrier mis à jour toutes les heures à partir des plateformes d’inscription (Sport PRO, Top Chrono, Chrono Run 974, UTOI…) "
+           f"et des sites des organisateurs. {len(live)} courses à venir au {day_month(today)} {today[:4]}"
+           + (f" ({counts(live)})" if live else "") + ". Les informations de chaque fiche datent de la dernière synchronisation ; "
+           "en cas de doute, la plateforme d’inscription fait foi.", "",
+           "## Calendriers", "",
+           f"- [Tous les calendriers]({SITE}/{CAL}/) : par week-end, par mois et par discipline"]
+    for sl, lb in TH_LINKS:
+        desc = {"ce-week-end": "les courses du prochain week-end", "trail": "tous les trails à venir", "route": "toutes les courses sur route à venir",
+                "cross": "tous les cross à venir"}.get(sl, ("les courses d’" if lb[:1] in "AEIOUaeiou" else "les courses de ") + lb.lower())
+        out.append(f"- [{lb}]({SITE}/{CAL}/{sl}/) : {desc}")
+    out += ["", "## Courses à venir", ""]
+    for r in up:
+        st = race_state(r, today, now_reu)
+        sm = summary(r)
+        out.append(f"- [{r['nom']}]({SITE}/course/{r['id']}/) : {date_range(r)}, {r.get('commune', '')} ; {DISC[disc_of(r)].lower()}"
+                   + (f", {sm}" if sm else "") + f" ; {st}")
+    out += ["", "## Clubs", "",
+            f"- [Clubs péi]({SITE}/clubs/) : annuaire des clubs de course à pied et de trail de La Réunion (coordonnées, lieux d’entraînement, courses organisées)",
+            "", "## Optional", "",
+            f"- [Plan du site]({SITE}/sitemap.xml)",
+            f"- [Contact]({SITE}/#contact) : signaler une course ou une erreur", ""]
+    return nbsp_txt("\n".join(out)) if "nbsp_txt" in globals() else "\n".join(out)
+
+
 def theme_pages(races, logo):
     """{relative path: html} of the /calendrier/ pages, and the list of (slug, label) for the links"""
     now_reu = (dt_mod.datetime.now(dt_mod.timezone.utc) + dt_mod.timedelta(hours=4)).strftime("%Y-%m-%dT%H:%M")
@@ -957,6 +991,9 @@ def main():
         d = f"{CAL}/{sl}".rstrip("/"); os.makedirs(d, exist_ok=True)
         if not os.path.exists(f"{d}/index.html") or open(f"{d}/index.html", encoding="utf-8").read() != out:
             open(f"{d}/index.html", "w", encoding="utf-8").write(out)
+    lt = llms_txt(races)
+    if not os.path.exists("llms.txt") or open("llms.txt", encoding="utf-8").read() != lt:
+        open("llms.txt", "w", encoding="utf-8").write(lt)
     if os.path.isdir(CAL):   # months that have passed, disciplines without races: page removed
         for d in os.listdir(CAL):
             if os.path.isdir(f"{CAL}/{d}") and d not in th: shutil.rmtree(f"{CAL}/{d}", ignore_errors=True)
