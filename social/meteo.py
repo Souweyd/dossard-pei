@@ -36,6 +36,9 @@ SMALL = {'drop': '<path d="M12 3.5s-5.5 6.2-5.5 10a5.5 5.5 0 0 0 11 0c0-3.8-5.5-
          'wet': '<path d="M4 18c2 0 2-1.5 4-1.5s2 1.5 4 1.5 2-1.5 4-1.5 2 1.5 4 1.5"/><path d="M12 4s-3 3.4-3 5.5a3 3 0 0 0 6 0C15 7.4 12 4 12 4Z"/>'}
 
 
+SRC = 'MET Norway'
+
+
 def kind(s):
     s = s or ''
     if 'thunder' in s: return 'storm'
@@ -62,6 +65,9 @@ STEP = .5                                    # one race every half second
 
 def races(friday):
     wx = json.loads((ROOT / 'weather.json').read_text())
+    global SRC
+    # source de la prévision citée en bas de la story (rundata.re depuis le 27/11, MET Norway en secours)
+    SRC = 'rundata.re (Météo-France, ECMWF)' if 'rundata' in (wx.get('src') or '') else 'MET Norway'
     data, rs = load(); by = {r['id']: r for r in rs}
     days = {friday + D.timedelta(days=1), friday + D.timedelta(days=2)}
     out, seen = [], set()
@@ -189,7 +195,7 @@ body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S
 {''.join(pins)}{''.join(cards)}
 <div id="tag" class="anim">{picto.badge(wk)}<div class="s t">Météo des courses</div><div class="s n anim">{esc(title)}</div></div>
 <div id="foot" class="anim"><div class="b"><img src="{LOGO}"><div>Dossard Péi<small>dossardpei.re</small></div></div>
- <div class="src">{f"+ {more} autres courses sur dossardpei.re · " if more else ""}Prévisions MET Norway du {at.day:02d}/{at.month:02d} à {at.hour}h</div></div>
+ <div class="src">{f"+ {more} autres courses sur dossardpei.re · " if more else ""}Prévisions {SRC} du {at.day:02d}/{at.month:02d} à {at.hour}h</div></div>
 </body></html>'''
     page.n = len(items) + more
     page.ev = [(.25, 'pop', 520), (.6, 'pop', 700), (1.45, 'whoosh', 1.4)] + [e for k in range(len(items)) for e in ((T0 + k * STEP, 'pop', 620, .1, .4), (T0 + k * STEP + .15, 'tick', 1400, .05, .15), (T0 + k * STEP + .35, 'pop', 900, .1, .3))] + [(tf, 'chime')]
