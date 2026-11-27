@@ -67,7 +67,7 @@ def races(friday):
     wx = json.loads((ROOT / 'weather.json').read_text())
     global SRC
     # source de la prévision citée en bas de la story (rundata.re depuis le 27/11, MET Norway en secours)
-    SRC = 'rundata.re (Météo-France, ECMWF)' if 'rundata' in (wx.get('src') or '') else 'MET Norway'
+    SRC = 'rundata.re' if 'rundata' in (wx.get('src') or '') else 'MET Norway'
     data, rs = load(); by = {r['id']: r for r in rs}
     days = {friday + D.timedelta(days=1), friday + D.timedelta(days=2)}
     out, seen = [], set()
