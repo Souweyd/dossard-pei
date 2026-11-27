@@ -6,9 +6,9 @@
 (function () {
   if (window.__dpJeu) return; window.__dpJeu = 1;
   var URL = '/jeu/';
-  var CSS = '.dpjeu-pill{display:inline-flex!important;align-items:center;gap:6px;margin:6px 0 0 8px;background:#ffd400!important;color:#1d2523!important;border:0!important;text-decoration:none!important;white-space:nowrap;vertical-align:middle;width:auto!important;max-width:none!important}'
+  var CSS = '.dpjeu-pill{border-radius:99px;box-shadow:0 4px 14px rgba(0,0,0,.12);display:inline-flex!important;align-items:center;gap:6px;margin:6px 0 0 8px;background:#ffd400!important;color:#1d2523!important;border:0!important;text-decoration:none!important;white-space:nowrap;vertical-align:middle;width:auto!important;max-width:none!important}'
     + '.dpjeu-pill svg{width:18px!important;height:18px!important;min-width:0!important;flex:none;margin:0!important}'
-    + '.dpjeu-new{background:#c62828;color:#fff;font-size:12px;font-weight:700;padding:2px 7px;border-radius:99px;line-height:1.4}'
+    + '.dpjeu-pill .dpjeu-new{background:#c62828;color:#fff;font-size:12px!important;font-weight:700;padding:2px 7px;border-radius:99px;line-height:1.4;margin:0!important}'
     + '.dpjeu-card .rcard .pimg{object-fit:cover}'
     // petits écrans (iPhone SE) : l'affiche s'arrête au-dessus du texte de la carte
     + '@media (max-height:700px){.dpjeu-card .rcard{height:calc(100% - 384px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}}'
@@ -27,9 +27,9 @@
       var b = bs[i];
       if (b.nextElementSibling && b.nextElementSibling.classList.contains('dpjeu-pill')) continue;
       var a = document.createElement('a');
+      // la forme (marges intérieures, taille du texte) vient des règles du site pour la rangée .szrow :
+      // plus besoin de copier les styles calculés du bouton voisin, ce qui forçait un recalcul de toute la page
       a.className = 'dpjeu-pill';
-      var cs = getComputedStyle(b);
-      a.style.cssText = 'padding:' + cs.padding + ';border-radius:' + cs.borderRadius + ';font:' + cs.font + ';box-shadow:' + cs.boxShadow + ';line-height:' + cs.lineHeight;
       a.href = URL + '?ref=' + (b.closest('.rhome') ? 'accueil' : 'liste');
       a.innerHTML = BIB + 'Le jeu <span class="dpjeu-new">Nouveau</span>';
       b.insertAdjacentElement('afterend', a);
