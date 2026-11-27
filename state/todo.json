@@ -1,5 +1,5 @@
 {
- "at": "2026-11-27T08:03+04:00",
+ "at": "2026-11-27T10:05+04:00",
  "since": "2026-11-27T07:36:04+04:00",
  "rien": false,
  "sources": [
@@ -24,11 +24,6 @@
   {
    "id": "gto",
    "url": "https://www.grandtrail-ouest.re/",
-   "erreur": "URLError"
-  },
-  {
-   "id": "ultra-marathon-cirques-2027-06",
-   "url": "https://ultramarathondescirques.re/#umc-inscriptions",
    "erreur": "URLError"
   }
  ]
