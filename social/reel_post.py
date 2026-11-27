@@ -8,7 +8,7 @@ Sortie : social/out/reel/reel-<type>-<JOUR>.mp4 et …-couverture.jpg ; affiche 
 import sys, re, calendar, datetime as D
 from core import load, upcoming, week_index, dist_label, MAP, P_xy, _same, REGIONS, REGION_ORDER, ROOT, SOC, JOURS_C, MOIS, MOIS_C
 import nouveau as N
-import rec, sfx, picto
+import rec, sfx, picto, safe
 from gen import THEMES
 
 OUT = SOC / 'out' / 'reel'
@@ -56,7 +56,7 @@ def page(kind, ref, races):
     sel = S['sel']; n = len(sel); M = MAP(); E = N.esc; F = N.F
     bg, fg = picto.TAG[kind]
     # ---- final framing : whole island, or the region's communes
-    AX, AY, AW, AH = 540, 850, 940, 860                      # centre and size of the map area on screen
+    AX, AY, AW, AH = 540, 820, 780, 760                      # centre and size of the map area on screen (zone de sécurité 9:16, safe.py)
     if S['communes']:
         bb = [N.bbox(c) for c in S['communes']]; x0, y0, x1, y1 = min(b[0] for b in bb), min(b[1] for b in bb), max(b[2] for b in bb), max(b[3] for b in bb)
         KF = min(AW / (x1 - x0), AH / (y1 - y0), 3.2 * 1000 / M['W']); cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
@@ -72,7 +72,7 @@ def page(kind, ref, races):
         key = (round(px / 26), round(py / 26)); j = seen.get(key, 0); seen[key] = j + 1
         if j:
             a = j * 2.4; px += 30 * math.sqrt(j) * math.cos(a); py += 30 * math.sqrt(j) * math.sin(a)
-        P.append((min(W - 40, max(40, px)), min(AY + AH / 2 + 40, max(AY - AH / 2 - 40, py))))
+        P.append((min(safe.BTN_X - 20, max(safe.X0 + 20, px)), min(AY + AH / 2 + 40, max(AY - AH / 2 - 40, py))))
     T0 = 3.3; STEP = min(.55, 8.5 / n); TS = T0 + n * STEP + .35; DUR = TS + 4.0
     p = lambda t: f'{t / DUR * 100:.2f}%'
     d = lambda t: f'animation-delay:{t:.2f}s'
@@ -109,28 +109,28 @@ body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S
 .dim{{animation-name:dim}} @keyframes dim{{0%,{p(1.6)}{{opacity:0}} {p(2.8)},100%{{opacity:.6}}}}
 #tag{{position:absolute;left:0;right:0;top:0;display:flex;flex-direction:column;align-items:center;transform-origin:50% 0;animation-name:tag}}
 #tag .t{{background:{bg};color:{fg};font-size:84px;letter-spacing:1px;padding:10px 44px 14px;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.35);line-height:1}}
-#tag .n{{margin-top:22px;max-width:980px;background:{SURF};color:{INK};font-size:{nfs}px;line-height:1;text-align:center;padding:12px 40px 16px;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.3);animation-name:nm}}
+#tag .n{{margin-top:22px;max-width:{safe.BTN_X - (W - safe.BTN_X)}px;background:{SURF};color:{INK};font-size:{nfs}px;line-height:1;text-align:center;padding:12px 40px 16px;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.3);animation-name:nm}}
 @keyframes tag{{0%,{p(.25)}{{transform:translateY(700px) scale(.5);opacity:0}} {p(.25)}{{animation-timing-function:cubic-bezier(.3,1.6,.5,1)}}
-  {p(.8)},{p(1.5)}{{transform:translateY(700px) scale(1);opacity:1}} {p(1.5)}{{animation-timing-function:cubic-bezier(.6,0,.2,1)}} {p(2.5)},100%{{transform:translateY(150px) scale(.66);opacity:1}}}}
+  {p(.8)},{p(1.5)}{{transform:translateY(700px) scale(1);opacity:1}} {p(1.5)}{{animation-timing-function:cubic-bezier(.6,0,.2,1)}} {p(2.5)},100%{{transform:translateY({safe.Y0 + 8}px) scale(.66);opacity:1}}}}
 @keyframes nm{{0%,{p(.55)}{{opacity:0;transform:translateY(30px)}} {p(.55)}{{animation-timing-function:cubic-bezier(.2,.9,.3,1)}} {p(1.0)},100%{{opacity:1;transform:none}}}}
 {picto.badge_css(p)}
 .pin{{position:absolute;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:var(--c);border:7px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.55);animation:pop .45s both}}
 @keyframes pop{{0%{{opacity:0;transform:scale(.1)}} 55%{{opacity:1;transform:scale(1.5)}} 100%{{opacity:1;transform:scale(1)}}}}
 .ring{{position:absolute;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;border:6px solid #fff;animation:ring .8s both}}
 @keyframes ring{{0%{{opacity:0;transform:scale(.6)}} 15%{{opacity:.9}} 100%{{opacity:0;transform:scale(4.2)}}}}
-.cd{{position:absolute;left:50px;right:50px;top:1370px;height:216px;animation:cin .22s both}} @keyframes cin{{0%{{opacity:0;transform:translateY(40px) scale(.96)}} 100%{{opacity:1;transform:none}}}}
+.cd{{position:absolute;left:{safe.X0}px;right:{W - safe.X1}px;top:{safe.Y1 - 216}px;height:216px;animation:cin .22s both}} @keyframes cin{{0%{{opacity:0;transform:translateY(40px) scale(.96)}} 100%{{opacity:1;transform:none}}}}
 .cdo{{position:absolute;inset:0;background:{SURF};border-radius:30px;box-shadow:0 22px 46px rgba(4,20,30,.45);display:flex;align-items:center;overflow:hidden;animation:cout .12s both}} @keyframes cout{{0%{{opacity:1}} 100%{{opacity:0}}}}
 .cdo i{{width:22px;align-self:stretch;flex:none}} .cdo .tx{{flex:1;min-width:0;padding:0 26px 4px 30px}}
 .dt{{font-weight:700;font-size:34px;color:{TEAL}}} .nm{{font-size:66px;line-height:1.06;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}} .in{{font-weight:600;font-size:34px;color:{MUTED};white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
-.ct{{flex:none;padding:0 34px 0 0;font-size:84px;line-height:1;color:{INK}}} .ct small{{font-size:42px;color:{MUTED}}}
-#sum{{position:absolute;left:0;right:0;top:1350px;display:flex;flex-direction:column;align-items:center;gap:18px;animation-name:sum}}
+.ct{{flex:none;margin-right:{34 + safe.X1 - safe.BTN_X}px;font-size:84px;line-height:1;color:{INK}}} .ct small{{font-size:42px;color:{MUTED}}}
+#sum{{position:absolute;left:0;right:0;top:{safe.Y1 - 330}px;display:flex;flex-direction:column;align-items:center;gap:18px;animation-name:sum}}
 @keyframes sum{{0%,{p(TS + .1)}{{opacity:0;transform:scale(.5)}} {p(TS + .1)}{{animation-timing-function:cubic-bezier(.3,1.6,.5,1)}} {p(TS + .6)},100%{{opacity:1;transform:none}}}}
 #sum .b{{background:{bg};color:{fg};font-size:120px;line-height:1;padding:10px 50px 18px;border-radius:28px;box-shadow:0 20px 44px rgba(0,0,0,.4)}}
-#sum .l{{background:{SURF};font-weight:700;font-size:36px;white-space:nowrap;padding:10px 30px 12px;border-radius:18px;box-shadow:0 14px 30px rgba(0,0,0,.3)}}
-#foot{{position:absolute;left:0;right:0;top:1650px;display:flex;justify-content:center;animation-name:foot}}
+#sum .l{{background:{SURF};font-weight:700;font-size:26px;white-space:nowrap;padding:10px 30px 12px;border-radius:18px;box-shadow:0 14px 30px rgba(0,0,0,.3)}}
+#foot{{position:absolute;left:0;right:0;top:{safe.Y1 - 96}px;display:flex;justify-content:center;animation-name:foot}}
 @keyframes foot{{0%,{p(TS + .8)}{{opacity:0;transform:translateY(30px)}} {p(TS + 1.3)},100%{{opacity:1;transform:none}}}}
-#foot .b{{display:flex;align-items:center;gap:18px;background:#fff;border:5px solid {INK};border-radius:999px;padding:10px 36px 10px 14px;box-shadow:0 16px 30px rgba(4,20,30,.3)}}
-#foot .b img{{width:84px;display:block}} #foot .b div{{font:800 46px/1 S,sans-serif}} #foot .b small{{display:block;font:700 26px I,sans-serif;color:{TEAL};margin-top:3px}}
+#foot .b{{display:flex;align-items:center;gap:14px;background:#fff;border:5px solid {INK};border-radius:999px;padding:6px 30px 6px 10px;box-shadow:0 16px 30px rgba(4,20,30,.3)}}
+#foot .b img{{width:72px;display:block}} #foot .b div{{font:800 40px/1 S,sans-serif}} #foot .b small{{display:block;font:700 23px I,sans-serif;color:{TEAL};margin-top:3px}}
 </style></head><body>
 <div id="lens" class="anim"><div id="world" class="anim"><img src="{N.OCEAN}"><img src="{N.island()}">
  <svg width="{M['W']}" height="{M['H']}" viewBox="0 0 {M['W']} {M['H']}">{over}</svg></div></div>

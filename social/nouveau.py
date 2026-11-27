@@ -10,7 +10,7 @@ Requiert Playwright (Chromium préinstallé), Pillow et ffmpeg.
 """
 import sys, re, pathlib, html, datetime as D
 from core import load, status, MAP, P_xy, _same, poster_path, art_path, fmt_km, JOURS, JOURS_C, MOIS, MOIS_C, TYPE_COL, TYPE_EMO, ROOT, SOC
-import rec, sfx, picto
+import rec, sfx, picto, safe
 
 OUT = SOC / 'out' / 'nouveau'
 F = (SOC / 'fonts').as_uri()
@@ -97,6 +97,7 @@ def page(r):
     zc = (px, py)   # centred on the start
     PIN_Z = (W / 2 + (px - zc[0]) * k1, 900 + (py - zc[1]) * k1)      # pin on screen after the zoom
     PIN_F = (PIN_Z[0], PIN_Z[1] - 900 + 480)                            # after the shift up
+    STACK_Y = 610                                                       # fiche sous le repère, dans la zone de sécurité (safe.py)
     T0 = cam(k0 * .96, M['W'] / 2, M['H'] / 2, W / 2, 900)
     T1 = cam(k0, M['W'] / 2, M['H'] / 2, W / 2, 900)
     T2 = cam(k1, zc[0], zc[1], W / 2, 900)
@@ -109,8 +110,8 @@ def page(r):
     b1, b2, bc = badge(r)
     nm = r['nom']; nfs = 96 if len(nm) <= 20 else (80 if len(nm) <= 30 else 66); fs = 68 if len(nm) <= 20 else (58 if len(nm) <= 30 else 48)
     rw = rows(r); more = 0
-    if len(rw) > 5:
-        more = len(rw) - 4; rw = rw[:4]
+    if len(rw) > 4:                     # 4 lignes au plus pour rester dans la zone de sécurité (safe.py)
+        more = len(rw) - 3; rw = rw[:3]
     lieu = r.get('lieu') or ''
     lieu = '' if _same(lieu, [r['commune']]) else lieu
     communes = ''.join(f'<path d="{c["d"]}"/>' for c in M['communes'] if not _same(c['nom'], [r['commune']]))
@@ -121,7 +122,7 @@ def page(r):
       <span class="rn">{esc(n)}</span><span class="rh">{esc(h)}</span>
       <span class="rf">{f}{f'<em>{esc(dp)}</em>' if dp else ''}</span></div>''' for i, (t, n, h, f, dp) in enumerate(rw))
     if more:
-        rows_html += f'<div class="row more" style="animation-delay:{5.5 + 4 * .14:.2f}s">+ {more} autres formats</div>'
+        rows_html += f'<div class="row more" style="animation-delay:{5.5 + 3 * .14:.2f}s">+ {more} autres formats</div>'
     ncourses = len(r.get('epreuves', []))
     head = f"{ncourses} course{'s' if ncourses > 1 else ''} au programme" if ncourses > 1 else 'Au programme'
     import post_lundi as PL     # profil d'altitude qui se dresse, comme dans les reels (24/11/2026)
@@ -153,7 +154,7 @@ body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S
   {p(.8)}{{transform:translateY(700px) scale(1);opacity:1}} {p(1.5)}{{transform:translateY(700px) scale(1);opacity:1;animation-timing-function:cubic-bezier(.6,0,.2,1)}}
   {p(2.4)}{{transform:translateY(250px) scale(.62);opacity:1}} 100%{{transform:translateY(250px) scale(.62);opacity:1}}}}
 {picto.badge_css(p)}
-#tag .n{{margin-top:22px;max-width:940px;background:{SURF};color:{INK};font-weight:800;font-size:{nfs}px;line-height:.98;text-align:center;padding:14px 40px 18px;border-radius:22px;box-shadow:0 18px 40px rgba(29,37,35,.3);animation-name:nm}}
+#tag .n{{margin-top:22px;max-width:{safe.BTN_X - (W - safe.BTN_X)}px;background:{SURF};color:{INK};font-weight:800;font-size:{nfs}px;line-height:.98;text-align:center;padding:14px 40px 18px;border-radius:22px;box-shadow:0 18px 40px rgba(29,37,35,.3);animation-name:nm}}
 @keyframes nm{{0%,{p(.55)}{{opacity:0;transform:translateY(30px)}} {p(.55)}{{animation-timing-function:cubic-bezier(.2,.9,.3,1)}} {p(1.0)},{p(3.7)}{{opacity:1;transform:none}} {p(4.1)},100%{{opacity:0;transform:translateY(-10px)}}}}
 #pin{{position:absolute;left:0;top:0;animation-name:pinmove}}
 @keyframes pinmove{{0%,{p(3.9)}{{transform:translate({PIN_Z[0]:.0f}px,{PIN_Z[1]:.0f}px)}} {p(3.9)}{{animation-timing-function:cubic-bezier(.5,0,.2,1)}} {p(4.7)},100%{{transform:translate({PIN_F[0]:.0f}px,{PIN_F[1]:.0f}px)}}}}
@@ -164,24 +165,24 @@ body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S
 @keyframes ring{{0%,{p(3.5)}{{transform:scale(.2);opacity:0}} {p(3.55)}{{opacity:.9;transform:scale(.3)}} {p(4.3)},100%{{transform:scale(1.6);opacity:0}}}}
 .lab{{position:absolute;top:22px;left:0;transform:translateX(-50%);white-space:nowrap;text-align:center;animation-name:lab}}
 .lab b{{display:inline-block;background:{INK};color:#fff;font-family:S;font-weight:800;font-size:48px;padding:4px 26px 6px;border-radius:14px;line-height:1.05}}
-.lab i{{display:block;font-style:normal;font-weight:700;font-size:28px;color:#fff;margin-top:6px;text-shadow:0 1px 3px rgba(0,0,0,.8),0 0 10px rgba(0,0,0,.55)}}
+.lab i{{display:block;white-space:normal;width:max-content;max-width:{safe.X1 - safe.X0 - 60}px;margin-left:auto;margin-right:auto;font-style:normal;font-weight:700;font-size:28px;color:#fff;margin-top:6px;text-shadow:0 1px 3px rgba(0,0,0,.8),0 0 10px rgba(0,0,0,.55)}}
 @keyframes lab{{0%,{p(3.55)}{{opacity:0;transform:translate(-50%,14px)}} {p(3.9)},100%{{opacity:1;transform:translate(-50%,0)}}}}
-#stack{{position:absolute;left:36px;right:36px;top:700px}}
-#card{{position:relative;background:{SURF};border-radius:40px;box-shadow:0 -10px 50px rgba(29,37,35,.18),0 30px 60px rgba(29,37,35,.2);padding:40px 40px 26px;animation-name:card}}
+#stack{{position:absolute;left:{safe.X0}px;right:{W - safe.X1}px;top:{STACK_Y}px}}
+#card{{position:relative;background:{SURF};border-radius:40px;box-shadow:0 -10px 50px rgba(29,37,35,.18),0 30px 60px rgba(29,37,35,.2);padding:32px {34 + safe.X1 - safe.BTN_X}px 20px 34px;animation-name:card}}
 @keyframes card{{0%,{p(3.95)}{{transform:translateY(1500px);filter:blur(18px)}} {p(3.95)}{{animation-timing-function:cubic-bezier(.15,.85,.25,1)}} {p(4.8)},100%{{transform:translateY(0);filter:blur(0)}}}}
-.top{{display:flex;gap:36px;height:420px}}
-.post{{flex:0 0 300px;height:420px;display:flex;align-items:flex-start;justify-content:center;animation-name:post}}
-.post img{{max-width:300px;max-height:420px;border-radius:18px;box-shadow:0 14px 30px rgba(29,37,35,.28);display:block}}
+.top{{display:flex;gap:30px;height:340px}}
+.post{{flex:0 0 243px;height:340px;display:flex;align-items:flex-start;justify-content:center;animation-name:post}}
+.post img{{max-width:243px;max-height:340px;border-radius:18px;box-shadow:0 14px 30px rgba(29,37,35,.28);display:block}}
 @keyframes post{{0%,{p(4.5)}{{opacity:0;transform:scale(.9) rotate(-3deg)}} {p(5.0)},100%{{opacity:1;transform:scale(1) rotate(0)}}}}
-.info{{flex:1;min-width:0;display:flex;flex-direction:column;gap:22px;padding-top:4px}}
+.info{{flex:1;min-width:0;display:flex;flex-direction:column;gap:18px;padding-top:4px}}
 .f{{animation-name:f}} @keyframes f{{0%{{opacity:0;transform:translateY(16px)}} 6%,100%{{opacity:1;transform:none}}}}
 .nm{{font-weight:800;font-size:{fs}px;line-height:.98}}
 .ln{{display:flex;gap:14px;align-items:flex-start;font-size:31px;font-weight:600;line-height:1.2}}
 .ln svg{{flex:0 0 34px;margin-top:2px}} .ln small{{display:block;font-size:25px;font-weight:400;color:{MUTED};margin-top:3px}}
 .st{{display:inline-flex;flex-direction:column;align-self:flex-start;color:#fff;border-radius:16px;padding:10px 20px 11px;font-weight:700;font-size:28px;line-height:1.15}}
 .st small{{font-weight:600;font-size:24px;opacity:.92}}
-.ph{{font-family:S;font-weight:700;font-size:30px;letter-spacing:2px;text-transform:uppercase;color:{MUTED};margin:30px 0 8px}}
-.row{{display:grid;grid-template-columns:150px 1fr 84px 150px;align-items:center;gap:18px;min-height:72px;padding:8px 0;border-top:2px solid #ece4d8;animation-name:rin;animation-duration:{DUR}s;animation-fill-mode:both}}
+.ph{{font-family:S;font-weight:700;font-size:28px;letter-spacing:2px;text-transform:uppercase;color:{MUTED};margin:22px 0 6px}}
+.row{{display:grid;grid-template-columns:136px 1fr 78px 140px;align-items:center;gap:14px;min-height:60px;padding:5px 0;border-top:2px solid #ece4d8;animation-name:rin;animation-duration:{DUR}s;animation-fill-mode:both}}
 @keyframes rin{{0%{{opacity:0;transform:translateX(120px) skewX(-6deg);filter:blur(10px)}} 4%,100%{{opacity:1;transform:none;filter:blur(0)}}}}
 .ph2{{display:flex;align-items:flex-end;justify-content:space-between;gap:20px}}
 .spk{{margin-bottom:10px;transform-origin:50% 100%;animation-name:spk}}
@@ -192,8 +193,8 @@ body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S
 .rf{{font-family:S;font-weight:800;font-size:44px;text-align:right;line-height:.9}} .rf small{{font-size:28px}}
 .rf em{{display:block;font-family:I;font-style:normal;font-weight:600;font-size:22px;color:{MUTED};margin-top:4px}}
 .more{{display:block;line-height:72px;color:{MUTED};font-size:26px;font-weight:600}}
-#brand{{margin-top:34px;display:flex;justify-content:center;animation-name:brand}}
-#brand>div{{display:flex;align-items:center;gap:18px;background:#fff;border:5px solid {INK};border-radius:999px;padding:10px 34px 10px 14px;box-shadow:0 14px 26px rgba(29,37,35,.22)}}
+#brand{{margin-top:20px;display:flex;justify-content:center;animation-name:brand}}
+#brand>div{{display:flex;align-items:center;gap:14px;background:#fff;border:5px solid {INK};border-radius:999px;padding:6px 28px 6px 10px;box-shadow:0 14px 26px rgba(29,37,35,.22)}}
 @keyframes brand{{0%,{p(6.2)}{{opacity:0;transform:translateY(30px)}} {p(6.7)},100%{{opacity:1;transform:none}}}}
 </style></head><body>
 <div id="lens" class="anim"><div id="world" class="anim"><img src="{OCEAN}"><img src="{island()}">
@@ -219,9 +220,9 @@ body{{font-family:I,sans-serif;color:{INK};position:relative}} .s{{font-family:S
  <div class="ph2"><div class="ph f anim" style="animation-delay:5.4s">{esc(head)}</div>{f'<div class="spk anim">{spark}</div>' if spark else ''}</div>
  {rows_html}
 </div>
-<div id="brand" class="anim"><div><img src="{LOGO}" style="width:84px;display:block">
- <div><div class="s" style="font-weight:800;font-size:44px;line-height:.95">Dossard Péi</div>
- <div style="font-weight:700;font-size:26px;color:{TEAL};margin-top:2px">Parcours, infos et inscription · dossardpei.re</div></div></div></div></div>
+<div id="brand" class="anim"><div><img src="{LOGO}" style="width:64px;display:block">
+ <div><div class="s" style="font-weight:800;font-size:36px;line-height:.95">Dossard Péi</div>
+ <div style="font-weight:700;font-size:22px;color:{TEAL};margin-top:2px">Parcours, infos et inscription · dossardpei.re</div></div></div></div></div>
 </body></html>'''
 
 
@@ -298,7 +299,7 @@ def main(ids):
         f = OUT / f'_{rid}.html'; f.write_text(page(r))
         tmp = OUT / f'_{rid}.mp4'
         rec.record(f, tmp, DUR, stills=[(1.2, OUT / f'{rid}-couverture.jpg')])
-        n = min(len(rows(r)), 5)
+        n = min(len(rows(r)), 4)
         ev = [(.25, 'pop', 520), (.6, 'pop', 700), (1.45, 'whoosh', 1.8), (3.45, 'thud'), (3.9, 'whoosh', .75, .4),
               (4.55, 'pop', 480, .12, .35)] + [(5.5 + i * .14, 'tick', 1500 + 120 * i) for i in range(n)] + [(6.2, 'chime')]
         wav = OUT / f'_{rid}.wav'; sfx.track(ev, DUR, wav); sfx.mux(tmp, wav); wav.unlink()

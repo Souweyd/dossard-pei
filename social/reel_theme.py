@@ -11,7 +11,7 @@ Déroulé (≈ 16 à 23 s, bruitages sans musique) :
 import json, math, datetime as D
 from core import upcoming, week_index, MAP, P_xy, ROOT, JOURS_C, MOIS_C, fmt_km
 import nouveau as N
-import picto
+import picto, safe
 from gen import THEMES
 import post_lundi as PL
 
@@ -108,7 +108,7 @@ def page(ref, races):
     TR = T0 + K * STEP; TS = TR + (min(1.6, .5 + .07 * len(rest)) if rest else 0); DUR = TS + 5.2
     p = lambda x: f'{max(0, min(DUR, x)) / DUR * 100:.3f}%'
     css = []
-    AX, AY = 540, 760; KF = 900 / M['W']; cx, cy = M['W'] / 2, M['H'] / 2
+    AX, AY = 540, 745; KF = 780 / M['W']; cx, cy = M['W'] / 2, M['H'] / 2      # zone de sécurité 9:16 (safe.py)
     world = f'translate({AX - cx * KF:.1f}px,{AY - cy * KF:.1f}px) scale({KF:.4f})'
     pins, cards, seen = [], [], {}
     for i, r in enumerate(sel):
@@ -141,7 +141,7 @@ def page(ref, races):
             c, h = counter(f'd{i}', dp, ti + .25, 1.0, p, big=True); css.append(c); stats += f'<div class="s v dp">{h}<em> m D+</em></div>'
         pr = prof.get(r['id'])
         if pr:
-            lo, hi = min(pr), max(pr); w, h = 560, 170
+            lo, hi = min(pr), max(pr); w, h = 470, 170
             pts = ' '.join(f'{k / (len(pr) - 1) * w:.1f},{h - (v - lo) / max(1, hi - lo) * (h - 12):.1f}' for k, v in enumerate(pr))
             vis = (f'<svg class="pf anim" style="animation-name:pf{i}" width="{w}" height="{h}" viewBox="0 0 {w} {h}">'
                    f'<defs><linearGradient id="g{i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{col}" stop-opacity=".9"/><stop offset="1" stop-color="{col}" stop-opacity=".15"/></linearGradient></defs>'
@@ -164,7 +164,7 @@ def page(ref, races):
         more = f'<div id="more" class="s anim">+ {len(rest)} autre{"s" if len(rest) > 1 else ""}</div>'
         css.append(f'@keyframes more{{0%,{p(TR)}{{opacity:0;transform:scale(.5)}} {p(TR)}{{animation-timing-function:cubic-bezier(.3,1.6,.5,1)}} {p(TR + .4)},{p(TS)}{{opacity:1;transform:none}} {p(TS + .3)},100%{{opacity:0}}}}')
     # ---- final : les barres qui se dressent
-    BW = min(120, 860 // K - 22); bars = []
+    BW = min(110, 760 // K - 22); bars = []
     for i, r in enumerate(shown):
         if not vals[i]:
             continue
@@ -176,8 +176,8 @@ def page(ref, races):
                     f'<div class="fn">{E(r["nom"].split(" : ")[0].split(" (")[0])}</div></div>')
     ftitle = {'gros-dp': 'Le plus gros D+ de chaque course', 'premiere': 'La distance pour se lancer', 'relais': 'La distance du relais'}.get(tid, 'La plus longue distance de chaque course') + (f' (les {K} premières)' if rest else '')
     hc, hh = counter('hk', hk['val'], .45, 1.15, p, big=True); css.append(hc)
-    figs = (f'<div style="width:290px;height:392px">{PL.perso(ref, hk["pose"], "jeremi")}</div><div style="width:290px;height:392px;margin-left:-40px">{PL.perso(ref, hk["pose"], "nadia")}</div>'
-            if hk['duo'] else f'<div style="width:330px;height:446px">{PL.perso(ref, hk["pose"])}</div>')
+    figs = (f'<div style="width:232px;height:314px">{PL.perso(ref, hk["pose"], "jeremi")}</div><div style="width:232px;height:314px;margin-left:-32px">{PL.perso(ref, hk["pose"], "nadia")}</div>'
+            if hk['duo'] else f'<div style="width:270px;height:365px">{PL.perso(ref, hk["pose"])}</div>')
     ufs = 112 if len(hk['unit']) <= 10 else (84 if len(hk['unit']) <= 18 else 70)
     line = f'<div class="hl">{E(hk["line"])}</div>' if hk['line'] else ''
     html = f'''<!doctype html><html><head><meta charset="utf-8"><style>
@@ -214,26 +214,26 @@ body{{font-family:I,sans-serif;color:{INK};position:relative;--D:{DUR}s}} .s{{fo
 #hook .hl{{font-weight:700;font-size:48px;margin-top:18px}}
 #hook .ln{{height:12px;width:560px;margin:26px auto 0;border-radius:6px;background:#ffd400;box-shadow:0 0 30px rgba(255,212,0,.7);transform-origin:0 50%;animation-name:ln}}
 @keyframes ln{{0%,{p(1.0)}{{transform:scaleX(0)}} {p(1.0)}{{animation-timing-function:cubic-bezier(.2,.8,.2,1)}} {p(1.5)},100%{{transform:none}}}}
-#figs{{position:absolute;right:50px;top:1200px;display:flex;align-items:flex-end;animation-name:figs}}
+#figs{{position:absolute;right:{W - safe.BTN_X}px;bottom:{H - safe.Y1 - 30}px;display:flex;align-items:flex-end;animation-name:figs}}
 @keyframes figs{{0%,{p(1.05)}{{opacity:0;transform:translateY(260px)}} {p(1.05)}{{animation-timing-function:cubic-bezier(.3,1.4,.5,1)}} {p(1.5)},{p(HOOK - .1)}{{opacity:1;transform:none}} {p(HOOK - .1)}{{animation-timing-function:ease-in}} {p(HOOK + .25)},100%{{opacity:0;transform:translateY(300px)}}}}
-#bub{{position:absolute;left:70px;top:1250px;max-width:{'430' if hk['duo'] else '520'}px;background:{SURF};color:{INK};font-size:72px;line-height:1.02;padding:20px 36px 26px;border-radius:30px;box-shadow:0 18px 40px rgba(0,0,0,.35);transform-origin:100% 100%;animation-name:bub}}
+#bub{{position:absolute;left:{safe.X0}px;top:{safe.Y1 - 300}px;max-width:{'380' if hk['duo'] else '470'}px;background:{SURF};color:{INK};font-size:60px;line-height:1.02;padding:18px 30px 22px;border-radius:30px;box-shadow:0 18px 40px rgba(0,0,0,.35);transform-origin:100% 100%;animation-name:bub}}
 #bub:after{{content:"";position:absolute;right:-26px;bottom:34px;border:18px solid transparent;border-left:34px solid {SURF}}}
 @keyframes bub{{0%,{p(1.35)}{{opacity:0;transform:scale(.3);filter:blur(0)}} {p(1.35)}{{animation-timing-function:cubic-bezier(.3,1.6,.5,1)}} {p(1.7)},{p(HOOK - .1)}{{opacity:1;transform:none;filter:blur(0)}} {p(HOOK + .2)},100%{{opacity:0;transform:scale(.6) translateX(-200px);filter:blur(10px)}}}}
 #tag{{position:absolute;left:0;right:0;top:0;display:flex;flex-direction:column;align-items:center;transform-origin:50% 0;animation-name:tag}}
-#tag .t{{background:{bg};color:{fg};font-size:84px;letter-spacing:1px;padding:10px 44px 14px;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.35);line-height:1}}
-#tag .n{{margin-top:22px;max-width:980px;background:{SURF};color:{INK};font-size:{92 if len(t['short']) <= 18 else 74}px;line-height:1;text-align:center;padding:12px 40px 16px;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.3)}}
+#tag .t{{background:{bg};color:{fg};font-size:76px;letter-spacing:1px;padding:10px 44px 14px;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.35);line-height:1}}
+#tag .n{{margin-top:22px;max-width:{safe.BTN_X - (W - safe.BTN_X)}px;background:{SURF};color:{INK};font-size:{92 if len(t['short']) <= 18 else 74}px;line-height:1;text-align:center;padding:12px 40px 16px;border-radius:22px;box-shadow:0 18px 40px rgba(0,0,0,.3)}}
 @keyframes tag{{0%,{p(HOOK + .05)}{{transform:translateY(1300px) scale(.8);opacity:0;filter:blur(18px)}} {p(HOOK + .05)}{{animation-timing-function:cubic-bezier(.15,.85,.25,1)}}
-  {p(HOOK + .45)},{p(T0 - .75)}{{transform:translateY(840px) scale(1);opacity:1;filter:blur(0)}} {p(T0 - .75)}{{animation-timing-function:cubic-bezier(.6,0,.2,1)}} {p(T0 - .1)},{p(TS)}{{transform:translateY(150px) scale(.66);opacity:1;filter:blur(0)}}
-  {p(TS + .3)},100%{{transform:translateY(150px) scale(.66);opacity:0;filter:blur(0)}}}}
+  {p(HOOK + .45)},{p(T0 - .75)}{{transform:translateY(840px) scale(1);opacity:1;filter:blur(0)}} {p(T0 - .75)}{{animation-timing-function:cubic-bezier(.6,0,.2,1)}} {p(T0 - .1)},{p(TS)}{{transform:translateY({safe.Y0 + 8}px) scale(.66);opacity:1;filter:blur(0)}}
+  {p(TS + .3)},100%{{transform:translateY({safe.Y0 + 8}px) scale(.66);opacity:0;filter:blur(0)}}}}
 {picto.badge_css(p, t_in=HOOK + .2, t_out=T0 - .8)}
 .pin{{position:absolute;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:var(--c);border:7px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.55)}}
 .ring{{position:absolute;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;border:6px solid #fff}}
-.cd{{position:absolute;left:44px;right:44px;top:1170px;height:440px;background:{SURF};border-radius:34px;box-shadow:0 26px 60px rgba(4,20,30,.5);overflow:hidden;padding:26px 36px 0 52px}}
+.cd{{position:absolute;left:{safe.X0}px;right:{W - safe.X1}px;top:{safe.Y1 - 420}px;height:420px;background:{SURF};border-radius:34px;box-shadow:0 26px 60px rgba(4,20,30,.5);overflow:hidden;padding:24px {36 + safe.X1 - safe.BTN_X}px 0 48px}}
 .cd .bar{{position:absolute;left:0;top:0;bottom:0;width:22px}}
 .cd .top{{display:flex;justify-content:space-between;align-items:baseline}} .dt{{font-weight:700;font-size:36px;color:{TEAL}}}
 .ct{{font-size:64px;line-height:1;color:{INK}}} .ct small{{font-size:34px;color:{MUTED}}}
 .nm{{font-size:68px;line-height:1.04;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
-.row{{display:flex;align-items:flex-end;gap:26px;margin-top:20px}} .vis{{position:relative;width:560px;height:180px;flex:none}}
+.row{{display:flex;align-items:flex-end;gap:22px;margin-top:16px}} .vis{{position:relative;width:470px;height:180px;flex:none}}
 .pf{{position:absolute;left:0;bottom:0;transform-origin:50% 100%;overflow:visible}}
 .alt{{position:absolute;left:0;top:-6px;font-weight:700;font-size:28px;color:{MUTED}}}
 .gauge{{position:absolute;left:0;right:0;bottom:20px}} .gl{{font-weight:700;font-size:28px;color:{MUTED};margin-bottom:12px}}
@@ -241,7 +241,7 @@ body{{font-family:I,sans-serif;color:{INK};position:relative;--D:{DUR}s}} .s{{fo
 .st{{flex:1;text-align:right;padding-bottom:6px}} .v{{font-size:84px;line-height:1;color:{INK}}} .v em{{font-style:normal;font-size:44px;color:{MUTED}}}
 .v.dp{{color:{TEAL};margin-top:6px}}
 #more{{position:absolute;left:0;right:0;top:1300px;margin:auto;width:max-content;background:{SURF};color:{INK};font-size:80px;line-height:1;padding:14px 44px 20px;border-radius:26px;box-shadow:0 20px 44px rgba(0,0,0,.4);animation-name:more}}
-#fin{{position:absolute;left:60px;right:60px;top:300px;height:620px;background:{SURF};border-radius:34px;box-shadow:0 26px 60px rgba(4,20,30,.5);padding:34px 30px 0;animation-name:fin}}
+#fin{{position:absolute;left:{safe.X0}px;right:{W - safe.X1}px;top:{safe.Y0 + 70}px;height:620px;background:{SURF};border-radius:34px;box-shadow:0 26px 60px rgba(4,20,30,.5);padding:34px {30 + safe.X1 - safe.BTN_X}px 0 30px;animation-name:fin}}
 @keyframes fin{{0%,{p(TS + .1)}{{opacity:0;transform:translateY(160px) scale(.9);filter:blur(14px)}} {p(TS + .1)}{{animation-timing-function:cubic-bezier(.2,.9,.3,1)}} {p(TS + .5)},100%{{opacity:1;transform:none;filter:blur(0)}}}}
 #fin h2{{font-size:{56 if len(ftitle) <= 34 else (44 if len(ftitle) <= 42 else 38)}px;line-height:1;text-align:center;margin-bottom:24px}}
 #fin .bars{{display:flex;justify-content:center;align-items:flex-end;gap:22px;height:470px}}
@@ -250,7 +250,7 @@ body{{font-family:I,sans-serif;color:{INK};position:relative;--D:{DUR}s}} .s{{fo
 #sum{{position:absolute;left:0;right:0;top:1000px;display:flex;flex-direction:column;align-items:center;gap:18px;animation-name:sum}}
 @keyframes sum{{0%,{p(TS + 1.5)}{{opacity:0;transform:scale(.5)}} {p(TS + 1.5)}{{animation-timing-function:cubic-bezier(.3,1.6,.5,1)}} {p(TS + 2.0)},100%{{opacity:1;transform:none}}}}
 #sum .b{{background:{bg};color:{fg};font-size:120px;line-height:1;padding:10px 50px 18px;border-radius:28px;box-shadow:0 20px 44px rgba(0,0,0,.4)}}
-#sum .l{{background:{SURF};font-weight:700;font-size:36px;white-space:nowrap;padding:10px 30px 12px;border-radius:18px;box-shadow:0 14px 30px rgba(0,0,0,.3)}}
+#sum .l{{background:{SURF};font-weight:700;font-size:26px;white-space:nowrap;padding:10px 30px 12px;border-radius:18px;box-shadow:0 14px 30px rgba(0,0,0,.3)}}
 #foot{{position:absolute;left:0;right:0;top:1330px;display:flex;justify-content:center;animation-name:foot}}
 @keyframes foot{{0%,{p(TS + 2.2)}{{opacity:0;transform:translateY(30px)}} {p(TS + 2.7)},100%{{opacity:1;transform:none}}}}
 #foot .b{{display:flex;align-items:center;gap:18px;background:#fff;border:5px solid {INK};border-radius:999px;padding:10px 36px 10px 14px;box-shadow:0 16px 30px rgba(4,20,30,.3)}}
