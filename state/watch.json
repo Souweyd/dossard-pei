@@ -32,7 +32,9 @@
 "https://gotrail.run/calendrier-trails/reunion": {
 "at": "2026-11-26T22:06+04:00",
 "changed": "2026-11-26T22:06+04:00",
-"h": "5342740d3ccf36a088331f5383d9739c6806fe1adfa7d3bbe4eb2a18d035cebc"
+"h": "5342740d3ccf36a088331f5383d9739c6806fe1adfa7d3bbe4eb2a18d035cebc",
+"pending": "8ee3beb9383a92039347143ec6af7ddd62e3ee5eed2103f051d7aee7e5a33125",
+"since": "2026-11-27T18:05+04:00"
 },
 "https://ilop.re/ilop-sport/outdoor/": {
 "at": "2026-11-10T17:17+04:00",
@@ -47,7 +49,9 @@
 "https://running.life/calendrier-course-a-pied/reunion": {
 "at": "2026-11-26T22:06+04:00",
 "changed": "2026-11-26T22:06+04:00",
-"h": "2e8c8997d5c38f4477488fd8aaee6a48620eb5627fae77e83ee97ce9a9dc9015"
+"h": "2e8c8997d5c38f4477488fd8aaee6a48620eb5627fae77e83ee97ce9a9dc9015",
+"pending": "4f5d4037f2694920950294275180f215c4df8d344699cba6084c4b98fb504598",
+"since": "2026-11-27T18:05+04:00"
 },
 "https://sportinnovation.fr/Evenements/Inscriptions/9096/PRESENTIEL": {
 "at": "2026-10-27T19:08+04:00",
@@ -90,18 +94,14 @@
 "h": "a211a0b030f414bc282e2e54edc71478e75d13bbaf9d4fb20f6919c771f46413"
 },
 "https://www.grandraid-reunion.com/fr/les-courses/la-diagonale-des-fous/": {
-"at": "2026-11-27T14:03+04:00",
-"changed": "2026-11-27T14:03+04:00",
-"h": "b8a91ffb590abb875ccf763be60b434bf87028d15c5f50d9f63379ea1ac880eb",
-"pending": "30e783f6accd2c0e870dd9d2236b6b53ab504285a4bf1422f33a791fb064dd78",
-"since": "2026-11-27T17:02+04:00"
+"at": "2026-11-27T18:05+04:00",
+"changed": "2026-11-27T18:05+04:00",
+"h": "30e783f6accd2c0e870dd9d2236b6b53ab504285a4bf1422f33a791fb064dd78"
 },
 "https://www.huge-event.fr": {
 "at": "2026-11-20T15:05+04:00",
 "changed": "2026-11-20T15:05+04:00",
-"h": "6409a6109638f1280bae290c039a20189edffb18f12d001763ac96626c168806",
-"pending": "3f0908af8f0d310bbffb9a508cd63a47c0524efc7e5d0d6d9b298929ca8ab7d1",
-"since": "2026-11-27T17:02+04:00"
+"h": "6409a6109638f1280bae290c039a20189edffb18f12d001763ac96626c168806"
 },
 "https://www.tcsa-974.fr/evenements/2027/04/25/triathlonduathlon-du-colosse-2027-2565375": {
 "at": "2026-11-16T04:05+04:00",
