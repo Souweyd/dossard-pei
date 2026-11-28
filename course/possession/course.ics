@@ -21,20 +21,4 @@ TRIGGER:-P2D
 DESCRIPTION:Les Foulées de la Possession dans 2 jours
 END:VALARM
 END:VEVENT
-BEGIN:VEVENT
-UID:possession-cloture@dossardpei.re
-DTSTAMP:20261129T000000Z
-SUMMARY:Clôture des inscriptions : Les Foulées de la Possession
-DTSTART;VALUE=DATE:20261127
-DTEND;VALUE=DATE:20261128
-URL:https://www.sportpro.re/courses/02180-les-foulees-de-la-possession/
-DESCRIPTION:Dernier jour pour s’inscrire (selon l’organisateur). Inscr
- iption : https://www.sportpro.re/courses/02180-les-foulees-de-la-possessi
- on/\nFiche : https://dossardpei.re/course/possession/
-BEGIN:VALARM
-ACTION:DISPLAY
-TRIGGER:-PT6H
-DESCRIPTION:Inscriptions Les Foulées de la Possession : clôture demain
-END:VALARM
-END:VEVENT
 END:VCALENDAR
