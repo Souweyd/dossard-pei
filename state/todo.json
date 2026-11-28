@@ -1,5 +1,5 @@
 {
- "at": "2026-11-28T08:03+04:00",
+ "at": "2026-11-28T11:02+04:00",
  "since": "2026-11-28T07:36:27+04:00",
  "rien": true,
  "sources": [],
@@ -19,6 +19,11 @@
    "id": "gto",
    "url": "https://www.grandtrail-ouest.re/",
    "erreur": "URLError"
+  },
+  {
+   "id": "trail-grand-bassin-2027-06",
+   "url": "https://www.aajm.re/courses/trail-grand-bassin/",
+   "erreur": "TimeoutError"
   }
  ]
 }
