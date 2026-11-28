@@ -1,10 +1,15 @@
 {
- "at": "2026-11-28T16:06+04:00",
+ "at": "2026-11-28T17:02+04:00",
  "since": "2026-11-28T15:36:38+04:00",
  "rien": true,
  "sources": [],
  "avenir": [],
  "illisibles": [
+  {
+   "id": "aajm",
+   "url": "http://www.aajm.re",
+   "erreur": "URLError"
+  },
   {
    "id": "saint-benoit",
    "url": "https://www.saint-benoit.re/evenements/",
