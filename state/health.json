@@ -14,8 +14,10 @@
   }
  },
  "sportpro": {
-  "echecs": 0,
-  "etat": "ok",
+  "depuis": "2026-11-28T15:01+04:00",
+  "echecs": 1,
+  "erreur": "HTTPError: HTTP Error 500: Internal Server Error",
+  "etat": "ko",
   "ref": {
    "associees": 48,
    "epreuves": 62,
@@ -23,8 +25,10 @@
   }
  },
  "sportpro_pages": {
-  "echecs": 0,
-  "etat": "ok",
+  "depuis": "2026-11-28T15:01+04:00",
+  "echecs": 1,
+  "erreur": "HTTPError sur https://www.sportpro.re/courses/02192-les-kms-des-photographes/",
+  "etat": "ko",
   "ref": {
    "pages": 21
   }
@@ -37,10 +41,8 @@
   }
  },
  "topchrono": {
-  "depuis": "2026-11-28T14:01+04:00",
-  "echecs": 1,
-  "erreur": "HTTPError: HTTP Error 500: Internal Server Error",
-  "etat": "ko",
+  "echecs": 0,
+  "etat": "ok",
   "ref": {
    "pages": 115
   }
