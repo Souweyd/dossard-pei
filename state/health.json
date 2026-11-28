@@ -37,8 +37,10 @@
   }
  },
  "topchrono": {
-  "echecs": 0,
-  "etat": "ok",
+  "depuis": "2026-11-28T14:01+04:00",
+  "echecs": 1,
+  "erreur": "HTTPError: HTTP Error 500: Internal Server Error",
+  "etat": "ko",
   "ref": {
    "pages": 115
   }
