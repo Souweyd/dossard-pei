@@ -45,11 +45,9 @@
 "h": "1acfb15da7452ffd3cd030faa30fc3c846c14b002ac5a6e69f6be38bf20f7539"
 },
 "https://running.life/calendrier-course-a-pied/reunion": {
-"at": "2026-11-27T19:06+04:00",
-"changed": "2026-11-27T19:06+04:00",
-"h": "4f5d4037f2694920950294275180f215c4df8d344699cba6084c4b98fb504598",
-"pending": "8edcaa8a4ec80034fb31843d892ab77103658fbd10f4a7ca5dffce1ee16ca756",
-"since": "2026-11-28T12:04+04:00"
+"at": "2026-11-28T13:06+04:00",
+"changed": "2026-11-28T13:06+04:00",
+"h": "8edcaa8a4ec80034fb31843d892ab77103658fbd10f4a7ca5dffce1ee16ca756"
 },
 "https://sportinnovation.fr/Evenements/Inscriptions/9096/PRESENTIEL": {
 "at": "2026-10-27T19:08+04:00",
@@ -99,7 +97,9 @@
 "https://www.huge-event.fr": {
 "at": "2026-11-27T21:04+04:00",
 "changed": "2026-11-27T21:04+04:00",
-"h": "3f0908af8f0d310bbffb9a508cd63a47c0524efc7e5d0d6d9b298929ca8ab7d1"
+"h": "3f0908af8f0d310bbffb9a508cd63a47c0524efc7e5d0d6d9b298929ca8ab7d1",
+"pending": "6409a6109638f1280bae290c039a20189edffb18f12d001763ac96626c168806",
+"since": "2026-11-28T13:06+04:00"
 },
 "https://www.tcsa-974.fr/evenements/2027/04/25/triathlonduathlon-du-colosse-2027-2565375": {
 "at": "2026-11-16T04:05+04:00",
