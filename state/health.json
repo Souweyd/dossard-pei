@@ -15,7 +15,7 @@
  },
  "sportpro": {
   "depuis": "2026-11-28T15:01+04:00",
-  "echecs": 1,
+  "echecs": 2,
   "erreur": "HTTPError: HTTP Error 500: Internal Server Error",
   "etat": "ko",
   "ref": {
@@ -34,8 +34,10 @@
   }
  },
  "sportpro_prix": {
-  "echecs": 0,
-  "etat": "ok",
+  "depuis": "2026-11-28T16:01+04:00",
+  "echecs": 1,
+  "erreur": "HTTPError sur https://www.sportpro.re/courses/epreuves/07488-ti-bertel-run/",
+  "etat": "ko",
   "ref": {
    "prix": 44
   }
